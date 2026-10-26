@@ -2,6 +2,14 @@
 
 Recorded 2026-10-26. This is the proposed development sequence agreed in the planning discussion, not a claim that the work below is implemented. [Capabilities](capabilities.md) records current behavior; [verification](verification.md) records checks actually performed. No delivery dates or individual owners are assigned here.
 
+## Current position
+
+The foundation, first structural rendering slice and visualization example library are committed in `a2d0d91` on `feat/clean-foundation`. Step 1 has the bounded assembly coverage described below; its broader notation and accessibility targets remain open. Step 2 is the next implementation task: preserve layout using verified correspondence across source revisions. Applied source and accepted semantic changes currently clear all stored presentations.
+
+The [identity investigation](architecture/identity-reconciliation.md) now compares fresh parses, definition/usage renames, an unrelated-file edit, offset shifts, reordered/inserted usages, file/owner moves and changed types. It records a counterexample where unchanged symbol/origin/context IDs identify the wrong usage, and tests a bounded rename join using verified Toolkit byte splices. The next implementation task is to carry validated edit evidence into proposals and retain only positions with verified declaration and complete usage-context matches. Arbitrary-draft preservation still needs a bounded policy and regression evidence.
+
+Graphical part creation and connection commands in step 3 remain planned. The current semantic command contract supports only rename and view creation. The example library supplies additional rendering targets and known gaps; it does not complete those renderers or change the sequence below.
+
 ## Next milestone: edit a small assembly in either presentation
 
 An engineer should be able to open a small assembly, understand its ownership and connections, create a typed part and connect compatible ports through the diagram, inspect/apply the resulting source changes, and continue in source without losing unrelated content or compatible layout.

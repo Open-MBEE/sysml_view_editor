@@ -27,6 +27,8 @@ Source application validates drafts independently of the previous applied snapsh
 
 Source changes conservatively invalidate presentation mappings. A future identity reconciliation policy must use verified mappings and dedicated fixtures. A source transaction can succeed while a renderer is unsupported; the workbench reports that separately.
 
+The [identity investigation](identity-reconciliation.md) compares real worker outputs across revisions and tests a bounded rename mapping through verified Toolkit byte splices. Renderer symbols, declaration spans and usage contexts are revision-scoped; even unchanged values can identify another usage after an edit. Reconciliation remains unimplemented.
+
 ## Views
 
 Named views are actual SysML usages. Open existing views without authoring another declaration. New view takes a subject, representation and name; package ownership is advanced configuration. Definitions, exposure and filters remain source content. The canvas is a derived artifact and does not serialize the model.

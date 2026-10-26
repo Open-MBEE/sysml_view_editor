@@ -30,6 +30,8 @@ The [example catalog](../examples/README.md) supplies independent source project
 
 ## Test outcomes
 
+The [identity investigation](architecture/identity-reconciliation.md) runs the compiled production workers directly to compare model/view identities across source revisions. Run `npm run test:e2e -- --project=functional identity.spec.ts` for the source-change matrix and Toolkit UTF-8 splice/correspondence probe. These are worker/SDK contract checks; they do not assert that the UI retains layout after applying source. Full source inputs, evaluations, edit reports and candidate mappings are retained as JSON attachments in each scenario's output directory.
+
 Write a concrete expected outcome before implementation. Explore the actual UI to choose accessible locators; prefer role/name or label over CSS structure. Keep special renderer coordinate reads in `tests/e2e/support.ts`. Compare model-space positions, since camera fit/zoom can change screen coordinates without changing saved geometry.
 
 Use real engines for supported semantic command acceptance, source application, and save/reopen. Controlled workspace responses remain useful for stale/forged proposals and cancellation. Network failure tests must establish that the injected failure occurred and check retained work plus recovery after removing the fault. A mocked engine result is not evidence of engine conformance.

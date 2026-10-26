@@ -1,4 +1,37 @@
-# Initial foundation verification
+# Verification record
+
+## Identity investigation checkpoint
+
+Recorded 2026-10-26 after the foundation commit. The [identity investigation](architecture/identity-reconciliation.md) and its [source-contract notes](architecture/engine-identity-sources.md) cover source-revision comparisons and the conditions for matching repeated usages. This pass adds documentation and worker/SDK browser checks; automatic layout reconciliation is not implemented.
+
+Environment: Node 26.3.1, npm 11.16.0, the locked Playwright installation and bundled Chromium, with the existing pinned/prepared browser engines.
+
+| Command/check                                                                                                                             | Observed result                                                                                                                                                                          |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run check`                                                                                                                           | Passed formatting, architecture and TypeScript checks, 44 Vitest tests and 5 Node script tests                                                                                           |
+| `npm run build`                                                                                                                           | Passed prepared-engine verification, TypeScript and static build; the existing main-chunk size warning remains                                                                           |
+| `npm run test:e2e -- --project=functional identity.spec.ts --max-failures=1 --output sandbox/playwright/identity-results --reporter=list` | Final normal run: 2 passed in 47.3 seconds, no skipped tests                                                                                                                             |
+| `npm run test:e2e -- --config sandbox/identity-faults/playwright.config.ts --grep 'investigates identity' --max-failures=1`               | Deliberately faulted copy failed at the distinct-usage-context assertion: expected 3 contexts, received 1. The normal spec was unchanged by this fault; its subsequent normal run passed |
+
+The first scenario captures 11 source sets and both assembly views for each. The second records actual Toolkit UUID changes and filename-keyed UTF-8 byte splices, verifies exact replay against the transformation worker's sources, and joins all 15/10 view correspondences through transported origins and complete usage contexts. It also checks the existing rename postconditions. JSON inputs, models, evaluations, provenance, edit reports and matches are retained under `sandbox/playwright/identity-results/`.
+
+The fault experiment erases repeated-port context arrays in an isolated copied assertion helper after receiving real engine replies. This checks the regression assertion's sensitivity; it is not an engine defect or evidence of application layout retention. Its copied spec/config, trace and report remain under `sandbox/identity-faults/`, `sandbox/playwright/identity-fault-results/` and `sandbox/playwright/identity-fault-report/`.
+
+Full UI/visual suites, the security audit, Firefox/WebKit and hosted CI were not rerun for these documentation/test-only changes. No production source, dependencies, engine pins, project formats or visual baselines changed. Earlier full-suite results remain historical records below.
+
+## Foundation commit checkpoint
+
+Recorded 2026-10-26. The foundation, structural rendering slice and example library are committed in `a2d0d91` (`feat: establish SysML v2 view editor foundation`) on `feat/clean-foundation`. The working tree was clean immediately after that commit.
+
+The pre-commit verification used Node 26.3.1 and npm 11.16.0:
+
+- `npm run check` passed formatting, architecture and TypeScript checks, 44 Vitest tests and 5 Node script tests.
+- `npm run build` passed prepared-engine verification, TypeScript and the static build. Vite reported the existing chunk-size warning; the main JavaScript chunk was approximately 2.10 MB before gzip.
+- Browser scenarios and the security audit were not rerun for this commit. Their earlier recorded results appear below and remain historical evidence.
+
+The commit was created locally; no push, hosted CI run or deployment was performed in this checkpoint. The sections below retain the checks reported during development before the initial commit, including their original scope and limitations.
+
+## Initial foundation
 
 Recorded 2026-10-26 against the uncommitted `feat/clean-foundation` working tree. These are local results, not hosted CI or publication evidence.
 

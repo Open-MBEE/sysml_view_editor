@@ -18,4 +18,6 @@ This catalogue describes the current implementation. Check `docs/verification.md
 
 The previous app remains the reference for features to evaluate and reintroduce through complete vertical slices. This repository does not claim full SysML v2 language, notation, execution or interchange conformance.
 
+Graphical part creation and port-connection authoring are not implemented. The [next milestone](next-steps.md) first addresses verified identity and layout retention across source revisions: applying source or accepting a semantic proposal currently clears stored presentations, including positions in other named views.
+
 The [visualization example library](../examples/README.md) records representative models, named views, intended visual quality and current gaps. Its checks distinguish successful engine evaluation from application rendering; use-case, package-graph and other unsupported renderer fixtures remain explicit development targets.

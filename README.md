@@ -48,7 +48,7 @@ The framework-independent workspace modules live in `src/lib/workspace/`. Engine
 - [Architecture and module interfaces](docs/architecture/README.md)
 - [Architecture decisions](docs/decisions/0001-foundation.md)
 - [Contributor guide](CONTRIBUTING.md)
-- [Next steps and milestone acceptance criteria](docs/next-steps.md)
+- [Next steps: identity/layout preservation, then graphical authoring](docs/next-steps.md)
 - [Local verification results](docs/verification.md)
 - [Security reporting](SECURITY.md)
 - [License and provenance](NOTICE)
