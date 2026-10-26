@@ -1,0 +1,501 @@
+{
+  "version": 1,
+  "examples": [
+    {
+      "id": "comments",
+      "title": "Comments and documentation",
+      "topics": [
+        "comments",
+        "documentation",
+        "annotations",
+        "unicode",
+        "long-labels"
+      ],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "DocumentationViews::overview",
+          "engineKind": "tree",
+          "app": "partial",
+          "nodeNames": [
+            "CommentExample::Pump",
+            "CommentExample::ServiceLoop",
+            "pump"
+          ],
+          "edgeKinds": ["composition"],
+          "targets": [
+            "Keep line and block comments intact in source.",
+            "Show documentation and semantic comment callouts anchored to the correct element.",
+            "Preserve Unicode punctuation and text through download/reopen.",
+            "Fit qualified names inside their symbols at a readable scale."
+          ],
+          "gaps": [
+            "Documentation and semantic comment callouts are not drawn or transported as note bodies/anchors by the current bridge.",
+            "Long qualified labels can extend past the fixed-width tree nodes."
+          ],
+          "notices": []
+        },
+        {
+          "id": "DocumentationViews::maintenance",
+          "engineKind": "interconnection",
+          "app": "partial",
+          "nodeNames": ["CommentExample::ServiceLoop", "pump"],
+          "edgeKinds": [],
+          "targets": [
+            "Keep the documented ServiceLoop and its pump visually distinct.",
+            "Make maintenance notes readable without confusing them with model elements."
+          ],
+          "gaps": [
+            "The structural diagram renders the parts; semantic documentation/comment callouts remain unavailable."
+          ],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "packages",
+      "title": "Packages and imports",
+      "topics": ["packages", "imports", "ownership", "multiple-files"],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "OrganizationViews::outline",
+          "engineKind": "tree",
+          "app": "partial",
+          "nodeNames": [
+            "Organization::Common",
+            "Sensor",
+            "Organization::Control",
+            "Controller",
+            "feedback",
+            "Organization::Plant",
+            "Installation",
+            "controller"
+          ],
+          "edgeKinds": ["composition", "composition"],
+          "targets": [
+            "Show nested package/type ownership without merging similarly named elements.",
+            "Preserve resolution of Controller and Sensor across private imports."
+          ],
+          "gaps": [
+            "The outline is a flat tree; package containers and import arrows require the package renderer."
+          ],
+          "notices": []
+        },
+        {
+          "id": "OrganizationViews::dependencies",
+          "engineKind": "package",
+          "app": "unavailable",
+          "nodeNames": [
+            "Organization",
+            "Organization::Common",
+            "Organization::Control",
+            "Organization::Plant"
+          ],
+          "edgeKinds": [
+            "containment",
+            "containment",
+            "import",
+            "containment",
+            "import"
+          ],
+          "targets": [
+            "Draw package containment separately from import dependencies.",
+            "Keep Common, Control and Plant legible with directional import relationships."
+          ],
+          "gaps": [
+            "The engine emits a package graph, but the application has no package-graph renderer."
+          ],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "parts",
+      "title": "Parts and definitions (blocks)",
+      "topics": [
+        "parts",
+        "blocks",
+        "definitions",
+        "usages",
+        "specialization",
+        "references",
+        "repeated-names"
+      ],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "PartViews::structure",
+          "engineKind": "interconnection",
+          "app": "rendered",
+          "nodeNames": [
+            "PartExample::Machine",
+            "left",
+            "motor",
+            "right",
+            "motor",
+            "operator"
+          ],
+          "edgeKinds": [],
+          "targets": [
+            "Nest each motor inside its own left/right owner.",
+            "Keep two motor usages of the same definition distinct when selected.",
+            "Distinguish the reference operator with text and border notation."
+          ],
+          "gaps": [],
+          "notices": []
+        },
+        {
+          "id": "PartViews::definitions",
+          "engineKind": "definition",
+          "app": "partial",
+          "nodeNames": [
+            "PartExample::Drive",
+            "PartExample::ElectricDrive",
+            "PartExample::Operator",
+            "PartExample::Machine"
+          ],
+          "edgeKinds": ["specialization", "reference"],
+          "targets": [
+            "Show Drive, ElectricDrive, Operator and Machine as distinct definitions.",
+            "Distinguish specialization from reference relationships."
+          ],
+          "gaps": [
+            "Definition graphs use generic lines; relationship-specific arrowheads and fallback kind labels are incomplete."
+          ],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "ports",
+      "title": "Ports and conjugation",
+      "topics": ["ports", "interfaces", "connections", "conjugation"],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "InterfaceViews::link",
+          "engineKind": "interconnection",
+          "app": "partial",
+          "nodeNames": ["PortExample::Link", "sender", "receiver"],
+          "edgeKinds": ["connection"],
+          "targets": [
+            "Attach commandLink to sender.command and receiver.command.",
+            "Preserve the Command versus ~Command type distinction.",
+            "Show effective payload directions when conjugation support is implemented.",
+            "Route connections clear of port labels, including undirected boundary endpoints."
+          ],
+          "gaps": [
+            "Conjugated port type labels are retained; effective directions and payload features are not expanded into full boundary notation.",
+            "Current undirected boundary placement can route a connection through a port label."
+          ],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "use-cases",
+      "title": "Use cases and actors",
+      "topics": ["use-cases", "actors", "subjects", "include", "objectives"],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "OperationViews::scenarios",
+          "engineKind": "case",
+          "app": "unavailable",
+          "nodeNames": [
+            "Operations::'Operate station'",
+            "station",
+            "operator",
+            "",
+            "inspection",
+            "station",
+            "inspector"
+          ],
+          "edgeKinds": [
+            "association",
+            "association",
+            "anchor",
+            "include",
+            "association",
+            "association"
+          ],
+          "targets": [
+            "Show the Operate station subject, operator actor and inspection include.",
+            "Use readable case and actor notation with the objective attached to its case."
+          ],
+          "gaps": [
+            "The engine emits a case artifact; the application has no case renderer."
+          ],
+          "notices": []
+        },
+        {
+          "id": "OperationViews::definitions",
+          "engineKind": "case",
+          "app": "unavailable",
+          "nodeNames": [
+            "Operations::'Inspect station'",
+            "station",
+            "inspector"
+          ],
+          "edgeKinds": ["association", "association"],
+          "targets": [
+            "Show the Inspect station definition with its subject and inspector actor.",
+            "Retain quoted multi-word names without losing subject/actor relationships."
+          ],
+          "gaps": [
+            "The engine emits a case artifact; the application has no case renderer."
+          ],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "requirements",
+      "title": "Requirements and satisfaction",
+      "topics": [
+        "requirements",
+        "documentation",
+        "constraints",
+        "satisfaction"
+      ],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "CapacityViews::requirements",
+          "engineKind": "requirement",
+          "app": "unavailable",
+          "nodeNames": [
+            "CapacityRequirements::MinimumCapacity",
+            "CapacityRequirements::usableCapacity",
+            "CapacityRequirements::storage"
+          ],
+          "edgeKinds": ["typing", "satisfy"],
+          "targets": [
+            "Display requirement identifiers and readable requirement text.",
+            "Distinguish requirement typing from the storage satisfaction relationship.",
+            "Treat the declared constraint as model content, without claiming an execution result."
+          ],
+          "gaps": [
+            "The engine emits a requirement graph; the application has no requirement renderer."
+          ],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "actions",
+      "title": "Actions and successions",
+      "topics": ["actions", "behavior", "succession", "parameters"],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "WorkflowViews::process",
+          "engineKind": "action",
+          "app": "unavailable",
+          "nodeNames": [
+            "Workflow::Process",
+            "start",
+            "collect",
+            "inspect",
+            "archive",
+            "done"
+          ],
+          "edgeKinds": ["succession", "succession", "succession", "succession"],
+          "targets": [
+            "Show the collect, inspect and archive order from start to done.",
+            "Retain typed inspection parameters and distinguish them from control succession.",
+            "Do not imply that rendering the workflow executes it."
+          ],
+          "gaps": [
+            "The engine emits an action artifact; the application has no action-flow renderer."
+          ],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "states",
+      "title": "States and transitions",
+      "topics": ["states", "nested-states", "transitions", "initial-state"],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "LifecycleViews::states",
+          "engineKind": "state",
+          "app": "unavailable",
+          "nodeNames": [
+            "Lifecycle::StationStates",
+            "",
+            "idle",
+            "active",
+            "",
+            "processing"
+          ],
+          "edgeKinds": ["transition", "transition", "transition", "transition"],
+          "targets": [
+            "Keep processing nested inside active.",
+            "Distinguish initial-state markers from named states.",
+            "Show startWork and finishWork transition endpoints clearly."
+          ],
+          "gaps": [
+            "The engine emits a state artifact; the application has no state-transition renderer."
+          ],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "sequences",
+      "title": "Messages and sequence ordering",
+      "topics": ["sequences", "messages", "occurrences", "ordering"],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "InteractionViews::exchange",
+          "engineKind": "sequence",
+          "app": "unavailable",
+          "nodeNames": ["client", "server"],
+          "edgeKinds": ["flow", "flow"],
+          "targets": [
+            "Show client and server as distinct lifelines.",
+            "Draw request and reply against their declared events.",
+            "Respect the succession from server.received to server.sent."
+          ],
+          "gaps": [
+            "The engine emits a sequence artifact; the application has no sequence renderer."
+          ],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "filters",
+      "title": "Filtered and empty views",
+      "topics": ["filters", "metadata", "recursive-exposure", "empty-view"],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "SelectionViews::reviewed",
+          "engineKind": "tree",
+          "app": "rendered",
+          "nodeNames": [
+            "Selection::CriticalUnit",
+            "Selection::Equipment::BackupUnit"
+          ],
+          "edgeKinds": [],
+          "targets": [
+            "Include only the two Review-marked definitions, including nested BackupUnit.",
+            "Keep the unmarked OrdinaryUnit out of this view."
+          ],
+          "gaps": [],
+          "notices": []
+        },
+        {
+          "id": "SelectionViews::empty",
+          "engineKind": "tree",
+          "app": "rendered",
+          "nodeNames": [],
+          "edgeKinds": [],
+          "targets": [
+            "Show a valid empty view without substituting another view.",
+            "Keep source and named-view navigation usable when no elements pass the filter."
+          ],
+          "gaps": [],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "workshop",
+      "title": "Workshop foundation",
+      "topics": ["multiple-files", "shared-types", "rename", "tree"],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "WorkshopViews::overview",
+          "engineKind": "tree",
+          "app": "rendered",
+          "nodeNames": [
+            "Workshop::Motor",
+            "Workshop::Compressor",
+            "primary",
+            "standby"
+          ],
+          "edgeKinds": ["composition", "composition"],
+          "targets": [
+            "Show both Motor usages and their shared definition.",
+            "Keep the active view stable when changing source files."
+          ],
+          "gaps": [],
+          "notices": []
+        },
+        {
+          "id": "WorkshopViews::compressor",
+          "engineKind": "interconnection",
+          "app": "rendered",
+          "nodeNames": ["Workshop::Compressor", "primary", "standby"],
+          "edgeKinds": [],
+          "targets": [
+            "Nest primary and standby inside Compressor.",
+            "Preserve compatible per-view presentation through save/reopen."
+          ],
+          "gaps": [],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "assembly",
+      "title": "Nested assembly",
+      "topics": [
+        "assembly",
+        "nested-parts",
+        "directed-ports",
+        "connections",
+        "references",
+        "usage-context"
+      ],
+      "files": ["model.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "AssemblyViews::structure",
+          "engineKind": "interconnection",
+          "app": "rendered",
+          "nodeNames": [
+            "Assembly::Station",
+            "bay",
+            "primary",
+            "standby",
+            "monitor"
+          ],
+          "edgeKinds": ["connection"],
+          "targets": [
+            "Show Station, bay and repeated Device usages in their correct context.",
+            "Attach handoff to primary.output and standby.input.",
+            "Move groups and children without changing semantic ownership or source."
+          ],
+          "gaps": [],
+          "notices": []
+        },
+        {
+          "id": "AssemblyViews::devices",
+          "engineKind": "interconnection",
+          "app": "partial",
+          "nodeNames": ["Assembly::Station::bay", "primary", "standby"],
+          "edgeKinds": ["connection"],
+          "targets": [
+            "Focus on bay while retaining its inherited ports and handoff connection.",
+            "Report the exposed unsupported action without discarding its source."
+          ],
+          "gaps": [
+            "The exposed Inspect action is reported as not shown; action rendering is unavailable."
+          ],
+          "notices": [
+            "action def Assembly::Inspect has no place in an interconnection rendering; it is not shown"
+          ]
+        }
+      ]
+    }
+  ]
+}

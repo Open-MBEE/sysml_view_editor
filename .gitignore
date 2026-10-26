@@ -1,0 +1,9 @@
+node_modules/
+build/
+sandbox/
+static/vendor/
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+.DS_Store

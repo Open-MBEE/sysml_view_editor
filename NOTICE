@@ -1,0 +1,38 @@
+SysML v2 View Editor
+Copyright 2026 Dynamical Systems Group contributors
+Licensed under Apache License 2.0; see LICENSE.
+
+This is a new React/TypeScript application. The engine preparation scripts and
+engine-bridge/opensysml overlays were adapted from DynamicalSystemsGroup/sysml_ide
+at source revision bdb85e2341ba5a1a7ce3c6fab4f056c5cb6bca18, retaining the Apache-2.0
+license. Application code and legacy repository structure were not imported wholesale.
+
+OpenSysML engine source:
+https://github.com/Open-MBEE/OpenSysML
+Pinned source: 08ef397841767b829e492bbecf6d723483b4421e (0.10.0)
+Apache-2.0. Local bridge overlays are maintained in engine-bridge/opensysml/.
+
+SysML Toolkit:
+https://github.com/Open-MBEE/sysml-toolkit
+Pinned source: 339ef0e073d06e553e81c079755ddfcd224e4b92 (0.10.10)
+Engine code: Apache-2.0. Bundled OMG library material includes EPL-2.0 terms.
+Asset preparation retains upstream LICENSE, LICENSE-EPL-2.0,
+THIRD-PARTY-NOTICES.md, build information and generated provenance.
+
+React, React DOM, React Flow, ELK and TypeBox are used under their respective
+upstream licenses. See npm package license files and the engine distributions.
+No code from Archyne, Bausteinsicht or Sirius Web was copied into this application.
+
+Appearance preferences, validation tests and palette tokens were adapted from
+sysml_ide at bdb85e2341ba5a1a7ce3c6fab4f056c5cb6bca18 (Apache-2.0), from
+calm-studio/apps/studio/src/lib/sysml/appearance.{ts,css,test.ts}.
+
+React UI primitives in src/lib/ui/primitives/ were obtained through the official
+shadcn registry (new-york-v4) on 2026-10-26 and adapted for compact controls.
+Copyright shadcn; MIT license retained in src/lib/ui/primitives/LICENSE.
+Radix UI, cn, class-variance-authority, Lucide React, Tailwind CSS and
+animation utilities retain their upstream package licenses.
+
+Geist Latin variable font is bundled from @fontsource-variable/geist 5.3.0.
+Copyright 2024 The Geist Project Authors. SIL Open Font License 1.1 and
+asset provenance are retained in static/fonts/geist/.

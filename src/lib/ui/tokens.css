@@ -1,0 +1,280 @@
+/* Adapted from DSG sysml_ide, revision bdb85e2341ba5a1a7ce3c6fab4f056c5cb6bca18.
+ * SPDX-License-Identifier: Apache-2.0; see NOTICE. */
+.sysml-appearance {
+  --sysml-space-1: 4px;
+  --sysml-space-2: 8px;
+  --sysml-space-3: 12px;
+  --sysml-space-4: 16px;
+  --sysml-space-6: 24px;
+  --sysml-control-radius: 6px;
+  --sysml-focus-width: 2px;
+  --sysml-success: #247254;
+  --sysml-info: #1d4ed8;
+  --sysml-source: #6d3ac6;
+  --sysml-structure: #087c91;
+  --sysml-behavior: #b65016;
+  --sysml-states: #9b3590;
+  --sysml-sequence: #3754bc;
+  --sysml-requirements: #247254;
+  --sysml-entities: #126f79;
+  --sysml-parameters: #8b6110;
+  color-scheme: light;
+  --sysml-surface: #ffffff;
+  --sysml-subtle: #f8fafc;
+  --sysml-canvas: #fafbfe;
+  --sysml-grid: #dbe1eb;
+  --sysml-text: #1e293b;
+  --sysml-muted: #475569;
+  --sysml-border: #cbd5e1;
+  --sysml-stroke: #26364a;
+  --sysml-node-border: color-mix(
+    in srgb,
+    var(--sysml-stroke) 65%,
+    var(--sysml-border)
+  );
+  --sysml-accent: #2563eb;
+  --sysml-active-bg: #eff6ff;
+  --sysml-active-text: #1d4ed8;
+  --sysml-error: #b91c1c;
+  --sysml-error-bg: #fef2f2;
+  --sysml-warning: #92400e;
+  --sysml-warning-bg: #fffbeb;
+  --sysml-warning-border: #d97706;
+  --sysml-shadow: #0f172a26;
+  --sysml-definition-bg: var(--sysml-surface);
+  --sysml-usage-bg: var(--sysml-surface);
+  --sysml-package-bg: var(--sysml-subtle);
+  --sysml-port-bg: var(--sysml-surface);
+  --sysml-requirement-bg: color-mix(
+    in srgb,
+    var(--sysml-port-out-bg) 70%,
+    var(--sysml-surface)
+  );
+  --sysml-requirement-usage-bg: color-mix(
+    in srgb,
+    var(--sysml-port-inout-bg) 70%,
+    var(--sysml-surface)
+  );
+  --sysml-port-in-bg: var(--sysml-port-bg);
+  --sysml-port-out-bg: var(--sysml-port-bg);
+  --sysml-port-inout-bg: var(--sysml-port-bg);
+  --xy-background-color: var(--sysml-canvas);
+  --xy-background-pattern-color: var(--sysml-grid);
+  --xy-edge-label-background-color: var(--sysml-surface);
+  --xy-edge-label-color: var(--sysml-text);
+  --xy-handle-background-color: var(--sysml-surface);
+  --xy-handle-border-color: var(--sysml-stroke);
+  --xy-controls-button-background-color: var(--sysml-surface);
+  --xy-controls-button-background-color-hover: var(--sysml-active-bg);
+  --xy-controls-button-color: var(--sysml-text);
+  --xy-controls-button-color-hover: var(--sysml-text);
+  --xy-controls-button-border-color: var(--sysml-border);
+  --xy-node-color: var(--sysml-text);
+  --xy-node-background-color: var(--sysml-surface);
+  --xy-edge-stroke: var(--sysml-stroke);
+  --xy-edge-stroke-selected: var(--sysml-accent);
+  --xy-selection-background-color: var(--sysml-active-bg);
+  --xy-selection-border: 1px dotted var(--sysml-accent);
+  --xy-resize-background-color: var(--sysml-accent);
+}
+
+.sysml-appearance[data-theme='dark'] {
+  --sysml-source: #c4a4ff;
+  --sysml-structure: #67d8df;
+  --sysml-behavior: #ffb17b;
+  --sysml-states: #efa1dc;
+  --sysml-sequence: #a6b8ff;
+  --sysml-requirements: #89d6b0;
+  --sysml-entities: #82d1cb;
+  --sysml-parameters: #e8c778;
+  --sysml-success: #9bc8ac;
+  --sysml-info: #93c5fd;
+  color-scheme: dark;
+  --sysml-surface: #182231;
+  --sysml-subtle: #202d3e;
+  --sysml-canvas: #101722;
+  --sysml-grid: #334155;
+  --sysml-text: #e2e8f0;
+  --sysml-muted: #b2bfd0;
+  --sysml-border: #526278;
+  --sysml-stroke: #c2cede;
+  --sysml-accent: #93c5fd;
+  --sysml-active-bg: #243f60;
+  --sysml-active-text: #dbeafe;
+  --sysml-error: #fca5a5;
+  --sysml-error-bg: #451e27;
+  --sysml-warning: #fde68a;
+  --sysml-warning-bg: #3d301c;
+  --sysml-warning-border: #d4a64b;
+  --sysml-shadow: #00000066;
+}
+
+.sysml-appearance[data-palette='muted'] {
+  --sysml-package-bg: #edf1f5;
+  --sysml-definition-bg: #eaf1fc;
+  --sysml-usage-bg: #e9f4ef;
+  --sysml-port-bg: #fff3d6;
+  --sysml-port-in-bg: #e3efff;
+  --sysml-port-out-bg: #fff3d6;
+  --sysml-port-inout-bg: #e2f3f2;
+}
+.sysml-appearance[data-theme='dark'][data-palette='muted'] {
+  --sysml-package-bg: #2a3442;
+  --sysml-definition-bg: #22344d;
+  --sysml-usage-bg: #203a35;
+  --sysml-port-bg: #44391e;
+  --sysml-port-in-bg: #223a52;
+  --sysml-port-out-bg: #44391e;
+  --sysml-port-inout-bg: #203e3d;
+}
+
+.sysml-appearance[data-palette='contrast'] {
+  --sysml-node-border: var(--sysml-stroke);
+  --sysml-surface: #ffffff;
+  --sysml-subtle: #ffffff;
+  --sysml-canvas: #f1f5f9;
+  --sysml-grid: #a1a1aa;
+  --sysml-text: #000000;
+  --sysml-muted: #27272a;
+  --sysml-border: #52525b;
+  --sysml-stroke: #000000;
+  --sysml-accent: #0000b8;
+  --sysml-active-bg: #dbeafe;
+  --sysml-active-text: #000078;
+}
+.sysml-appearance[data-theme='dark'][data-palette='contrast'] {
+  --sysml-surface: #000000;
+  --sysml-subtle: #000000;
+  --sysml-canvas: #111111;
+  --sysml-grid: #52525b;
+  --sysml-text: #ffffff;
+  --sysml-muted: #e4e4e7;
+  --sysml-border: #a1a1aa;
+  --sysml-stroke: #ffffff;
+  --sysml-accent: #ffff00;
+  --sysml-active-bg: #1e3a5f;
+  --sysml-active-text: #ffff00;
+}
+
+.sysml-appearance[data-palette='forest'] {
+  --sysml-surface: #f8fcf9;
+  --sysml-subtle: #edf5ef;
+  --sysml-canvas: #f2f8f3;
+  --sysml-grid: #c9dacf;
+  --sysml-text: #18382c;
+  --sysml-muted: #476052;
+  --sysml-border: #acc7b6;
+  --sysml-stroke: #365b47;
+  --sysml-accent: #246345;
+  --sysml-active-bg: #dcefe2;
+  --sysml-active-text: #194b32;
+  --sysml-package-bg: #e1eee2;
+  --sysml-definition-bg: #edf7ee;
+  --sysml-usage-bg: #deefe6;
+  --sysml-port-bg: #f1efd7;
+  --sysml-port-in-bg: #e2eef7;
+  --sysml-port-out-bg: #faf0d6;
+  --sysml-port-inout-bg: #def1eb;
+}
+.sysml-appearance[data-theme='dark'][data-palette='forest'] {
+  --sysml-surface: #192a23;
+  --sysml-subtle: #20352b;
+  --sysml-canvas: #111e18;
+  --sysml-grid: #304a3b;
+  --sysml-text: #e2f1e7;
+  --sysml-muted: #adc8b7;
+  --sysml-border: #4c6c5a;
+  --sysml-stroke: #b9d7c4;
+  --sysml-accent: #92d2a7;
+  --sysml-active-bg: #294e39;
+  --sysml-active-text: #d3f5df;
+  --sysml-package-bg: #22392a;
+  --sysml-definition-bg: #20362e;
+  --sysml-usage-bg: #254333;
+  --sysml-port-bg: #3b3c27;
+  --sysml-port-in-bg: #243c48;
+  --sysml-port-out-bg: #433b23;
+  --sysml-port-inout-bg: #23443d;
+}
+
+.sysml-appearance[data-palette='blueprint'] {
+  --sysml-surface: #f7faff;
+  --sysml-subtle: #edf3fc;
+  --sysml-canvas: #eef4fd;
+  --sysml-grid: #c7d8ef;
+  --sysml-text: #183350;
+  --sysml-muted: #435d7d;
+  --sysml-border: #a9bdd8;
+  --sysml-stroke: #355d88;
+  --sysml-accent: #205fa3;
+  --sysml-active-bg: #deebfc;
+  --sysml-active-text: #184f8a;
+  --sysml-package-bg: #e1ebf8;
+  --sysml-definition-bg: #f2f7ff;
+  --sysml-usage-bg: #dce9fa;
+  --sysml-port-bg: #d9eff5;
+  --sysml-port-in-bg: #d9efff;
+  --sysml-port-out-bg: #fff0d6;
+  --sysml-port-inout-bg: #dcf1ee;
+}
+.sysml-appearance[data-theme='dark'][data-palette='blueprint'] {
+  --sysml-surface: #19283d;
+  --sysml-subtle: #20334c;
+  --sysml-canvas: #101d30;
+  --sysml-grid: #304c6c;
+  --sysml-text: #e3efff;
+  --sysml-muted: #afc7e5;
+  --sysml-border: #4a688d;
+  --sysml-stroke: #bdd7f7;
+  --sysml-accent: #93c5fd;
+  --sysml-active-bg: #28486e;
+  --sysml-active-text: #dfedff;
+  --sysml-package-bg: #233a58;
+  --sysml-definition-bg: #20344f;
+  --sysml-usage-bg: #284363;
+  --sysml-port-bg: #23434e;
+  --sysml-port-in-bg: #203f59;
+  --sysml-port-out-bg: #453c27;
+  --sysml-port-inout-bg: #23453f;
+}
+
+.sysml-appearance[data-palette='paper'] {
+  --sysml-surface: #fffaf0;
+  --sysml-subtle: #f6efdf;
+  --sysml-canvas: #f8f1e3;
+  --sysml-grid: #d7c8ac;
+  --sysml-text: #382d20;
+  --sysml-muted: #64523d;
+  --sysml-border: #bbaa8c;
+  --sysml-stroke: #654b2c;
+  --sysml-accent: #8a4b12;
+  --sysml-active-bg: #f2dfbc;
+  --sysml-active-text: #683909;
+  --sysml-package-bg: #f1e8d3;
+  --sysml-definition-bg: #fff8e9;
+  --sysml-usage-bg: #f7eedb;
+  --sysml-port-bg: #fbe6b5;
+  --sysml-port-in-bg: #e6eef2;
+  --sysml-port-out-bg: #fbe6b5;
+  --sysml-port-inout-bg: #e5eddd;
+}
+.sysml-appearance[data-theme='dark'][data-palette='paper'] {
+  --sysml-surface: #28221b;
+  --sysml-subtle: #322a21;
+  --sysml-canvas: #1d1914;
+  --sysml-grid: #514532;
+  --sysml-text: #f2e8d8;
+  --sysml-muted: #cbbca7;
+  --sysml-border: #7c6c54;
+  --sysml-stroke: #d7c5a5;
+  --sysml-accent: #edc17c;
+  --sysml-active-bg: #58432a;
+  --sysml-active-text: #ffe4b8;
+  --sysml-package-bg: #322a21;
+  --sysml-definition-bg: #393025;
+  --sysml-usage-bg: #302d22;
+  --sysml-port-bg: #443525;
+  --sysml-port-in-bg: #283a42;
+  --sysml-port-out-bg: #443525;
+  --sysml-port-inout-bg: #35412d;
+}

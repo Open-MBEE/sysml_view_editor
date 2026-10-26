@@ -1,0 +1,7 @@
+node_modules
+build
+sandbox
+static/vendor
+package-lock.json
+LICENSE
+engine-bridge/opensysml

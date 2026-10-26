@@ -1,0 +1,29 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+@theme inline {
+  --font-sans: 'Geist Variable', system-ui, sans-serif;
+  --color-background: var(--sysml-surface);
+  --color-foreground: var(--sysml-text);
+  --color-primary: var(--sysml-accent);
+  --color-primary-foreground: var(--sysml-on-accent);
+  --color-secondary: var(--sysml-subtle);
+  --color-secondary-foreground: var(--sysml-text);
+  --color-muted: var(--sysml-subtle);
+  --color-muted-foreground: var(--sysml-muted);
+  --color-accent: var(--sysml-active-bg);
+  --color-accent-foreground: var(--sysml-active-text);
+  --color-card: var(--sysml-surface);
+  --color-card-foreground: var(--sysml-text);
+  --color-popover: var(--sysml-surface);
+  --color-popover-foreground: var(--sysml-text);
+  --color-border: var(--sysml-border);
+  --color-input: var(--sysml-muted);
+  --color-ring: var(--sysml-accent);
+  --color-destructive: var(--sysml-error);
+  --radius-sm: 4px;
+  --radius-md: var(--sysml-control-radius);
+  --radius-lg: 8px;
+}

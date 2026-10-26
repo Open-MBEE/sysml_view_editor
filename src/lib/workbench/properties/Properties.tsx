@@ -1,0 +1,97 @@
+import { Input } from '$lib/ui/primitives/input';
+import { Button } from '$lib/ui/primitives/button';
+import { useState } from 'react';
+import type { ModelElement } from '$lib/workspace/project';
+export function Properties({
+  element,
+  usageContext,
+  disabled,
+  onRename,
+  onCreateView,
+  onSource,
+}: {
+  element?: ModelElement;
+  usageContext?: readonly string[];
+  disabled: boolean;
+  onRename: (name: string) => void;
+  onCreateView: () => void;
+  onSource: () => void;
+}) {
+  return (
+    <aside className="properties" aria-label="Properties">
+      <h2>Selection</h2>
+      {element ? (
+        <>
+          <h3>{element.name}</h3>
+          <p className="kind">{element.kind}</p>
+          <dl>
+            <dt>Identity</dt>
+            <dd>{element.id}</dd>
+            {!!usageContext?.length && (
+              <>
+                <dt>Usage context</dt>
+                <dd>{usageContext.join(' › ')}</dd>
+              </>
+            )}
+            {element.typeId && (
+              <>
+                <dt>Type</dt>
+                <dd>{element.typeId}</dd>
+              </>
+            )}
+          </dl>
+          <Button variant="outline" disabled={disabled} onClick={onSource}>
+            Open source
+          </Button>
+          {['partDef', 'partUsage'].includes(element.kind) && (
+            <RenameForm
+              key={element.id}
+              element={element}
+              disabled={disabled}
+              onRename={onRename}
+            />
+          )}
+          <Button variant="outline" disabled={disabled} onClick={onCreateView}>
+            New view of selection
+          </Button>
+        </>
+      ) : (
+        <p>Select a model element or diagram symbol to inspect it.</p>
+      )}
+    </aside>
+  );
+}
+function RenameForm({
+  element,
+  disabled,
+  onRename,
+}: {
+  element: ModelElement;
+  disabled: boolean;
+  onRename: (name: string) => void;
+}) {
+  const [name, setName] = useState(element.name);
+  return (
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        onRename(name);
+      }}
+    >
+      <label htmlFor="rename-name">Name</label>
+      <Input
+        id="rename-name"
+        value={name}
+        onChange={(event) => setName(event.target.value)}
+        disabled={disabled}
+      />
+      <Button
+        variant="outline"
+        disabled={disabled || name === element.name || !name.trim()}
+      >
+        Review rename
+      </Button>
+      <p>Updates resolved references across project files.</p>
+    </form>
+  );
+}

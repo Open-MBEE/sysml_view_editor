@@ -1,0 +1,15 @@
+name: Feature request
+description: Propose a modeling or contributor workflow improvement.
+body:
+  - type: textarea
+    id: task
+    attributes:
+      label: User task
+      description: What are you trying to accomplish, and what blocks you?
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Example and acceptance criteria
+      description: Include a small model and explain the expected source and view effects.
