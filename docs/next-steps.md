@@ -146,6 +146,21 @@ Keep one list of named SysML views and a contextual **New view of selection** ac
 
 Source owns view declarations and semantic scope. Presentation owns symbol geometry; camera and editor arrangement are separate workspace concerns. Switching source files does not implicitly replace the open view. Avoid adding parallel view catalogues or requiring new declarations just to inspect an existing one.
 
+## Future integrations planned
+
+### OpenMBEE / Flexo MMS
+
+Planned beyond the current assembly milestone; not implemented or scheduled. Support editing both existing MMS models created by other tools and models first created in this editor. The intended workflow is **open project and branch → edit locally → review changes → publish a commit**, using Flexo's SysML v2 API as the primary semantic interface.
+
+Proposed sequence:
+
+1. Prove interchange with the pinned Toolkit against a disposable Flexo deployment. An unchanged import/export must preserve element identities, properties and references, including content outside the graphical editor's supported subset.
+2. Add read-only checkout of a complete model at a fixed commit, with project/branch selection and explicit handling of generated source and unsupported content.
+3. Enable one reviewed writeback command, initially rename, preserving repository element UUIDs. Require server-enforced rejection of stale writes and retain local drafts and the applied model on failure.
+4. Extend to publishing models created here and further supported commands. Define versioned associations for exact source files and per-view presentation data; keep private invalid drafts and local undo history separate from published repository history.
+
+The first interoperability milestone should open an externally authored model, rename a part, publish it and reopen it in another client with the intended identities and references intact; repeat with a model created here. Authentication, deployment compatibility, source reconstruction, identity mapping and concurrency guarantees remain design questions. See the [Flexo MMS integration research](research/openmbee-flexo-mms.md) for primary sources, existing OpenMBEE client work and unresolved contracts. No live MMS round trip has been verified.
+
 ## Scope and completion
 
 Broader behavior/sequence/geometry editing, simulation, collaboration services, deployment changes and wholesale legacy feature parity are outside this milestone. Record newly discovered gaps in [capabilities](capabilities.md); evaluate them against the target workflow before expanding scope.
