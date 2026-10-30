@@ -4,7 +4,7 @@ import {
 } from '$lib/ui/primitives/native-select';
 import { Input } from '$lib/ui/primitives/input';
 import { Button } from '$lib/ui/primitives/button';
-import { useState } from 'react';
+import { useState, type RefObject } from 'react';
 import { Dialog } from '$lib/ui/Dialog';
 import type {
   ModelSnapshot,
@@ -12,10 +12,15 @@ import type {
   SourceDocument,
 } from '$lib/workspace/project';
 import type { EditProposal, SemanticCommand } from '$lib/workspace/editing';
+import type { EvaluatedView } from '$lib/workspace/views';
+import { NewPartForm, NewConnectionForm } from './StructuralAuthoring';
 export function WorkbenchDialogs({
   kind,
+  fallbackFocus,
   model,
   selected,
+  view,
+  selectedSymbol,
   proposal,
   documents,
   busy,
@@ -25,9 +30,12 @@ export function WorkbenchDialogs({
   onReviewView,
   onAccept,
 }: {
-  kind: 'project' | 'view' | 'proposal' | null;
+  kind: 'project' | 'view' | 'part' | 'connection' | 'proposal' | null;
+  fallbackFocus?: RefObject<HTMLElement | null>;
   model: ModelSnapshot | null;
   selected?: ModelElement;
+  view: EvaluatedView | null;
+  selectedSymbol?: string;
   proposal?: EditProposal;
   documents: readonly SourceDocument[];
   busy: boolean;
@@ -39,13 +47,18 @@ export function WorkbenchDialogs({
 }) {
   return (
     <Dialog
+      fallbackFocus={fallbackFocus}
       open={kind !== null}
       title={
         kind === 'project'
           ? 'New project'
           : kind === 'view'
             ? 'New view'
-            : 'Review source change'
+            : kind === 'part'
+              ? 'New part'
+              : kind === 'connection'
+                ? 'Connect ports'
+                : 'Review source change'
       }
       onClose={onClose}
     >
@@ -61,12 +74,48 @@ export function WorkbenchDialogs({
           onReview={onReviewView}
         />
       )}
+      {kind === 'part' && model && (
+        <NewPartForm
+          model={model}
+          selected={selected}
+          view={view}
+          busy={busy}
+          onClose={onClose}
+          onReview={onReviewView}
+        />
+      )}
+      {kind === 'connection' && model && (
+        <NewConnectionForm
+          model={model}
+          selected={selected}
+          selectedSymbol={selectedSymbol}
+          view={view}
+          busy={busy}
+          onClose={onClose}
+          onReview={onReviewView}
+        />
+      )}
       {kind === 'proposal' && proposal && (
         <>
           <p>
             Review the exact source changes. All project sources have been
             validated.
           </p>
+          {!!proposal.layoutNotices.length && (
+            <section aria-label="Layout preservation">
+              <h3>Diagram positions</h3>
+              <ul>
+                {proposal.layoutNotices.map((notice) => (
+                  <li key={notice.view}>
+                    {notice.view}: {notice.retained} retained
+                    {notice.invalidated
+                      ? `, ${notice.invalidated} will be arranged again. ${notice.reason ?? ''}`
+                      : ''}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           {proposal.documents
             .filter(
               (document) =>
@@ -97,7 +146,7 @@ export function WorkbenchDialogs({
             <Button variant="ghost" onClick={onClose}>
               Cancel
             </Button>
-            <Button variant="default" onClick={onAccept}>
+            <Button variant="default" onClick={onAccept} autoFocus>
               Apply change
             </Button>
           </div>

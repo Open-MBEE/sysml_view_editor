@@ -13,7 +13,7 @@ The owning TypeBox schema is `src/lib/workspace/persistence/schema.ts`.
 
 Both source sets require 1–20 unique, relative `.sysml` filenames and at most 5 MiB of UTF-8 source. The bundle limit is 24 MiB. Parent traversal, absolute paths, backslashes and control characters are rejected. Positions must be finite and within supported bounds. Unknown versions are rejected explicitly; future migrations require fixtures for previous versions.
 
-The source digest is SHA-256 over the normalized ordered source-document serialization. Presentations are restored only for matching source and model identities, and only existing artifact nodes consume stored positions. A valid position record does not establish semantic membership.
+The source digest is SHA-256 over the normalized ordered source-document serialization. Presentations are restored only for matching source and model identities, and only existing artifact nodes consume stored positions. A valid position record does not establish semantic membership. During an accepted source change, verified per-view correspondence remaps compatible positions to the new source/model hashes; unmatched positions are invalidated. Edit evidence and origin mappings are transient proposal data and are not added to the version-1 bundle.
 
 Positions are absolute model-space coordinates, including for nested structures. Parent-relative canvas coordinates are converted at the workbench boundary; the version-1 shape is unchanged. A group move stores the affected descendants in the same presentation update. Saved child positions outside the current rendered owner's bounds are arranged again with an explicit notice rather than changing ownership. [Structural projection](structural-views.md).
 

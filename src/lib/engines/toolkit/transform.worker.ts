@@ -1,6 +1,10 @@
 import type { SemanticCommand } from '$lib/workspace/editing';
-import type { SourceDocument } from '$lib/workspace/project';
+import { sourceDigest } from '$lib/workspace/project';
+import { readTransformationResult } from '$lib/workspace/editing/evidence';
 interface Session {
+  resolve(name: string): { free(): void } | undefined;
+  qualifiedName(handle: { free(): void }): string | undefined;
+  memberExtent(handle: { free(): void }): string | undefined;
   checkEdit(ops: string): string;
   edit(ops: string): string;
   units(): string;
@@ -30,6 +34,18 @@ function operation(command: SemanticCommand): object {
       throw new Error('This rename requires a simple qualified target.');
     return { op: 'rename', target: command.target, newName: command.name };
   }
+  if (command.kind === 'createPart')
+    return {
+      op: 'insertMember',
+      owner: command.owner,
+      text: `part ${command.name} : ${command.type};`,
+    };
+  if (command.kind === 'connectPorts')
+    return {
+      op: 'insertMember',
+      owner: command.owner,
+      text: `connection ${command.name} connect ${command.from.usage}.${command.from.port} to ${command.to.usage}.${command.to.port};`,
+    };
   if (
     !qualified.test(command.owner) ||
     !qualified.test(command.subject) ||
@@ -80,6 +96,38 @@ self.onmessage = async (event: MessageEvent<unknown>) => {
       JSON.stringify(documents),
       library,
     );
+    let owner;
+    if (command.kind !== 'rename') {
+      const handle = session.resolve(command.owner);
+      if (!handle)
+        throw new Error('The selected source owner did not resolve.');
+      try {
+        if (session.qualifiedName(handle) !== command.owner)
+          throw new Error('The selected source owner is ambiguous.');
+        const raw = session.memberExtent(handle);
+        if (!raw) throw new Error('The owner has no editable source extent.');
+        const extent = JSON.parse(raw) as {
+          unit: number;
+          start: number;
+          end: number;
+        };
+        const units = JSON.parse(session.units()) as {
+          unit: number;
+          name: string;
+        }[];
+        const matches = units.filter((item) => item.unit === extent.unit);
+        if (matches.length !== 1)
+          throw new Error('The owner has no unique source unit.');
+        owner = {
+          id: command.owner,
+          unit: matches[0]!.name,
+          start: extent.start,
+          end: extent.end,
+        };
+      } finally {
+        handle.free();
+      }
+    }
     const operations = JSON.stringify([operation(command)]),
       preview = JSON.parse(session.checkEdit(operations));
     if (!preview.wouldCommit || preview.findings?.length)
@@ -101,7 +149,17 @@ self.onmessage = async (event: MessageEvent<unknown>) => {
         throw new Error('The transformation omitted a source file.');
       return { name: document.name, text };
     });
-    self.postMessage({ value });
+    self.postMessage({
+      value: readTransformationResult({
+        documents: value,
+        evidence: {
+          beforeHash: await sourceDigest(documents),
+          afterHash: await sourceDigest(value),
+          splices: result.splices,
+          ...(owner ? { owner } : {}),
+        },
+      }),
+    });
   } catch (error) {
     self.postMessage({
       error: error instanceof Error ? error.message : String(error),

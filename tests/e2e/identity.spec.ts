@@ -19,6 +19,7 @@ import {
   readWorkerReply,
 } from '../../src/lib/engines/workers/schema';
 import { checkPostconditions } from '../../src/lib/workspace/editing';
+import { verifyTransformation } from '../../src/lib/workspace/editing/evidence';
 
 // Contract investigation: execute the production workers with their real WASM
 // assets. This does not assert UI layout retention or implement reconciliation.
@@ -110,17 +111,20 @@ async function engineProbe(page: Page) {
       target: string,
       name: string,
     ) {
-      return validateDocuments(
-        await request(
-          transformation,
-          readTransformRequest({
-            protocolVersion: 1,
-            base: '/vendor/sysml-toolkit/',
-            documents,
-            command: { kind: 'rename', target, name },
-          }),
-        ),
-      );
+      return (
+        await verifyTransformation(
+          documents,
+          await request(
+            transformation,
+            readTransformRequest({
+              protocolVersion: 1,
+              base: '/vendor/sysml-toolkit/',
+              documents,
+              command: { kind: 'rename', target, name },
+            }),
+          ),
+        )
+      ).documents;
     },
   };
 }

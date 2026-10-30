@@ -1,5 +1,5 @@
 import type { TransformationEngine } from '$lib/workspace/editing';
-import { validateDocuments } from '$lib/workspace/project';
+import { readTransformationResult } from '$lib/workspace/editing/evidence';
 import { requestWorker } from '../workers/request';
 export function createTransformationEngine(base: string): TransformationEngine {
   return {
@@ -9,7 +9,7 @@ export function createTransformationEngine(base: string): TransformationEngine {
           type: 'module',
         }),
         { protocolVersion: 1, documents, command, base },
-        validateDocuments,
+        readTransformationResult,
         signal,
       );
     },

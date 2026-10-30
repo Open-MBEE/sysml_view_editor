@@ -9,6 +9,8 @@ export function Properties({
   onRename,
   onCreateView,
   onSource,
+  onCreatePart,
+  onConnectPorts,
 }: {
   element?: ModelElement;
   usageContext?: readonly string[];
@@ -16,6 +18,8 @@ export function Properties({
   onRename: (name: string) => void;
   onCreateView: () => void;
   onSource: () => void;
+  onCreatePart: () => void;
+  onConnectPorts: () => void;
 }) {
   return (
     <aside className="properties" aria-label="Properties">
@@ -43,6 +47,24 @@ export function Properties({
           <Button variant="outline" disabled={disabled} onClick={onSource}>
             Open source
           </Button>
+          {['package', 'partDef', 'partUsage'].includes(element.kind) && (
+            <Button
+              variant="outline"
+              disabled={disabled}
+              onClick={onCreatePart}
+            >
+              New part in selection
+            </Button>
+          )}
+          {element.kind === 'portUsage' && (
+            <Button
+              variant="outline"
+              disabled={disabled}
+              onClick={onConnectPorts}
+            >
+              Connect selected port
+            </Button>
+          )}
           {['partDef', 'partUsage'].includes(element.kind) && (
             <RenameForm
               key={element.id}

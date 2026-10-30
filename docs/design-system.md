@@ -36,7 +36,7 @@ Muted base colors can be customized for packages, part definitions and part usag
 
 The current graph adapter maps exact engine notation kinds `package`, `part def` and `part` to palette roles. Other kinds keep neutral surfaces and their engine kind label. Detailed notation, custom connection routing and compound elements remain documented limits.
 
-Appearance is a user preference. It does not enter project bundles, mark projects modified, reparse source or add model undo history. Source application still invalidates presentation mappings according to the workspace contract; appearance does not.
+Appearance is a user preference. It does not enter project bundles, mark projects modified, reparse source or add model undo history. Source application reconciles compatible presentation mappings according to the workspace contract; appearance never invokes reconciliation or changes geometry.
 
 ## Registry workflow
 

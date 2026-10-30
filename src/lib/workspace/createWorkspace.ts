@@ -17,6 +17,22 @@ import {
 import { serializeProject, type ProjectBundle } from './persistence';
 import { validateEvaluation, type EvaluatedView, type Point } from './views';
 import { createHistory } from './history';
+import {
+  verifyTransformation,
+  verifyCreationEdit,
+  sourceSplices,
+  type Splice,
+} from './editing/evidence';
+import {
+  reconcileView,
+  remapName,
+  type LayoutNotice,
+} from './views/reconciliation';
+import {
+  validateCreation,
+  validateConnection,
+  checkConnectionResult,
+} from './editing/structure';
 
 export interface WorkspaceState {
   readonly project: ProjectBundle | null;
@@ -29,6 +45,7 @@ export interface WorkspaceState {
   readonly canRedo: boolean;
   readonly diagnostics: readonly Diagnostic[];
   readonly view: EvaluatedView | null;
+  readonly layoutNotices: readonly LayoutNotice[];
 }
 interface Accepted {
   project: ProjectBundle;
@@ -56,6 +73,7 @@ export function createWorkspace(dependencies: {
     canRedo: false,
     diagnostics: [],
     view: null,
+    layoutNotices: [],
   });
   const listeners = new Set<(value: WorkspaceState) => void>();
   const history = createHistory<Accepted>();
@@ -128,7 +146,10 @@ export function createWorkspace(dependencies: {
     validate(model);
     return { ...model, sourceHash: await sourceDigest(documents) };
   }
-  function restore(value: Accepted) {
+  function restore(
+    value: Accepted,
+    layoutNotices: readonly LayoutNotice[] = [],
+  ) {
     proposals.clear();
     publish({
       project: value.project,
@@ -136,7 +157,85 @@ export function createWorkspace(dependencies: {
       revision: state.revision + 1,
       view: null,
       diagnostics: value.model.diagnostics,
+      layoutNotices,
     });
+  }
+  async function reconcile(
+    before: Accepted,
+    model: AppliedModel,
+    documents: ProjectBundle['documents'],
+    edits: readonly Splice[],
+    signal: AbortSignal,
+    command?: SemanticCommand,
+  ) {
+    const presentations: Record<
+      string,
+      ProjectBundle['presentations'][string]
+    > = {};
+    const layoutNotices: LayoutNotice[] = [];
+    for (const [oldId, presentation] of Object.entries(
+      before.project.presentations,
+    )) {
+      const id = remapName(oldId, command);
+      try {
+        if (
+          presentation.sourceHash !== before.model.sourceHash ||
+          presentation.modelHash !== before.model.modelHash
+        )
+          throw new Error(
+            'Saved layout no longer matches the applied revision.',
+          );
+        if (
+          !model.elements.some(
+            (item) => item.id === id && item.kind === 'viewUsage',
+          )
+        )
+          throw new Error('View declaration was removed.');
+        const oldView = validateEvaluation(
+          await dependencies.semantic.evaluate(
+            before.project.documents,
+            before.model.modelHash,
+            oldId,
+            signal,
+          ),
+          before.model.modelHash,
+          oldId,
+        );
+        const newView = validateEvaluation(
+          await dependencies.semantic.evaluate(
+            documents,
+            model.modelHash,
+            id,
+            signal,
+          ),
+          model.modelHash,
+          id,
+        );
+        const mapped = reconcileView({
+          oldView,
+          newView,
+          presentation,
+          before: before.model,
+          after: model,
+          edits,
+          command,
+        });
+        presentations[id] = mapped.presentation;
+        layoutNotices.push(mapped.notice);
+      } catch (error) {
+        if (signal.aborted) throw error;
+        layoutNotices.push({
+          view: id,
+          retained: 0,
+          invalidated: Object.keys(presentation.positions).length,
+          reason:
+            error instanceof Error
+              ? error.message
+              : 'Layout could not be reconciled.',
+        });
+      }
+    }
+    return { presentations, layoutNotices };
   }
   function moveSymbols(positions: Readonly<Record<string, Point>>) {
     alive();
@@ -166,6 +265,8 @@ export function createWorkspace(dependencies: {
         throw new Error('Invalid position.');
       moved[symbol] = { ...position };
     }
+    // Source revision alone cannot protect a proposal from newer geometry.
+    proposals.clear();
     publish({
       project: {
         ...project,
@@ -185,6 +286,13 @@ export function createWorkspace(dependencies: {
   }
   return {
     snapshot: () => state,
+    cancelPending() {
+      alive();
+      controller?.abort();
+      generation++;
+      proposals.clear();
+      publish({ busy: false });
+    },
     subscribe(listener: (value: WorkspaceState) => void) {
       alive();
       listeners.add(listener);
@@ -244,20 +352,30 @@ export function createWorkspace(dependencies: {
       const { token, signal } = begin();
       try {
         const model = await parse(documents, signal);
+        const layout = await reconcile(
+          before,
+          model,
+          documents,
+          sourceSplices(before.project.documents, documents),
+          signal,
+        );
         current(token);
         history.record({
           ...before,
           project: { ...before.project, drafts: before.project.documents },
         });
-        restore({
-          project: {
-            ...before.project,
-            documents,
-            drafts: documents,
-            presentations: {},
+        restore(
+          {
+            project: {
+              ...before.project,
+              documents,
+              drafts: documents,
+              presentations: layout.presentations,
+            },
+            model,
           },
-          model,
-        });
+          layout.layoutNotices,
+        );
       } finally {
         finish(token);
       }
@@ -268,13 +386,36 @@ export function createWorkspace(dependencies: {
       const captured = immutable(structuredClone(readSemanticCommand(command)));
       const { token, signal } = begin();
       try {
-        const documents = validateDocuments(
+        validateCreation(before.model, captured);
+        if (captured.kind === 'connectPorts') {
+          const view = validateEvaluation(
+            await dependencies.semantic.evaluate(
+              before.project.documents,
+              before.model.modelHash,
+              captured.view,
+              signal,
+            ),
+            before.model.modelHash,
+            captured.view,
+          );
+          current(token);
+          validateConnection(before.model, view, captured);
+        }
+        const transformed = await verifyTransformation(
+          before.project.documents,
           await dependencies.transformations.propose(
             before.project.documents,
             captured,
             signal,
           ),
         );
+        const documents = transformed.documents;
+        if (captured.kind !== 'rename')
+          verifyCreationEdit(
+            before.project.documents,
+            transformed,
+            captured.owner,
+          );
         if (
           documents.length !== before.project.documents.length ||
           documents.some(
@@ -285,12 +426,37 @@ export function createWorkspace(dependencies: {
         const model = await parse(documents, signal);
         current(token);
         checkPostconditions(before.model, model, captured);
+        if (captured.kind === 'connectPorts') {
+          const view = validateEvaluation(
+            await dependencies.semantic.evaluate(
+              documents,
+              model.modelHash,
+              captured.view,
+              signal,
+            ),
+            model.modelHash,
+            captured.view,
+          );
+          current(token);
+          checkConnectionResult(model, view, captured);
+        }
+        const layout = await reconcile(
+          before,
+          model,
+          documents,
+          transformed.evidence.splices,
+          signal,
+          captured,
+        );
+        current(token);
         const proposal = immutable({
           id: String(++proposalSequence),
           baseRevision,
           command: captured,
           documents,
           snapshot: model,
+          presentations: layout.presentations,
+          layoutNotices: layout.layoutNotices,
         });
         proposals.set(proposal.id, proposal);
         return proposal;
@@ -308,16 +474,18 @@ export function createWorkspace(dependencies: {
           'Proposal is stale or was not issued by this workspace.',
         );
       history.record(before);
-      // Source changes invalidate revision-bound geometry; do not guess identities.
-      restore({
-        project: {
-          ...before.project,
-          documents: proposal.documents,
-          drafts: proposal.documents,
-          presentations: {},
+      restore(
+        {
+          project: {
+            ...before.project,
+            documents: proposal.documents,
+            drafts: proposal.documents,
+            presentations: proposal.presentations,
+          },
+          model: proposal.snapshot,
         },
-        model: proposal.snapshot,
-      });
+        proposal.layoutNotices,
+      );
     },
     async openView(id: string) {
       alive();

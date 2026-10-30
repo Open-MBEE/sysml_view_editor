@@ -1,9 +1,33 @@
 import type { AppliedModel, ModelSnapshot, SourceDocument } from '../project';
 import type { EvaluatedView } from '../views';
+import type { TransformationResult } from './evidence';
+import type { ViewPresentation } from '../views';
+import type { LayoutNotice } from '../views/reconciliation';
 const name = Type.String({ pattern: '^[A-Za-z_]\\w*$' }),
   qualified = Type.String({ pattern: '^[A-Za-z_]\\w*(?:::[A-Za-z_]\\w*)*$' }),
   closed = { additionalProperties: false };
+const endpoint = Type.Object({ usage: qualified, port: name }, closed);
 export const SemanticCommandSchema = Type.Union([
+  Type.Object(
+    {
+      kind: Type.Literal('createPart'),
+      owner: qualified,
+      type: qualified,
+      name,
+    },
+    closed,
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal('connectPorts'),
+      owner: qualified,
+      view: qualified,
+      name,
+      from: endpoint,
+      to: endpoint,
+    },
+    closed,
+  ),
   Type.Object(
     { kind: Type.Literal('rename'), target: qualified, name },
     closed,
@@ -35,6 +59,8 @@ export interface EditProposal {
   readonly command: SemanticCommand;
   readonly documents: readonly SourceDocument[];
   readonly snapshot: AppliedModel;
+  readonly presentations: Readonly<Record<string, ViewPresentation>>;
+  readonly layoutNotices: readonly LayoutNotice[];
 }
 export interface SemanticEngine {
   parse(
@@ -53,13 +79,41 @@ export interface TransformationEngine {
     documents: readonly SourceDocument[],
     command: SemanticCommand,
     signal?: AbortSignal,
-  ): Promise<readonly SourceDocument[]>;
+  ): Promise<TransformationResult>;
 }
 export function checkPostconditions(
   before: ModelSnapshot,
   after: ModelSnapshot,
   command: SemanticCommand,
 ): void {
+  if (command.kind === 'createPart' || command.kind === 'connectPorts') {
+    const id = `${command.owner}::${command.name}`;
+    const created = after.elements.filter((item) => item.id === id);
+    if (
+      after.elements.length !== before.elements.length + 1 ||
+      created.length !== 1 ||
+      created[0]!.kind !==
+        (command.kind === 'createPart' ? 'partUsage' : 'connectionUsage') ||
+      created[0]!.ownerId !== command.owner ||
+      (command.kind === 'createPart' && created[0]!.typeId !== command.type)
+    )
+      throw new Error(
+        'The requested declaration or resolved type was not created in its owner.',
+      );
+    for (const old of before.elements) {
+      const fresh = after.elements.find((item) => item.id === old.id);
+      if (
+        !fresh ||
+        fresh.kind !== old.kind ||
+        fresh.ownerId !== old.ownerId ||
+        fresh.typeId !== old.typeId
+      )
+        throw new Error(
+          'Creation changed an unrelated declaration or binding.',
+        );
+    }
+    return;
+  }
   if (command.kind === 'createView') {
     const id = `${command.owner}::${command.name}`;
     if (

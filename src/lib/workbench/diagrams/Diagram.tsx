@@ -13,6 +13,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import ELK from 'elkjs/lib/elk.bundled.js';
+import { Button } from '$lib/ui/primitives/button';
 import { layoutStructure, absolutePositions } from './structure';
 import { StructureNode, SelectDiagramSymbol } from './StructureNode';
 const nodeTypes = { structure: StructureNode };
@@ -38,6 +39,8 @@ interface Props {
   disabled: boolean;
   onSelect: (symbol: string) => void;
   onMove: (positions: Record<string, Point>) => void;
+  onCreatePart: () => void;
+  onConnectPorts: () => void;
 }
 export function Diagram({
   view,
@@ -45,6 +48,8 @@ export function Diagram({
   disabled,
   onSelect,
   onMove,
+  onCreatePart,
+  onConnectPorts,
 }: Props) {
   const [nodes, setNodes] = useState<Node[]>([]),
     [edges, setEdges] = useState<Edge[]>([]),
@@ -197,6 +202,22 @@ export function Diagram({
               ? 'Applied model'
               : 'Choose a named view'}
         </span>
+        <div className="diagram-actions">
+          <Button
+            variant="ghost"
+            disabled={disabled || !view}
+            onClick={onCreatePart}
+          >
+            New part
+          </Button>
+          <Button
+            variant="ghost"
+            disabled={disabled || view?.artifact?.kind !== 'interconnection'}
+            onClick={onConnectPorts}
+          >
+            Connect ports
+          </Button>
+        </div>
       </header>
       {!view ? (
         <div className="empty">

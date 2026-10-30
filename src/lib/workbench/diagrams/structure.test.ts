@@ -76,3 +76,37 @@ it('reports incompatible old flat positions instead of drawing a child outside i
     y: -500,
   });
 });
+
+it('keeps compatible saved positions when a new connection changes the automatic owner bounds', async () => {
+  const expanded: ViewArtifact = {
+    ...artifact,
+    nodes: [
+      ...artifact.nodes,
+      {
+        id: 'extra',
+        name: 'extra',
+        kind: 'part',
+        parent: 'bay',
+        ports: [{ id: 'extra.out', name: 'output', direction: 'out' }],
+      },
+    ],
+  };
+  const before = await layoutStructure(expanded, {});
+  const saved = absolutePositions(before.nodes);
+  const connected = {
+    ...expanded,
+    edges: [
+      ...expanded.edges,
+      {
+        from: 'extra',
+        to: 'right',
+        fromPort: 'extra.out',
+        toPort: 'right.in',
+        kind: 'connection',
+      },
+    ],
+  };
+  const after = await layoutStructure(connected, saved);
+  expect(absolutePositions(after.nodes)).toEqual(saved);
+  expect(after.notice).toBe('');
+});

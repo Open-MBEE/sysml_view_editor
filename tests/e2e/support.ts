@@ -9,6 +9,40 @@ import { readFile } from 'node:fs/promises';
 import { readEvaluatedView } from '../../src/lib/workspace/views/schema';
 import type { EvaluatedView } from '../../src/lib/workspace/views';
 
+/** Compare saved geometry by actual per-view semantic occurrence, not n0 IDs. */
+export function semanticPositions(
+  bundle: ProjectBundle,
+  evaluations: readonly EvaluatedView[],
+) {
+  const positions: Record<string, { x: number; y: number }> = {};
+  for (const [view, presentation] of Object.entries(bundle.presentations)) {
+    const evaluated = evaluations.findLast(
+      (item) => item.view === view && item.modelHash === presentation.modelHash,
+    );
+    expect(
+      evaluated,
+      `Missing actual engine evaluation for ${view}`,
+    ).toBeDefined();
+    for (const [symbol, point] of Object.entries(presentation.positions)) {
+      const matches = evaluated!.correspondence.filter(
+        (item) => item.symbol === symbol,
+      );
+      expect(matches).toHaveLength(1);
+      const match = matches[0]!;
+      const context = match.context.map((origin) => {
+        const item = evaluated!.correspondence.find(
+          (item) => item.subject.id === origin,
+        );
+        expect(item?.subject.qualifiedName).toBeTruthy();
+        return item!.subject.qualifiedName!;
+      });
+      positions[JSON.stringify([view, match.subject.qualifiedName, context])] =
+        { ...point };
+    }
+  }
+  return positions;
+}
+
 export const test = base.extend<{ pageErrors: void }>({
   pageErrors: [
     async ({ page }, use, testInfo) => {
@@ -176,6 +210,51 @@ export async function nodePosition(node: Locator) {
     const matrix = new DOMMatrixReadOnly(getComputedStyle(element).transform);
     return { x: matrix.m41, y: matrix.m42 };
   });
+}
+
+/** Check displayed model-space geometry, independently of serialized records. */
+export async function expectRenderedPositions(
+  page: Page,
+  bundle: ProjectBundle,
+  view: string,
+) {
+  const presentation = bundle.presentations[view];
+  expect(presentation, `Missing saved presentation for ${view}`).toBeDefined();
+  for (const [symbol, expected] of Object.entries(presentation!.positions)) {
+    const node = diagramSymbol(page, symbol);
+    await expect(node).toBeVisible();
+    await expect
+      .poll(
+        async () => {
+          return node.evaluate((element, expected) => {
+            // CSSOM rounds transforms to browser precision. Compare against
+            // browser-normalized expected coordinates, while bundle checks
+            // independently require exact saved doubles and semantic identity.
+            const probe = document.createElement('div');
+            probe.style.cssText =
+              'position:fixed;visibility:hidden;pointer-events:none;width:0;height:0';
+            probe.style.transform = `translate(${expected.x}px,${expected.y}px)`;
+            document.body.append(probe);
+            try {
+              const actual = new DOMMatrixReadOnly(
+                getComputedStyle(element).transform,
+              );
+              const rendered = new DOMMatrixReadOnly(
+                getComputedStyle(probe).transform,
+              );
+              return Math.max(
+                Math.abs(actual.m41 - rendered.m41),
+                Math.abs(actual.m42 - rendered.m42),
+              );
+            } finally {
+              probe.remove();
+            }
+          }, expected);
+        },
+        { message: `Rendered position of ${view}/${symbol}` },
+      )
+      .toBeLessThan(0.0001);
+  }
 }
 
 export async function diagramState(page: Page) {

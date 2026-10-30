@@ -105,6 +105,18 @@ body {
 .editors.diagram-only {
   grid-template-columns: 1fr;
 }
+.diagram-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: auto;
+}
+.diagram-pane > .pane-heading {
+  height: auto;
+  min-height: 44px;
+  flex-wrap: wrap;
+  padding-block: 5px;
+}
 .pane-heading {
   height: 44px;
   flex-shrink: 0;
@@ -126,6 +138,7 @@ body {
 }
 footer {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 20px;
   border-top: 1px solid var(--sysml-border);
@@ -159,6 +172,10 @@ footer {
   line-height: 1.7;
   color: var(--sysml-muted);
   font-size: 12px;
+}
+.app-dialog .endpoint-summary {
+  margin: 7px 0 0;
+  overflow-wrap: anywhere;
 }
 .app-dialog label {
   display: block;

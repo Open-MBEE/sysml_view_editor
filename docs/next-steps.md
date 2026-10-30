@@ -1,16 +1,18 @@
 # Next steps
 
-Recorded 2026-10-26. This is the proposed development sequence agreed in the planning discussion, not a claim that the work below is implemented. [Capabilities](capabilities.md) records current behavior; [verification](verification.md) records checks actually performed. No delivery dates or individual owners are assigned here.
+Updated 2026-10-30 from the development sequence recorded on 2026-10-26. Planned work below is not implemented unless explicitly marked. [Capabilities](capabilities.md) records current behavior; [verification](verification.md) records checks actually performed. No delivery dates or individual owners are assigned here.
 
 ## Current position
 
-The foundation, first structural rendering slice and visualization example library are committed in `a2d0d91` on `feat/clean-foundation`. Step 1 has the bounded assembly coverage described below; its broader notation and accessibility targets remain open. Step 2 is the next implementation task: preserve layout using verified correspondence across source revisions. Applied source and accepted semantic changes currently clear all stored presentations.
+The foundation, first structural rendering slice and visualization example library are committed in `a2d0d91` on `feat/clean-foundation`; the identity investigation is committed in `fd54b67`. The assembly editing milestone implements reviewed rename layout preservation, bounded source-edit preservation, and typed part/port-connection authoring. Local verification passed: 64 unit tests, 5 script tests, all 37 functional browser scenarios and the final 9 visual scenarios. [Verification](verification.md) records exact commands, inspected captures and the deliberate regression fault. These are local checks; hosted CI has not been run for this milestone.
 
-The [identity investigation](architecture/identity-reconciliation.md) now compares fresh parses, definition/usage renames, an unrelated-file edit, offset shifts, reordered/inserted usages, file/owner moves and changed types. It records a counterexample where unchanged symbol/origin/context IDs identify the wrong usage, and tests a bounded rename join using verified Toolkit byte splices. The next implementation task is to carry validated edit evidence into proposals and retain only positions with verified declaration and complete usage-context matches. Arbitrary-draft preservation still needs a bounded policy and regression evidence.
+The [identity investigation](architecture/identity-reconciliation.md) compares fresh parses, definition/usage renames, an unrelated-file edit, offset shifts, reordered/inserted usages, file/owner moves and changed types. It records a counterexample where unchanged symbol/origin/context IDs identify the wrong usage. Its original complete splice-based join covered a definition rename. The new production browser scenarios verify both definition and usage renames, including distinct saved views and fresh import; broader comparison cases remain explicit invalidation targets.
 
-Graphical part creation and connection commands in step 3 remain planned. The current semantic command contract supports only rename and view creation. The example library supplies additional rendering targets and known gaps; it does not complete those renderers or change the sequence below.
+The assembly milestone is locally complete within the documented bounded policy. The retained steps and acceptance criteria below record its implemented slices and verification gates. Source edits use a bounded unchanged-header policy, rather than general persistent identity. Remaining work after these slices concerns everyday editing in step 4 and the explicit notation, accessibility and performance gaps; broad source-reconciliation support is not implied.
 
-## Next milestone: edit a small assembly in either presentation
+The semantic command contract now supports `rename`, `createView`, `createPart` and `connectPorts`. Diagram/Inspector forms review exact source and layout changes before acceptance. Connections require explicit direction, identical resolved port types and verified usage endpoints. See [authoring contracts](architecture/graphical-authoring.md); the example library still records renderer/notation gaps.
+
+## Assembly milestone: edit a small assembly in either presentation
 
 An engineer should be able to open a small assembly, understand its ownership and connections, create a typed part and connect compatible ports through the diagram, inspect/apply the resulting source changes, and continue in source without losing unrelated content or compatible layout.
 
@@ -20,7 +22,7 @@ The priorities are bidirectional editing, simpler views and everyday usability. 
 
 ## 1. Make structural diagrams useful
 
-Build on the bounded structural slice to render existing assemblies before adding graphical creation. GeneralView remains a flat tree; interconnection rendering now has the fixture coverage recorded below.
+Implemented bounded slice: existing assemblies render with the fixture coverage recorded below. GeneralView remains a flat tree. Broader notation gaps are tracked separately from the assembly workflow.
 
 Work:
 
@@ -38,13 +40,13 @@ Acceptance:
 - Switching between the two named views preserves their separate presentation state.
 - The workflow is checked with the actual pinned browser engines, plus keyboard and light/dark visual checks.
 
-First bounded implementation task: trace one nested assembly artifact through the engine adapter and renderer, document missing fields, and add only the contract/projection support required to render that fixture faithfully. Do not infer containment from a node's position.
+The first bounded implementation task was to trace one nested assembly artifact through the engine adapter and renderer, document missing fields, and add only the contract/projection support required to render that fixture faithfully. Do not infer containment from a node's position.
 
-Progress recorded 2026-10-26: the [first structural slice](architecture/structural-views.md) implements that bounded task using `examples/assembly/`. It covers nested groups, repeated Device usages, explicitly directed inherited ports and their connection, reference notation, contextual port/source selection, group/child movement, two views, unsupported-action notices and compatible save/reopen. The engine trace and retained tests define its scope; broader owned-port notation and effective directions through conjugation remain gaps. Next, investigate verified identity/correspondence across source changes before adding graphical creation and connection commands.
+Progress recorded 2026-10-26: the [first structural slice](architecture/structural-views.md) implements that bounded task using `examples/assembly/`. It covers nested groups, repeated Device usages, explicitly directed inherited ports and their connection, reference notation, contextual port/source selection, group/child movement, two views, unsupported-action notices and compatible save/reopen. The engine trace and retained tests define its scope; broader owned-port notation and effective directions through conjugation remain gaps. The subsequent identity investigation and production reconciliation/authoring code are now present; the acceptance criteria below govern their completion.
 
 ## 2. Preserve identity and layout through source changes
 
-Today, applied source changes conservatively invalidate presentation mappings. Establish a tested reconciliation policy before relying on layout retention during richer editing.
+The implementation reconciles compatible presentations per view before publishing source changes. Unsafe matches are invalidated explicitly. The [implemented policy](architecture/identity-reconciliation.md) defines source-bound edit evidence and bounded free-form changes; the criteria below retain the intended scope.
 
 Work:
 
@@ -62,11 +64,39 @@ Acceptance:
 - When identity cannot be established safely, affected layout is invalidated explicitly while source remains intact.
 - Undo/redo behavior and save/reopen results are defined and tested. Any project-format change includes versioning and compatibility fixtures.
 
-Investigate engine-provided correspondence and edit mappings first. Do not add a competing semantic model or a label-based identity scheme to bypass a missing engine capability.
+The original worker/SDK investigation remains distinct from application tests. Production retention uses verified evidence and full usage contexts; it does not add a competing semantic model or a label-based identity scheme.
+
+### 2.1 Preserve layout through reviewed part renames
+
+User-visible outcome: move parts in both assembly views, review and apply a part definition or usage rename, and keep each intended usage at its compatible position. The resulting source and references must remain correct through undo/redo and a fresh save/reopen.
+
+Implemented sequence:
+
+1. Extend the transformation result and owning TypeBox transport schemas to carry rename edit evidence alongside the complete returned sources. Bind the evidence to the exact before/after source sets. Validate filename-based splice units, UTF-8 byte ranges, nonoverlap and exact replay. Malformed evidence must refuse the proposal and preserve the applied state.
+2. Reconcile old/new evaluated artifacts for every view with saved positions, including views that are not currently open. Match the transported declaration origin and complete usage context uniquely in both directions, check ownership and resolved bindings, and resolve each view's new symbol IDs. Toolkit UUIDs, unchanged renderer IDs and equal labels are not substitutes for that mapping.
+3. Prepare the source and presentation changes together in an immutable proposal. Reject or reprepare it if its bound source revision or captured presentation state changes during review, so acceptance cannot overwrite newer symbol movement. Keep `accept()` as one atomic publication and source-history entry.
+4. Retain only compatible absolute positions of matched artifact nodes, including nested groups and descendants. Check port correspondence and connection references for identity correctness; saved positions remain node geometry. Invalid or partial semantic candidates must never publish. For valid source with an unsupported or ambiguous view mapping, report which affected layout will be invalidated during review and preserve other verified views.
+
+Keep workspace reconciliation independent of React, the DOM, canvas libraries and engine implementations. Engine adapters own evidence normalization; workspace modules own proposal validation and acceptance. Prefer the existing version-1 bundle shape when transient proposal evidence is sufficient. Any necessary saved-format change must be justified, versioned and covered by compatibility fixtures.
+
+Acceptance and evidence:
+
+- Use `examples/assembly/` and the actual pinned browser engines. Save distinct moved positions in `structure` and `devices`, then exercise definition and usage renames separately. Check every saved view, including one left unopened during the transaction.
+- Verify exact intended source changes, resolved usage types, updated connection references and retained comments/unsupported source. Selecting repeated usages and inherited ports must identify the correct declaration and usage context after each rename.
+- Assert compatible absolute positions after acceptance, view switching, undo, redo and a fresh page reload/import. Parent/descendant movement must not change ownership or borrow another usage's position.
+- Cover Unicode before edited spans, malformed or mismatched edit evidence, stale proposals, geometry changes during review, missing/ambiguous correspondence and unsupported view evaluation. Required transformation or semantic-validation failures retain applied source, model, layout and history; invalid drafts retain their text and last valid diagram.
+- Keep controlled workspace cases separate from real-engine browser evidence. Demonstrate that an important new retention/identity assertion fails with the targeted behavior deliberately broken, then restore it and rerun.
+- Run `npm run check`, `npm run build` and the relevant browser scenarios. For workflow or appearance changes, follow the keyboard, focus and visual requirements in [browser testing](testing.md). Update capabilities and verification with actual outcomes and remaining gaps.
+
+### 2.2 Preserve layout through bounded source edits
+
+The source-apply implementation derives conservative replacement ranges and retains only uniquely matched declarations whose recorded headers, complete usage contexts and resolved owner/type bindings remain compatible. The existing unexposed-marker experiment is a starting fixture; it does not prove that edits in another file leave imports, type resolution, exposure, filters or other dependencies unchanged.
+
+Establish declaration and dependency continuity before retaining positions, then verify both views, repeated usages, undo/redo and fresh save/reopen. Retain explicit counterexamples for reordered declarations, reused names/spans, changed owners, file moves, retyping, additions and deletions. Define deliberate placement for new nodes and explicit invalidation for unmatched or unsafe mappings. Keep arbitrary replacements conservative until the evidence supports a broader policy. Step 2 is complete only when its broader acceptance criteria above are met.
 
 ## 3. Complete one graphical authoring workflow
 
-Build on the rendering and identity work to create a typed part and connect compatible ports. Keep semantic commands in the framework-independent workspace; canvas and Inspector actions share them.
+Implemented bounded slice: create a typed part and connect compatible ports using the rendering and identity contracts above. Semantic commands remain in the framework-independent workspace; canvas and Inspector actions share them.
 
 Work:
 
@@ -85,13 +115,21 @@ Acceptance:
 - Rejected edits and temporary invalid source retain the last valid diagram and the user's draft.
 - Browser evidence covers the actual end-to-end workflow, not only controlled unit-test responses.
 
-Audit transformation support before exposing controls. If a pinned engine cannot perform a safe command, document the gap and keep the action unavailable until an adapter or engine change supplies it.
+The pinned Toolkit audit confirmed `insertMember` for typed parts and connections, including promotion of a typed semicolon owner. Toolkit accepts some directionally invalid links; the workspace therefore checks direction, canonical type and exact evaluated endpoints independently. Unsupported endpoint paths remain unavailable. [Authoring scope](architecture/graphical-authoring.md).
 
 ## 4. Improve everyday editing
 
-Prioritize usability issues observed while completing the assembly workflow:
+Next bounded task: make source diagnostics navigable. The current Issues panel displays severity, filename, optional line and message, but has no source-navigation action. Trace the pinned diagnostic contract before adding range fields; do not invent a precise range when only a line or message is available. Reuse the existing source-reveal path and retain the open diagram, drafts and per-view geometry.
 
-- Source diagnostics that open the correct file and range.
+Acceptance for that task:
+
+- From an issue with a known file/line, open the correct source file and focus the available location by keyboard or pointer; explain a missing/stale location without selecting unrelated text.
+- Correct the draft and apply it successfully; keep the prior applied diagram and all draft text when validation fails.
+- Preserve compatible positions in both views, and keep selection, dirty/download feedback and undo/redo consistent.
+- Verify real-engine diagnostics plus controlled missing/stale-location cases, keyboard focus and changed light/dark/narrow layouts. Record local evidence separately from hosted CI.
+
+After that task, prioritize usability issues observed while completing the assembly workflow:
+
 - Consistent selection across Explorer, diagram and Inspector, with explicit source/canvas reveal actions.
 - Find/search and discoverable keyboard shortcuts.
 - Clear applied/draft/modified/download feedback.

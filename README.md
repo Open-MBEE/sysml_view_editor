@@ -2,7 +2,7 @@
 
 A browser-only SysML v2 workspace built with React, TypeScript and Vite. Edit source, open named SysML views and review supported graphical commands as source transactions.
 
-This is a fresh implementation under `DynamicalSystemsGroup/sysmlv2_view_editor`. The initial vertical slice covers project import, source application, named tree/structure views, reference-aware part rename, view creation, transaction undo/redo and project save/reopen. See [capabilities and limits](docs/capabilities.md).
+This is a fresh implementation under `DynamicalSystemsGroup/sysmlv2_view_editor`. The current slice covers project import, source application, named tree/structure views, reviewed rename and typed part/connection creation, bounded layout preservation, transaction undo/redo and project save/reopen. See [capabilities and limits](docs/capabilities.md).
 
 ## Development
 
@@ -16,6 +16,8 @@ npm run dev -- --host 127.0.0.1
 Open the URL printed by Vite. The example project loads automatically. Select an existing view in the sidebar, edit a source file and choose **Apply source**. Select a part in Model or the diagram to review a rename. **New view** creates an actual source declaration; advanced settings choose its source package.
 
 To try nested structural diagrams, use **Open** and select both files in [`examples/assembly/`](examples/assembly/). Choose **Diagram** to use the full pane. The `structure` view shows nested parts, directed inherited ports, their connection and a reference part. Select a port to inspect its declaration and usage context; moving an assembly carries its descendants. The `devices` view also reports an exposed action it cannot render. [Structural projection and limits](docs/architecture/structural-views.md).
+
+To author the assembly, choose **New part** in the diagram or **New part in selection** in the Inspector. Choose an owner such as `Assembly::Station::bay`, a part name and the `Assembly::Device` definition; review and apply the source change. Select a directed port and choose **Connect selected port**, or use **Connect ports** in the diagram. Pick usage-qualified endpoints with the same resolved type, from out/inout to in/inout. Conjugated or ambiguous endpoint paths are unavailable for graphical creation. Review/apply and undo/redo use the same workspace transaction path as rename. Compatible saved positions in both views survive these edits; uncertain mappings are reported and arranged again. [Authoring scope and failure behavior](docs/architecture/graphical-authoring.md).
 
 The [visualization example library](examples/README.md) covers comments/documentation, packages/imports, parts (blocks), ports, use cases, requirements, actions, states, sequences and filters. Its catalog records each named view's visual targets and current support gaps. Run `npm run test:examples` to check every project through the actual browser engines; `npm run examples:index` regenerates the library index after catalog changes.
 
@@ -48,7 +50,7 @@ The framework-independent workspace modules live in `src/lib/workspace/`. Engine
 - [Architecture and module interfaces](docs/architecture/README.md)
 - [Architecture decisions](docs/decisions/0001-foundation.md)
 - [Contributor guide](CONTRIBUTING.md)
-- [Next steps: identity/layout preservation, then graphical authoring](docs/next-steps.md)
+- [Milestone status and next steps](docs/next-steps.md)
 - [Local verification results](docs/verification.md)
 - [Security reporting](SECURITY.md)
 - [License and provenance](NOTICE)

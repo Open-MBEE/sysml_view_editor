@@ -25,11 +25,14 @@ const initial: WorkspaceState = {
   canRedo: false,
   diagnostics: [],
   view: null,
+  layoutNotices: [],
 };
 type Mode = 'split' | 'code' | 'diagram';
 export function Workbench() {
   const ref = useRef<Workspace | null>(null),
     picker = useRef<HTMLInputElement>(null);
+  const workspaceSurface = useRef<HTMLElement>(null);
+  const reviewGeneration = useRef(0);
   const [state, setState] = useState(initial),
     [file, setFile] = useState('model.sysml'),
     [selected, setSelected] = useState(''),
@@ -41,9 +44,9 @@ export function Workbench() {
     symbol: string;
   }>();
   const [mode, setMode] = useState<Mode>('split'),
-    [dialog, setDialog] = useState<'project' | 'view' | 'proposal' | null>(
-      null,
-    );
+    [dialog, setDialog] = useState<
+      'project' | 'view' | 'part' | 'connection' | 'proposal' | null
+    >(null);
   const [proposal, setProposal] = useState<EditProposal>(),
     [focusRange, setFocusRange] = useState<{
       file: string;
@@ -222,20 +225,26 @@ export function Workbench() {
   function newView() {
     setDialog('view');
   }
+  function newPart() {
+    setDialog('part');
+  }
+  function newConnection() {
+    setDialog('connection');
+  }
   async function reviewRename(name: string) {
     if (!element) return;
-    setProposal(
-      await workspace().prepare({
-        kind: 'rename',
-        target: element.id,
-        name: name.trim(),
-      }),
-    );
-    setDialog('proposal');
+    await reviewView({ kind: 'rename', target: element.id, name: name.trim() });
   }
   async function reviewView(command: SemanticCommand) {
-    setProposal(await workspace().prepare(command));
-    setDialog('proposal');
+    const generation = ++reviewGeneration.current;
+    try {
+      const candidate = await workspace().prepare(command);
+      if (generation !== reviewGeneration.current) return;
+      setProposal(candidate);
+      setDialog('proposal');
+    } catch (reason) {
+      if (generation === reviewGeneration.current) throw reason;
+    }
   }
   async function accept() {
     if (!proposal) return;
@@ -247,12 +256,15 @@ export function Workbench() {
     setDialog(null);
     setMessage('Applied source transaction.');
     setFocusRange(undefined);
+    setSymbolSelection(undefined);
     if (command.kind === 'rename') {
       const split = command.target.lastIndexOf('::');
       setSelected(
         (split >= 0 ? command.target.slice(0, split + 2) : '') + command.name,
       );
     }
+    if (command.kind === 'createPart' || command.kind === 'connectPorts')
+      setSelected(command.owner + '::' + command.name);
     await refreshView(
       session,
       command.kind === 'createView'
@@ -311,6 +323,8 @@ export function Workbench() {
       );
   }
   function closeDialog() {
+    reviewGeneration.current++;
+    workspace().cancelPending();
     setDialog(null);
     setError('');
   }
@@ -440,7 +454,12 @@ export function Workbench() {
             ))}
           </div>
         </div>
-        <main className="workbench">
+        <main
+          className="workbench"
+          aria-label="Model workspace"
+          tabIndex={-1}
+          ref={workspaceSurface}
+        >
           <Explorer
             state={state}
             file={file}
@@ -485,6 +504,8 @@ export function Workbench() {
                 presentation={compatiblePresentation}
                 disabled={state.busy || state.unapplied}
                 onSelect={selectSymbol}
+                onCreatePart={newPart}
+                onConnectPorts={newConnection}
                 onMove={(positions) =>
                   void run(() => workspace().moveSymbols(positions))
                 }
@@ -498,11 +519,17 @@ export function Workbench() {
             onRename={(name) => void run(() => reviewRename(name))}
             onCreateView={newView}
             onSource={revealSource}
+            onCreatePart={newPart}
+            onConnectPorts={newConnection}
           />
         </main>
         <Issues diagnostics={state.diagnostics} error={dialog ? '' : error} />
         <footer>
-          <span role="status">{message}</span>
+          <span role="status">
+            {message}
+            {state.layoutNotices.some((notice) => notice.invalidated) &&
+              ` ${state.layoutNotices.reduce((total, notice) => total + notice.invalidated, 0)} saved positions were arranged again because their correspondence could not be verified.`}
+          </span>
           <span>
             {state.project?.documents.length ?? 0} files · revision{' '}
             {state.revision} · local browser workspace
@@ -510,9 +537,12 @@ export function Workbench() {
         </footer>
       </div>
       <WorkbenchDialogs
+        fallbackFocus={workspaceSurface}
         kind={dialog}
         model={state.model}
         selected={element}
+        view={state.view}
+        selectedSymbol={selectedCorrespondence?.symbol}
         proposal={proposal}
         documents={state.project?.documents ?? []}
         busy={state.busy}

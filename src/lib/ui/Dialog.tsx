@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, type ReactNode, type RefObject } from 'react';
 import {
   Dialog as DialogRoot,
   DialogContent,
@@ -11,11 +11,13 @@ export function Dialog({
   title,
   onClose,
   children,
+  fallbackFocus,
 }: {
   open: boolean;
   title: string;
   onClose: () => void;
   children: ReactNode;
+  fallbackFocus?: RefObject<HTMLElement | null>;
 }) {
   const returnFocus = useRef<HTMLElement | null>(null);
   useLayoutEffect(() => {
@@ -34,7 +36,12 @@ export function Dialog({
         aria-describedby={undefined}
         onCloseAutoFocus={(event) => {
           event.preventDefault();
-          returnFocus.current?.focus();
+          const original = returnFocus.current;
+          const target =
+            original?.isConnected && !original.matches(':disabled')
+              ? original
+              : fallbackFocus?.current;
+          target?.focus();
         }}
       >
         <DialogTitle>{title}</DialogTitle>

@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createWorkspace } from './createWorkspace';
 import type { SemanticEngine, TransformationEngine } from './editing';
-import type { ModelSnapshot } from './project';
+import { sourceDigest, type ModelSnapshot } from './project';
+import { sourceSplices } from './editing/evidence';
 import { readProject, type ProjectBundle } from './persistence';
 
 const source =
@@ -55,12 +56,20 @@ function setup() {
     ),
   };
   const transformations: TransformationEngine = {
-    propose: vi.fn<TransformationEngine['propose']>(async (documents) =>
-      documents.map((item) => ({
+    propose: vi.fn<TransformationEngine['propose']>(async (documents) => {
+      const after = documents.map((item) => ({
         ...item,
         text: item.text.replaceAll('A', 'B'),
-      })),
-    ),
+      }));
+      return {
+        documents: after,
+        evidence: {
+          beforeHash: await sourceDigest(documents),
+          afterHash: await sourceDigest(after),
+          splices: sourceSplices(documents, after),
+        },
+      };
+    }),
   };
   return {
     workspace: createWorkspace({ semantic, transformations }),
@@ -69,6 +78,32 @@ function setup() {
   };
 }
 describe('source transactions', () => {
+  it('cancels an in-flight proposal without changing source, layout or history', async () => {
+    const { workspace, transformations } = setup();
+    await workspace.open(project());
+    const before = workspace.serialize();
+    let release!: () => void;
+    const original = transformations.propose;
+    transformations.propose = async (...args) => {
+      await new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      return original(...args);
+    };
+    const pending = workspace.prepare({
+      kind: 'rename',
+      target: 'P::A',
+      name: 'B',
+    });
+    expect(workspace.snapshot().busy).toBe(true);
+    workspace.cancelPending();
+    expect(workspace.snapshot().busy).toBe(false);
+    release();
+    await expect(pending).rejects.toThrow('stale');
+    expect(workspace.serialize()).toBe(before);
+    expect(workspace.snapshot().canUndo).toBe(false);
+    expect(workspace.snapshot().canRedo).toBe(false);
+  });
   it('keeps drafts separate until a complete successful apply', async () => {
     const { workspace } = setup();
     await workspace.open(project());
@@ -90,11 +125,15 @@ describe('source transactions', () => {
     const { workspace } = setup();
     await workspace.open(project());
     await workspace.openView('P::v');
+    workspace.moveSymbol('symbol', { x: 30, y: 40 });
     const previous = workspace.snapshot();
     workspace.updateDraft('model.sysml', 'broken');
     await expect(workspace.apply()).rejects.toThrow('errors');
     expect(workspace.snapshot().model).toBe(previous.model);
     expect(workspace.snapshot().view).toBe(previous.view);
+    expect(workspace.snapshot().project?.presentations).toEqual(
+      previous.project?.presentations,
+    );
     expect(workspace.snapshot().project?.drafts[0]?.text).toBe('broken');
     expect(workspace.snapshot().diagnostics[0]?.message).toBe('Invalid source');
   });
@@ -183,6 +222,76 @@ describe('source transactions', () => {
   });
 });
 describe('views and project persistence', () => {
+  it('rejects a reviewed proposal after newer presentation movement', async () => {
+    const { workspace } = setup();
+    await workspace.open(project());
+    await workspace.openView('P::v');
+    const proposal = await workspace.prepare({
+      kind: 'rename',
+      target: 'P::A',
+      name: 'B',
+    });
+    workspace.moveSymbol('symbol', { x: 123, y: 456 });
+    const before = workspace.serialize();
+    expect(() => workspace.accept(proposal)).toThrow('stale');
+    expect(workspace.serialize()).toBe(before);
+    expect(workspace.snapshot().canUndo).toBe(false);
+  });
+  it('refuses malformed transformation evidence without changing source, layout or history', async () => {
+    const { workspace, transformations } = setup();
+    await workspace.open(project());
+    await workspace.openView('P::v');
+    workspace.moveSymbol('symbol', { x: 40, y: 50 });
+    const before = workspace.serialize(),
+      applied = workspace.snapshot().model;
+    const valid = await transformations.propose(project().documents, {
+      kind: 'rename',
+      target: 'P::A',
+      name: 'B',
+    });
+    vi.mocked(transformations.propose).mockResolvedValueOnce({
+      ...valid,
+      evidence: { ...valid.evidence, splices: [] },
+    });
+    await expect(
+      workspace.prepare({ kind: 'rename', target: 'P::A', name: 'B' }),
+    ).rejects.toThrow('reproduce');
+    expect(workspace.serialize()).toBe(before);
+    expect(workspace.snapshot().model).toBe(applied);
+    expect(workspace.snapshot().canUndo).toBe(false);
+  });
+  it('reports unavailable correspondence during review while retaining the source transaction for acceptance', async () => {
+    const { workspace, semantic } = setup();
+    await workspace.open(project());
+    await workspace.openView('P::v');
+    workspace.moveSymbol('symbol', { x: 40, y: 50 });
+    vi.mocked(semantic.evaluate).mockRejectedValueOnce(
+      new Error('View evaluation unavailable.'),
+    );
+    const proposal = await workspace.prepare({
+      kind: 'rename',
+      target: 'P::A',
+      name: 'B',
+    });
+    expect(proposal.layoutNotices).toEqual([
+      {
+        view: 'P::v',
+        retained: 0,
+        invalidated: 1,
+        reason: 'View evaluation unavailable.',
+      },
+    ]);
+    expect(
+      workspace.snapshot().project?.presentations['P::v']?.positions.symbol,
+    ).toEqual({ x: 40, y: 50 });
+    workspace.accept(proposal);
+    expect(workspace.snapshot().project?.presentations).toEqual({});
+    expect(workspace.snapshot().model?.modelHash).toBe('model-B');
+    workspace.undo();
+    expect(
+      workspace.snapshot().project?.presentations['P::v']?.positions.symbol,
+    ).toEqual({ x: 40, y: 50 });
+  });
   it('publishes a group movement once and rejects invalid batches without partial geometry', async () => {
     const { workspace, semantic } = setup();
     await workspace.open(project());

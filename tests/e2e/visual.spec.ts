@@ -66,3 +66,46 @@ test('workbench and keyboard-operated appearance at a narrow viewport', async ({
   await expect(dialog).not.toBeVisible();
   await expect(trigger).toBeFocused();
 });
+
+for (const appearance of [
+  { theme: 'light', narrow: false },
+  { theme: 'dark', narrow: false },
+  { theme: 'light', narrow: true },
+  { theme: 'dark', narrow: true },
+]) {
+  test(`structural authoring dialogs in ${appearance.theme}${appearance.narrow ? ' narrow' : ''}`, async ({
+    page,
+  }) => {
+    if (appearance.narrow)
+      await page.setViewportSize({ width: 768, height: 900 });
+    await ready(page);
+    await importAssembly(page);
+    await page.getByRole('button', { name: 'Appearance', exact: true }).click();
+    await page
+      .getByRole('dialog')
+      .getByLabel('Theme', { exact: true })
+      .selectOption(appearance.theme);
+    await page.getByRole('button', { name: 'Done', exact: true }).click();
+    for (const [action, title, file] of [
+      ['New part', 'New part', 'part'],
+      ['Connect ports', 'Connect ports', 'connection'],
+    ]) {
+      const trigger = page
+        .getByRole('region', { name: 'Diagram', exact: true })
+        .getByRole('button', { name: action!, exact: true });
+      await trigger.focus();
+      await page.keyboard.press('Enter');
+      const dialog = page.getByRole('dialog', { name: title!, exact: true });
+      await expect(dialog).toBeInViewport({ ratio: 1 });
+      await expect(
+        dialog.getByRole('button', { name: 'Review source', exact: true }),
+      ).toBeInViewport({ ratio: 1 });
+      await expect(dialog).toHaveScreenshot(
+        `authoring-${file}-${appearance.narrow ? (appearance.theme === 'dark' ? 'narrow-dark' : 'narrow') : appearance.theme}.png`,
+      );
+      await page.keyboard.press('Escape');
+      await expect(dialog).not.toBeVisible();
+      await expect(trigger).toBeFocused();
+    }
+  });
+}

@@ -22,6 +22,8 @@ export const SourceLocationSchema = Type.Object({
   file: Type.String(),
   offset: Type.Integer({ minimum: 0 }),
   length: Type.Integer({ minimum: 0 }),
+  nameOffset: Type.Optional(Type.Integer({ minimum: 0 })),
+  nameLength: Type.Optional(Type.Integer({ minimum: 0 })),
 });
 export const ModelElementSchema = Type.Object(
   {

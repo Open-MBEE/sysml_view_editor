@@ -1,6 +1,6 @@
 # Contributing
 
-Start with [current capabilities](docs/capabilities.md), [next steps](docs/next-steps.md), [architecture](docs/architecture/README.md) and the [design system](docs/design-system.md). The immediate goal is a small assembly that can be understood and edited from source or diagram while preserving layout and unrelated source content.
+Start with [current capabilities](docs/capabilities.md), [next steps](docs/next-steps.md), [architecture](docs/architecture/README.md) and the [design system](docs/design-system.md). The current milestone is a small assembly that can be understood and edited from source or diagram while preserving layout and unrelated source content. Reviewed part renames, bounded source-edit preservation and typed part/connection creation now share the transaction path. Start with their [acceptance criteria](docs/next-steps.md#21-preserve-layout-through-reviewed-part-renames) and [authoring limits](docs/architecture/graphical-authoring.md) before extending the next everyday-editing tasks.
 
 ## Get started
 

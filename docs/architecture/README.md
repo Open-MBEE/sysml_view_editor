@@ -21,19 +21,21 @@ The workspace imports neither React/DOM nor engine implementations. Engine adapt
 
 ## Transaction interface
 
-`prepare(command)` captures an applied revision, invokes Toolkit against the whole source set, validates the complete candidate with OpenSysML, checks command postconditions and returns an immutable proposal. It does not publish sources. `accept(proposal)` accepts only a proposal actually issued by that session against the current revision, then publishes one history entry. Draft changes invalidate outstanding proposals, including edit-and-revert sequences.
+`prepare(command)` captures an applied revision, invokes Toolkit against the whole source set, validates the complete candidate with OpenSysML, checks command postconditions and returns an immutable proposal. It does not publish sources. `accept(proposal)` accepts only a proposal actually issued by that session against the current revision, then publishes one history entry. Draft changes invalidate outstanding proposals, including edit-and-revert sequences. Symbol movement also invalidates prepared proposals so acceptance cannot overwrite newer geometry.
 
 Source application validates drafts independently of the previous applied snapshot. Invalid drafts retain the previous model/view. Cancellation and generation checks prevent late work from replacing current state. Closing a session terminates in-flight worker requests.
 
-Source changes conservatively invalidate presentation mappings. A future identity reconciliation policy must use verified mappings and dedicated fixtures. A source transaction can succeed while a renderer is unsupported; the workbench reports that separately.
+Source transactions reconcile every saved view before publication. Toolkit returns complete sources plus schema-validated edit evidence bound to before/after source digests. The workspace verifies exact UTF-8 replay, transports declaration origins and complete usage contexts, and retains only unique, compatible node positions. Bounded source application uses conservative byte changes and unchanged declaration headers. Unsafe mappings are invalidated explicitly; valid semantic source can still be accepted when a view mapping or renderer is unavailable. [Reconciliation policy](identity-reconciliation.md).
 
-The [identity investigation](identity-reconciliation.md) compares real worker outputs across revisions and tests a bounded rename mapping through verified Toolkit byte splices. Renderer symbols, declaration spans and usage contexts are revision-scoped; even unchanged values can identify another usage after an edit. Reconciliation remains unimplemented.
+The [identity investigation](identity-reconciliation.md) compares real worker outputs across revisions and tests a bounded rename mapping through verified Toolkit byte splices. Renderer symbols, declaration spans and usage contexts are revision-scoped; even unchanged values can identify another usage after an edit. The production implementation extends that evidence to reviewed creation and bounded source edits; the remaining scope and counterexamples are documented with the policy.
 
 ## Views
 
 Named views are actual SysML usages. Open existing views without authoring another declaration. New view takes a subject, representation and name; package ownership is advanced configuration. Definitions, exposure and filters remain source content. The canvas is a derived artifact and does not serialize the model.
 
 Semantic subject identity, usage context and symbol identity remain distinct. Geometry changes never imply semantic containment or connectivity. The bounded structural projection consumes engine parent IDs, typed inherited ports and explicit connection endpoints; port selection retains its usage context. `moveSymbols` validates a complete presentation batch before publishing it, so moving a group and its descendants keeps version-1 absolute coordinates consistent without a source transaction. [Structural projection, engine trace and limits](structural-views.md).
+
+Reviewed `createPart` and `connectPorts` commands share this transaction path with rename and view creation. The workspace verifies explicit endpoint direction, identical resolved port type and actual evaluated connection endpoints; Toolkit edit acceptance alone is insufficient. [Graphical authoring contracts](graphical-authoring.md).
 
 ## TypeBox
 
