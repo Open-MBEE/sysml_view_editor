@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-labelledby="title description">
+  <title id="title">SysML v2 View Editor</title>
+  <desc id="description">Author source, review changes and explore connected views. A browser workbench with local project files and pinned WebAssembly engines.</desc>
+  <defs>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <circle cx="1" cy="1" r="1" fill="#284157" />
+    </pattern>
+  </defs>
+  <rect width="1200" height="280" rx="16" fill="#102638" />
+  <path d="M814 0h370a16 16 0 0 1 16 16v248a16 16 0 0 1-16 16H814Z" fill="#132e40" />
+  <path d="M814 0h370a16 16 0 0 1 16 16v248a16 16 0 0 1-16 16H814Z" fill="url(#grid)" />
+  <rect x="56" y="48" width="32" height="4" rx="2" fill="#68dec6" />
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="102" y="56" fill="#b0d3dc" font-size="13" letter-spacing="2">SYSML V2 / BROWSER WORKSPACE</text>
+    <text x="54" y="130" fill="#f4f8fb" font-size="52" font-weight="700" letter-spacing="-1">SysML v2 View Editor</text>
+    <text x="56" y="175" fill="#c0d4df" font-size="21">Author source. Review changes. Explore connected views.</text>
+    <text x="56" y="235" fill="#68dec6" font-size="12" letter-spacing="1.5">SOURCE &amp; DIAGRAMS</text>
+    <path d="M250 223v15M487 223v15" stroke="#426174" />
+    <text x="272" y="235" fill="#c0d4df" font-size="12" letter-spacing="1.5">PINNED WASM ENGINES</text>
+    <text x="509" y="235" fill="#c0d4df" font-size="12" letter-spacing="1.5">LOCAL PROJECT FILES</text>
+    <rect x="856" y="56" width="288" height="168" rx="9" fill="#172f43" stroke="#496677" />
+    <text x="876" y="80" fill="#90b4c6" font-size="10" letter-spacing="1">PART DEFINITION</text>
+    <text x="876" y="105" fill="#f0f7fa" font-size="19" font-weight="600">PneumaticAssembly</text>
+    <path d="M856 120h288" stroke="#496677" />
+    <rect x="876" y="140" width="102" height="62" rx="5" fill="#203f49" stroke="#6b9d9d" />
+    <rect x="1022" y="140" width="102" height="62" rx="5" fill="#203f49" stroke="#6b9d9d" />
+    <text x="888" y="160" fill="#a4cfc8" font-size="10">part</text>
+    <text x="888" y="183" fill="#f0f7fa" font-size="17">pump</text>
+    <text x="1034" y="160" fill="#a4cfc8" font-size="10">part</text>
+    <text x="1034" y="183" fill="#f0f7fa" font-size="17">tank</text>
+    <path d="M978 177h44" stroke="#68dec6" stroke-width="2" />
+    <rect x="975" y="174" width="6" height="6" fill="#172f43" stroke="#9be4d7" />
+    <rect x="1019" y="174" width="6" height="6" fill="#172f43" stroke="#9be4d7" />
+    <text x="1000" y="162" text-anchor="middle" fill="#bdd7df" font-size="10">air</text>
+  </g>
+</svg>
