@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="#scope"><img src="https://img.shields.io/badge/Stage-Sandbox-d97706?style=flat-square" alt="Stage: Sandbox" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-2563eb?style=flat-square" alt="License: Apache 2.0" /></a>
   <a href=".nvmrc"><img src="https://img.shields.io/badge/Node.js-26.3.1-417e38?style=flat-square&amp;logo=nodedotjs&amp;logoColor=white" alt="Node.js: 26.3.1" /></a>
   <a href="src/"><img src="https://img.shields.io/badge/Language-TypeScript-3178c6?style=flat-square&amp;logo=typescript&amp;logoColor=white" alt="Language: TypeScript" /></a>
@@ -27,6 +28,8 @@
 </p>
 
 ---
+
+> **Sandbox stage** — Actively iterating on the design and implementation. Features, interfaces and workflows may change. Not intended for production use.
 
 SysML v2 View Editor brings source editing, named model views and reviewed graphical authoring into one local workbench. Open a multi-file model, inspect its structure and connections, review supported edits, then download the source and compatible diagram positions as one project.
 
@@ -49,7 +52,7 @@ SysML v2 View Editor brings source editing, named model views and reviewed graph
 - **Arrange your workspace.** Resize or collapse Explorer, Inspector, source/diagram panes and Issues using dividers, keyboard controls or panel options.
 - **Choose your appearance.** Use Light, Dark or Follow system, six diagram palettes and custom muted element colors. Theme and panel preferences stay in the browser.
 
-The editor is under active development. Structural workflows have real-engine browser coverage; behavior, use-case, state, sequence and geometry renderers remain unavailable. See [capabilities and limits](docs/capabilities.md) and [local verification](docs/verification.md) for the implemented scope.
+Structural workflows have real-engine browser coverage; behavior, use-case, state, sequence and geometry renderers remain unavailable. See [capabilities and limits](docs/capabilities.md) and [local verification](docs/verification.md) for the implemented scope.
 
 ## Quick start
 
