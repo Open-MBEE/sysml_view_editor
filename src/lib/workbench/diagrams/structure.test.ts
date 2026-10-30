@@ -110,3 +110,38 @@ it('keeps compatible saved positions when a new connection changes the automatic
   expect(absolutePositions(after.nodes)).toEqual(saved);
   expect(after.notice).toBe('');
 });
+
+it.each([0.1, 0.2, 55.46, 67.46, 100.12345])(
+  'retains a child on the exact owner boundary after fractional group movement (%s)',
+  async (offset) => {
+    const first = await layoutStructure(artifact, {});
+    first.nodes.find((node) => node.id === 'root')!.position = {
+      x: 92.88,
+      y: offset,
+    };
+    const bay = first.nodes.find((node) => node.id === 'bay')!;
+    const child = first.nodes.find((node) => node.id === 'left')!;
+    child.position = {
+      x: 100,
+      y: Number(bay.style!.height) - 32 - Number(child.style!.height),
+    };
+    const saved = absolutePositions(first.nodes);
+    const restored = await layoutStructure(artifact, saved);
+    expect(restored.notice).toBe('');
+    expect(absolutePositions(restored.nodes)).toEqual(saved);
+  },
+);
+
+it('still rejects positions meaningfully beyond an owner boundary', async () => {
+  const first = await layoutStructure(artifact, {});
+  const bay = first.nodes.find((node) => node.id === 'bay')!;
+  const child = first.nodes.find((node) => node.id === 'left')!;
+  child.position = {
+    x: 100,
+    y: Number(bay.style!.height) - 32 - Number(child.style!.height) + 0.001,
+  };
+  const saved = absolutePositions(first.nodes);
+  const restored = await layoutStructure(artifact, saved);
+  expect(restored.notice).toContain('outside the current owner');
+  expect(absolutePositions(restored.nodes).left).not.toEqual(saved.left);
+});

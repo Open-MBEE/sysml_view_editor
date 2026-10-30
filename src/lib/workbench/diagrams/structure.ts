@@ -7,6 +7,9 @@ export type StructureNode = Node<
   'structure'
 >;
 const padding = 32;
+// Subtracting fractional ancestor positions can put an exact boundary a few
+// ULPs outside its owner. This is below renderer precision, not extra drag room.
+const boundaryEpsilon = 1e-7;
 const width = 280;
 const layoutOptions = {
   'elk.algorithm': 'layered',
@@ -98,10 +101,10 @@ export async function layoutStructure(
       if (
         !min ||
         !max ||
-        (candidate.x >= min.x &&
-          candidate.y >= min.y &&
-          candidate.x <= max.x &&
-          candidate.y <= max.y)
+        (candidate.x >= min.x - boundaryEpsilon &&
+          candidate.y >= min.y - boundaryEpsilon &&
+          candidate.x <= max.x + boundaryEpsilon &&
+          candidate.y <= max.y + boundaryEpsilon)
       )
         position = candidate;
       else discarded = true;
