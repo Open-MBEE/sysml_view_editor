@@ -134,6 +134,20 @@ Use **Appearance** for Light/Dark/System, palettes and custom muted fills. Prefe
 
 Use the committed npm lockfile and the Node version in `.nvmrc`.
 
+If `just` is installed, the root `justfile` provides shortcuts for the npm scripts. Run `just` to list commands:
+
+```bash
+just install                        # npm ci
+just dev --host 127.0.0.1
+just check
+just build
+just install-browser
+just test-e2e --project=functional --grep 'downloads and reopens'
+just preview --host 127.0.0.1
+```
+
+Script names containing colons use hyphens in recipes: `just engines-prepare`, `just check-architecture`, `just examples-index`, `just test-examples` and `just test-e2e`. Recipes with arguments forward them to the underlying command, preserving quoted values. Node selection and npm scripts remain unchanged; `just` is optional.
+
 ```bash
 npm run check                       # formatting, architecture, types and unit checks
 npm run build                       # prepare engines and build static output
