@@ -50,10 +50,12 @@ npx shadcn@latest add @shadcn/button @shadcn/dialog @shadcn/input @shadcn/native
 
 Run the repository context checks before dependency changes and follow its dependency approval rule. Review resulting sources, retain license notices, and run the regular checks and affected browser scenarios. Installation follows the [official Vite setup](https://ui.shadcn.com/docs/installation/vite); registry discovery follows the [official MCP documentation](https://ui.shadcn.com/docs/mcp).
 
-This is a working foundation, not a claim of complete keyboard/screen-reader certification or parity with every previous control. Menus, command palette, tree navigation and broader SysML notation should be added with the workflows that need them.
+This is a working foundation, not a claim of complete keyboard/screen-reader certification or parity with every previous control. Menus, command palette and broader SysML notation should be added with the workflows that need them.
 
 ## Workbench composition
 
 Resizable, Tooltip and Popover are owned official registry primitives. `react-resizable-panels` 4.14.8 supplies resizing; the existing Radix package supplies popover/tooltip behavior. `ui/IconButton.tsx` composes the shared Button and Tooltip rather than introducing a second button style. Icons use Lucide and decorative SVGs remain hidden from accessibility names. Apply and Download keep visible labels.
 
 Tool headers, dividers, collapse controls and preference handling live in the workbench, outside semantic workspace state. Focus transfer follows committed visibility, hidden tools are inert, and panel geometry is a browser preference. See [panel contracts](architecture/workbench-layout.md).
+
+The Model tree uses the shared Button through `asChild` for its rows and IconButton for expand/collapse-all controls. Native `tree`, `treeitem` and `group` roles express ownership; one roving tab stop, explicit selection and arrow-key navigation belong to the tree component. Chevron targets fold branches without changing the inspected selection. Kind icons are decorative; text labels and full declaration/type tooltips provide context.

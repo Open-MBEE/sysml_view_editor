@@ -130,6 +130,27 @@ export async function importWorkshop(page: Page) {
   ).toBeEnabled();
 }
 
+/** The titled row identifies the declaration; its nearest treeitem owns selection. */
+export function modelTreeItem(page: Page, id: string) {
+  return page
+    .getByRole('tree', { name: 'Model', exact: true })
+    .getByRole('treeitem')
+    .filter({ has: page.getByTitle(id, { exact: true }) })
+    .last();
+}
+export async function selectModelElement(page: Page, id: string) {
+  const row = page.getByTitle(id, { exact: true });
+  if (!(await row.isVisible()))
+    await page
+      .getByRole('button', { name: 'Expand all model elements', exact: true })
+      .click();
+  await row.click();
+  await expect(modelTreeItem(page, id)).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
+}
+
 export async function openView(page: Page, name: string) {
   const button = page.getByRole('button', { name, exact: true });
   await button.click();

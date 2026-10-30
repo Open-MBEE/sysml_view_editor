@@ -1,5 +1,6 @@
 import {
   test,
+  selectModelElement,
   waitForStartup,
   expect,
   ready,
@@ -47,7 +48,7 @@ for (const rename of [
         ],
       ),
     );
-    await page.getByTitle(rename.target, { exact: true }).click();
+    await selectModelElement(page, rename.target);
     await page
       .getByRole('textbox', { name: 'Name', exact: true })
       .fill(rename.name);

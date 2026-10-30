@@ -50,3 +50,13 @@ Lucide icons use the shared shadcn Button sizes, theme roles and focus indicator
 Apply and Download retain visible labels; frequent compact actions retain precise names such as Undo source. Native text-area undo is distinct from accepted source transaction history. No new undo keyboard binding or unimplemented shortcut hint is introduced. Existing kind labels remain visible alongside Explorer icons; those icons do not establish SysML notation support.
 
 [Browser testing](../testing.md) describes verification; [verification](../verification.md) records actual outcomes and remaining gaps. Full tab docking, floating windows, editor-language assistance and complete accessibility certification remain separate work.
+
+## Model ownership tree
+
+`workbench/explorer/model-tree.ts` projects the applied model using recorded `ownerId` relationships. It does not infer ownership from qualified-name prefixes, type references or diagram geometry. The separate Views list owns view navigation; view declarations and their rendering members are omitted from the Model tree. Missing/cyclic ownership is displayed at the top level with a notice, retaining reachable declarations.
+
+`ModelTree.tsx` owns expansion and keyboard focus for the visit. Root packages begin collapsed. Rows show the declaration name and resolved type label, or a human-readable kind when untyped; tooltips retain full identifiers. Deep indentation is bounded, and very narrow trees hide the secondary column while retaining accessible descriptions. Tree layout never changes a source, project, transaction or saved position.
+
+Navigation follows the [WAI-ARIA tree pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/): arrows move through visible rows and fold/unfold branches, Home/End reach the visible extremes, typed prefixes find visible names, and Enter/Space select the focused declaration. Focus and selection are separate. One treeitem participates in Tab order; shared focus styling distinguishes it from the inspected row.
+
+Diagram selection opens the selected declaration's owner chain without taking focus from the diagram. A UI request counter handles a second selection of the same symbol after its branch has been folded. These are reveal requests, not semantic revisions or identity reconciliation. Selecting a tree row retains the existing Inspector behavior; source-range reveal still requires diagram correspondence. Expansion is not portable project data or automatic work recovery.

@@ -4,6 +4,7 @@ import {
   ready,
   importAssembly,
   showAssemblyDiagram,
+  modelTreeItem,
 } from './support';
 
 for (const theme of ['light', 'dark']) {
@@ -160,6 +161,62 @@ for (const theme of ['light', 'dark']) {
       await expect(page).toHaveScreenshot(
         `panels-${theme}${narrow ? '-narrow' : ''}.png`,
       );
+    });
+  }
+}
+
+for (const theme of ['light', 'dark']) {
+  for (const narrow of [false, true]) {
+    test(`model ownership tree in ${theme}${narrow ? ' narrow' : ''}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: narrow ? 768 : 1440, height: 1100 });
+      await ready(page, { split: false });
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      await page
+        .getByRole('dialog')
+        .getByLabel('Theme', { exact: true })
+        .selectOption(theme);
+      await page.getByRole('button', { name: 'Done', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Explorer panel options', exact: true })
+        .click();
+      for (let i = 0; i < 4; i++)
+        await page
+          .getByRole('button', { name: 'Widen Explorer', exact: true })
+          .click();
+      await page.keyboard.press('Escape');
+      await expect(
+        page.getByRole('button', {
+          name: 'Explorer panel options',
+          exact: true,
+        }),
+      ).toBeFocused();
+      const behavior = modelTreeItem(page, 'CompressorBehavior');
+      await behavior.focus();
+      await page.keyboard.press('ArrowRight');
+      for (const name of ['SensePressure', 'ControlMotor', 'PumpAir']) {
+        await modelTreeItem(page, 'CompressorBehavior::' + name).focus();
+        await page.keyboard.press('ArrowRight');
+      }
+      await behavior.focus();
+      await page
+        .getByTitle('CompressorBehavior', { exact: true })
+        .scrollIntoViewIfNeeded();
+      await expect(
+        page.getByTitle('CompressorBehavior', { exact: true }),
+      ).toBeInViewport({ ratio: 1 });
+      await page
+        .getByRole('button', { name: 'Download project', exact: true })
+        .hover();
+      await expect(
+        page.getByRole('complementary', {
+          name: 'Project navigation',
+          exact: true,
+        }),
+      ).toHaveScreenshot(`model-tree-${theme}${narrow ? '-narrow' : ''}.png`);
     });
   }
 }

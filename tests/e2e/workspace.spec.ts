@@ -2,6 +2,8 @@ import {
   test,
   expect,
   openWorkshop,
+  selectModelElement,
+  modelTreeItem,
   waitForStartup,
   openView,
   diagramNode,
@@ -59,7 +61,7 @@ test('uses Toolkit rename, updates both references, and supports exact undo/redo
   const source = page.getByRole('textbox', { name: 'SysML source' });
   const original = await source.inputValue();
   const renamed = original.replaceAll('Motor', 'Drive');
-  await page.getByTitle('Workshop::Motor', { exact: true }).click();
+  await selectModelElement(page, 'Workshop::Motor');
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Drive');
   await page
     .getByRole('button', { name: 'Review rename', exact: true })
@@ -87,7 +89,7 @@ test('creates a native view declaration through a reviewed transaction', async (
   page,
 }) => {
   await openWorkshop(page);
-  await page.getByTitle('Workshop::Compressor', { exact: true }).click();
+  await selectModelElement(page, 'Workshop::Compressor');
   await page
     .getByRole('button', { name: 'New view of selection', exact: true })
     .click();
@@ -188,7 +190,7 @@ test('cancels a reviewed rename without changing source, references or history',
 }) => {
   await openWorkshop(page);
   const before = (await downloadProject(page)).bundle;
-  await page.getByTitle('Workshop::Motor', { exact: true }).click();
+  await selectModelElement(page, 'Workshop::Motor');
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Drive');
   await page
     .getByRole('button', { name: 'Review rename', exact: true })
@@ -222,8 +224,8 @@ test('distinguishes repeated usages when selecting a diagram symbol', async ({
       properties.getByText(`Workshop::Compressor::${usage}`, { exact: true }),
     ).toBeVisible();
     await expect(
-      page.getByTitle(`Workshop::Compressor::${usage}`, { exact: true }),
-    ).toHaveAttribute('aria-pressed', 'true');
+      modelTreeItem(page, `Workshop::Compressor::${usage}`),
+    ).toHaveAttribute('aria-selected', 'true');
     await properties
       .getByRole('button', { name: 'Open source', exact: true })
       .click();

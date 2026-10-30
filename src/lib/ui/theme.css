@@ -807,3 +807,132 @@ h4 {
   max-height: calc(100% - 20px);
   overflow: auto;
 }
+
+/* Model ownership is expressed by nested tree/group roles; indentation stays
+   bounded so deeply nested declarations remain reachable in narrow panels. */
+.model-tree,
+.model-tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.model-tree {
+  container-type: inline-size;
+}
+.model-tree [role='treeitem'] {
+  outline: none;
+}
+.model-tree-row {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  min-height: 32px;
+  gap: 4px;
+  padding: 3px 4px 3px calc(var(--tree-indent) + 4px);
+  border-radius: var(--sysml-control-radius);
+  cursor: pointer;
+  font-size: 12px;
+}
+.model-tree-row:hover {
+  background: var(--sysml-subtle);
+}
+.model-tree [aria-selected='true'] > .model-tree-row {
+  background: var(--sysml-active-bg);
+  color: var(--sysml-active-text);
+  box-shadow: inset 2px 0 var(--sysml-accent);
+}
+.model-tree [role='treeitem']:focus-visible > .model-tree-row {
+  outline: var(--sysml-focus-width) solid var(--sysml-accent);
+  outline-offset: -2px;
+}
+.model-tree-guides {
+  position: absolute;
+  inset-block: 0;
+  left: 14px;
+  width: var(--tree-indent);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--sysml-border) 0 1px,
+    transparent 1px 14px
+  );
+  pointer-events: none;
+}
+.model-tree-row.has-parent::after {
+  position: absolute;
+  left: var(--tree-indent);
+  top: 50%;
+  width: 8px;
+  border-top: 1px solid var(--sysml-border);
+  content: '';
+  pointer-events: none;
+}
+.model-tree-disclosure {
+  display: grid;
+  flex: 0 0 20px;
+  height: 26px;
+  place-items: center;
+}
+.model-tree-disclosure svg {
+  width: 12px;
+  height: 12px;
+}
+.model-tree-disclosure .expanded {
+  transform: rotate(90deg);
+}
+.model-tree-kind {
+  display: grid;
+  flex: 0 0 20px;
+  height: 22px;
+  place-items: center;
+  border-radius: 4px;
+  color: var(--sysml-muted);
+  background: var(--sysml-subtle);
+}
+.model-tree-kind svg {
+  width: 14px;
+  height: 14px;
+}
+.model-tree-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.model-tree-detail {
+  flex: 0 1 auto;
+  max-width: 42%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--sysml-muted);
+  font-size: 10px;
+  font-weight: 400;
+}
+.model-tree-actions {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+.model-tree-actions button {
+  width: 24px;
+  min-height: 24px;
+  height: 24px;
+  padding: 3px;
+}
+@container (max-width: 200px) {
+  .model-tree-detail {
+    display: none;
+  }
+}
+@media (forced-colors: active) {
+  .model-tree [role='treeitem']:focus-visible > .model-tree-row {
+    outline-color: Highlight;
+  }
+  .model-tree [aria-selected='true'] > .model-tree-row {
+    border: 1px solid Highlight;
+  }
+}

@@ -1,11 +1,13 @@
 import { Button } from '$lib/ui/primitives/button';
-import { Eye, FileCode2, Package, Box, Cuboid, Circle } from 'lucide-react';
+import { Eye, FileCode2 } from 'lucide-react';
+import { ModelTree } from './ModelTree';
 import type { WorkspaceState } from '$lib/workspace/createWorkspace';
 import type { ModelElement } from '$lib/workspace/project';
 export function Explorer({
   state,
   file,
   selected,
+  selectionRequest,
   onFile,
   onView,
   onSelect,
@@ -14,6 +16,7 @@ export function Explorer({
   state: WorkspaceState;
   file: string;
   selected: string;
+  selectionRequest: number;
   onFile: (name: string) => void;
   onView: (id: string) => void;
   onSelect: (element: ModelElement) => void;
@@ -74,37 +77,13 @@ export function Explorer({
         ))}
         {!views.length && <p>Create a view of a model element to begin.</p>}
       </section>
-      <section>
-        <h2>Model</h2>
-        {state.model?.elements
-          .filter((item) => !['viewUsage', 'viewDef'].includes(item.kind))
-          .map((element) => (
-            <Button
-              variant="ghost"
-              key={element.id}
-              className={selected === element.id ? 'active' : ''}
-              aria-pressed={selected === element.id}
-              title={element.id}
-              onClick={() => onSelect(element)}
-            >
-              <span className="kind-mark" aria-hidden="true">
-                {element.kind === 'package' ? (
-                  <Package />
-                ) : element.kind === 'partDef' ? (
-                  <Box />
-                ) : element.kind === 'partUsage' ? (
-                  <Cuboid />
-                ) : (
-                  <Circle />
-                )}
-              </span>
-              <span>
-                {element.name}
-                <small>{element.kind}</small>
-              </span>
-            </Button>
-          ))}
-      </section>
+      <ModelTree
+        key={state.project?.name}
+        elements={state.model?.elements ?? []}
+        selected={selected}
+        selectionRequest={selectionRequest}
+        onSelect={onSelect}
+      />
     </aside>
   );
 }

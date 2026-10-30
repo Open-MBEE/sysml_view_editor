@@ -1,5 +1,6 @@
 import {
   test,
+  selectModelElement,
   waitForStartup,
   expect,
   ready,
@@ -29,9 +30,7 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
       page.getByRole('group', { name: 'part primary : Device', exact: true }),
     );
   }
-  await page
-    .getByTitle('Assembly::Station::bay::primary', { exact: true })
-    .click();
+  await selectModelElement(page, 'Assembly::Station::bay::primary');
   const source = page.getByRole('textbox', {
     name: 'SysML source',
     exact: true,

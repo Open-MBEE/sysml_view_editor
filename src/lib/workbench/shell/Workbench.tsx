@@ -55,6 +55,7 @@ export function Workbench() {
   const [state, setState] = useState(initial),
     [file, setFile] = useState(exampleProject.documents[0]!.name),
     [selected, setSelected] = useState(''),
+    [treeSelectionRequest, setTreeSelectionRequest] = useState(0),
     [error, setError] = useState(''),
     [message, setMessage] = useState('Opening example project…');
   const [symbolSelection, setSymbolSelection] = useState<{
@@ -301,8 +302,10 @@ export function Workbench() {
         modelHash: state.view.modelHash,
         symbol,
       });
-    if (correspondence?.subject.qualifiedName)
+    if (correspondence?.subject.qualifiedName) {
       setSelected(correspondence.subject.qualifiedName);
+      setTreeSelectionRequest((request) => request + 1);
+    }
     const origin = correspondence?.subject.origin;
     setFocusRange(undefined);
     if (origin && state.project) {
@@ -512,6 +515,7 @@ export function Workbench() {
                 state={state}
                 file={file}
                 selected={selected}
+                selectionRequest={treeSelectionRequest}
                 onFile={(name) => {
                   setFile(name);
                   if (mode === 'diagram') setMode('split');
