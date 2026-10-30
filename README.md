@@ -2,7 +2,7 @@
 
 A browser-only SysML v2 workspace built with React, TypeScript and Vite. Edit source, open named SysML views and review supported graphical commands as source transactions.
 
-This is a fresh implementation under `DynamicalSystemsGroup/sysmlv2_view_editor`. The current slice covers project import, source application, named tree/structure views, reviewed rename and typed part/connection creation, bounded layout preservation, transaction undo/redo and project save/reopen. See [capabilities and limits](docs/capabilities.md).
+This is a fresh implementation under [`Open-MBEE/sysml_view_editor`](https://github.com/Open-MBEE/sysml_view_editor). The current slice covers project import, source application, named tree/structure views, reviewed rename and typed part/connection creation, bounded layout preservation, transaction undo/redo and project save/reopen. See [capabilities and limits](docs/capabilities.md).
 
 ## Development
 

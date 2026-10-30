@@ -6,7 +6,7 @@
 - Source owns semantic declarations, view exposure and filters. Presentation owns geometry. Preserve drafts and reject stale or partial semantic proposals.
 - For engine changes, read `engine-bridge/README.md`; preserve pins, checksums, notices and provenance. Compare behavior against the real worker contract.
 - Run `npm run check`, `npm run build` and relevant browser checks before finalizing. Report actual results and skipped checks. Keep README and capabilities accurate.
-- Put temporary files and captures in ignored `sandbox/`. Preserve unrelated changes. Before dependencies, commits, pushes or remote operations, run `ctxcheck` and inspect Git status; use DSG identity and SSH alias. Commit/push only when requested, on a feature branch, with explicit staged paths and Conventional Commits.
+- Put temporary files and captures in ignored `sandbox/`. Preserve unrelated changes. Before dependencies, commits, pushes or remote operations, inspect Git status and verify the checkout, Git identity, SSH agent and remote; honor configured local context checks. Commit/push only when requested, on a feature branch, with explicit staged paths and Conventional Commits.
 
 ## Frontend testing
 

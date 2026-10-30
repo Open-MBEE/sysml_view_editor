@@ -1,5 +1,13 @@
 # Verification record
 
+## Public-content review
+
+Recorded 2026-10-30. Reviewed all 186 tracked files and, before cleanup, 265 reachable Git blobs (32 binary). Pattern scans found no absolute home-directory paths, private-key/token markers, authenticated credential URLs or quoted credential assignments. Tracked PNGs contained no text or EXIF metadata chunks. This was a targeted local content review, not a comprehensive security audit.
+
+Removed a personal requester name and workstation-specific context/SSH instructions from current documentation. Contributor instructions now describe portable environment checks, and README names the current repository. Required copyright/provenance notices and standard Git author/committer attribution are retained. Earlier document versions remain in Git history; no history rewrite was performed. Ignored local artifacts and local Git/SSH configuration are outside the tracked repository.
+
+The final scan of all 186 tracked files found no personal/workstation-reference, home-path or credential-marker matches. Commit messages contained no home-path or credential-marker matches. URL hosts were public services or the documented loopback development address. `npm run check` passed formatting, architecture, TypeScript, 73 Vitest tests and 5 script tests; `npm run build` passed with the existing chunk-size warning. Browser checks were not rerun for these documentation-only changes.
+
 ## Panels, icons and richer startup checkpoint
 
 Recorded 2026-10-30 on `feat/clean-foundation`. The usability pass adds shadcn-based resizable panels, shared Lucide icon buttons, contextual panel edge rails and measured toolbar alignment. The startup project is now [Smart air workshop](../examples/air-compressor/README.md), opening Pneumatics in Diagram mode. These are local checks; hosted CI and publication are separate.
@@ -66,7 +74,7 @@ The security audit, Firefox/WebKit, hosted CI, complete accessibility/screen-rea
 
 ## Commit preparation
 
-Recorded 2026-10-30. Refreshed the README's explicit port direction/path limits and the roadmap's completed milestone wording. `ctxcheck` confirmed the DSG directory, identity, 1Password SSH agent and `github.com-dsg` origin on `feat/clean-foundation`.
+Recorded 2026-10-30. Refreshed the README's explicit port direction/path limits and the roadmap's completed milestone wording. The repository context, Git identity, SSH agent and remote were verified on `feat/clean-foundation`.
 
 `npm run check` passed formatting, architecture, TypeScript, all 64 Vitest tests and 5 Node script tests. `npm run build` passed engine preparation and the static build with the existing chunk-size warning. Only documentation changed after the assembly checkpoint's final runtime/browser verification; its 37 functional and 9 visual results above were retained rather than rerun. Hosted CI and other browsers were not run for commit preparation.
 

@@ -48,7 +48,7 @@ Preserve licenses and provenance for reused source. Dependency additions need ma
 
 Preserve unrelated working-tree changes and keep temporary files under ignored `sandbox/`. Use clear Conventional Commit messages and the repository PR template; stage explicit paths. Never include credentials or private models in a contribution.
 
-On DSG-managed checkouts, run `ctxcheck` and inspect Git status before dependency changes, commits, pushes or remote operations. Use the DSG identity and `github.com-dsg` SSH alias. Other contributors should verify their own checkout, identity and remote; they do not need DSG's local context tooling. Commits and pushes require user authorization in agent-assisted sessions.
+Before dependency changes, commits, pushes or remote operations, inspect Git status and verify the checkout, Git identity, SSH agent and remote. Run any context checks configured for your environment; machine-specific setup belongs in local configuration. Commits and pushes require user authorization in agent-assisted sessions. Follow the [public-content guidance](SECURITY.md#public-content) before publishing files or captures.
 
 ## Maintainer responsibilities
 

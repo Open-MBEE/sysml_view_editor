@@ -1,6 +1,6 @@
 # 0001: Browser workspace with explicit source transactions
 
-Date: 2026-10-26. Status: initial implementation direction requested by Rohan.
+Date: 2026-10-26. Status: initial implementation direction.
 
 ## Decisions
 
