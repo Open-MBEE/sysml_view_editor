@@ -1,7 +1,8 @@
 import {
   test,
   expect,
-  ready,
+  openWorkshop,
+  waitForStartup,
   openView,
   diagramNode,
   diagramState,
@@ -12,7 +13,7 @@ import {
 test('loads real source-defined views and keeps the view stable when changing files', async ({
   page,
 }) => {
-  await ready(page);
+  await openWorkshop(page);
   await page.getByRole('button', { name: 'views.sysml', exact: true }).click();
   await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
     /package WorkshopViews/,
@@ -26,7 +27,7 @@ test('loads real source-defined views and keeps the view stable when changing fi
 test('retains an invalid draft and the last valid diagram', async ({
   page,
 }) => {
-  await ready(page);
+  await openWorkshop(page);
   const before = await diagramState(page);
   const applied = (await downloadProject(page)).bundle.documents;
   await page
@@ -54,7 +55,7 @@ test('retains an invalid draft and the last valid diagram', async ({
 test('uses Toolkit rename, updates both references, and supports exact undo/redo', async ({
   page,
 }) => {
-  await ready(page);
+  await openWorkshop(page);
   const source = page.getByRole('textbox', { name: 'SysML source' });
   const original = await source.inputValue();
   const renamed = original.replaceAll('Motor', 'Drive');
@@ -85,7 +86,7 @@ test('uses Toolkit rename, updates both references, and supports exact undo/redo
 test('creates a native view declaration through a reviewed transaction', async ({
   page,
 }) => {
-  await ready(page);
+  await openWorkshop(page);
   await page.getByTitle('Workshop::Compressor', { exact: true }).click();
   await page
     .getByRole('button', { name: 'New view of selection', exact: true })
@@ -110,7 +111,7 @@ test('creates a native view declaration through a reviewed transaction', async (
 test('downloads and reopens a project with the draft and diagram positions intact', async ({
   page,
 }) => {
-  await ready(page);
+  await openWorkshop(page);
   const source = page.getByRole('textbox', { name: 'SysML source' });
   const original = await source.inputValue();
   const node = diagramNode(page, 'Workshop::Motor');
@@ -155,7 +156,7 @@ test('downloads and reopens a project with the draft and diagram positions intac
 
   // Reopen into a fresh page so the old renderer cannot supply the position.
   await page.reload();
-  await expect(node).toBeVisible();
+  await waitForStartup(page);
   await page.locator('input[type=file]').setInputFiles({
     name: 'saved.sysml-project.json',
     mimeType: 'application/json',
@@ -185,7 +186,7 @@ test('downloads and reopens a project with the draft and diagram positions intac
 test('cancels a reviewed rename without changing source, references or history', async ({
   page,
 }) => {
-  await ready(page);
+  await openWorkshop(page);
   const before = (await downloadProject(page)).bundle;
   await page.getByTitle('Workshop::Motor', { exact: true }).click();
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Drive');
@@ -210,7 +211,7 @@ test('cancels a reviewed rename without changing source, references or history',
 test('distinguishes repeated usages when selecting a diagram symbol', async ({
   page,
 }) => {
-  await ready(page);
+  await openWorkshop(page);
   const properties = page.getByRole('complementary', { name: 'Properties' });
   for (const usage of ['primary', 'standby']) {
     await diagramNode(page, `${usage} : Motor`).click();
@@ -241,7 +242,7 @@ test('distinguishes repeated usages when selecting a diagram symbol', async ({
 test('retains source, draft and diagram after engine asset failure, then recovers', async ({
   page,
 }) => {
-  await ready(page);
+  await openWorkshop(page);
   const source = page.getByRole('textbox', { name: 'SysML source' });
   const original = await source.inputValue();
   const draft = original + '\n// retained across engine failure\n';

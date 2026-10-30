@@ -21,7 +21,7 @@ export function SourceEditor({
   return (
     <section className="editor-pane" aria-label="Source editor">
       <header className="pane-heading">
-        <strong>{file.name}</strong>
+        <strong title={file.name}>{file.name}</strong>
         <span>SysML v2</span>
       </header>
       <label className="sr-only" htmlFor="source-text">

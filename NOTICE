@@ -30,9 +30,18 @@ calm-studio/apps/studio/src/lib/sysml/appearance.{ts,css,test.ts}.
 React UI primitives in src/lib/ui/primitives/ were obtained through the official
 shadcn registry (new-york-v4) on 2026-10-26 and adapted for compact controls.
 Copyright shadcn; MIT license retained in src/lib/ui/primitives/LICENSE.
+Resizable, Tooltip and Popover primitives were added from the same registry on
+2026-10-30. react-resizable-panels 4.14.8 (Brian Vaughn) is MIT licensed; its
+license is retained in static/licenses/react-resizable-panels.txt.
 Radix UI, cn, class-variance-authority, Lucide React, Tailwind CSS and
 animation utilities retain their upstream package licenses.
 
 Geist Latin variable font is bundled from @fontsource-variable/geist 5.3.0.
 Copyright 2024 The Geist Project Authors. SIL Open Font License 1.1 and
 asset provenance are retained in static/fonts/geist/.
+
+The Smart air workshop model in examples/air-compressor/ is copied from
+sysml_ide/examples/sysml-structural/air-compressor/ at revision
+bdb85e2341ba5a1a7ce3c6fab4f056c5cb6bca18 (Apache-2.0). Its nine SysML
+source files are retained unchanged; startup view/layout and rendering-scope
+documentation are maintained by this application.

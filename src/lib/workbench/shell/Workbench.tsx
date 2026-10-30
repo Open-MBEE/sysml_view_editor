@@ -1,8 +1,27 @@
+import {
+  WorkbenchLayout,
+  WorkbenchPanels,
+  WorkbenchToolbar,
+  IssuesToggle,
+} from './WorkbenchPanels';
+import {
+  Undo2,
+  Redo2,
+  FilePlus2,
+  FolderOpen,
+  Download,
+  Check,
+  X,
+  CodeXml,
+  Columns2,
+  Network,
+} from 'lucide-react';
+import { IconButton } from '$lib/ui/IconButton';
 import { Button } from '$lib/ui/primitives/button';
 import { AppearanceSettings } from '$lib/ui/AppearanceSettings';
 import { useEffect, useRef, useState } from 'react';
 import { createBrowserWorkspace } from './session';
-import { exampleProject } from './example';
+import { exampleProject, exampleView } from './example';
 import type { Workspace, WorkspaceState } from '$lib/workspace/createWorkspace';
 import { readProject, type ProjectBundle } from '$lib/workspace/persistence';
 import type { EditProposal, SemanticCommand } from '$lib/workspace/editing';
@@ -34,7 +53,7 @@ export function Workbench() {
   const workspaceSurface = useRef<HTMLElement>(null);
   const reviewGeneration = useRef(0);
   const [state, setState] = useState(initial),
-    [file, setFile] = useState('model.sysml'),
+    [file, setFile] = useState(exampleProject.documents[0]!.name),
     [selected, setSelected] = useState(''),
     [error, setError] = useState(''),
     [message, setMessage] = useState('Opening example project…');
@@ -43,7 +62,7 @@ export function Workbench() {
     modelHash: string;
     symbol: string;
   }>();
-  const [mode, setMode] = useState<Mode>('split'),
+  const [mode, setMode] = useState<Mode>('diagram'),
     [dialog, setDialog] = useState<
       'project' | 'view' | 'part' | 'connection' | 'proposal' | null
     >(null);
@@ -98,7 +117,7 @@ export function Workbench() {
     let closed = false;
     void session
       .open(exampleProject)
-      .then(() => refreshView(session))
+      .then(() => refreshView(session, exampleView))
       .then(() => {
         if (!closed) setMessage('Project opened locally.');
       })
@@ -329,7 +348,7 @@ export function Workbench() {
     setError('');
   }
   return (
-    <>
+    <WorkbenchLayout mode={mode}>
       <input
         className="sr-only"
         ref={picker}
@@ -356,149 +375,172 @@ export function Workbench() {
             <Button
               variant="ghost"
               disabled={state.busy || !state.project}
+              aria-label="New project"
               onClick={() => {
                 if (replaceAllowed()) setDialog('project');
               }}
             >
-              New project
+              <FilePlus2 aria-hidden="true" />
+              <span className="button-label">New project</span>
             </Button>
             <Button
               variant="ghost"
               disabled={state.busy || !state.project}
+              aria-label="Open"
               onClick={() => picker.current?.click()}
             >
-              Open
+              <FolderOpen aria-hidden="true" />
+              <span className="button-label">Open</span>
             </Button>
             <Button
               variant="default"
               disabled={!state.project || state.busy}
               onClick={() => void run(download)}
             >
+              <Download aria-hidden="true" />
               Download project
             </Button>
           </nav>
         </header>
-        <div className="actionbar">
-          <div>
-            <Button
-              variant="ghost"
-              disabled={state.busy || state.unapplied || !state.canUndo}
-              onClick={() =>
-                void run(async () => {
-                  const session = workspace(),
-                    id = session.snapshot().view?.view;
-                  session.undo();
-                  await refreshView(session, id);
-                })
-              }
+        <WorkbenchToolbar
+          history={
+            <div
+              className="source-history"
+              role="group"
+              aria-label="Source transaction history"
             >
-              Undo source
-            </Button>
-            <Button
-              variant="ghost"
-              disabled={state.busy || state.unapplied || !state.canRedo}
-              onClick={() =>
-                void run(async () => {
-                  const session = workspace(),
-                    id = session.snapshot().view?.view;
-                  session.redo();
-                  await refreshView(session, id);
-                })
-              }
+              <IconButton
+                variant="ghost"
+                disabled={state.busy || state.unapplied || !state.canUndo}
+                onClick={() =>
+                  void run(async () => {
+                    const session = workspace(),
+                      id = session.snapshot().view?.view;
+                    session.undo();
+                    await refreshView(session, id);
+                  })
+                }
+                label="Undo source"
+                size="icon-xs"
+                icon={Undo2}
+              />
+              <IconButton
+                variant="ghost"
+                disabled={state.busy || state.unapplied || !state.canRedo}
+                onClick={() =>
+                  void run(async () => {
+                    const session = workspace(),
+                      id = session.snapshot().view?.view;
+                    session.redo();
+                    await refreshView(session, id);
+                  })
+                }
+                label="Redo source"
+                size="icon-xs"
+                icon={Redo2}
+              />
+            </div>
+          }
+          sourceActions={
+            <div
+              className="source-actions"
+              role="group"
+              aria-label="Source actions"
             >
-              Redo source
-            </Button>
-          </div>
-          <div className="source-actions">
-            <span className={state.unapplied ? 'pending' : ''}>
-              {state.busy
-                ? 'Working…'
-                : state.unapplied
-                  ? 'Draft not applied'
-                  : 'Source applied'}
-            </span>
-            <Button
-              variant="ghost"
-              disabled={state.busy || !state.unapplied}
-              onClick={() => void run(() => workspace().discardDrafts())}
-            >
-              Discard draft
-            </Button>
-            <Button
-              variant="outline"
-              disabled={state.busy || !state.unapplied}
-              onClick={() =>
-                void run(async () => {
-                  const session = workspace(),
-                    id = session.snapshot().view?.view;
-                  await session.apply();
-                  setMessage('Source applied.');
-                  setFocusRange(undefined);
-                  await refreshView(session, id);
-                })
-              }
-            >
-              Apply source
-            </Button>
-          </div>
-          <div className="modes" aria-label="Editor layout">
-            {(['code', 'split', 'diagram'] as const).map((value) => (
+              <span className={state.unapplied ? 'pending' : ''}>
+                {state.busy
+                  ? 'Working…'
+                  : state.unapplied
+                    ? 'Draft not applied'
+                    : 'Source applied'}
+              </span>
               <Button
                 variant="ghost"
-                key={value}
-                aria-pressed={mode === value}
-                onClick={() => setMode(value)}
+                size="xs"
+                aria-label="Discard draft"
+                disabled={state.busy || !state.unapplied}
+                onClick={() => void run(() => workspace().discardDrafts())}
               >
-                {value.charAt(0).toUpperCase() + value.slice(1)}
+                <X aria-hidden="true" />
+                Discard
               </Button>
-            ))}
-          </div>
-        </div>
+              <Button
+                variant="outline"
+                size="xs"
+                disabled={state.busy || !state.unapplied}
+                onClick={() =>
+                  void run(async () => {
+                    const session = workspace(),
+                      id = session.snapshot().view?.view;
+                    await session.apply();
+                    setMessage('Source applied.');
+                    setFocusRange(undefined);
+                    await refreshView(session, id);
+                  })
+                }
+              >
+                <Check aria-hidden="true" />
+                Apply source
+              </Button>
+            </div>
+          }
+          modes={
+            <div className="modes" role="group" aria-label="Editor layout">
+              {(['code', 'split', 'diagram'] as const).map((value) => (
+                <IconButton
+                  key={value}
+                  label={value.charAt(0).toUpperCase() + value.slice(1)}
+                  icon={
+                    { code: CodeXml, split: Columns2, diagram: Network }[value]
+                  }
+                  aria-pressed={mode === value}
+                  onClick={() => setMode(value)}
+                />
+              ))}
+            </div>
+          }
+        />
         <main
           className="workbench"
           aria-label="Model workspace"
           tabIndex={-1}
           ref={workspaceSurface}
         >
-          <Explorer
-            state={state}
-            file={file}
-            selected={selected}
-            onFile={(name) => {
-              setFile(name);
-              if (mode === 'diagram') setMode('split');
-            }}
-            onView={(id) => void run(() => workspace().openView(id))}
-            onSelect={selectElement}
-            onNewView={newView}
-          />
-          <div
-            className={
-              'editors ' +
-              (mode === 'code'
-                ? 'code-only'
-                : mode === 'diagram'
-                  ? 'diagram-only'
-                  : '')
-            }
-          >
-            {mode !== 'diagram' && source && (
-              <SourceEditor
-                file={source}
-                disabled={state.busy}
-                selection={
-                  focusRange?.file === source.name ? focusRange : undefined
-                }
-                onChange={(text) =>
-                  void run(() => {
-                    setFocusRange(undefined);
-                    workspace().updateDraft(source.name, text);
-                  })
-                }
+          <WorkbenchPanels
+            explorer={
+              <Explorer
+                state={state}
+                file={file}
+                selected={selected}
+                onFile={(name) => {
+                  setFile(name);
+                  if (mode === 'diagram') setMode('split');
+                }}
+                onView={(id) => void run(() => workspace().openView(id))}
+                onSelect={selectElement}
+                onNewView={newView}
               />
-            )}
-            <div className="diagram-slot" hidden={mode === 'code'}>
+            }
+            source={
+              source ? (
+                <SourceEditor
+                  file={source}
+                  disabled={state.busy}
+                  selection={
+                    focusRange?.file === source.name ? focusRange : undefined
+                  }
+                  onChange={(text) =>
+                    void run(() => {
+                      setFocusRange(undefined);
+                      workspace().updateDraft(source.name, text);
+                    })
+                  }
+                />
+              ) : null
+            }
+            diagram={
               <Diagram
+                layoutMode={mode}
                 key={(state.view?.view ?? 'none') + ':' + state.revision}
                 view={state.view}
                 presentation={compatiblePresentation}
@@ -510,21 +552,36 @@ export function Workbench() {
                   void run(() => workspace().moveSymbols(positions))
                 }
               />
-            </div>
-          </div>
-          <Properties
-            element={element}
-            usageContext={usageContext}
-            disabled={state.busy || state.unapplied}
-            onRename={(name) => void run(() => reviewRename(name))}
-            onCreateView={newView}
-            onSource={revealSource}
-            onCreatePart={newPart}
-            onConnectPorts={newConnection}
+            }
+            inspector={
+              <Properties
+                element={element}
+                usageContext={usageContext}
+                disabled={state.busy || state.unapplied}
+                onRename={(name) => void run(() => reviewRename(name))}
+                onCreateView={newView}
+                onSource={revealSource}
+                onCreatePart={newPart}
+                onConnectPorts={newConnection}
+              />
+            }
+            issues={
+              <Issues
+                diagnostics={state.diagnostics}
+                error={dialog ? '' : error}
+              />
+            }
+            issueKey={
+              state.diagnostics.length || (!dialog && error)
+                ? JSON.stringify([state.diagnostics, dialog ? '' : error])
+                : ''
+            }
           />
         </main>
-        <Issues diagnostics={state.diagnostics} error={dialog ? '' : error} />
         <footer>
+          <IssuesToggle
+            count={state.diagnostics.length + (!dialog && error ? 1 : 0)}
+          />
           <span role="status">
             {message}
             {state.layoutNotices.some((notice) => notice.invalidated) &&
@@ -555,6 +612,6 @@ export function Workbench() {
         onReviewView={(command) => void run(() => reviewView(command))}
         onAccept={() => void run(accept)}
       />
-    </>
+    </WorkbenchLayout>
   );
 }

@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react';
+import { DiagramControls } from './DiagramControls';
+import { SquarePlus, Cable } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
   Background,
-  Controls,
   applyNodeChanges,
   useReactFlow,
   useNodesInitialized,
@@ -17,17 +18,49 @@ import { Button } from '$lib/ui/primitives/button';
 import { layoutStructure, absolutePositions } from './structure';
 import { StructureNode, SelectDiagramSymbol } from './StructureNode';
 const nodeTypes = { structure: StructureNode };
-function FitAvailableSpace({ padding }: { padding: number }) {
+function FitAvailableSpace({
+  padding,
+  layoutMode,
+}: {
+  padding: number;
+  layoutMode: string;
+}) {
   const width = useStore((state) => state.width);
   const height = useStore((state) => state.height);
   const initialized = useNodesInitialized();
   const { fitView } = useReactFlow();
+  const fitted = useRef(false);
+  const previousMode = useRef(layoutMode);
   useEffect(() => {
-    if (initialized && width > 0 && height > 0)
-      void fitView({ padding, maxZoom: 1 });
-  }, [initialized, width, height, padding, fitView]);
+    if (previousMode.current !== layoutMode) {
+      previousMode.current = layoutMode;
+      fitted.current = false;
+    }
+    if (
+      fitted.current ||
+      layoutMode === 'code' ||
+      !initialized ||
+      width <= 0 ||
+      height <= 0
+    )
+      return;
+    // Wait for the panel layout and React Flow's ResizeObserver to settle.
+    // Divider movement alone never resets this flag or the user's camera.
+    let secondFrame = 0;
+    const firstFrame = requestAnimationFrame(() => {
+      secondFrame = requestAnimationFrame(() => {
+        fitted.current = true;
+        void fitView({ padding, maxZoom: 1 });
+      });
+    });
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+    };
+  }, [initialized, width, height, padding, fitView, layoutMode]);
   return null;
 }
+
 import type {
   EvaluatedView,
   ViewPresentation,
@@ -41,6 +74,7 @@ interface Props {
   onMove: (positions: Record<string, Point>) => void;
   onCreatePart: () => void;
   onConnectPorts: () => void;
+  layoutMode: 'code' | 'split' | 'diagram';
 }
 export function Diagram({
   view,
@@ -50,12 +84,14 @@ export function Diagram({
   onMove,
   onCreatePart,
   onConnectPorts,
+  layoutMode,
 }: Props) {
   const [nodes, setNodes] = useState<Node[]>([]),
     [edges, setEdges] = useState<Edge[]>([]),
     [arranging, setArranging] = useState(false),
     [failure, setFailure] = useState(''),
-    [layoutNotice, setLayoutNotice] = useState('');
+    [layoutNotice, setLayoutNotice] = useState(''),
+    [locked, setLocked] = useState(false);
   const supported =
     view?.status === 'complete' &&
     view.renderStatus === 'available' &&
@@ -208,6 +244,7 @@ export function Diagram({
             disabled={disabled || !view}
             onClick={onCreatePart}
           >
+            <SquarePlus aria-hidden="true" />
             New part
           </Button>
           <Button
@@ -215,6 +252,7 @@ export function Diagram({
             disabled={disabled || view?.artifact?.kind !== 'interconnection'}
             onClick={onConnectPorts}
           >
+            <Cable aria-hidden="true" />
             Connect ports
           </Button>
         </div>
@@ -259,7 +297,8 @@ export function Diagram({
                 fitView
                 fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
                 nodesConnectable={false}
-                nodesDraggable={!disabled}
+                nodesDraggable={!disabled && !locked}
+                elementsSelectable={!locked}
                 deleteKeyCode={null}
                 onNodeClick={(_event, node) => onSelect(node.id)}
                 onNodeDragStop={(_event, node) =>
@@ -273,12 +312,19 @@ export function Diagram({
                 }
               >
                 <FitAvailableSpace
+                  layoutMode={layoutMode}
                   padding={
                     view?.artifact?.kind === 'interconnection' ? 0.1 : 0.2
                   }
                 />
                 <Background />
-                <Controls />
+                <DiagramControls
+                  locked={locked}
+                  onLock={setLocked}
+                  padding={
+                    view?.artifact?.kind === 'interconnection' ? 0.1 : 0.2
+                  }
+                />
               </ReactFlow>
             </SelectDiagramSymbol.Provider>
           </ReactFlowProvider>

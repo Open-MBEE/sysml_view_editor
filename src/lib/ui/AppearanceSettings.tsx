@@ -1,3 +1,4 @@
+import { Palette } from 'lucide-react';
 import {
   NativeSelect,
   NativeSelectOption,
@@ -79,8 +80,10 @@ export function AppearanceSettings() {
         variant="ghost"
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
+        aria-label="Appearance"
       >
-        Appearance
+        <Palette aria-hidden="true" />
+        <span className="button-label">Appearance</span>
       </Button>
       <Dialog open={open} title="Appearance" onClose={() => setOpen(false)}>
         <div className="appearance-options">

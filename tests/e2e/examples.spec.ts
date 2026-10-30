@@ -1,5 +1,6 @@
 import {
   test,
+  waitForStartup,
   expect,
   ready,
   observeEvaluations,
@@ -103,9 +104,7 @@ for (const entry of catalog.examples) {
     expect(bundle.documents).toEqual(documents);
     expect(bundle.drafts).toEqual(documents);
     await page.reload();
-    await expect(
-      page.getByRole('button', { name: 'overview', exact: true }),
-    ).toHaveAttribute('aria-current', 'page');
+    await waitForStartup(page);
     await page.locator('input[type=file]').setInputFiles({
       name: entry.id + '.sysml-project.json',
       mimeType: 'application/json',

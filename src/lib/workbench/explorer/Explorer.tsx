@@ -1,5 +1,5 @@
 import { Button } from '$lib/ui/primitives/button';
-import { Eye, FileCode2 } from 'lucide-react';
+import { Eye, FileCode2, Package, Box, Cuboid, Circle } from 'lucide-react';
 import type { WorkspaceState } from '$lib/workspace/createWorkspace';
 import type { ModelElement } from '$lib/workspace/project';
 export function Explorer({
@@ -30,12 +30,13 @@ export function Explorer({
             variant="ghost"
             key={document.name}
             aria-label={document.name}
+            title={document.name}
             aria-current={file === document.name ? 'page' : undefined}
             className={file === document.name ? 'active' : ''}
             onClick={() => onFile(document.name)}
           >
             <FileCode2 aria-hidden="true" />
-            {document.name}
+            <span className="explorer-filename">{document.name}</span>
             {state.project?.documents.find(
               (item) => item.name === document.name,
             )?.text !== document.text && (
@@ -87,7 +88,15 @@ export function Explorer({
               onClick={() => onSelect(element)}
             >
               <span className="kind-mark" aria-hidden="true">
-                {element.kind === 'package' ? '▣' : '·'}
+                {element.kind === 'package' ? (
+                  <Package />
+                ) : element.kind === 'partDef' ? (
+                  <Box />
+                ) : element.kind === 'partUsage' ? (
+                  <Cuboid />
+                ) : (
+                  <Circle />
+                )}
               </span>
               <span>
                 {element.name}

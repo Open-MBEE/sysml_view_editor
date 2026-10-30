@@ -496,6 +496,439 @@
           ]
         }
       ]
+    },
+    {
+      "id": "air-compressor",
+      "title": "Smart air workshop",
+      "topics": [
+        "multiple-files",
+        "specialization",
+        "directed-ports",
+        "conjugation",
+        "connections",
+        "attributes",
+        "constraints",
+        "requirements",
+        "actions",
+        "states",
+        "use-cases",
+        "sequences",
+        "geometry"
+      ],
+      "files": [
+        "system.sysml",
+        "components.sysml",
+        "types.sysml",
+        "behavior.sysml",
+        "requirements.sysml",
+        "use-cases.sysml",
+        "views.sysml",
+        "sequence.sysml",
+        "geometry.sysml"
+      ],
+      "views": [
+        {
+          "id": "CompressorViews::overview",
+          "engineKind": "interconnection",
+          "app": "partial",
+          "nodeNames": [
+            "CompressorSystem::WorkshopContext",
+            "mains",
+            "compressor",
+            "tool",
+            "serviceConsole"
+          ],
+          "edgeKinds": ["connection", "connection"],
+          "targets": [
+            "Show the mains supply, compressor interface, tool and service console with their declared connections."
+          ],
+          "gaps": [
+            "Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::structure",
+          "engineKind": "interconnection",
+          "app": "partial",
+          "nodeNames": [
+            "CompressorSystem::Compressor",
+            "electrical",
+            "pneumatic",
+            "cooling",
+            "serviceConsole"
+          ],
+          "edgeKinds": [
+            "connection",
+            "connection",
+            "connection",
+            "connection",
+            "connection",
+            "connection"
+          ],
+          "targets": [
+            "Show electrical, pneumatic, cooling and service assemblies with authored cross-subsystem connections."
+          ],
+          "gaps": [
+            "Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded.",
+            "Nested typed assemblies remain component-level nodes; deeper connection endpoints are shown at those nodes rather than expanded internal ports."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::installation",
+          "engineKind": "interconnection",
+          "app": "partial",
+          "nodeNames": [
+            "CompressorSystem::Workshop",
+            "compressor",
+            "spareCompressor",
+            "tool",
+            "blowGun",
+            "operator",
+            "technician"
+          ],
+          "edgeKinds": ["connection", "connection"],
+          "targets": [
+            "Keep two installed compressor usages, tools and human roles distinct."
+          ],
+          "gaps": [
+            "Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded.",
+            "Nested typed assemblies remain component-level nodes; deeper connection endpoints are shown at those nodes rather than expanded internal ports."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::pneumatics",
+          "engineKind": "interconnection",
+          "app": "partial",
+          "nodeNames": [
+            "CompressorSystem::PneumaticAssembly",
+            "pump",
+            "tank",
+            "regulator",
+            "relief",
+            "pressureSensor"
+          ],
+          "edgeKinds": ["connection", "connection", "connection", "connection"],
+          "targets": [
+            "Show the pump, tank, regulator, relief valve and pressure sensor with all four port connections."
+          ],
+          "gaps": [
+            "Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::definitions",
+          "engineKind": "definition",
+          "app": "partial",
+          "nodeNames": [
+            "CompressorComponents::PowerSupply",
+            "CompressorComponents::Controller",
+            "CompressorComponents::Motor",
+            "CompressorComponents::Pump",
+            "CompressorComponents::Tank",
+            "CompressorComponents::Sensor",
+            "CompressorComponents::PressureSensor",
+            "CompressorComponents::TemperatureSensor",
+            "CompressorComponents::Valve",
+            "CompressorComponents::CheckValve",
+            "CompressorComponents::ReliefValve",
+            "CompressorComponents::CoolingFan",
+            "CompressorComponents::CoolingAssembly",
+            "CompressorComponents::ServiceConsole",
+            "CompressorComponents::CompressorInterface",
+            "CompressorComponents::Operator",
+            "CompressorComponents::Technician",
+            "CompressorComponents::AirTool",
+            "CompressorComponents::CoolingAssembly::fan",
+            "CompressorComponents::CoolingAssembly::temperature"
+          ],
+          "edgeKinds": [
+            "specialization",
+            "specialization",
+            "specialization",
+            "specialization",
+            "typing",
+            "composition",
+            "typing",
+            "composition"
+          ],
+          "targets": [
+            "Distinguish reusable part types, specialization, typing and composition."
+          ],
+          "gaps": [
+            "Definition graphs use generic relationship lines and fixed-width labels; dedicated specialization/typing notation is incomplete."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::requirements",
+          "engineKind": "tree",
+          "app": "partial",
+          "nodeNames": [
+            "CompressorRequirements::workshopSpecification",
+            "compressor",
+            "pressure",
+            "tank",
+            "capacity",
+            "tank",
+            "temperature",
+            "sensor",
+            "shutdown",
+            "controller",
+            "delivery",
+            "regulator",
+            "relief",
+            "valve"
+          ],
+          "edgeKinds": [],
+          "targets": [
+            "Show the owning workshop specification and applied requirement subjects without implying completed verification."
+          ],
+          "gaps": [
+            "This GeneralView produces a flat tree; dedicated requirement notation and satisfaction/verification trace links are not drawn."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::actions",
+          "engineKind": "action",
+          "app": "unavailable",
+          "nodeNames": [
+            "CompressorBehavior::CompressAir",
+            "sense",
+            "temperature",
+            "control",
+            "torque",
+            "pump",
+            "cool",
+            "store",
+            "deliver",
+            "start",
+            "done"
+          ],
+          "edgeKinds": [
+            "succession",
+            "flow",
+            "succession",
+            "flow",
+            "succession",
+            "flow",
+            "succession",
+            "succession",
+            "flow",
+            "succession",
+            "flow",
+            "succession",
+            "flow",
+            "succession",
+            "succession"
+          ],
+          "targets": [
+            "Show normal air supply steps, performer allocations and authored control/item-flow ordering."
+          ],
+          "gaps": [
+            "The engine emits an action artifact; this application has no action renderer."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::maintenance",
+          "engineKind": "action",
+          "app": "unavailable",
+          "nodeNames": [
+            "CompressorBehavior::ServiceCompressor",
+            "isolate",
+            "depressurize",
+            "inspect",
+            "replaceFilter",
+            "restore",
+            "start",
+            "done"
+          ],
+          "edgeKinds": [
+            "succession",
+            "succession",
+            "succession",
+            "succession",
+            "succession",
+            "succession"
+          ],
+          "targets": [
+            "Show isolation and depressurization before inspection, filter replacement and restoration."
+          ],
+          "gaps": [
+            "The engine emits an action artifact; this application has no action renderer."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::useCases",
+          "engineKind": "case",
+          "app": "unavailable",
+          "nodeNames": [
+            "CompressorUseCases::operateWorkshop",
+            "compressor",
+            "operator",
+            "technician",
+            "",
+            "charge",
+            "compressor",
+            "operator",
+            "",
+            "supply",
+            "compressor",
+            "operator",
+            "",
+            "protect",
+            "compressor",
+            "operator",
+            "",
+            "recover",
+            "compressor",
+            "operator",
+            "",
+            "service",
+            "compressor",
+            "technician",
+            ""
+          ],
+          "edgeKinds": [
+            "association",
+            "association",
+            "association",
+            "anchor",
+            "include",
+            "association",
+            "association",
+            "anchor",
+            "include",
+            "association",
+            "association",
+            "anchor",
+            "include",
+            "association",
+            "association",
+            "anchor",
+            "include",
+            "association",
+            "association",
+            "anchor",
+            "include",
+            "association",
+            "association",
+            "anchor"
+          ],
+          "targets": [
+            "Distinguish operator and technician objectives and their explicitly bound include usages."
+          ],
+          "gaps": [
+            "The engine emits a case artifact; this application has no case renderer."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::states",
+          "engineKind": "state",
+          "app": "unavailable",
+          "nodeNames": [
+            "CompressorBehavior::OperatingMode",
+            "",
+            "stopped",
+            "starting",
+            "charging",
+            "ready",
+            "supplying",
+            "cooling",
+            "fault",
+            "maintenance"
+          ],
+          "edgeKinds": [
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition"
+          ],
+          "targets": [
+            "Show operating states and event-triggered transitions without implying execution."
+          ],
+          "gaps": [
+            "The engine emits a state artifact; this application has no state renderer."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::startupSequence",
+          "engineKind": "sequence",
+          "app": "unavailable",
+          "nodeNames": ["operator", "controller", "sensor", "motor", "pump"],
+          "edgeKinds": ["flow", "flow", "flow", "flow", "flow", "flow", "flow"],
+          "targets": [
+            "Show five participants and the seven authored startup messages in order."
+          ],
+          "gaps": [
+            "The engine emits a sequence artifact; this application has no sequence renderer."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::demandSequence",
+          "engineKind": "sequence",
+          "app": "unavailable",
+          "nodeNames": ["tool", "tank", "controller", "motor", "pump"],
+          "edgeKinds": ["flow", "flow", "flow", "flow", "flow", "flow"],
+          "targets": [
+            "Show tool demand, delivery, pressure feedback and recharging."
+          ],
+          "gaps": [
+            "The engine emits a sequence artifact; this application has no sequence renderer."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::faultSequence",
+          "engineKind": "sequence",
+          "app": "unavailable",
+          "nodeNames": ["sensor", "controller", "motor", "fan", "operator"],
+          "edgeKinds": ["flow", "flow", "flow", "flow", "flow", "flow"],
+          "targets": [
+            "Show overheating feedback, stopping, cooling, alarm and recovery messages."
+          ],
+          "gaps": [
+            "The engine emits a sequence artifact; this application has no sequence renderer."
+          ],
+          "notices": []
+        },
+        {
+          "id": "CompressorViews::envelopeGeometry",
+          "engineKind": "geometry",
+          "app": "unavailable",
+          "nodeNames": ["CompressorGeometry::enclosure"],
+          "edgeKinds": [],
+          "targets": [
+            "Show the unit-bearing enclosure dimensions and authored coordinate-frame placement."
+          ],
+          "gaps": [
+            "The engine emits a geometry artifact; this application has no geometry renderer."
+          ],
+          "notices": [
+            "Dimensions and coordinate-frame poses evaluated in metres. Boxes are centered on their frame origins. Solids are inspected separately; meshes and void subtraction are unsupported."
+          ]
+        }
+      ]
     }
   ]
 }

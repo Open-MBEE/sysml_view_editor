@@ -71,16 +71,63 @@ export function diagramNode(page: Page, label: string) {
     .filter({ hasText: label });
 }
 
-export async function ready(page: Page) {
-  await page.goto('/');
-  await expect(diagramNode(page, 'Workshop::Motor')).toBeVisible();
+export async function waitForStartup(page: Page, { split = true } = {}) {
   await expect(
-    page.getByRole('button', { name: 'overview', exact: true }),
+    page.getByRole('group', { name: 'part pump : Pump', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByTitle('CompressorViews::pneumatics', { exact: true }),
   ).toHaveAttribute('aria-current', 'page');
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
+  if (split)
+    await page.getByRole('button', { name: 'Split', exact: true }).click();
   await page.evaluate(() => document.fonts.ready);
+}
+
+export async function ready(page: Page, options: { split?: boolean } = {}) {
+  await page.goto('/');
+  await waitForStartup(page, options);
+}
+
+/** Keep focused history/appearance regressions explicit about their small fixture. */
+export async function openWorkshop(page: Page) {
+  await ready(page);
+  await importWorkshop(page);
+}
+
+export async function importWorkshop(page: Page) {
+  const documents = await Promise.all(
+    ['model.sysml', 'views.sysml'].map(async (name) => ({
+      name,
+      text: await readFile(
+        new URL(`../../examples/workshop/${name}`, import.meta.url),
+        'utf8',
+      ),
+    })),
+  );
+  await page.locator('input[type=file]').setInputFiles({
+    name: 'workshop.sysml-project.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(
+      JSON.stringify({
+        format: 'sysmlv2-view-project',
+        version: 1,
+        name: 'Workshop',
+        documents,
+        drafts: documents,
+        presentations: {},
+      }),
+    ),
+  });
+  await expect(diagramNode(page, 'Workshop::Motor')).toBeVisible();
+  await expect(
+    page.getByTitle('WorkshopViews::overview', { exact: true }),
+  ).toHaveAttribute('aria-current', 'page');
+  await expect(
+    page.getByRole('button', { name: 'Download project', exact: true }),
+  ).toBeEnabled();
 }
 
 export async function openView(page: Page, name: string) {
@@ -270,8 +317,7 @@ export async function diagramState(page: Page) {
     );
 }
 
-export async function moveNode(page: Page, node: Locator) {
-  const before = await nodePosition(node);
+export async function dragNode(page: Page, node: Locator) {
   await node.scrollIntoViewIfNeeded();
   const box = await node.boundingBox();
   expect(box).not.toBeNull();
@@ -279,6 +325,11 @@ export async function moveNode(page: Page, node: Locator) {
   await page.mouse.down();
   await page.mouse.move(box!.x + 110, box!.y + 80, { steps: 8 });
   await page.mouse.up();
+}
+
+export async function moveNode(page: Page, node: Locator) {
+  const before = await nodePosition(node);
+  await dragNode(page, node);
   await expect.poll(() => nodePosition(node)).not.toEqual(before);
   return nodePosition(node);
 }
@@ -296,4 +347,104 @@ export async function downloadProject(page: Page) {
   for await (const chunk of stream!) chunks.push(Buffer.from(chunk));
   const buffer = Buffer.concat(chunks);
   return { buffer, bundle: JSON.parse(buffer.toString()) as ProjectBundle };
+}
+
+/** Pane and renderer geometry reads stay here; interactions use accessible names. */
+export async function regionSize(region: Locator, axis: 'width' | 'height') {
+  const box = await region.boundingBox();
+  if (!box) throw new Error('Expected a visible workspace region.');
+  return box[axis];
+}
+export async function dragSeparator(
+  page: Page,
+  name: string,
+  axis: 'x' | 'y',
+  delta: number,
+) {
+  const handle = page.getByRole('separator', { name, exact: true });
+  const box = await handle.boundingBox();
+  if (!box) throw new Error('Expected a visible panel separator.');
+  const x = box.x + box.width / 2,
+    y = box.y + box.height / 2;
+  await page.mouse.move(x, y);
+  await page.mouse.down();
+  await page.mouse.move(
+    x + (axis === 'x' ? delta : 0),
+    y + (axis === 'y' ? delta : 0),
+    { steps: 8 },
+  );
+  await page.mouse.up();
+}
+export async function diagramCamera(page: Page) {
+  return page
+    .getByRole('region', { name: 'Diagram', exact: true })
+    .locator('.react-flow__viewport')
+    .evaluate((element) => {
+      const matrix = new DOMMatrixReadOnly(getComputedStyle(element).transform);
+      return { x: matrix.e, y: matrix.f, zoom: matrix.a };
+    });
+}
+export async function panDiagram(page: Page) {
+  const pane = page
+    .getByRole('region', { name: 'Diagram', exact: true })
+    .locator('.react-flow__pane');
+  const box = await pane.boundingBox();
+  if (!box) throw new Error('Expected a visible diagram canvas.');
+  await page.mouse.move(box.x + 8, box.y + 8);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 43, box.y + 25, { steps: 5 });
+  await page.mouse.up();
+}
+
+export async function toolbarCenterOffsets(page: Page) {
+  const center = async (locator: Locator) => {
+    const box = await locator.boundingBox();
+    if (!box) throw new Error('Expected a visible toolbar group or pane.');
+    return box.x + box.width / 2;
+  };
+  return {
+    source: Math.abs(
+      (await center(
+        page.getByRole('group', { name: 'Source actions', exact: true }),
+      )) -
+        (await center(
+          page.getByRole('region', { name: 'Source editor', exact: true }),
+        )),
+    ),
+    modes: Math.abs(
+      (await center(
+        page.getByRole('group', { name: 'Editor layout', exact: true }),
+      )) -
+        (await center(
+          page.getByRole('region', { name: 'Diagram', exact: true }),
+        )),
+    ),
+  };
+}
+export async function iconCenterOffset(button: Locator) {
+  return button.evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    const icon = element.querySelector('svg')!.getBoundingClientRect();
+    return Math.max(
+      Math.abs(icon.x + icon.width / 2 - box.x - box.width / 2),
+      Math.abs(icon.y + icon.height / 2 - box.y - box.height / 2),
+    );
+  });
+}
+export async function railEdgeOffset(
+  page: Page,
+  label: string,
+  side: 'left' | 'right',
+) {
+  const main = await page
+    .getByRole('main', { name: 'Model workspace', exact: true })
+    .boundingBox();
+  const button = await page
+    .getByRole('button', { name: label, exact: true })
+    .boundingBox();
+  if (!main || !button)
+    throw new Error('Expected a visible workspace and reopen control.');
+  return side === 'left'
+    ? button.x - main.x
+    : main.x + main.width - button.x - button.width;
 }

@@ -8,7 +8,7 @@ import {
 
 for (const theme of ['light', 'dark']) {
   test(`workbench and appearance dialog in ${theme}`, async ({ page }) => {
-    await ready(page);
+    await ready(page, { split: false });
     const trigger = page.getByRole('button', {
       name: 'Appearance',
       exact: true,
@@ -51,7 +51,7 @@ test('workbench and keyboard-operated appearance at a narrow viewport', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 768, height: 900 });
-  await ready(page);
+  await ready(page, { split: false });
   await expect(page).toHaveScreenshot('workbench-narrow.png');
   const trigger = page.getByRole('button', { name: 'Appearance', exact: true });
   await trigger.focus();
@@ -108,4 +108,58 @@ for (const appearance of [
       await expect(trigger).toBeFocused();
     }
   });
+}
+
+for (const theme of ['light', 'dark']) {
+  for (const narrow of [false, true]) {
+    test(`resized workspace panels in ${theme}${narrow ? ' narrow' : ''}`, async ({
+      page,
+    }) => {
+      if (narrow) await page.setViewportSize({ width: 768, height: 900 });
+      await ready(page);
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      await page
+        .getByRole('dialog')
+        .getByLabel('Theme', { exact: true })
+        .selectOption(theme);
+      await page.getByRole('button', { name: 'Done', exact: true }).click();
+      if (narrow) {
+        await page
+          .getByRole('button', { name: 'Collapse Explorer', exact: true })
+          .click();
+        await page
+          .getByRole('button', { name: 'Show Inspector', exact: true })
+          .click();
+      } else {
+        await page
+          .getByRole('button', { name: 'Explorer panel options', exact: true })
+          .click();
+        await page
+          .getByRole('button', { name: 'Widen Explorer', exact: true })
+          .click();
+        await page.keyboard.press('Escape');
+      }
+      await page
+        .getByRole('button', { name: 'Show Issues', exact: true })
+        .click();
+      const handle = page.getByRole('separator', {
+        name: 'Resize Issues',
+        exact: true,
+      });
+      await expect(
+        page.getByRole('button', { name: 'Collapse Issues', exact: true }),
+      ).toBeFocused();
+      await handle.focus();
+      await expect(handle).toBeFocused();
+      await page.keyboard.press('ArrowUp');
+      await expect(
+        page.getByRole('region', { name: 'Issues', exact: true }),
+      ).toBeVisible();
+      await expect(page).toHaveScreenshot(
+        `panels-${theme}${narrow ? '-narrow' : ''}.png`,
+      );
+    });
+  }
 }

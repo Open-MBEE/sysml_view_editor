@@ -4,7 +4,7 @@ Updated 2026-10-30 from the development sequence recorded on 2026-10-26. Planned
 
 ## Current position
 
-The foundation, first structural rendering slice and visualization example library are committed in `a2d0d91` on `feat/clean-foundation`; the identity investigation is committed in `fd54b67`. The assembly editing milestone implements reviewed rename layout preservation, bounded source-edit preservation, and typed part/port-connection authoring. Local verification passed: 64 unit tests, 5 script tests, all 37 functional browser scenarios and the final 9 visual scenarios. [Verification](verification.md) records exact commands, inspected captures and the deliberate regression fault. These are local checks; hosted CI has not been run for this milestone.
+The foundation and identity investigation are committed in `a2d0d91` and `fd54b67`; the assembly editing milestone is committed in `ead6337` on `feat/clean-foundation`. It implements reviewed rename layout preservation, bounded source-edit preservation, and typed part/port-connection authoring. The current usability pass adds resizable panels, contextual Lucide controls and measured toolbar alignment. [Smart air workshop](../examples/air-compressor/README.md) replaces the small Workshop as startup: nine source files and fourteen named views, opening its pneumatic assembly in Diagram mode. The smaller examples remain focused workflow fixtures. [Verification](verification.md) records exact local results, inspected captures and deliberate regression faults; hosted CI has not been run for this pass.
 
 The [identity investigation](architecture/identity-reconciliation.md) compares fresh parses, definition/usage renames, an unrelated-file edit, offset shifts, reordered/inserted usages, file/owner moves and changed types. It records a counterexample where unchanged symbol/origin/context IDs identify the wrong usage. Its original complete splice-based join covered a definition rename. The new production browser scenarios verify both definition and usage renames, including distinct saved views and fresh import; broader comparison cases remain explicit invalidation targets.
 
@@ -118,6 +118,8 @@ Acceptance:
 The pinned Toolkit audit confirmed `insertMember` for typed parts and connections, including promotion of a typed semicolon owner. Toolkit accepts some directionally invalid links; the workspace therefore checks direction, canonical type and exact evaluated endpoints independently. Unsupported endpoint paths remain unavailable. [Authoring scope](architecture/graphical-authoring.md).
 
 ## 4. Improve everyday editing
+
+The usability pass adds [resizable panels and Lucide action icons](architecture/workbench-layout.md), with browser-only arrangement preferences and preservation checks.
 
 Next bounded task: make source diagnostics navigable. The current Issues panel displays severity, filename, optional line and message, but has no source-navigation action. Trace the pinned diagnostic contract before adding range fields; do not invent a precise range when only a line or message is available. Reuse the existing source-reveal path and retain the open diagram, drafts and per-view geometry.
 

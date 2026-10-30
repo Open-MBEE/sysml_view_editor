@@ -1,10 +1,18 @@
-import { test, expect, ready, diagramNode, downloadProject } from './support';
+import {
+  test,
+  expect,
+  openWorkshop,
+  importWorkshop,
+  waitForStartup,
+  diagramNode,
+  downloadProject,
+} from './support';
 
 test('separates appearance from model edits and follows system changes only when selected', async ({
   page,
 }) => {
   await page.emulateMedia({ colorScheme: 'dark' });
-  await ready(page);
+  await openWorkshop(page);
   const root = page.locator('html');
   await expect(root).toHaveAttribute('data-theme', 'light');
   const source = await page
@@ -53,7 +61,7 @@ test('separates appearance from model edits and follows system changes only when
 test('retains custom muted colors across palettes and reload, with keyboard dismissal and focus return', async ({
   page,
 }) => {
-  await ready(page);
+  await openWorkshop(page);
   const definition = diagramNode(page, 'Workshop::Motor');
   const originalFill = await definition.evaluate(
     (element) => getComputedStyle(element).backgroundColor,
@@ -78,6 +86,8 @@ test('retains custom muted colors across palettes and reload, with keyboard dism
   );
   await expect(trigger).toBeFocused();
   await page.reload();
+  await waitForStartup(page);
+  await importWorkshop(page);
   await expect(definition).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-palette', 'forest');
   await trigger.click();
@@ -102,7 +112,7 @@ test('retains custom muted colors across palettes and reload, with keyboard dism
 test('opens appearance by keyboard, traps focus in both directions and returns it', async ({
   page,
 }) => {
-  await ready(page);
+  await openWorkshop(page);
   const trigger = page.getByRole('button', { name: 'Appearance', exact: true });
   await trigger.focus();
   await page.keyboard.press('Enter');
@@ -129,7 +139,7 @@ test('keeps appearance usable when browser preference storage is denied', async 
       },
     });
   });
-  await ready(page);
+  await openWorkshop(page);
   await page.getByRole('button', { name: 'Appearance', exact: true }).click();
   await page
     .getByRole('dialog')

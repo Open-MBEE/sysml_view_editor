@@ -1,5 +1,6 @@
 import {
   test,
+  waitForStartup,
   expect,
   ready,
   importAssembly,
@@ -153,9 +154,7 @@ test('moves an assembly with its descendants and reopens absolute positions with
   await openView(page, 'structure');
   await expect.poll(() => nodePosition(primary)).toEqual(childAfter);
   await page.reload();
-  await expect(
-    page.getByRole('button', { name: 'overview', exact: true }),
-  ).toHaveAttribute('aria-current', 'page');
+  await waitForStartup(page);
   await page.locator('input[type=file]').setInputFiles({
     name: 'assembly.sysml-project.json',
     mimeType: 'application/json',

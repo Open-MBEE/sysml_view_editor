@@ -6,10 +6,11 @@ export function Issues({
   diagnostics: readonly Diagnostic[];
   error: string;
 }) {
-  if (!error && !diagnostics.length) return null;
   return (
     <section className="issues" aria-label="Issues">
-      <h2>Issues</h2>
+      {!error && !diagnostics.length && (
+        <p>No issues in the current applied model.</p>
+      )}
       {error && <p role="alert">{error}</p>}
       {diagnostics.map((item, index) => (
         <p key={index}>

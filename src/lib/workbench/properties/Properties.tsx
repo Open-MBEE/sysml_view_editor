@@ -1,3 +1,4 @@
+import { CodeXml, SquarePlus, Cable, Eye, Pencil } from 'lucide-react';
 import { Input } from '$lib/ui/primitives/input';
 import { Button } from '$lib/ui/primitives/button';
 import { useState } from 'react';
@@ -45,6 +46,7 @@ export function Properties({
             )}
           </dl>
           <Button variant="outline" disabled={disabled} onClick={onSource}>
+            <CodeXml aria-hidden="true" />
             Open source
           </Button>
           {['package', 'partDef', 'partUsage'].includes(element.kind) && (
@@ -53,6 +55,7 @@ export function Properties({
               disabled={disabled}
               onClick={onCreatePart}
             >
+              <SquarePlus aria-hidden="true" />
               New part in selection
             </Button>
           )}
@@ -62,6 +65,7 @@ export function Properties({
               disabled={disabled}
               onClick={onConnectPorts}
             >
+              <Cable aria-hidden="true" />
               Connect selected port
             </Button>
           )}
@@ -74,6 +78,7 @@ export function Properties({
             />
           )}
           <Button variant="outline" disabled={disabled} onClick={onCreateView}>
+            <Eye aria-hidden="true" />
             New view of selection
           </Button>
         </>
@@ -111,6 +116,7 @@ function RenameForm({
         variant="outline"
         disabled={disabled || name === element.name || !name.trim()}
       >
+        <Pencil aria-hidden="true" />
         Review rename
       </Button>
       <p>Updates resolved references across project files.</p>

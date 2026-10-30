@@ -1,5 +1,6 @@
 import {
   test,
+  waitForStartup,
   expect,
   ready,
   importAssembly,
@@ -196,9 +197,7 @@ test('creates a typed part and connects its actual inherited usage ports through
   }
   const saved = await downloadProject(page);
   await page.reload();
-  await expect(
-    page.getByRole('button', { name: 'overview', exact: true }),
-  ).toBeEnabled();
+  await waitForStartup(page);
   await page.locator('input[type=file]').setInputFiles({
     name: 'authored.sysml-project.json',
     mimeType: 'application/json',

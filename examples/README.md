@@ -6,20 +6,21 @@ The “blocks” examples use SysML v2 `part def` and `part` declarations. Lexic
 
 Status is per view: **rendered** covers the stated fixture scope; **partial** shows a useful subset with recorded gaps; **unavailable** means the engine evaluates the view but the app reports that its renderer is unavailable. No examples are silently skipped for missing renderers. Targets describe intended visual quality and need visual review; passing source/engine checks alone does not satisfy every target.
 
-| Project                                                   | Topics                                                                         | Named views and current app status                   |
-| --------------------------------------------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------- |
-| [Comments and documentation](comments/model.sysml)        | comments, documentation, annotations, unicode, long-labels                     | `overview`: partial; `maintenance`: partial          |
-| [Packages and imports](packages/model.sysml)              | packages, imports, ownership, multiple-files                                   | `outline`: partial; `dependencies`: unavailable      |
-| [Parts and definitions (blocks)](parts/model.sysml)       | parts, blocks, definitions, usages, specialization, references, repeated-names | `structure`: rendered; `definitions`: partial        |
-| [Ports and conjugation](ports/model.sysml)                | ports, interfaces, connections, conjugation                                    | `link`: partial                                      |
-| [Use cases and actors](use-cases/model.sysml)             | use-cases, actors, subjects, include, objectives                               | `scenarios`: unavailable; `definitions`: unavailable |
-| [Requirements and satisfaction](requirements/model.sysml) | requirements, documentation, constraints, satisfaction                         | `requirements`: unavailable                          |
-| [Actions and successions](actions/model.sysml)            | actions, behavior, succession, parameters                                      | `process`: unavailable                               |
-| [States and transitions](states/model.sysml)              | states, nested-states, transitions, initial-state                              | `states`: unavailable                                |
-| [Messages and sequence ordering](sequences/model.sysml)   | sequences, messages, occurrences, ordering                                     | `exchange`: unavailable                              |
-| [Filtered and empty views](filters/model.sysml)           | filters, metadata, recursive-exposure, empty-view                              | `reviewed`: rendered; `empty`: rendered              |
-| [Workshop foundation](workshop/model.sysml)               | multiple-files, shared-types, rename, tree                                     | `overview`: rendered; `compressor`: rendered         |
-| [Nested assembly](assembly/model.sysml)                   | assembly, nested-parts, directed-ports, connections, references, usage-context | `structure`: rendered; `devices`: partial            |
+| Project                                                   | Topics                                                                                                                                                           | Named views and current app status                                                                                                                                                                                                                                                                                                                                           |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [Comments and documentation](comments/model.sysml)        | comments, documentation, annotations, unicode, long-labels                                                                                                       | `overview`: partial; `maintenance`: partial                                                                                                                                                                                                                                                                                                                                  |
+| [Packages and imports](packages/model.sysml)              | packages, imports, ownership, multiple-files                                                                                                                     | `outline`: partial; `dependencies`: unavailable                                                                                                                                                                                                                                                                                                                              |
+| [Parts and definitions (blocks)](parts/model.sysml)       | parts, blocks, definitions, usages, specialization, references, repeated-names                                                                                   | `structure`: rendered; `definitions`: partial                                                                                                                                                                                                                                                                                                                                |
+| [Ports and conjugation](ports/model.sysml)                | ports, interfaces, connections, conjugation                                                                                                                      | `link`: partial                                                                                                                                                                                                                                                                                                                                                              |
+| [Use cases and actors](use-cases/model.sysml)             | use-cases, actors, subjects, include, objectives                                                                                                                 | `scenarios`: unavailable; `definitions`: unavailable                                                                                                                                                                                                                                                                                                                         |
+| [Requirements and satisfaction](requirements/model.sysml) | requirements, documentation, constraints, satisfaction                                                                                                           | `requirements`: unavailable                                                                                                                                                                                                                                                                                                                                                  |
+| [Actions and successions](actions/model.sysml)            | actions, behavior, succession, parameters                                                                                                                        | `process`: unavailable                                                                                                                                                                                                                                                                                                                                                       |
+| [States and transitions](states/model.sysml)              | states, nested-states, transitions, initial-state                                                                                                                | `states`: unavailable                                                                                                                                                                                                                                                                                                                                                        |
+| [Messages and sequence ordering](sequences/model.sysml)   | sequences, messages, occurrences, ordering                                                                                                                       | `exchange`: unavailable                                                                                                                                                                                                                                                                                                                                                      |
+| [Filtered and empty views](filters/model.sysml)           | filters, metadata, recursive-exposure, empty-view                                                                                                                | `reviewed`: rendered; `empty`: rendered                                                                                                                                                                                                                                                                                                                                      |
+| [Workshop foundation](workshop/model.sysml)               | multiple-files, shared-types, rename, tree                                                                                                                       | `overview`: rendered; `compressor`: rendered                                                                                                                                                                                                                                                                                                                                 |
+| [Nested assembly](assembly/model.sysml)                   | assembly, nested-parts, directed-ports, connections, references, usage-context                                                                                   | `structure`: rendered; `devices`: partial                                                                                                                                                                                                                                                                                                                                    |
+| [Smart air workshop](air-compressor/system.sysml)         | multiple-files, specialization, directed-ports, conjugation, connections, attributes, constraints, requirements, actions, states, use-cases, sequences, geometry | `overview`: partial; `structure`: partial; `installation`: partial; `pneumatics`: partial; `definitions`: partial; `requirements`: partial; `actions`: unavailable; `maintenance`: unavailable; `useCases`: unavailable; `states`: unavailable; `startupSequence`: unavailable; `demandSequence`: unavailable; `faultSequence`: unavailable; `envelopeGeometry`: unavailable |
 
 ## Visual targets and known gaps
 
@@ -204,6 +205,96 @@ Current gaps: The exposed Inspect action is reported as not shown; action render
 
 Expected engine notices include: “action def Assembly::Inspect has no place in an interconnection rendering; it is not shown”.
 
+### Smart air workshop
+
+Files: [system.sysml](air-compressor/system.sysml), [components.sysml](air-compressor/components.sysml), [types.sysml](air-compressor/types.sysml), [behavior.sysml](air-compressor/behavior.sysml), [requirements.sysml](air-compressor/requirements.sysml), [use-cases.sysml](air-compressor/use-cases.sysml), [views.sysml](air-compressor/views.sysml), [sequence.sysml](air-compressor/sequence.sysml), [geometry.sysml](air-compressor/geometry.sysml).
+
+**CompressorViews::overview** — engine artifact: `interconnection`; app: **partial**.
+
+- Show the mains supply, compressor interface, tool and service console with their declared connections.
+
+Current gaps: Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded.
+
+**CompressorViews::structure** — engine artifact: `interconnection`; app: **partial**.
+
+- Show electrical, pneumatic, cooling and service assemblies with authored cross-subsystem connections.
+
+Current gaps: Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded. Nested typed assemblies remain component-level nodes; deeper connection endpoints are shown at those nodes rather than expanded internal ports.
+
+**CompressorViews::installation** — engine artifact: `interconnection`; app: **partial**.
+
+- Keep two installed compressor usages, tools and human roles distinct.
+
+Current gaps: Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded. Nested typed assemblies remain component-level nodes; deeper connection endpoints are shown at those nodes rather than expanded internal ports.
+
+**CompressorViews::pneumatics** — engine artifact: `interconnection`; app: **partial**.
+
+- Show the pump, tank, regulator, relief valve and pressure sensor with all four port connections.
+
+Current gaps: Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded.
+
+**CompressorViews::definitions** — engine artifact: `definition`; app: **partial**.
+
+- Distinguish reusable part types, specialization, typing and composition.
+
+Current gaps: Definition graphs use generic relationship lines and fixed-width labels; dedicated specialization/typing notation is incomplete.
+
+**CompressorViews::requirements** — engine artifact: `tree`; app: **partial**.
+
+- Show the owning workshop specification and applied requirement subjects without implying completed verification.
+
+Current gaps: This GeneralView produces a flat tree; dedicated requirement notation and satisfaction/verification trace links are not drawn.
+
+**CompressorViews::actions** — engine artifact: `action`; app: **unavailable**.
+
+- Show normal air supply steps, performer allocations and authored control/item-flow ordering.
+
+Current gaps: The engine emits an action artifact; this application has no action renderer.
+
+**CompressorViews::maintenance** — engine artifact: `action`; app: **unavailable**.
+
+- Show isolation and depressurization before inspection, filter replacement and restoration.
+
+Current gaps: The engine emits an action artifact; this application has no action renderer.
+
+**CompressorViews::useCases** — engine artifact: `case`; app: **unavailable**.
+
+- Distinguish operator and technician objectives and their explicitly bound include usages.
+
+Current gaps: The engine emits a case artifact; this application has no case renderer.
+
+**CompressorViews::states** — engine artifact: `state`; app: **unavailable**.
+
+- Show operating states and event-triggered transitions without implying execution.
+
+Current gaps: The engine emits a state artifact; this application has no state renderer.
+
+**CompressorViews::startupSequence** — engine artifact: `sequence`; app: **unavailable**.
+
+- Show five participants and the seven authored startup messages in order.
+
+Current gaps: The engine emits a sequence artifact; this application has no sequence renderer.
+
+**CompressorViews::demandSequence** — engine artifact: `sequence`; app: **unavailable**.
+
+- Show tool demand, delivery, pressure feedback and recharging.
+
+Current gaps: The engine emits a sequence artifact; this application has no sequence renderer.
+
+**CompressorViews::faultSequence** — engine artifact: `sequence`; app: **unavailable**.
+
+- Show overheating feedback, stopping, cooling, alarm and recovery messages.
+
+Current gaps: The engine emits a sequence artifact; this application has no sequence renderer.
+
+**CompressorViews::envelopeGeometry** — engine artifact: `geometry`; app: **unavailable**.
+
+- Show the unit-bearing enclosure dimensions and authored coordinate-frame placement.
+
+Current gaps: The engine emits a geometry artifact; this application has no geometry renderer.
+
+Expected engine notices include: “Dimensions and coordinate-frame poses evaluated in metres. Boxes are centered on their frame origins. Solids are inspected separately; meshes and void subtraction are unsupported.”.
+
 ## Validate and extend the library
 
 Use the repository Node version and existing dependencies. Browser checks build current source and use the real pinned workers:
@@ -218,4 +309,4 @@ Add a small independent folder and a catalog entry with named views, exact expec
 
 `catalog.json` owns the index and test expectations; `catalog.ts` validates metadata and loads source. This README is generated by `npm run examples:index`; its synchronization and source-file coverage are checked by `npm run check`. `npm run test:examples` checks every project through import, each named view, actual worker artifacts, expected app availability and exact source download/reopen. Reports/captures go under ignored `sandbox/playwright/`.
 
-New examples are authored for this repository under its root Apache-2.0 license. Their accepted syntax is checked against the pinned implementation; this library is not a language-conformance suite. See [capabilities](../docs/capabilities.md) and [verification](../docs/verification.md) for application scope and checks actually performed.
+Focused examples are authored for this repository under its root Apache-2.0 license. The Smart air workshop model is imported from sysml_ide with source provenance recorded in its project README and root NOTICE. Their accepted syntax is checked against the pinned implementation; this library is not a language-conformance suite. See [capabilities](../docs/capabilities.md) and [verification](../docs/verification.md) for application scope and checks actually performed.

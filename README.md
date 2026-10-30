@@ -13,7 +13,7 @@ npm ci
 npm run dev -- --host 127.0.0.1
 ```
 
-Open the URL printed by Vite. The example project loads automatically. Select an existing view in the sidebar, edit a source file and choose **Apply source**. Select a part in Model or the diagram to review a rename. **New view** creates an actual source declaration; advanced settings choose its source package.
+Open the URL printed by Vite. **Smart air workshop** loads automatically in Diagram mode, showing its pneumatic assembly: pump, tank, regulator, relief valve and pressure sensor, with thirteen ports and four connections. Its nine source files cover reusable definitions, specialization, attributes, constraints, requirements, actions, states, use cases, sequences and geometry. Choose **Split** to edit source and **Apply source** to validate changes. All fourteen named views are listed; behavior/sequence/geometry renderers currently show explicit unavailable messages. [Model contents and rendering limits](examples/air-compressor/README.md). Select an existing view in the sidebar to explore it. Select a part in Model or the diagram to review a rename. **New view** creates an actual source declaration; advanced settings choose its source package.
 
 To try nested structural diagrams, use **Open** and select both files in [`examples/assembly/`](examples/assembly/). Choose **Diagram** to use the full pane. The `structure` view shows nested parts, directed inherited ports, their connection and a reference part. Select a port to inspect its declaration and usage context; moving an assembly carries its descendants. The `devices` view also reports an exposed action it cannot render. [Structural projection and limits](docs/architecture/structural-views.md).
 
@@ -38,6 +38,12 @@ Use `PLAYWRIGHT_BROWSER_CHANNEL=chrome npm run test:e2e -- --project=functional`
 **Download project** writes one `.sysml-project.json` containing applied sources, unapplied drafts and compatible symbol positions. **Open** accepts that bundle or multiple `.sysml` files. Browser downloads do not write back to an imported folder. Keep the downloaded file to preserve your work across reloads; the app currently has no automatic recovery store.
 
 Source declarations own semantic content, including view exposure and filters. Symbol movement changes presentation. Applied source and drafts remain separate; failed validation retains the previous applied model. [Project format](docs/architecture/project-format.md).
+
+## Panel layout
+
+Drag the dividers to resize Explorer, Inspector, Source/Diagram and the Issues dock, or focus a divider and use its arrow keys. Panel header options also resize without dragging. Collapse a side tool from its header and reopen it from its edge rail; the footer's **Issues** button opens the bottom dock. **Workspace layout** resets the arrangement or changes the source/diagram share.
+
+Layout preferences stay in this browser and never modify source, project files or undo history. Collapsed editors retain their contents; blocked preference storage keeps the layout usable for the current visit. Below 900 px the source/diagram split becomes vertical. Compact toolbar icons have accessible names and tooltips. [Panel behavior and preservation](docs/architecture/workbench-layout.md).
 
 ## Appearance
 

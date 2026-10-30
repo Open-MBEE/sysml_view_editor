@@ -44,3 +44,7 @@ Project files, semantic command input, worker envelopes and normalized engine re
 ## Testing seams
 
 Unit tests exercise workspace interfaces with controlled engine responses. These do not establish engine conformance. Browser scenarios run real Go/Rust-derived WASM, verify source changes and reopen project bundles. Engine preparation runs the retained Go bridge tests before building its module. Keep a failing model fixture with every semantic regression.
+
+## Workbench arrangement
+
+The [panel shell](workbench-layout.md) composes resizable tools and editors, with validated browser layout preferences and accessible icon actions. It owns no semantic transactions or portable-project fields. Divider movement retains camera/model-space geometry; explicit editor mode changes retain the existing fit-to-pane behavior.
