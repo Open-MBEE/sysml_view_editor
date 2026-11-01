@@ -437,3 +437,59 @@ for (const theme of ['light', 'dark']) {
     });
   }
 }
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [1440, 768, 390]) {
+    test(`OpenMBEE entry surfaces in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/');
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      await page.evaluate(() => document.fonts.ready);
+      await page.mouse.move(0, 0);
+      await expect(
+        page.getByRole('heading', {
+          name: 'OpenMBEE View Editor',
+          exact: true,
+          level: 1,
+        }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole('link', { name: 'Open app', exact: true }),
+      ).toBeInViewport({ ratio: 1 });
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBeLessThanOrEqual(width);
+      await expect(page).toHaveScreenshot(`landing-${theme}-${width}.png`, {
+        fullPage: true,
+      });
+      await page.getByRole('link', { name: 'Open app', exact: true }).click();
+      await expect(
+        page.getByRole('heading', { name: 'Open a project', exact: true }),
+      ).toBeFocused();
+      await expect(
+        page.getByRole('button', { name: 'Load example', exact: true }),
+      ).toBeEnabled();
+      await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
+      await page.mouse.move(0, 0);
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBeLessThanOrEqual(width);
+      await expect(page).toHaveScreenshot(`launcher-${theme}-${width}.png`, {
+        fullPage: true,
+      });
+    });
+  }
+}
