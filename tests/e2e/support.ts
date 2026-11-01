@@ -1,6 +1,6 @@
 import {
   test as base,
-  expect,
+  expect as baseExpect,
   type Locator,
   type Page,
 } from '@playwright/test';
@@ -62,7 +62,48 @@ export const test = base.extend<{ pageErrors: void }>({
     { auto: true },
   ],
 });
-export { expect };
+/** Copy through the real editor clipboard command, including virtualized lines.
+ * Reading the whole document focuses it and selects all; tests that assert a
+ * reveal/caret use copySourceSelection instead. No private editor DOM state.
+ */
+export async function copySourceSelection(source: Locator) {
+  const page = source.page();
+  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']);
+  await page.evaluate(() => navigator.clipboard.writeText(''));
+  await source.press('ControlOrMeta+c');
+  return page.evaluate(() => navigator.clipboard.readText());
+}
+export async function readSource(source: Locator) {
+  await source.press('ControlOrMeta+a');
+  return copySourceSelection(source);
+}
+export async function fillSource(source: Locator, text: string) {
+  await source.press('ControlOrMeta+a');
+  await source.page().keyboard.insertText(text);
+}
+export const expect = baseExpect.extend({
+  async toHaveSource(source: Locator, expected: string | RegExp) {
+    let error: unknown;
+    try {
+      await baseExpect
+        .poll(() => readSource(source))
+        .toEqual(
+          expected instanceof RegExp
+            ? baseExpect.stringMatching(expected)
+            : expected,
+        );
+    } catch (caught) {
+      error = caught;
+    }
+    return {
+      pass: !error,
+      message: () =>
+        error
+          ? String(error)
+          : 'Expected source not to match ' + String(expected),
+    };
+  },
+});
 
 export function diagramNode(page: Page, label: string) {
   return page

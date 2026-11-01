@@ -43,7 +43,7 @@ SysML v2 View Editor brings source editing, named model views and reviewed graph
 
 ## Features
 
-- **Edit source with retained drafts.** Apply or discard changes, undo/redo accepted source transactions, and keep the last valid model when a draft fails validation.
+- **Edit highlighted SysML source.** CodeMirror provides line numbers, bracket matching/closing, indentation, find/replace and draft undo/redo. Apply or discard changes, undo/redo accepted source transactions, and keep the last valid model when a draft fails validation.
 - **Open source-defined views.** Navigate named SysML views independently of the active source file. Inspect nested parts, typed inherited ports and resolved connection endpoints.
 - **Browse the model hierarchy.** Expand packages, definitions and declared members in the Model tree. Inspect type/kind labels; use arrow keys, type-ahead and Enter/Space to navigate and select.
 - **Review graphical changes.** Rename parts, create native views, add typed part usages and connect compatible directed ports through an exact source-change preview.
@@ -53,6 +53,8 @@ SysML v2 View Editor brings source editing, named model views and reviewed graph
 - **Choose your appearance.** Use Light, Dark or Follow system, six diagram palettes and custom muted element colors. Theme and panel preferences stay in the browser.
 
 Structural workflows have real-engine browser coverage; behavior, use-case, state, sequence and geometry renderers remain unavailable. See [capabilities and limits](docs/capabilities.md) and [local verification](docs/verification.md) for the implemented scope.
+
+In the source editor, use **Ctrl+F** / **Cmd+F** for find/replace and **Ctrl+Z** / **Cmd+Z** for draft editing undo; **Ctrl+Y** / **Cmd+Shift+Z** redo draft edits. **Tab** moves focus out of the editor. Toolbar **Undo source** / **Redo source** operate on accepted model revisions. Highlighting is lexical; the pinned engines still validate source when you apply it. Completion, hover, go-to-definition, formatting and inline diagnostics remain future work.
 
 ## Quick start
 
@@ -186,6 +188,8 @@ This implementation supports a bounded source/structure editing workflow. It doe
 Flexo MMS checkout and publishing are planned; the current workbench uses local project files. Read the [integration research](docs/research/openmbee-flexo-mms.md) and [roadmap](docs/next-steps.md#future-integrations-planned) for the proposed direction.
 
 ## Contributing
+
+The default branch, `develop`, holds ongoing sandbox work. Feature PRs target `develop`; releases and hotfixes follow the [Git Flow workflow](docs/git-workflow.md). `main` requires a code-owner approval and passing CI.
 
 Start with the [contribution guide](CONTRIBUTING.md), [architecture decisions](docs/decisions/0001-foundation.md) and the acceptance criteria in [next steps](docs/next-steps.md). Keep changes focused, preserve license/provenance notices and request approval before adding production dependencies. Use the [project repository](https://github.com/Open-MBEE/sysml_view_editor) for bugs and feature requests.
 

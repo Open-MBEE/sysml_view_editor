@@ -1,4 +1,5 @@
 import {
+  copySourceSelection,
   test,
   waitForStartup,
   expect,
@@ -105,11 +106,7 @@ test('selects inherited ports by keyboard and distinguishes their usage contexts
       .click();
     const source = page.getByRole('textbox', { name: 'SysML source' });
     await expect(source).toBeFocused();
-    expect(
-      await source.evaluate((element: HTMLTextAreaElement) =>
-        element.value.slice(element.selectionStart, element.selectionEnd),
-      ),
-    ).toContain('port output : Signal');
+    expect(await copySourceSelection(source)).toContain('port output : Signal');
   }
 });
 

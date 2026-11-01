@@ -45,3 +45,11 @@ sysml_ide/examples/sysml-structural/air-compressor/ at revision
 bdb85e2341ba5a1a7ce3c6fab4f056c5cb6bca18 (Apache-2.0). Its nine SysML
 source files are retained unchanged; startup view/layout and rendering-scope
 documentation are maintained by this application.
+
+The SysML lexical keyword inventory in
+src/lib/workbench/source/sysml-language.ts is adapted from
+sysml_ide at bdb85e2341ba5a1a7ce3c6fab4f056c5cb6bca18 (Apache-2.0), from
+calm-studio/apps/studio/src/lib/sysml/source-highlight.ts.
+
+CodeMirror 6 and its Lezer/editor dependencies are MIT licensed. Package versions
+and upstream license texts are retained in static/licenses/codemirror.txt.

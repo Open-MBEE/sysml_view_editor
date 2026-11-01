@@ -1,4 +1,7 @@
 import {
+  fillSource,
+  readSource,
+  copySourceSelection,
   test,
   expect,
   openWorkshop,
@@ -17,9 +20,9 @@ test('loads real source-defined views and keeps the view stable when changing fi
 }) => {
   await openWorkshop(page);
   await page.getByRole('button', { name: 'views.sysml', exact: true }).click();
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    /package WorkshopViews/,
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource(/package WorkshopViews/);
   const diagram = page.getByRole('region', { name: 'Diagram', exact: true });
   await expect(diagram.getByText('overview', { exact: true })).toBeVisible();
   await openView(page, 'compressor');
@@ -32,34 +35,35 @@ test('retains an invalid draft and the last valid diagram', async ({
   await openWorkshop(page);
   const before = await diagramState(page);
   const applied = (await downloadProject(page)).bundle.documents;
-  await page
-    .getByRole('textbox', { name: 'SysML source' })
-    .fill('package Broken { part def');
+  await fillSource(
+    page.getByRole('textbox', { name: 'SysML source' }),
+    'package Broken { part def',
+  );
   await page.getByRole('button', { name: 'Apply source', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Issues' })).toBeVisible();
   await expect(
     page.getByText('Draft not applied', { exact: true }),
   ).toBeVisible();
   expect(await diagramState(page)).toEqual(before);
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    'package Broken { part def',
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource('package Broken { part def');
   const saved = (await downloadProject(page)).bundle;
   expect(saved.documents).toEqual(applied);
   expect(saved.drafts[0]?.text).toBe('package Broken { part def');
   await page
     .getByRole('button', { name: 'Discard draft', exact: true })
     .click();
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    /package Workshop/,
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource(/package Workshop/);
 });
 test('uses Toolkit rename, updates both references, and supports exact undo/redo', async ({
   page,
 }) => {
   await openWorkshop(page);
   const source = page.getByRole('textbox', { name: 'SysML source' });
-  const original = await source.inputValue();
+  const original = await readSource(source);
   const renamed = original.replaceAll('Motor', 'Drive');
   await selectModelElement(page, 'Workshop::Motor');
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Drive');
@@ -70,18 +74,18 @@ test('uses Toolkit rename, updates both references, and supports exact undo/redo
   await expect(page.getByRole('dialog')).toContainText('part def Drive');
   await page.getByRole('button', { name: 'Apply change', exact: true }).click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
-  await expect(source).toHaveValue(renamed);
+  await expect(source).toHaveSource(renamed);
   await expect(diagramNode(page, 'primary : Drive')).toBeVisible();
   await expect(diagramNode(page, 'standby : Drive')).toBeVisible();
   await expect(
     page.getByRole('button', { name: 'Undo source', exact: true }),
   ).toBeEnabled();
   await page.getByRole('button', { name: 'Undo source', exact: true }).click();
-  await expect(source).toHaveValue(original);
+  await expect(source).toHaveSource(original);
   await expect(diagramNode(page, 'primary : Motor')).toBeVisible();
   await expect(diagramNode(page, 'standby : Motor')).toBeVisible();
   await page.getByRole('button', { name: 'Redo source', exact: true }).click();
-  await expect(source).toHaveValue(renamed);
+  await expect(source).toHaveSource(renamed);
   await expect(diagramNode(page, 'primary : Drive')).toBeVisible();
   await expect(diagramNode(page, 'standby : Drive')).toBeVisible();
 });
@@ -115,12 +119,12 @@ test('downloads and reopens a project with the draft and diagram positions intac
 }) => {
   await openWorkshop(page);
   const source = page.getByRole('textbox', { name: 'SysML source' });
-  const original = await source.inputValue();
+  const original = await readSource(source);
   const node = diagramNode(page, 'Workshop::Motor');
   const symbol = await node.getAttribute('data-id');
   expect(symbol).not.toBeNull();
   const moved = await moveNode(page, node);
-  await expect(source).toHaveValue(original);
+  await expect(source).toHaveSource(original);
   await expect(
     page.getByRole('button', { name: 'Undo source', exact: true }),
   ).toBeDisabled();
@@ -146,9 +150,10 @@ test('downloads and reopens a project with the draft and diagram positions intac
   ).toEqual(otherMoved);
   await openView(page, 'overview');
   await expect.poll(() => nodePosition(node)).toEqual(moved);
-  await page
-    .getByRole('textbox', { name: 'SysML source' })
-    .fill('package Unfinished {');
+  await fillSource(
+    page.getByRole('textbox', { name: 'SysML source' }),
+    'package Unfinished {',
+  );
   const { buffer, bundle } = await downloadProject(page);
   expect(bundle.drafts[0]?.text).toBe('package Unfinished {');
   expect(bundle.documents[0]?.text).toBe(original);
@@ -165,16 +170,16 @@ test('downloads and reopens a project with the draft and diagram positions intac
     buffer,
   });
   // The draft is retained while the diagram evaluates applied source.
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    'package Unfinished {',
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource('package Unfinished {');
   await expect.poll(() => nodePosition(node)).toEqual(moved);
   await page
     .getByRole('button', { name: 'Discard draft', exact: true })
     .click();
   await openView(page, 'overview');
   await expect.poll(() => nodePosition(node)).toEqual(moved);
-  await expect(source).toHaveValue(original);
+  await expect(source).toHaveSource(original);
   await openView(page, 'compressor');
   await expect.poll(() => nodePosition(otherNode)).toEqual(otherMoved);
   await openView(page, 'overview');
@@ -199,9 +204,9 @@ test('cancels a reviewed rename without changing source, references or history',
   await expect(dialog).toContainText('part def Drive');
   await dialog.getByRole('button', { name: 'Cancel', exact: true }).click();
   await expect(dialog).not.toBeVisible();
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    before.documents[0]!.text,
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource(before.documents[0]!.text);
   await expect(diagramNode(page, 'primary : Motor')).toBeVisible();
   await expect(diagramNode(page, 'standby : Motor')).toBeVisible();
   await expect(
@@ -232,11 +237,7 @@ test('distinguishes repeated usages when selecting a diagram symbol', async ({
     const source = page.getByRole('textbox', { name: 'SysML source' });
     await expect(source).toBeFocused();
     await expect
-      .poll(() =>
-        source.evaluate((element: HTMLTextAreaElement) =>
-          element.value.slice(element.selectionStart, element.selectionEnd),
-        ),
-      )
+      .poll(() => copySourceSelection(source))
       .toContain(`part ${usage} : Motor`);
   }
 });
@@ -246,7 +247,7 @@ test('retains source, draft and diagram after engine asset failure, then recover
 }) => {
   await openWorkshop(page);
   const source = page.getByRole('textbox', { name: 'SysML source' });
-  const original = await source.inputValue();
+  const original = await readSource(source);
   const draft = original + '\n// retained across engine failure\n';
   const node = diagramNode(page, 'Workshop::Motor');
   const before = await nodePosition(node);
@@ -259,13 +260,13 @@ test('retains source, draft and diagram after engine asset failure, then recover
       body: 'Engine unavailable for this test',
     });
   });
-  await source.fill(draft);
+  await fillSource(source, draft);
   await page.getByRole('button', { name: 'Apply source', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Issues' })).toContainText(
     'OpenSysML browser assets are unavailable',
   );
   expect(failedRequests).toBeGreaterThan(0);
-  await expect(source).toHaveValue(draft);
+  await expect(source).toHaveSource(draft);
   await expect(node).toBeVisible();
   expect(await nodePosition(node)).toEqual(before);
   const saved = (await downloadProject(page)).bundle;

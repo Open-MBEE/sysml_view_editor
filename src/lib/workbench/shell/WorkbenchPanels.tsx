@@ -252,6 +252,14 @@ function useLayoutController(mode: Mode) {
       diagram: mode === 'code' ? 0 : mode === 'diagram' ? 100 : 100 - ratio,
     });
   }, [mode, narrow]);
+  useEffect(() => {
+    // Panel constraint registration may finish after the mode effect. Reapply
+    // a single-pane layout when the resize callback reports leftover space.
+    if (mode === 'code' && bounds.split !== 100)
+      editorGroup.current?.setLayout({ source: 100, diagram: 0 });
+    else if (mode === 'diagram' && bounds.split !== 0)
+      editorGroup.current?.setLayout({ source: 0, diagram: 100 });
+  }, [mode, bounds.split]);
   return {
     bounds,
     measure,

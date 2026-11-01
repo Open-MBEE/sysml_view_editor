@@ -8,7 +8,7 @@ Explorer and Inspector resize beside the central editor. Source and Diagram shar
 
 Each side panel remembers its expanded percentage through collapse and restore. Pixel minimums keep Explorer (145 px), Inspector (190 px) and Issues (96 px) usable; side panels are capped at 420 px and Issues at 60%. The source/diagram panes have horizontal minimums of 160 px for Source and 200 px for Diagram, or 100 px vertically, and their divider cannot collapse an editor while Split mode is selected. The library applies constraints against available space. On screens below 600 px, explicitly opening one side tool collapses the other.
 
-Dividers have accessible names and library-provided pointer/keyboard behavior. They remain registered in the layout when a tool collapses: removing a divider from layout can invalidate its association with the neighboring panels. The source/diagram divider is disabled outside Split mode. Hidden contents remain mounted and inert, keeping draft text and component state out of keyboard navigation.
+Dividers have accessible names and library-provided pointer/keyboard behavior. They remain registered in the layout when a tool collapses: removing a divider from layout can invalidate its association with the neighboring panels. The source/diagram divider is disabled outside Split mode. Hidden contents remain mounted and inert, keeping draft text and component state out of keyboard navigation. Single-editor modes reapply their layout when a resize callback reports space retained by the hidden pane after constraint registration. This avoids the old Diagram minimum leaving a blank strip after Split → Code; returning to Split retains the saved share.
 
 Explicit collapse moves focus to the corresponding visible edge-rail reopen control. Explicit reopen returns focus to the panel's collapse button, after the restored content is no longer hidden/inert. New diagnostic/error text opens Issues without taking editor focus. A user can close and reopen that dock independently.
 
@@ -21,6 +21,12 @@ The canvas waits for measured dimensions and initialized nodes before fitting. E
 Reads and writes tolerate blocked browser storage. A failed save retains the live layout for the visit and reports the failure under Workspace layout. Reset applies responsive defaults. Preferences are specific to a browser origin; they are not part of the portable project.
 
 Panel changes do not invoke workspace transactions, reparse source, alter diagram geometry, mark the project modified or add undo history. Source and Diagram remain mounted through mode changes. Project bundles retain their existing version-1 format and still require download to preserve source/drafts across reloads; remembering panel preferences is not work recovery.
+
+## Source editor
+
+`workbench/source/SourceEditor.tsx` owns one CodeMirror 6 view. The stream language supplies lexical keyword/comment/string/number coloring and brace indentation; engine parsing, diagnostics and semantic edits retain their existing owners. Shared theme roles style highlighting, gutters, selections and the built-in search panel. Semantic completion, hover, definition navigation, formatting and syntax-aware folding are not supplied by this lexical mode.
+
+Local text changes update workspace drafts. Busy operations reconfigure editing access without replacing the view or local history. A different file or externally replaced source starts a fresh editor state, preventing local undo from reviving discarded work or another file's edits. The view itself stays mounted through resizing and editor-mode changes. Source reveal translates raw UTF-16 positions to CodeMirror's LF-based positions, including CRLF and Unicode. Text edits retain untouched line separators, including mixed endings; inserted lines use the file's first separator. Portable sources, drafts, geometry and the version-1 project format retain their existing schemas and ownership.
 
 ## Toolbar alignment
 
@@ -47,9 +53,9 @@ Lucide icons use the shared shadcn Button sizes, theme roles and focus indicator
 | Panel visibility                           | PanelLeft, PanelRight and PanelBottom open/close variants |
 | Panel options / reset layout               | Ellipsis / RotateCcw                                      |
 
-Apply and Download retain visible labels; frequent compact actions retain precise names such as Undo source. Native text-area undo is distinct from accepted source transaction history. No new undo keyboard binding or unimplemented shortcut hint is introduced. Existing kind labels remain visible alongside Explorer icons; those icons do not establish SysML notation support.
+Apply and Download retain visible labels; frequent compact actions retain precise names such as Undo source. CodeMirror draft undo/redo is distinct from accepted source transaction history. Standard editor/search shortcuts are documented in the README; Tab retains focus navigation. Existing kind labels remain visible alongside Explorer icons; those icons do not establish SysML notation support.
 
-[Browser testing](../testing.md) describes verification; [verification](../verification.md) records actual outcomes and remaining gaps. Full tab docking, floating windows, editor-language assistance and complete accessibility certification remain separate work.
+[Browser testing](../testing.md) describes verification; [verification](../verification.md) records actual outcomes and remaining gaps. Full tab docking, floating windows, semantic language assistance and complete accessibility certification remain separate work.
 
 ## Model ownership tree
 

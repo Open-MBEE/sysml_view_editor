@@ -1,4 +1,5 @@
 import {
+  fillSource,
   test,
   expect,
   ready,
@@ -15,7 +16,7 @@ test('nests actual action parameters by owner and retains an invalid draft, sour
     name: 'SysML source',
     exact: true,
   });
-  await source.fill('package Unfinished { part');
+  await fillSource(source, 'package Unfinished { part');
   await page.getByRole('button', { name: 'Apply source', exact: true }).click();
   await expect(
     page.getByRole('region', { name: 'Issues', exact: true }),
@@ -78,7 +79,7 @@ test('nests actual action parameters by owner and retains an invalid draft, sour
   await expect(
     page.getByRole('complementary', { name: 'Properties', exact: true }),
   ).toContainText('CompressorBehavior::ControlMotor::reading');
-  await expect(source).toHaveValue('package Unfinished { part');
+  await expect(source).toHaveSource('package Unfinished { part');
   await expect(
     page
       .getByRole('region', { name: 'Source editor', exact: true })

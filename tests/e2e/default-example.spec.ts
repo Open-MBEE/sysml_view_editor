@@ -92,7 +92,7 @@ test('opens the complete Smart air workshop in its useful pneumatic view and pre
     'system.sysml',
   ]) {
     await navigation.getByRole('button', { name: file, exact: true }).click();
-    await expect(source).toHaveValue(
+    await expect(source).toHaveSource(
       saved.bundle.documents.find((item) => item.name === file)!.text,
     );
   }
