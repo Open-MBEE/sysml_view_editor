@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="docs/assets/readme-header.svg" width="1200" alt="SysML v2 View Editor — author source, review changes and explore connected views" />
+  <img src="docs/assets/readme-header.svg" width="1200" alt="OpenMBEE View Editor — author source, review changes and explore connected views" />
 </p>
 
-<h1 align="center">SysML v2 View Editor</h1>
+<h1 align="center">OpenMBEE View Editor</h1>
 
 <p align="center">
   Work with SysML v2 source and diagrams in your browser.<br />
@@ -31,7 +31,7 @@
 
 > **Sandbox stage** — Actively iterating on the design and implementation. Features, interfaces and workflows may change. Not intended for production use.
 
-SysML v2 View Editor brings source editing, named model views and reviewed graphical authoring into one local workbench. Open a multi-file model, inspect its structure and connections, review supported edits, then download the source and compatible diagram positions as one project.
+OpenMBEE View Editor brings source editing, named model views and reviewed graphical authoring into one local workbench. Open a multi-file model, inspect its structure and connections, review supported edits, then download the source and compatible diagram positions as one project.
 
 **Source owns model semantics. Presentation owns geometry.** Renaming a part or connecting ports produces a reviewed source transaction; moving a symbol changes its position. The application runs locally in browser workers and requires no application backend.
 
@@ -72,18 +72,22 @@ npm run dev -- --host 127.0.0.1
 
 Open the URL printed by Vite. The first dev/build verifies and prepares checksum-pinned browser engines. It needs network access, `tar` and disk space for the Go build cache. Linux x64 can download the pinned Go 1.25.11 toolchain into ignored `sandbox/`; on other platforms, set `SYSML_GO` to that Go version's binary. Later runs verify and reuse prepared assets. See [engine preparation](engine-bridge/README.md).
 
-### 2. Explore the startup model
+Vite excludes generated `sandbox/` contents and prepared `static/vendor/` binaries from development watching; app sources remain watched. If an older dev process reported `ENOSPC` from those directories, restart it with the current configuration.
 
-**Smart air workshop** opens automatically in Diagram mode. Its nine source files and fourteen named views cover reusable definitions, specialization, attributes, constraints, requirements, actions, states, use cases, sequences and geometry.
+### 2. Open the app or try an example
+
+The landing page offers **Open app** and **Try an example**. `/app` opens a project launcher with **New project**, **Open files or project**, **Load example** and **Local recovery**. No model loads implicitly. New projects stay marked modified until downloaded.
+
+Choose **Load example** to open **Smart air workshop** in Diagram mode. Its nine source files and fourteen named views cover reusable definitions, specialization, attributes, constraints, requirements, actions, states, use cases, sequences and geometry.
 
 The starting **pneumatics** view shows the pump, tank, regulator, relief valve and pressure sensor, with thirteen ports and four connections:
 
-1. Select another named view in Explorer to explore its contents.
+1. Select another named view in Explorer or the diagram’s **Named view** selector to explore its contents.
 2. Choose **Split** to see source beside the diagram; selecting a source file keeps the active view open.
 3. Edit source and choose **Apply source**. Invalid drafts retain the previous applied model and appear in **Issues**.
 4. Choose **Download project** to save your work before closing or reloading.
 
-Six startup views have partial structural/definition/tree rendering. The other eight evaluate through the engine and display an explicit unavailable-renderer message. The [model guide](examples/air-compressor/README.md) lists each view's current support.
+Six example views have partial structural/definition/tree rendering. The other eight evaluate through the engine and display an explicit unavailable-renderer message. The [model guide](examples/air-compressor/README.md) lists each view's current support.
 
 ### 3. Try graphical authoring
 
@@ -102,7 +106,7 @@ Open all `.sysml` files from one example folder together. Each project has its o
 
 | Project                                                                                                                                                                 | Explore                                                                                                                |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| [Smart air workshop](examples/air-compressor/README.md)                                                                                                                 | A complete nine-file example spanning structure, requirements, behavior and geometry; the startup project              |
+| [Smart air workshop](examples/air-compressor/README.md)                                                                                                                 | A complete nine-file example spanning structure, requirements, behavior and geometry; the built-in launcher example    |
 | [Nested assembly](examples/assembly/)                                                                                                                                   | Nested ownership, repeated usages, inherited ports, a connection and reference notation; the focused authoring fixture |
 | [Parts](examples/parts/), [ports](examples/ports/) and [packages](examples/packages/)                                                                                   | Shared definitions, usage contexts, conjugation, imports and exposure                                                  |
 | [Requirements](examples/requirements/), [use cases](examples/use-cases/), [actions](examples/actions/), [states](examples/states/) and [sequences](examples/sequences/) | Source constructs and named views, including explicit unavailable-renderer cases                                       |
@@ -126,6 +130,10 @@ The editor uses both OpenSysML and SysML Toolkit locally as WebAssembly in dispo
 React Flow draws the interactive diagrams and ELK supplies automatic layout. The workspace owns drafts, transaction acceptance, undo/redo and layout-preservation rules. See [engine pins, preparation and provenance](engine-bridge/README.md) and the [workspace architecture](docs/architecture/README.md).
 
 ## Projects and workspace
+
+Use **Projects** to return to the launcher and **Resume project** to continue. The live workbench stays mounted while you browse the launcher or landing page, retaining source drafts, accepted history, selection and diagram state. A full reload starts at the launcher; existing browser recovery is offered explicitly. Landing and app share one appearance preference controller.
+
+Folder write-back, Flexo project/branch checkout and automatic diagrams for models without named views remain planned. Opening source imports copies; it does not connect to a folder or remote branch.
 
 **Download project** saves one `.sysml-project.json`; **Open** accepts that bundle or multiple `.sysml` files. Downloads do not write back to the imported folder. **Local recovery** keeps one recovery copy in this browser using IndexedDB, including applied source, unapplied drafts, diagram positions and the active file/view. On reload, choose **Restore recovery** or **Discard recovery** before new work can replace that copy. The dialog can disable local saving or retry storage failures. Browser storage can be cleared; retain downloaded projects as portable backups. Restored work remains modified until downloaded. With saving enabled, returning to a clean project clears this session’s older recovery; a competing tab cannot silently overwrite a newer copy.
 
@@ -168,34 +176,25 @@ npm run preview -- --host 127.0.0.1
 
 Functional checks can use installed Chrome with `PLAYWRIGHT_BROWSER_CHANNEL=chrome npm run test:e2e -- --project=functional`. Visual comparisons always use bundled Chromium and reviewed platform-specific baselines. The browser suite starts its own fresh production server; port **4175** must be free. See [browser testing and baseline review](docs/testing.md).
 
+Production hosting must serve `index.html` for direct `/app` navigation while retaining normal asset paths; use the SPA fallback for your hosting provider. `/app/?example=1` is canonicalized to `/app` before the explicitly requested example opens, and reload does not repeat that opening action.
+
 For example changes, run `npm run test:examples`; use `npm run examples:index` after updating the catalog. `npm run format` formats owned source and docs; `npm run lint` checks formatting and architectural imports. Keep temporary files, reports and captures under ignored `sandbox/`.
 
 ## Documentation
 
-| Guide                                                               | What you will find                                                       |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| [Capabilities](docs/capabilities.md)                                | Supported workflows and current limits                                   |
-| [Architecture](docs/architecture/README.md)                         | Module ownership, engine boundaries and source transactions              |
-| [Project format](docs/architecture/project-format.md)               | Source, drafts, identity and presentation serialization                  |
-| [Graphical authoring](docs/architecture/graphical-authoring.md)     | Reviewed creation/rename, command validation and failure behavior        |
-| [Layout preservation](docs/architecture/identity-reconciliation.md) | Verified correspondence, bounded source edits and unsafe mappings        |
-| [Workbench panels](docs/architecture/workbench-layout.md)           | Resizing, focus, toolbar layout and browser preferences                  |
-| [Design system](docs/design-system.md)                              | Shared controls, typography, appearance and registry workflow            |
-| [Testing](docs/testing.md)                                          | Real-engine scenarios, visual comparisons and failure artifacts          |
-| [Verification](docs/verification.md)                                | Local results, retained evidence and skipped coverage                    |
-| [Next steps](docs/next-steps.md)                                    | Implemented milestones and planned work, including Flexo MMS integration |
+Start with the [documentation index](docs/README.md) for current capabilities, architecture contracts, design conventions, testing evidence and planned work. Engine preparation and provenance live in the [engine guide](engine-bridge/README.md); model fixtures and visualization targets live in the [example library](examples/README.md).
 
 ## Scope
 
 This implementation supports a bounded source/structure editing workflow. It does not claim complete SysML v2 language, notation, execution or interchange conformance. Owned-port boundary notation, effective conjugated directions, behavior renderers and broader editing commands remain explicit gaps.
 
-Flexo MMS checkout and publishing are planned; the current workbench uses local project files. Read the [integration research](docs/research/openmbee-flexo-mms.md) and [roadmap](docs/next-steps.md#future-integrations-planned) for the proposed direction.
+Flexo MMS checkout and publishing are planned; the current workbench uses local project files. Read the [integration research](docs/research/openmbee-flexo-mms.md) and [roadmap](docs/next-steps.md#3-flexo-checkout-then-reviewed-publication) for the proposed direction.
 
 ## Contributing
 
 The default branch, `develop`, holds ongoing sandbox work. Feature PRs target `develop`; releases and hotfixes follow the [Git Flow workflow](docs/git-workflow.md). `main` requires a code-owner approval and passing CI.
 
-Start with the [contribution guide](CONTRIBUTING.md), [architecture decisions](docs/decisions/0001-foundation.md) and the acceptance criteria in [next steps](docs/next-steps.md). Keep changes focused, preserve license/provenance notices and request approval before adding production dependencies. Use the [project repository](https://github.com/Open-MBEE/sysml_view_editor) for bugs and feature requests.
+Start with the [contribution guide](CONTRIBUTING.md), [architecture](docs/architecture/README.md) and the acceptance criteria in [next steps](docs/next-steps.md). Keep changes focused, preserve license/provenance notices and request approval before adding production dependencies. Use the [project repository](https://github.com/Open-MBEE/sysml_view_editor) for bugs and feature requests.
 
 ## Security
 

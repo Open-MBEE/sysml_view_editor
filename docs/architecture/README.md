@@ -1,5 +1,7 @@
 # Architecture
 
+See the [documentation index](../README.md) for the detailed implementation contracts and planned work.
+
 One static browser application contains a framework-independent workspace and a React workbench. There is one npm project. Internal modules expose small interfaces; extraction into separately published packages requires a concrete second consumer.
 
 ## Ownership and direction
@@ -32,6 +34,8 @@ The [identity investigation](identity-reconciliation.md) compares real worker ou
 
 ## Views
 
+The [agreed exploration direction](model-exploration.md) separates temporary scope/representation browsing from authored named views. It is planned; the current implementation described below requires a named view. The [domain glossary](../../CONTEXT.md) defines these terms.
+
 Named views are actual SysML usages. Open existing views without authoring another declaration. New view takes a subject, representation and name; package ownership is advanced configuration. Definitions, exposure and filters remain source content. The canvas is a derived artifact and does not serialize the model.
 
 Semantic subject identity, usage context and symbol identity remain distinct. Geometry changes never imply semantic containment or connectivity. The bounded structural projection consumes engine parent IDs, typed inherited ports and explicit connection endpoints; port selection retains its usage context. `moveSymbols` validates a complete presentation batch before publishing it, so moving a group and its descendants keeps version-1 absolute coordinates consistent without a source transaction. [Structural projection, engine trace and limits](structural-views.md).
@@ -51,3 +55,5 @@ Unit tests exercise workspace interfaces with controlled engine responses. These
 The [panel shell](workbench-layout.md) composes resizable tools and editors, with validated browser layout preferences and accessible icon actions. It owns no semantic transactions or portable-project fields. Divider movement retains camera/model-space geometry; explicit editor mode changes retain the existing fit-to-pane behavior.
 
 [Source assistance and local recovery](source-assistance-recovery.md) describes draft-bound language queries, supported edits, the independent recovery envelope and concurrency policy.
+
+The [application shell](application-shell.md) separates the public landing, explicit launcher and live workbench. The workbench session remains mounted during internal launcher/home navigation; full reload offers recovery explicitly. Entry pages use shared appearance state and defer engine work until a project-opening action.

@@ -112,12 +112,19 @@ export function diagramNode(page: Page, label: string) {
     .filter({ hasText: label });
 }
 
+/** A named-view navigation button, distinct from the diagram's active-view selector. */
+export function namedViewButton(page: Page, id: string) {
+  return page
+    .getByRole('complementary', { name: 'Project navigation', exact: true })
+    .getByTitle(id, { exact: true });
+}
+
 export async function waitForStartup(page: Page, { split = true } = {}) {
   await expect(
     page.getByRole('group', { name: 'part pump : Pump', exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByTitle('CompressorViews::pneumatics', { exact: true }),
+    namedViewButton(page, 'CompressorViews::pneumatics'),
   ).toHaveAttribute('aria-current', 'page');
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
@@ -127,9 +134,29 @@ export async function waitForStartup(page: Page, { split = true } = {}) {
   await page.evaluate(() => document.fonts.ready);
 }
 
-export async function ready(page: Page, options: { split?: boolean } = {}) {
-  await page.goto('/');
+/** The app launcher is deliberately empty until an explicit project choice. */
+export async function waitForLauncher(page: Page) {
+  await expect(
+    page.getByRole('heading', { name: 'Open a project', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Load example', exact: true }),
+  ).toBeEnabled();
+}
+
+/** Explicitly choose the example; waiting for a model never creates one. */
+export async function startExample(
+  page: Page,
+  options: { split?: boolean } = {},
+) {
+  await waitForLauncher(page);
+  await page.getByRole('button', { name: 'Load example', exact: true }).click();
   await waitForStartup(page, options);
+}
+
+export async function ready(page: Page, options: { split?: boolean } = {}) {
+  await page.goto('/app');
+  await startExample(page, options);
 }
 
 /** Keep focused history/appearance regressions explicit about their small fixture. */
@@ -164,7 +191,7 @@ export async function importWorkshop(page: Page) {
   });
   await expect(diagramNode(page, 'Workshop::Motor')).toBeVisible();
   await expect(
-    page.getByTitle('WorkshopViews::overview', { exact: true }),
+    namedViewButton(page, 'WorkshopViews::overview'),
   ).toHaveAttribute('aria-current', 'page');
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),

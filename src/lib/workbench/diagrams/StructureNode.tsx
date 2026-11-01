@@ -16,18 +16,30 @@ export function StructureNode({ data }: NodeProps<StructureNodeType>) {
   return (
     <>
       <div className="structure-heading" style={{ height: headingHeight }}>
-        <span className="model-node-kind">
-          {item.reference ? 'ref ' : ''}
-          {item.direction ? item.direction + ' ' : ''}
-          {item.kind}
-          {compound ? ' · contains' : ''}
-        </span>
-        <strong>
-          {item.name}
-          {item.type ? ' : ' + item.type : ''}
+        <div className="structure-meta">
+          <span className="model-node-kind">
+            {item.reference ? 'ref ' : ''}
+            {item.direction ? item.direction + ' ' : ''}
+            {item.kind}
+          </span>
+          {compound && <span className="structure-containment">contains</span>}
+        </div>
+        <strong title={`${item.name}${item.type ? ' : ' + item.type : ''}`}>
+          <span className="structure-name">{item.name}</span>
+          {item.type && (
+            <span className="structure-type">
+              <span aria-hidden="true">{' : '}</span>
+              <span>{item.type}</span>
+            </span>
+          )}
         </strong>
       </div>
-      <div className="structure-ports">
+      <div
+        className="structure-ports"
+        style={{
+          height: compound ? undefined : `calc(100% - ${headingHeight}px)`,
+        }}
+      >
         {item.ports?.map((port) => (
           <div
             key={port.id}
@@ -59,9 +71,18 @@ export function StructureNode({ data }: NodeProps<StructureNodeType>) {
                 select(port.id);
               }}
             >
-              <span className="port-direction">{port.direction ?? 'port'}</span>
-              {port.name}
-              {port.type ? ' : ' + port.type : ''}
+              <span className="port-direction">
+                {port.direction?.toUpperCase() ?? 'PORT'}
+              </span>
+              <span className="port-label">
+                <span className="port-name">{port.name}</span>
+                {port.type && (
+                  <>
+                    <span aria-hidden="true">{' : '}</span>
+                    <span className="port-type">{port.type}</span>
+                  </>
+                )}
+              </span>
             </button>
           </div>
         ))}

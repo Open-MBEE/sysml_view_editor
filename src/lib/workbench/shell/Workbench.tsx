@@ -1,29 +1,13 @@
 import {
   WorkbenchLayout,
   WorkbenchPanels,
-  WorkbenchToolbar,
   IssuesToggle,
 } from './WorkbenchPanels';
-import {
-  Undo2,
-  Redo2,
-  FilePlus2,
-  FolderOpen,
-  Download,
-  Check,
-  X,
-  CodeXml,
-  Columns2,
-  Network,
-} from 'lucide-react';
-import { IconButton } from '$lib/ui/IconButton';
-import { Button } from '$lib/ui/primitives/button';
-import { AppearanceSettings } from '$lib/ui/AppearanceSettings';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createBrowserSession } from './session';
 import { exampleProject, exampleView } from './example';
 import type { Workspace, WorkspaceState } from '$lib/workspace/createWorkspace';
-import { readProject, type ProjectBundle } from '$lib/workspace/persistence';
+import type { ProjectBundle } from '$lib/workspace/persistence';
 import type { EditProposal, SemanticCommand } from '$lib/workspace/editing';
 import type { ModelElement, Diagnostic } from '$lib/workspace/project';
 import { Explorer } from '../explorer/Explorer';
@@ -39,6 +23,15 @@ import {
   RecoveryBanner,
 } from '../recovery/RecoveryControls';
 import type { RecoveryEntry } from '../recovery/envelope';
+import { ProjectLauncher } from '../entry/ProjectLauncher';
+import { ProjectHeader } from './ProjectHeader';
+import { SourceToolbar } from './SourceToolbar';
+import {
+  createLocalProject,
+  readProjectFiles,
+  downloadProject,
+} from './projectFiles';
+import type { EntryRequest } from '../entry/Application';
 
 const initial: WorkspaceState = {
   project: null,
@@ -55,7 +48,22 @@ const initial: WorkspaceState = {
   layoutNotices: [],
 };
 type Mode = 'split' | 'code' | 'diagram';
-export function Workbench() {
+export function Workbench({
+  active,
+  entryRequest,
+  onHome,
+}: {
+  active: boolean;
+  entryRequest: EntryRequest;
+  onHome: () => void;
+}) {
+  const [readySession, setReadySession] = useState<Workspace | null>(null);
+  const [launcherOpen, setLauncherOpen] = useState(true);
+  const [everOpened, setEverOpened] = useState(false);
+  const [origin, setOrigin] = useState('Local project');
+  const launcherTrigger = useRef<HTMLButtonElement>(null);
+  const handledEntry = useRef<{ session: Workspace; id: number } | null>(null);
+  const resumed = useRef(false);
   const ref = useRef<Workspace | null>(null),
     picker = useRef<HTMLInputElement>(null);
   const languageRef = useRef<
@@ -63,12 +71,13 @@ export function Workbench() {
   >(null);
   const workspaceSurface = useRef<HTMLElement>(null);
   const reviewGeneration = useRef(0);
+  const actionGeneration = useRef(0);
   const [state, setState] = useState(initial),
     [file, setFile] = useState(exampleProject.documents[0]!.name),
     [selected, setSelected] = useState(''),
     [treeSelectionRequest, setTreeSelectionRequest] = useState(0),
     [error, setError] = useState(''),
-    [message, setMessage] = useState('Opening example project…');
+    [message, setMessage] = useState('Choose a project to begin.');
   const [symbolSelection, setSymbolSelection] = useState<{
     view: string;
     modelHash: string;
@@ -106,6 +115,9 @@ export function Workbench() {
     setFocusRange(undefined);
     setMode('split');
     setMessage('Local recovery restored.');
+    setOrigin('Browser recovery');
+    setEverOpened(true);
+    setLauncherOpen(false);
     await refreshView(session, entry.activeView ?? undefined);
   }
   const element = state.model?.elements.find((item) => item.id === selected);
@@ -151,18 +163,8 @@ export function Workbench() {
     languageRef.current = language;
     ref.current = session;
     const unsubscribe = session.subscribe(setState);
-    let closed = false;
-    void session
-      .open(exampleProject)
-      .then(() => refreshView(session, exampleView))
-      .then(() => {
-        if (!closed) setMessage('Project opened locally.');
-      })
-      .catch((reason) => {
-        if (!closed) setError(String(reason));
-      });
+    setReadySession(session);
     return () => {
-      closed = true;
       unsubscribe();
       session.dispose();
       if (ref.current === session) {
@@ -171,23 +173,81 @@ export function Workbench() {
       }
     };
   }, []);
+  useEffect(() => {
+    if (
+      !readySession ||
+      ref.current !== readySession ||
+      (handledEntry.current?.session === readySession &&
+        handledEntry.current.id === entryRequest.id)
+    )
+      return;
+    handledEntry.current = { session: readySession, id: entryRequest.id };
+    setLauncherOpen(true);
+    if (entryRequest.kind === 'example') void run(loadExample);
+  }, [readySession, entryRequest]);
+  useEffect(() => {
+    if (!active) {
+      reviewGeneration.current++;
+      setDialog(null);
+      setProposal(undefined);
+    }
+  }, [active]);
+  useLayoutEffect(() => {
+    if (launcherOpen || !active) return;
+    if (resumed.current) launcherTrigger.current?.focus();
+    else workspaceSurface.current?.focus();
+    resumed.current = false;
+  }, [launcherOpen, active]);
+  function resume() {
+    resumed.current = true;
+    setError('');
+    setLauncherOpen(false);
+  }
+  async function loadExample() {
+    if (!replaceAllowed()) return;
+    await open(exampleProject, {
+      origin: 'Built-in example',
+      preferred: exampleView,
+    });
+    setMode('diagram');
+  }
   async function run(action: () => unknown | Promise<unknown>) {
+    const generation = ++actionGeneration.current;
     setError('');
     try {
       await action();
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : String(reason));
+      if (generation === actionGeneration.current)
+        setError(reason instanceof Error ? reason.message : String(reason));
     }
   }
-  async function open(project: ProjectBundle) {
+  async function open(
+    project: ProjectBundle,
+    options: {
+      origin?: string;
+      preferred?: string;
+      mode?: Mode;
+      unsaved?: boolean;
+    } = {},
+  ) {
     const session = workspace();
-    await session.open(project);
+    await session.open(project, { unsaved: options.unsaved });
     setSelected('');
     setSymbolSelection(undefined);
     setFile(project.drafts[0]!.name);
     setFocusRange(undefined);
     setMessage('Project opened locally.');
-    await refreshView(session);
+    setOrigin(options.origin ?? 'Imported copy');
+    if (options.mode) setMode(options.mode);
+    else if (
+      !session
+        .snapshot()
+        .model?.elements.some((item) => item.kind === 'viewUsage')
+    )
+      setMode('split');
+    setEverOpened(true);
+    setLauncherOpen(false);
+    await refreshView(session, options.preferred);
   }
   function replaceAllowed() {
     return (
@@ -198,21 +258,12 @@ export function Workbench() {
     );
   }
   function newProject(projectName: string) {
-    const normalized =
-        projectName.trim().replace(/[^A-Za-z0-9_]/g, '') || 'Model',
-      name = /^[A-Za-z_]/.test(normalized) ? normalized : 'Model' + normalized;
-    const documents = [
-      { name: 'model.sysml', text: `package ${name} {\n\n}\n` },
-    ];
     setDialog(null);
     void run(() =>
-      open({
-        format: 'sysmlv2-view-project',
-        version: 1,
-        name: projectName.trim() || 'My project',
-        documents,
-        drafts: documents,
-        presentations: {},
+      open(createLocalProject(projectName), {
+        origin: 'New local project',
+        mode: 'code',
+        unsaved: true,
       }),
     );
   }
@@ -220,39 +271,10 @@ export function Workbench() {
     if (!files?.length) return;
     const chosen = Array.from(files);
     if (!replaceAllowed()) return;
-    if (chosen.length === 1 && chosen[0]!.name.endsWith('.json')) {
-      await open(readProject(await chosen[0]!.text()));
-      return;
-    }
-    const documents = await Promise.all(
-      chosen.map(async (item) => ({
-        name: item.webkitRelativePath || item.name,
-        text: await item.text(),
-      })),
-    );
-    await open({
-      format: 'sysmlv2-view-project',
-      version: 1,
-      name: chosen[0]!.name.replace(/\.sysml$/, ''),
-      documents,
-      drafts: documents,
-      presentations: {},
-    });
+    await open(await readProjectFiles(chosen));
   }
   function download() {
-    const session = workspace(),
-      serialized = session.serialize(),
-      url = URL.createObjectURL(
-        new Blob([serialized], { type: 'application/json' }),
-      ),
-      link = document.createElement('a');
-    link.href = url;
-    link.download =
-      (session.snapshot().project?.name.replace(/[^A-Za-z0-9_-]/g, '-') ||
-        'model') + '.sysml-project.json';
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    session.markSaved(serialized);
+    downloadProject(workspace());
     setMessage(
       'Project download prepared. Keep the downloaded file to reopen your work.',
     );
@@ -265,13 +287,22 @@ export function Workbench() {
       }
     }
     function keyboard(event: KeyboardEvent) {
+      const current = ref.current?.snapshot();
       if (
+        active &&
+        !launcherOpen &&
+        !current?.busy &&
+        current?.project &&
+        !event.defaultPrevented &&
+        !(
+          event.target instanceof Element &&
+          event.target.closest('[role="dialog"]')
+        ) &&
         (event.ctrlKey || event.metaKey) &&
-        event.key.toLowerCase() === 's' &&
-        ref.current?.snapshot().project
+        event.key.toLowerCase() === 's'
       ) {
         event.preventDefault();
-        download();
+        void run(download);
       }
     }
     window.addEventListener('beforeunload', unload);
@@ -280,7 +311,7 @@ export function Workbench() {
       window.removeEventListener('beforeunload', unload);
       window.removeEventListener('keydown', keyboard);
     };
-  }, [state.dirty]);
+  }, [state.dirty, active, launcherOpen]);
   function newView() {
     setDialog('view');
   }
@@ -413,7 +444,7 @@ export function Workbench() {
   return (
     <WorkbenchLayout mode={mode}>
       <input
-        className="sr-only"
+        hidden
         ref={picker}
         type="file"
         accept=".sysml,.json"
@@ -424,282 +455,240 @@ export function Workbench() {
           event.currentTarget.value = '';
         }}
       />
-      <div className="app">
-        <header className="topbar">
-          <div className="brand">
-            SysML <span>View Editor</span>
-          </div>
-          <span className="project-name">
-            {state.project?.name ?? 'Workspace'}
-            {state.dirty ? ' · modified' : ''}
-          </span>
-          <nav aria-label="Project actions">
-            <AppearanceSettings />
-            <RecoveryButton
+      {launcherOpen && active && (
+        <ProjectLauncher
+          onHome={onHome}
+          onExample={() => void run(loadExample)}
+          onNew={() => {
+            if (replaceAllowed()) {
+              setError('');
+              setDialog('project');
+            }
+          }}
+          onOpen={() => picker.current?.click()}
+          onResume={resume}
+          projectName={state.project?.name}
+          busy={state.busy || !readySession}
+          error={error}
+          recovery={
+            <RecoveryBanner
               recovery={recovery}
               onRestore={restoreRecovery}
               busy={state.busy}
             />
-            <Button
-              variant="ghost"
-              disabled={state.busy || !state.project}
-              aria-label="New project"
-              onClick={() => {
-                if (replaceAllowed()) setDialog('project');
-              }}
-            >
-              <FilePlus2 aria-hidden="true" />
-              <span className="button-label">New project</span>
-            </Button>
-            <Button
-              variant="ghost"
-              disabled={state.busy || !state.project}
-              aria-label="Open"
-              onClick={() => picker.current?.click()}
-            >
-              <FolderOpen aria-hidden="true" />
-              <span className="button-label">Open</span>
-            </Button>
-            <Button
-              variant="default"
-              disabled={!state.project || state.busy}
-              onClick={() => void run(download)}
-            >
-              <Download aria-hidden="true" />
-              Download project
-            </Button>
-          </nav>
-        </header>
-        <RecoveryBanner
-          recovery={recovery}
-          onRestore={restoreRecovery}
-          busy={state.busy}
-        />
-        <WorkbenchToolbar
-          history={
-            <div
-              className="source-history"
-              role="group"
-              aria-label="Source transaction history"
-            >
-              <IconButton
-                variant="ghost"
-                disabled={state.busy || state.unapplied || !state.canUndo}
-                onClick={() =>
-                  void run(async () => {
-                    const session = workspace(),
-                      id = session.snapshot().view?.view;
-                    session.undo();
-                    await refreshView(session, id);
-                  })
-                }
-                label="Undo source"
-                size="icon-xs"
-                icon={Undo2}
-              />
-              <IconButton
-                variant="ghost"
-                disabled={state.busy || state.unapplied || !state.canRedo}
-                onClick={() =>
-                  void run(async () => {
-                    const session = workspace(),
-                      id = session.snapshot().view?.view;
-                    session.redo();
-                    await refreshView(session, id);
-                  })
-                }
-                label="Redo source"
-                size="icon-xs"
-                icon={Redo2}
-              />
-            </div>
           }
-          sourceActions={
-            <div
-              className="source-actions"
-              role="group"
-              aria-label="Source actions"
-            >
-              <span className={state.unapplied ? 'pending' : ''}>
-                {state.busy
-                  ? 'Working…'
-                  : state.unapplied
-                    ? 'Draft not applied'
-                    : 'Source applied'}
-              </span>
-              <Button
-                variant="ghost"
-                size="xs"
-                aria-label="Discard draft"
-                disabled={state.busy || !state.unapplied}
-                onClick={() => void run(() => workspace().discardDrafts())}
-              >
-                <X aria-hidden="true" />
-                Discard
-              </Button>
-              <Button
-                variant="outline"
-                size="xs"
-                disabled={state.busy || !state.unapplied}
-                onClick={() =>
-                  void run(async () => {
-                    const session = workspace(),
-                      id = session.snapshot().view?.view;
-                    await session.apply();
-                    setMessage('Source applied.');
-                    setFocusRange(undefined);
-                    await refreshView(session, id);
-                  })
-                }
-              >
-                <Check aria-hidden="true" />
-                Apply source
-              </Button>
-            </div>
-          }
-          modes={
-            <div className="modes" role="group" aria-label="Editor layout">
-              {(['code', 'split', 'diagram'] as const).map((value) => (
-                <IconButton
-                  key={value}
-                  label={value.charAt(0).toUpperCase() + value.slice(1)}
-                  icon={
-                    { code: CodeXml, split: Columns2, diagram: Network }[value]
-                  }
-                  aria-pressed={mode === value}
-                  onClick={() => setMode(value)}
-                />
-              ))}
-            </div>
+          recoveryAction={
+            <RecoveryButton
+              recovery={recovery}
+              onRestore={restoreRecovery}
+              busy={state.busy}
+              active={active && launcherOpen}
+            />
           }
         />
-        <main
-          className="workbench"
-          aria-label="Model workspace"
-          tabIndex={-1}
-          ref={workspaceSurface}
-        >
-          <WorkbenchPanels
-            explorer={
-              <Explorer
-                state={state}
-                file={file}
-                selected={selected}
-                selectionRequest={treeSelectionRequest}
-                onFile={(name) => {
-                  setFile(name);
-                  if (mode === 'diagram') setMode('split');
-                }}
-                onView={(id) => void run(() => workspace().openView(id))}
-                onSelect={selectElement}
-                onNewView={newView}
+      )}
+      {everOpened && (
+        <div className="app" hidden={launcherOpen} inert={launcherOpen}>
+          <ProjectHeader
+            state={state}
+            origin={origin}
+            active={active && !launcherOpen}
+            projectsRef={launcherTrigger}
+            onHome={onHome}
+            onProjects={() => {
+              setError('');
+              setLauncherOpen(true);
+            }}
+            onNew={() => {
+              if (replaceAllowed()) setDialog('project');
+            }}
+            onOpen={() => picker.current?.click()}
+            onDownload={() => void run(download)}
+            recovery={
+              <RecoveryButton
+                recovery={recovery}
+                onRestore={restoreRecovery}
+                busy={state.busy}
+                active={active && !launcherOpen}
               />
             }
-            source={
-              source ? (
-                <SourceEditor
-                  file={source}
-                  disabled={state.busy}
-                  languageContext={state.project?.drafts}
-                  onLanguage={async (query, signal) => {
-                    const session = workspace();
-                    const drafts = session.snapshot().project?.drafts;
-                    const language = languageRef.current;
-                    if (!drafts || !language || session.snapshot().busy)
-                      throw new Error(
-                        'Source assistance is unavailable while the workspace is busy.',
-                      );
-                    const isCurrent = () =>
-                      ref.current === session &&
-                      !signal.aborted &&
-                      !session.snapshot().busy &&
-                      session.snapshot().project?.drafts === drafts;
-                    const result = await language.query(drafts, query, signal);
-                    return { result, isCurrent };
-                  }}
-                  onDefinition={(target) => {
-                    setFile(target.file);
+          />
+          <RecoveryBanner
+            recovery={recovery}
+            onRestore={restoreRecovery}
+            busy={state.busy}
+          />
+          <SourceToolbar
+            state={state}
+            mode={mode}
+            onMode={setMode}
+            onUndo={() =>
+              void run(async () => {
+                const session = workspace(),
+                  id = session.snapshot().view?.view;
+                session.undo();
+                await refreshView(session, id);
+              })
+            }
+            onRedo={() =>
+              void run(async () => {
+                const session = workspace(),
+                  id = session.snapshot().view?.view;
+                session.redo();
+                await refreshView(session, id);
+              })
+            }
+            onDiscard={() => void run(() => workspace().discardDrafts())}
+            onApply={() =>
+              void run(async () => {
+                const session = workspace(),
+                  id = session.snapshot().view?.view;
+                await session.apply();
+                setMessage('Source applied.');
+                setFocusRange(undefined);
+                await refreshView(session, id);
+              })
+            }
+          />
+          <main
+            className="workbench"
+            aria-label="Model workspace"
+            tabIndex={-1}
+            ref={workspaceSurface}
+          >
+            <WorkbenchPanels
+              explorer={
+                <Explorer
+                  state={state}
+                  file={file}
+                  selected={selected}
+                  selectionRequest={treeSelectionRequest}
+                  onFile={(name) => {
+                    setFile(name);
                     if (mode === 'diagram') setMode('split');
-                    setFocusRange({
-                      file: target.file,
-                      start: target.from,
-                      end: target.to,
-                    });
                   }}
-                  onLanguageMessage={setMessage}
-                  selection={
-                    focusRange?.file === source.name ? focusRange : undefined
+                  onView={(id) => void run(() => workspace().openView(id))}
+                  onSelect={selectElement}
+                  onNewView={newView}
+                />
+              }
+              source={
+                source ? (
+                  <SourceEditor
+                    file={source}
+                    disabled={state.busy}
+                    languageContext={state.project?.drafts}
+                    onLanguage={async (query, signal) => {
+                      const session = workspace();
+                      const drafts = session.snapshot().project?.drafts;
+                      const language = languageRef.current;
+                      if (!drafts || !language || session.snapshot().busy)
+                        throw new Error(
+                          'Source assistance is unavailable while the workspace is busy.',
+                        );
+                      const isCurrent = () =>
+                        ref.current === session &&
+                        !signal.aborted &&
+                        !session.snapshot().busy &&
+                        session.snapshot().project?.drafts === drafts;
+                      const result = await language.query(
+                        drafts,
+                        query,
+                        signal,
+                      );
+                      return { result, isCurrent };
+                    }}
+                    onDefinition={(target) => {
+                      setFile(target.file);
+                      if (mode === 'diagram') setMode('split');
+                      setFocusRange({
+                        file: target.file,
+                        start: target.from,
+                        end: target.to,
+                      });
+                    }}
+                    onLanguageMessage={setMessage}
+                    selection={
+                      focusRange?.file === source.name ? focusRange : undefined
+                    }
+                    onChange={(text) =>
+                      void run(() => {
+                        setFocusRange(undefined);
+                        workspace().updateDraft(source.name, text);
+                      })
+                    }
+                  />
+                ) : null
+              }
+              diagram={
+                <Diagram
+                  views={
+                    state.model?.elements.filter(
+                      (item) => item.kind === 'viewUsage',
+                    ) ?? []
                   }
-                  onChange={(text) =>
-                    void run(() => {
-                      setFocusRange(undefined);
-                      workspace().updateDraft(source.name, text);
-                    })
+                  busy={state.busy}
+                  onOpenView={(id) => void run(() => workspace().openView(id))}
+                  layoutMode={mode}
+                  key={(state.view?.view ?? 'none') + ':' + state.revision}
+                  view={state.view}
+                  presentation={compatiblePresentation}
+                  disabled={state.busy || state.unapplied}
+                  onSelect={selectSymbol}
+                  onCreatePart={newPart}
+                  onConnectPorts={newConnection}
+                  onMove={(positions) =>
+                    void run(() => workspace().moveSymbols(positions))
                   }
                 />
-              ) : null
-            }
-            diagram={
-              <Diagram
-                layoutMode={mode}
-                key={(state.view?.view ?? 'none') + ':' + state.revision}
-                view={state.view}
-                presentation={compatiblePresentation}
-                disabled={state.busy || state.unapplied}
-                onSelect={selectSymbol}
-                onCreatePart={newPart}
-                onConnectPorts={newConnection}
-                onMove={(positions) =>
-                  void run(() => workspace().moveSymbols(positions))
-                }
-              />
-            }
-            inspector={
-              <Properties
-                element={element}
-                usageContext={usageContext}
-                disabled={state.busy || state.unapplied}
-                onRename={(name) => void run(() => reviewRename(name))}
-                onCreateView={newView}
-                onSource={revealSource}
-                onCreatePart={newPart}
-                onConnectPorts={newConnection}
-              />
-            }
-            issues={
-              <Issues
-                diagnostics={state.diagnostics}
-                diagnosticDocuments={state.diagnosticDocuments}
-                drafts={state.project?.drafts ?? []}
-                onNavigate={navigateIssue}
-                error={dialog ? '' : error}
-              />
-            }
-            issueKey={
-              state.diagnostics.length || (!dialog && error)
-                ? JSON.stringify([state.diagnostics, dialog ? '' : error])
-                : ''
-            }
-          />
-        </main>
-        <footer>
-          <IssuesToggle
-            count={state.diagnostics.length + (!dialog && error ? 1 : 0)}
-          />
-          <span role="status">
-            {message}
-            {state.layoutNotices.some((notice) => notice.invalidated) &&
-              ` ${state.layoutNotices.reduce((total, notice) => total + notice.invalidated, 0)} saved positions were arranged again because their correspondence could not be verified.`}
-          </span>
-          <span>
-            {state.project?.documents.length ?? 0} files · revision{' '}
-            {state.revision} · local browser workspace
-          </span>
-        </footer>
-      </div>
+              }
+              inspector={
+                <Properties
+                  element={element}
+                  usageContext={usageContext}
+                  disabled={state.busy || state.unapplied}
+                  onRename={(name) => void run(() => reviewRename(name))}
+                  onCreateView={newView}
+                  onSource={revealSource}
+                  onCreatePart={newPart}
+                  onConnectPorts={newConnection}
+                />
+              }
+              issues={
+                <Issues
+                  diagnostics={state.diagnostics}
+                  diagnosticDocuments={state.diagnosticDocuments}
+                  drafts={state.project?.drafts ?? []}
+                  onNavigate={navigateIssue}
+                  error={dialog ? '' : error}
+                />
+              }
+              issueKey={
+                state.diagnostics.length || (!dialog && error)
+                  ? JSON.stringify([state.diagnostics, dialog ? '' : error])
+                  : ''
+              }
+            />
+          </main>
+          <footer>
+            <IssuesToggle
+              count={state.diagnostics.length + (!dialog && error ? 1 : 0)}
+            />
+            <span role="status">
+              {message}
+              {state.layoutNotices.some((notice) => notice.invalidated) &&
+                ` ${state.layoutNotices.reduce((total, notice) => total + notice.invalidated, 0)} saved positions were arranged again because their correspondence could not be verified.`}
+            </span>
+            <span>
+              {state.project?.documents.length ?? 0} files · revision{' '}
+              {state.revision} · local browser workspace
+            </span>
+          </footer>
+        </div>
+      )}
       <WorkbenchDialogs
         fallbackFocus={workspaceSurface}
-        kind={dialog}
+        kind={active ? dialog : null}
         model={state.model}
         selected={element}
         view={state.view}

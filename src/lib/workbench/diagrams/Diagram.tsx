@@ -15,6 +15,10 @@ import {
 import '@xyflow/react/dist/style.css';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import { Button } from '$lib/ui/primitives/button';
+import {
+  NativeSelect,
+  NativeSelectOption,
+} from '$lib/ui/primitives/native-select';
 import { layoutStructure, absolutePositions } from './structure';
 import { StructureNode, SelectDiagramSymbol } from './StructureNode';
 const nodeTypes = { structure: StructureNode };
@@ -68,6 +72,9 @@ import type {
 } from '$lib/workspace/views';
 interface Props {
   view: EvaluatedView | null;
+  views: readonly { id: string; name: string }[];
+  busy: boolean;
+  onOpenView: (id: string) => void;
   presentation?: ViewPresentation;
   disabled: boolean;
   onSelect: (symbol: string) => void;
@@ -78,6 +85,9 @@ interface Props {
 }
 export function Diagram({
   view,
+  views,
+  busy,
+  onOpenView,
   presentation,
   disabled,
   onSelect,
@@ -227,17 +237,51 @@ export function Diagram({
       cancelled = true;
     };
   }, [view, supported, initialPresentation]);
+  const viewNames = new Map<string, number>();
+  for (const item of views)
+    viewNames.set(item.name, (viewNames.get(item.name) ?? 0) + 1);
   return (
     <section className="diagram-pane" aria-label="Diagram">
       <header className="pane-heading">
-        <strong>{view?.view.split('::').at(-1) ?? 'Views'}</strong>
-        <span>
-          {disabled
-            ? 'Applied revision · draft pending'
-            : view
-              ? 'Applied model'
-              : 'Choose a named view'}
-        </span>
+        <div className="diagram-context">
+          <NativeSelect
+            size="sm"
+            aria-label="Named view"
+            title={view?.view ?? 'Choose a named view'}
+            value={view?.view ?? ''}
+            disabled={busy || !views.length}
+            onChange={(event) => onOpenView(event.target.value)}
+          >
+            {!view && (
+              <NativeSelectOption value="" disabled>
+                Named view
+              </NativeSelectOption>
+            )}
+            {views.map((item) => (
+              <NativeSelectOption key={item.id} value={item.id}>
+                {viewNames.get(item.name) === 1 ? item.name : item.id}
+              </NativeSelectOption>
+            ))}
+          </NativeSelect>
+          <div className="diagram-context-meta">
+            {view?.artifact && (
+              <span className="diagram-representation">
+                {view.artifact.kind === 'interconnection'
+                  ? 'Structure'
+                  : view.artifact.kind === 'tree'
+                    ? 'Overview tree'
+                    : 'Named view'}
+              </span>
+            )}
+            <span className="diagram-revision">
+              {disabled
+                ? 'Applied revision · draft pending'
+                : view
+                  ? 'Applied model'
+                  : 'Choose a named view'}
+            </span>
+          </div>
+        </div>
         <div className="diagram-actions">
           <Button
             variant="ghost"

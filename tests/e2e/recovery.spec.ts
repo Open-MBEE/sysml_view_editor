@@ -9,7 +9,9 @@ import {
   diagramNode,
   moveNode,
   openView,
-  waitForStartup,
+  waitForLauncher,
+  startExample,
+  namedViewButton,
 } from './support';
 
 /** Read the real adapter's durable record, never a private application state. */
@@ -80,7 +82,7 @@ test('restores exact applied source, invalid drafts and both view layouts from I
   const { expected, draft } = await savedDraft(page);
   page.on('dialog', (dialog) => dialog.accept());
   await page.reload();
-  await waitForStartup(page);
+  await waitForLauncher(page);
   const recovery = page.getByRole('region', {
     name: 'Saved recovery',
     exact: true,
@@ -95,7 +97,7 @@ test('restores exact applied source, invalid drafts and both view layouts from I
   });
   await expect(source).toHaveSource(draft);
   await expect(
-    page.getByTitle('WorkshopViews::compressor', { exact: true }),
+    namedViewButton(page, 'WorkshopViews::compressor'),
   ).toHaveAttribute('aria-current', 'page');
   expect((await downloadProject(page)).bundle).toEqual(expected);
   await openView(page, 'overview');
@@ -105,14 +107,16 @@ test('restores exact applied source, invalid drafts and both view layouts from I
   );
 });
 
-test('explicitly discards stored recovery without changing the current startup project', async ({
+test('explicitly discards stored recovery while leaving the launcher empty', async ({
   page,
 }) => {
   await savedDraft(page);
   page.on('dialog', (dialog) => dialog.accept());
   await page.reload();
-  await waitForStartup(page);
-  const before = (await downloadProject(page)).bundle;
+  await waitForLauncher(page);
+  await expect(
+    page.getByRole('button', { name: 'Download project', exact: true }),
+  ).not.toBeVisible();
   const recovery = page.getByRole('region', {
     name: 'Saved recovery',
     exact: true,
@@ -122,7 +126,13 @@ test('explicitly discards stored recovery without changing the current startup p
     .click();
   await expect(recovery).not.toBeVisible();
   await expect.poll(() => readRecovery(page)).toBeUndefined();
-  expect((await downloadProject(page)).bundle).toEqual(before);
+  await waitForLauncher(page);
+  await expect(
+    page.getByRole('button', { name: 'Resume project', exact: true }),
+  ).not.toBeVisible();
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source', exact: true }),
+  ).not.toBeVisible();
 });
 
 test('retains malformed recovery until explicit discard and leaves the current project untouched', async ({
@@ -134,7 +144,8 @@ test('retains malformed recovery until explicit discard and leaves the current p
   await replaceRecovery(page, corrupt);
   page.on('dialog', (dialog) => dialog.accept());
   await page.reload();
-  await waitForStartup(page);
+  await waitForLauncher(page);
+  await startExample(page);
   const before = (await downloadProject(page)).bundle;
   const recovery = page.getByRole('region', {
     name: 'Saved recovery',
@@ -225,8 +236,8 @@ test('a second tab cannot silently overwrite a newer recovery or lose either liv
   const errors: string[] = [];
   other.on('pageerror', (error) => errors.push(error.message));
   try {
-    await other.goto('/');
-    await waitForStartup(other);
+    await other.goto('/app');
+    await waitForLauncher(other);
     await other
       .getByRole('region', { name: 'Saved recovery', exact: true })
       .getByRole('button', { name: 'Restore recovery', exact: true })
@@ -237,7 +248,7 @@ test('a second tab cannot silently overwrite a newer recovery or lose either liv
     });
     await expect(otherSource).toHaveSource(first.draft);
     await expect(
-      other.getByTitle('WorkshopViews::compressor', { exact: true }),
+      namedViewButton(other, 'WorkshopViews::compressor'),
     ).toHaveAttribute('aria-current', 'page');
     await expect(
       other.getByRole('button', { name: 'Download project', exact: true }),
@@ -335,14 +346,14 @@ test('contains keyboard focus in recovery settings, returns focus and persists t
   await expect(trigger).toBeFocused();
   expect((await downloadProject(page)).bundle).toEqual(before);
   await page.reload();
-  await waitForStartup(page);
+  await waitForLauncher(page);
   await trigger.click();
   await expect(enabled).not.toBeChecked();
   await enabled.check();
   await done.click();
   await expect(trigger).toBeFocused();
   await page.reload();
-  await waitForStartup(page);
+  await waitForLauncher(page);
   await trigger.click();
   await expect(enabled).toBeChecked();
 });
@@ -372,7 +383,7 @@ test('restored clean source and geometry remain unsaved until a portable downloa
   expect(expected.drafts).toEqual(before.documents);
   page.once('dialog', (dialog) => dialog.accept());
   await page.reload();
-  await waitForStartup(page);
+  await waitForLauncher(page);
   await page
     .getByRole('region', { name: 'Saved recovery', exact: true })
     .getByRole('button', { name: 'Restore recovery', exact: true })
@@ -430,7 +441,7 @@ test('discarding the only unsaved draft removes its stale local recovery without
   await expect.poll(() => readRecovery(page)).toBeUndefined();
   expect((await downloadProject(page)).bundle).toEqual(before);
   await page.reload();
-  await waitForStartup(page);
+  await waitForLauncher(page);
   await expect(
     page.getByRole('region', { name: 'Saved recovery', exact: true }),
   ).not.toBeVisible();
@@ -450,7 +461,8 @@ test('failed real-engine recovery validation retains the live project, exact sto
   await replaceRecovery(page, invalid);
   page.once('dialog', (dialog) => dialog.accept());
   await page.reload();
-  await waitForStartup(page);
+  await waitForLauncher(page);
+  await startExample(page);
   const before = (await downloadProject(page)).bundle;
   const recovery = page.getByRole('region', {
     name: 'Saved recovery',

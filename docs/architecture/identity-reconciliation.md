@@ -1,6 +1,6 @@
 # Identity across source revisions
 
-Investigation recorded 2026-10-26; implementation policy updated 2026-10-29. The original comparisons below establish the identity hazards and bounded rename join. Production preservation now uses that evidence for reviewed commands and a conservative policy for free-form source edits; actual checks are recorded in [verification](../verification.md).
+Investigation recorded 2026-10-26; current implementation reviewed 2026-11-01. The original comparisons below establish the identity hazards and bounded rename join. Production preservation now uses that evidence for reviewed commands and a conservative policy for free-form source edits; actual checks are recorded in [verification](../verification.md).
 
 ## Findings
 
@@ -8,7 +8,22 @@ No currently exposed identifier is a persistent cross-revision identity. An unch
 
 There is a viable bounded path for verified renames: Toolkit supplies actual edit splices and changed interchange IDs. Replaying the splices against the exact old UTF-8 sources reproduces the worker's returned sources. Transporting recorded OpenSysML declaration spans and every ancestor context through those verified name edits identifies unique counterparts in both assembly views, including repeated inherited ports. The probe checks model rename postconditions as well. The original experiment proves its tested rename. The implementation policy below defines the production subset; it does not establish persistent identity for arbitrary text replacement.
 
-The [source-contract findings](engine-identity-sources.md) explain the distinct identity domains and cite the pinned engine sources. The retained [browser investigation](../../tests/e2e/identity.spec.ts) supplies runtime evidence with production worker bundles and the actual prepared WASM engines. It sends validated worker requests and validates model/evaluation replies; it does not substitute engine responses.
+The retained [browser investigation](../../tests/e2e/identity.spec.ts) supplies runtime evidence with production worker bundles and the actual prepared WASM engines. It sends validated worker requests and validates model/evaluation replies; it does not substitute engine responses.
+
+## Identity domains
+
+| Value                       | Meaning and limit                                                                             |
+| --------------------------- | --------------------------------------------------------------------------------------------- |
+| `modelHash`                 | Hash of the complete ordered parser input; comments and unrelated edits can change it         |
+| Model element `id`          | Qualified name; changes on rename and can be reused by another declaration                    |
+| `correspondence.subject.id` | Located source declaration, spelled `file@offset:length`; revision-bound                      |
+| `correspondence.context`    | Complete ancestor/usage origin chain; distinguishes repeated occurrences within a revision    |
+| Diagram `symbol`            | Renderer-local traversal counter/port ordinal; no cross-view or cross-edit identity guarantee |
+| Toolkit UUID / `idMap`      | Toolkit's interchange/session identity domain; not an OpenSysML origin or renderer symbol     |
+
+The retained [bridge](../../engine-bridge/opensysml/evaluate_view.go), [semantic worker](../../src/lib/engines/opensysml/semantic.worker.ts) and [transformation worker](../../src/lib/engines/toolkit/transform.worker.ts) own normalization. Immutable upstream references describe the [input hash](https://github.com/Open-MBEE/OpenSysML/blob/08ef397841767b829e492bbecf6d723483b4421e/internal/frontend/engine/engine.go#L1035) and [renderer IDs](https://github.com/Open-MBEE/OpenSysML/blob/08ef397841767b829e492bbecf6d723483b4421e/internal/ir/view/view.go#L769). Engine pins/checksums are owned by [preparation and provenance](../../engine-bridge/README.md), not duplicated here.
+
+Toolkit splice units name files; numeric `session.units()` handles are separate. Splices use pre-edit UTF-8 byte offsets, while JavaScript strings use UTF-16. Exact replay, valid code-point boundaries and source digests must be verified before using edit evidence. Disposable workers provide no persistent engine handles. The demonstrated join below uses verified source edits and complete OpenSysML origins; it does not establish a general UUID join or arbitrary-replacement continuity.
 
 ## Comparison matrix
 
@@ -58,7 +73,7 @@ Mapped presentations are prepared with the semantic candidate, then published at
 
 The version-1 bundle shape is unchanged. It stores sources/drafts/compatible positions, while edit evidence and origin joins remain transient. Fresh import reparses source and restores only hash-compatible positions. New symbols receive deterministic automatic layout until moved; existing renderer bounds checks may arrange incompatible coordinates again with a notice. Manual overlap avoidance, interactive parent resizing, file-moving controls and general persistent identity remain outside this implementation.
 
-The [structural authoring contract](graphical-authoring.md) describes part and connection commands built on this path. The [roadmap](../next-steps.md) distinguishes delivered slices from remaining notation, language-assistance and recovery work.
+The [structural authoring contract](graphical-authoring.md) describes part and connection commands built on this path. The [roadmap](../next-steps.md) distinguishes delivered slices from remaining exploration, integration and usability work.
 
 ## Reproduction and evidence
 

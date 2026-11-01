@@ -38,7 +38,9 @@ export function Dialog({
           event.preventDefault();
           const original = returnFocus.current;
           const target =
-            original?.isConnected && !original.matches(':disabled')
+            original?.isConnected &&
+            !original.matches(':disabled') &&
+            original.getClientRects().length > 0
               ? original
               : fallbackFocus?.current;
           target?.focus();

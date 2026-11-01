@@ -4,7 +4,7 @@ import {
   expect,
   openWorkshop,
   importWorkshop,
-  waitForStartup,
+  startExample,
   diagramNode,
   downloadProject,
 } from './support';
@@ -87,7 +87,7 @@ test('retains custom muted colors across palettes and reload, with keyboard dism
   );
   await expect(trigger).toBeFocused();
   await page.reload();
-  await waitForStartup(page);
+  await startExample(page);
   await importWorkshop(page);
   await expect(definition).toBeVisible();
   await expect(page.locator('html')).toHaveAttribute('data-palette', 'forest');

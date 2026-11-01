@@ -2,7 +2,7 @@ import {
   fillSource,
   test,
   selectModelElement,
-  waitForStartup,
+  startExample,
   expect,
   ready,
   observeEvaluations,
@@ -99,7 +99,7 @@ for (const rename of [
     ).toEqual(expected);
     const saved = await downloadProject(page);
     await page.reload();
-    await waitForStartup(page);
+    await startExample(page);
     await page.locator('input[type=file]').setInputFiles({
       name: 'retained.sysml-project.json',
       mimeType: 'application/json',
@@ -223,7 +223,7 @@ test('retains both views through a Unicode source insertion and an unrelated-fil
     .click();
   const saved = await downloadProject(page);
   await page.reload();
-  await waitForStartup(page);
+  await startExample(page);
   await page.locator('input[type=file]').setInputFiles({
     name: 'edited.sysml-project.json',
     mimeType: 'application/json',

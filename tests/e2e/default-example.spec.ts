@@ -5,9 +5,10 @@ import {
   ready,
   observeEvaluations,
   downloadProject,
+  namedViewButton,
 } from './support';
 
-test('opens the complete Smart air workshop in its useful pneumatic view and preserves all nine source files', async ({
+test('explicitly loads the complete Smart air workshop in its useful pneumatic view and preserves all nine source files', async ({
   page,
 }, testInfo) => {
   const evaluations = await observeEvaluations(page);
@@ -97,7 +98,7 @@ test('opens the complete Smart air workshop in its useful pneumatic view and pre
     );
   }
   await expect(
-    page.getByTitle('CompressorViews::pneumatics', { exact: true }),
+    namedViewButton(page, 'CompressorViews::pneumatics'),
   ).toHaveAttribute('aria-current', 'page');
   expect((await downloadProject(page)).bundle).toEqual(saved.bundle);
   await testInfo.attach('default-pneumatics-engine', {

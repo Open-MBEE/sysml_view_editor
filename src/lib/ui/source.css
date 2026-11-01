@@ -1,0 +1,134 @@
+/* CodeMirror source editor and language query presentation. */
+.source-editor {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+}
+.source-editor .cm-editor {
+  height: 100%;
+  color: var(--sysml-text);
+  background: var(--sysml-canvas);
+  font: 13px/1.8 var(--sysml-font-mono);
+}
+.source-editor .cm-scroller {
+  overflow: auto;
+  font-family: inherit;
+}
+.source-editor .cm-content {
+  padding: 18px 0;
+  caret-color: var(--sysml-text);
+}
+.source-editor .cm-line {
+  padding: 0 16px;
+}
+.source-editor .cm-gutters {
+  color: var(--sysml-muted);
+  background: var(--sysml-subtle);
+  border-right: 1px solid var(--sysml-border);
+}
+.source-editor .cm-activeLine,
+.source-editor .cm-activeLineGutter {
+  background: var(--sysml-active-bg);
+}
+.source-editor .cm-cursor {
+  border-left-color: var(--sysml-text);
+}
+.source-editor .cm-selectionBackground,
+.source-editor .cm-focused .cm-selectionBackground {
+  background: color-mix(
+    in srgb,
+    var(--sysml-accent) 24%,
+    transparent
+  ) !important;
+}
+.source-editor .cm-selectionMatch,
+.source-editor .cm-searchMatch {
+  background: color-mix(in srgb, var(--sysml-warning-border) 25%, transparent);
+}
+.source-editor .cm-searchMatch-selected,
+.source-editor .cm-matchingBracket {
+  background: var(--sysml-active-bg);
+  outline: 1px solid var(--sysml-accent);
+}
+.source-editor .cm-focused {
+  outline: 2px solid var(--sysml-accent);
+  outline-offset: -2px;
+}
+.source-editor .cm-panels {
+  background: var(--sysml-subtle);
+  color: var(--sysml-text);
+  border-color: var(--sysml-border);
+}
+.source-editor .cm-search {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  padding-right: 24px !important;
+}
+.source-editor .cm-textfield {
+  max-width: 100%;
+  background: var(--sysml-surface);
+  color: var(--sysml-text);
+  border: 1px solid var(--sysml-border);
+  border-radius: var(--sysml-control-radius);
+}
+.source-editor .cm-button {
+  background: var(--sysml-surface);
+  color: var(--sysml-text);
+  border: 1px solid var(--sysml-border);
+  border-radius: var(--sysml-control-radius);
+}
+.source-editor .cm-tooltip {
+  color: var(--sysml-text);
+  background: var(--sysml-surface);
+  border: 1px solid var(--sysml-border);
+  border-radius: var(--sysml-control-radius);
+  box-shadow: 0 4px 16px var(--sysml-shadow);
+}
+.source-editor .source-symbol-information {
+  max-width: min(480px, calc(100vw - 32px));
+  max-height: min(320px, 50vh);
+  overflow: auto;
+  padding: 10px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 13px/1.6 var(--sysml-font-mono);
+}
+.source-editor .cm-tooltip-autocomplete > ul {
+  max-width: min(600px, calc(100vw - 32px));
+  font-family: var(--sysml-font-mono);
+}
+.source-editor .cm-tooltip-autocomplete > ul > li[aria-selected] {
+  color: var(--sysml-active-text);
+  background: var(--sysml-active-bg);
+  outline: 1px solid var(--sysml-accent);
+  outline-offset: -1px;
+}
+.source-editor .cm-completionDetail {
+  color: var(--sysml-muted);
+}
+.source-editor .syntax-keyword {
+  color: var(--sysml-source);
+}
+.source-editor .syntax-comment {
+  color: light-dark(#456954, #9bc8ac);
+}
+.source-editor .syntax-string {
+  color: var(--sysml-behavior);
+}
+.source-editor .syntax-number {
+  color: var(--sysml-structure);
+}
+.source-editor .syntax-punctuation {
+  color: var(--sysml-muted);
+}
+@media (forced-colors: active) {
+  .source-editor .cm-content span {
+    color: CanvasText;
+  }
+  .source-editor .cm-selectionBackground {
+    background: Highlight !important;
+  }
+}

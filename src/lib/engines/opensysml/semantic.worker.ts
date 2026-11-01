@@ -1,8 +1,4 @@
-import type {
-  SourceDocument,
-  Diagnostic,
-  ModelElement,
-} from '$lib/workspace/project';
+import type { Diagnostic, ModelElement } from '$lib/workspace/project';
 import type { EvaluatedView } from '$lib/workspace/views';
 interface GoRuntime {
   importObject: WebAssembly.Imports;

@@ -1,6 +1,6 @@
 # Workbench design system
 
-The React workbench carries forward the previous editor's appearance system. The visual language is maintained separately from the workspace and engine modules.
+The OpenMBEE landing, launcher and React workbench share one appearance system, separate from workspace semantics and engine modules.
 
 ## Ownership
 
@@ -13,7 +13,14 @@ The React workbench carries forward the previous editor's appearance system. The
 | `src/lib/ui/appearance.ts`          | Framework-independent preference validation, storage helpers and safe custom-color blending            |
 | `src/lib/ui/AppearanceSettings.tsx` | Browser storage, system-theme subscription and appearance controls                                     |
 | `src/lib/ui/Dialog.tsx`             | Shared controlled modal composition and focus return for workbench actions                             |
-| `src/lib/ui/theme.css`              | Workbench arrangement and panel/diagram styling                                                        |
+| `src/lib/ui/theme.css`              | Stylesheet entry point; imports the owning surface styles                                              |
+| `src/lib/ui/base.css`               | Application defaults and shared product identity                                                       |
+| `src/lib/ui/workbench.css`          | Shell, toolbar and resizable panels                                                                    |
+| `src/lib/ui/source.css`             | CodeMirror and language-query presentation                                                             |
+| `src/lib/ui/diagram.css`            | Canvas, structural notation, ports and diagram controls                                                |
+| `src/lib/ui/tools.css`              | Explorer/model tree, Inspector and Issues                                                              |
+| `src/lib/ui/dialogs.css`            | Modal forms, source review and appearance settings                                                     |
+| `src/lib/ui/entry.css`              | Landing and project launcher                                                                           |
 
 Use the installed shadcn primitives for new controls. The Button defaults to compact `sm` sizing with 12 px labels; callers choose an explicit variant. Do not introduce competing button styles or independent palette stores. Component sources are owned code: review registry updates rather than overwriting local changes blindly.
 
@@ -32,15 +39,15 @@ Light with Muted element colors is the fresh-browser default. Dark and Follow sy
 
 Preferences use the existing `sysml-appearance-v1` browser key and parser. This preserves compatible preferences when hosted on the same origin; a different origin does not share storage. Invalid fields fall back independently. Denied reads use defaults; failed writes retain settings for the visit and show a message.
 
-Muted base colors can be customized for packages, part definitions and part usages, and reset. Existing direction-specific port preferences are retained by the parser, but port color controls remain unavailable until detailed port rendering exists. Color changes produce blended fills; readable text/border roles remain controlled by the theme.
+Muted base colors can be customized for packages, part definitions and part usages, and reset. Existing direction-specific port preferences are retained by the parser, but detailed port color controls are not exposed. Color changes produce blended fills; readable text/border roles remain controlled by the theme.
 
-The current graph adapter maps exact engine notation kinds `package`, `part def` and `part` to palette roles. Other kinds keep neutral surfaces and their engine kind label. Detailed notation, custom connection routing and compound elements remain documented limits.
+The current graph adapter maps exact engine notation kinds `package`, `part def` and `part` to palette roles. Other kinds keep neutral surfaces and their engine kind label. Nested structures are supported; broader notation and custom connection routing remain documented limits.
 
 Appearance is a user preference. It does not enter project bundles, mark projects modified, reparse source or add model undo history. Source application reconciles compatible presentation mappings according to the workspace contract; appearance never invokes reconciliation or changes geometry.
 
 ## Registry workflow
 
-`components.json` configures the official React registry and local aliases. The shadcn MCP server can inspect components, usage examples and installation commands; it is development tooling and is not bundled into the app. It was already available in the development session; this repository does not modify personal MCP configuration.
+`components.json` configures the official React registry and local aliases. The shadcn MCP server can inspect components, usage examples and installation commands; it is development tooling and is not bundled into the app.
 
 After reviewing an item and its dependency changes, add only the controls needed for a concrete workflow:
 
@@ -59,3 +66,15 @@ Resizable, Tooltip and Popover are owned official registry primitives. `react-re
 Tool headers, dividers, collapse controls and preference handling live in the workbench, outside semantic workspace state. Focus transfer follows committed visibility, hidden tools are inert, and panel geometry is a browser preference. See [panel contracts](architecture/workbench-layout.md).
 
 The Model tree uses the shared Button through `asChild` for its rows and IconButton for expand/collapse-all controls. Native `tree`, `treeitem` and `group` roles express ownership; one roving tab stop, explicit selection and arrow-key navigation belong to the tree component. Chevron targets fold branches without changing the inspected selection. Kind icons are decorative; text labels and full declaration/type tooltips provide context.
+
+## Entry surfaces and shared appearance
+
+The OpenMBEE landing and project launcher use the existing Geist/Lucide/shadcn foundation and appearance roles. `ui/entry.css` owns their responsive arrangements. A single `AppearanceProvider` owns theme/palette preferences and root tokens across landing, launcher and retained workbench; individual Appearance buttons own only their dialog visibility. Navigating between surfaces must not reset appearance or create competing preference stores. The product uses a typographic OpenMBEE identity; no invented brand mark or copied predecessor license claims are introduced.
+
+Entry screens remain useful at 390, 768 and 1440 px. The launcher is a full app surface, not an empty workbench behind a modal. Contextual source and diagram actions remain in their own workbench rows; the Named view selector exposes actual authored views and its supported representation, without implying automatic model exploration.
+
+## Structural diagram cards
+
+Structural cards use a subtle palette-driven header, a small kind badge, a prominent declaration/instance name and quieter type text. Port rows separate name/type labels and place explicit direction text beside the corresponding square handle; directions remain engine-provided, including undirected/inout cases. Selected cards use an accent outline and halo without tinting their text. Compound containers use a lighter blend of the definition/canvas roles so their child cards stand out. Light/dark and forced-color styles share the same semantic tokens.
+
+The styling retains renderer node dimensions and absolute saved positions. Leaf port rows share the existing body space; the real handles remain the source of connection endpoint coordinates. UI labels do not infer effective direction through conjugation.

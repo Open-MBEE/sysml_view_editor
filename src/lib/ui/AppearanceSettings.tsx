@@ -4,7 +4,14 @@ import {
   NativeSelectOption,
 } from '$lib/ui/primitives/native-select';
 import { Input } from '$lib/ui/primitives/input';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+  type ReactNode,
+} from 'react';
 import { Button } from './primitives/button';
 import { Dialog } from './Dialog';
 import {
@@ -23,8 +30,7 @@ import {
 } from './appearance';
 
 // This module owns browser preferences; no model/session operation is involved.
-export function AppearanceSettings() {
-  const [open, setOpen] = useState(false);
+function useAppearancePreferences() {
   const [appearance, setAppearance] = useState(() => {
     try {
       return loadAppearance(window.localStorage);
@@ -74,6 +80,27 @@ export function AppearanceSettings() {
     }
   }
 
+  return { appearance, update, saveFailed };
+}
+const AppearanceContext = createContext<ReturnType<
+  typeof useAppearancePreferences
+> | null>(null);
+export function AppearanceProvider({ children }: { children: ReactNode }) {
+  const preferences = useAppearancePreferences();
+  return (
+    <AppearanceContext.Provider value={preferences}>
+      {children}
+    </AppearanceContext.Provider>
+  );
+}
+export function AppearanceSettings({ active = true }: { active?: boolean }) {
+  const [open, setOpen] = useState(false);
+  const preferences = useContext(AppearanceContext);
+  if (!preferences) throw new Error('AppearanceProvider is required.');
+  const { appearance, update, saveFailed } = preferences;
+  useEffect(() => {
+    if (!active) setOpen(false);
+  }, [active]);
   return (
     <>
       <Button

@@ -20,7 +20,7 @@ The canvas waits for measured dimensions and initialized nodes before fitting. E
 
 Reads and writes tolerate blocked browser storage. A failed save retains the live layout for the visit and reports the failure under Workspace layout. Reset applies responsive defaults. Preferences are specific to a browser origin; they are not part of the portable project.
 
-Panel changes do not invoke workspace transactions, reparse source, alter diagram geometry, mark the project modified or add undo history. Source and Diagram remain mounted through mode changes. Project bundles retain their existing version-1 format and still require download to preserve source/drafts across reloads; remembering panel preferences is not work recovery.
+Panel changes do not invoke workspace transactions, reparse source, alter diagram geometry, mark the project modified or add undo history. Source and Diagram remain mounted through mode changes. Project bundles retain their existing version-1 format. Download provides a portable copy; the separate local recovery workflow offers explicit restore/discard after reload. Remembering panel preferences is not work recovery.
 
 ## Source editor
 
@@ -55,7 +55,7 @@ Lucide icons use the shared shadcn Button sizes, theme roles and focus indicator
 
 Apply and Download retain visible labels; frequent compact actions retain precise names such as Undo source. CodeMirror draft undo/redo is distinct from accepted source transaction history. Standard editor/search shortcuts are documented in the README; Tab retains focus navigation. Existing kind labels remain visible alongside Explorer icons; those icons do not establish SysML notation support.
 
-[Browser testing](../testing.md) describes verification; [verification](../verification.md) records actual outcomes and remaining gaps. Full tab docking, floating windows, semantic language assistance and complete accessibility certification remain separate work.
+[Browser testing](../testing.md) describes verification; [verification](../verification.md) records actual outcomes and remaining gaps. Full tab docking, floating windows and complete accessibility auditing remain separate work. Engine-backed language queries are documented in [source editing and recovery](source-assistance-recovery.md).
 
 ## Model ownership tree
 
@@ -66,3 +66,11 @@ Apply and Download retain visible labels; frequent compact actions retain precis
 Navigation follows the [WAI-ARIA tree pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/): arrows move through visible rows and fold/unfold branches, Home/End reach the visible extremes, typed prefixes find visible names, and Enter/Space select the focused declaration. Focus and selection are separate. One treeitem participates in Tab order; shared focus styling distinguishes it from the inspected row.
 
 Diagram selection opens the selected declaration's owner chain without taking focus from the diagram. A UI request counter handles a second selection of the same symbol after its branch has been folded. These are reveal requests, not semantic revisions or identity reconciliation. Selecting a tree row retains the existing Inspector behavior; source-range reveal still requires diagram correspondence. Expansion is not portable project data or automatic work recovery.
+
+## Entry and session lifetime
+
+The public landing lives at `/`; `/app` starts with a project launcher. Source/diagram panels are created on first successful project opening and remain mounted while the launcher or landing is displayed. Inactive workbench surfaces are hidden and inert, retaining the live source editor, history and camera. Appearance state belongs to one application provider. Modal controls close when their owning route becomes inactive, and focus returns to visible controls or the current route heading. A full browser reload is a new session with an explicit recovery choice.
+
+## Shell code ownership
+
+`Workbench.tsx` retains the live session, project-opening validation, selection and reviewed-command orchestration. `ProjectHeader.tsx` and `SourceToolbar.tsx` render shell controls through explicit callbacks. `projectFiles.ts` owns local bundle construction, file reading and browser download preparation; workspace validation and saved-state tracking retain their existing contracts. Panel controls and preferences remain in `WorkbenchPanels.tsx` and `layout.ts`. Surface CSS is imported through `ui/theme.css`; see the [design-system ownership table](../design-system.md#ownership).

@@ -1,8 +1,8 @@
 # Smart air workshop
 
-This is the editor's startup project. Its nine SysML files and 14 named views model the compressor's electrical and pneumatic assemblies, cooling, two installed compressor usages, tools, operator/technician roles, requirements, behaviour and enclosure geometry.
+This is the built-in project opened by **Load example** in the launcher or **Try an example** on the landing page. Its nine SysML files and 14 named views model the compressor's electrical and pneumatic assemblies, cooling, two installed compressor usages, tools, operator/technician roles, requirements, behaviour and enclosure geometry.
 
-The default opens **pneumatics** in Diagram mode: pump, tank, regulator, relief valve and pressure sensor, with 13 displayed ports and four authored connections. **Split** reveals the source; other named views remain available in the sidebar.
+Loading the example opens **pneumatics** in Diagram mode: pump, tank, regulator, relief valve and pressure sensor, with 13 displayed ports and four authored connections. **Split** reveals the source; other named views remain available in the sidebar.
 
 | File                 | Features                                                                                                 |
 | -------------------- | -------------------------------------------------------------------------------------------------------- |
