@@ -36,6 +36,8 @@ Publication follows only after one reviewed command preserves repository UUIDs a
 
 ## Follow-on usability and rendering
 
+The next diagram-polish slice is [edge interaction and routing](architecture/structural-views.md#planned-edge-interactions-and-routing): verify controlled selection, accessible endpoint descriptions, readable labels and hit targets before adopting obstacle-aware routes. Existing smoothstep labels and hit areas already provide part of that behavior.
+
 - Consistent selection and source/canvas reveal, including Explorer-only selection; model-wide search and discoverable language shortcuts.
 - Broader structural notation, effective conjugated directions and new representation families, each backed by actual engine/renderer evidence.
 - Accessibility and large-model performance work based on measured workflows.
