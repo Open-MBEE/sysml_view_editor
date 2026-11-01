@@ -182,30 +182,19 @@ For example changes, run `npm run test:examples`; use `npm run examples:index` a
 
 ## Documentation
 
-| Guide                                                               | What you will find                                                       |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| [Capabilities](docs/capabilities.md)                                | Supported workflows and current limits                                   |
-| [Architecture](docs/architecture/README.md)                         | Module ownership, engine boundaries and source transactions              |
-| [Project format](docs/architecture/project-format.md)               | Source, drafts, identity and presentation serialization                  |
-| [Graphical authoring](docs/architecture/graphical-authoring.md)     | Reviewed creation/rename, command validation and failure behavior        |
-| [Layout preservation](docs/architecture/identity-reconciliation.md) | Verified correspondence, bounded source edits and unsafe mappings        |
-| [Workbench panels](docs/architecture/workbench-layout.md)           | Resizing, focus, toolbar layout and browser preferences                  |
-| [Design system](docs/design-system.md)                              | Shared controls, typography, appearance and registry workflow            |
-| [Testing](docs/testing.md)                                          | Real-engine scenarios, visual comparisons and failure artifacts          |
-| [Verification](docs/verification.md)                                | Local results, retained evidence and skipped coverage                    |
-| [Next steps](docs/next-steps.md)                                    | Implemented milestones and planned work, including Flexo MMS integration |
+Start with the [documentation index](docs/README.md) for current capabilities, architecture contracts, design conventions, testing evidence and planned work. Engine preparation and provenance live in the [engine guide](engine-bridge/README.md); model fixtures and visualization targets live in the [example library](examples/README.md).
 
 ## Scope
 
 This implementation supports a bounded source/structure editing workflow. It does not claim complete SysML v2 language, notation, execution or interchange conformance. Owned-port boundary notation, effective conjugated directions, behavior renderers and broader editing commands remain explicit gaps.
 
-Flexo MMS checkout and publishing are planned; the current workbench uses local project files. Read the [integration research](docs/research/openmbee-flexo-mms.md) and [roadmap](docs/next-steps.md#future-integrations-planned) for the proposed direction.
+Flexo MMS checkout and publishing are planned; the current workbench uses local project files. Read the [integration research](docs/research/openmbee-flexo-mms.md) and [roadmap](docs/next-steps.md#3-flexo-checkout-then-reviewed-publication) for the proposed direction.
 
 ## Contributing
 
 The default branch, `develop`, holds ongoing sandbox work. Feature PRs target `develop`; releases and hotfixes follow the [Git Flow workflow](docs/git-workflow.md). `main` requires a code-owner approval and passing CI.
 
-Start with the [contribution guide](CONTRIBUTING.md), [architecture decisions](docs/decisions/0001-foundation.md) and the acceptance criteria in [next steps](docs/next-steps.md). Keep changes focused, preserve license/provenance notices and request approval before adding production dependencies. Use the [project repository](https://github.com/Open-MBEE/sysml_view_editor) for bugs and feature requests.
+Start with the [contribution guide](CONTRIBUTING.md), [architecture](docs/architecture/README.md) and the acceptance criteria in [next steps](docs/next-steps.md). Keep changes focused, preserve license/provenance notices and request approval before adding production dependencies. Use the [project repository](https://github.com/Open-MBEE/sysml_view_editor) for bugs and feature requests.
 
 ## Security
 

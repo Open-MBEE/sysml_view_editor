@@ -1,5 +1,7 @@
 # Architecture
 
+See the [documentation index](../README.md) for the detailed implementation contracts and planned work.
+
 One static browser application contains a framework-independent workspace and a React workbench. There is one npm project. Internal modules expose small interfaces; extraction into separately published packages requires a concrete second consumer.
 
 ## Ownership and direction

@@ -1,6 +1,6 @@
 # Workbench design system
 
-The React workbench carries forward the previous editor's appearance system. The visual language is maintained separately from the workspace and engine modules.
+The OpenMBEE landing, launcher and React workbench share one appearance system, separate from workspace semantics and engine modules.
 
 ## Ownership
 
@@ -32,15 +32,15 @@ Light with Muted element colors is the fresh-browser default. Dark and Follow sy
 
 Preferences use the existing `sysml-appearance-v1` browser key and parser. This preserves compatible preferences when hosted on the same origin; a different origin does not share storage. Invalid fields fall back independently. Denied reads use defaults; failed writes retain settings for the visit and show a message.
 
-Muted base colors can be customized for packages, part definitions and part usages, and reset. Existing direction-specific port preferences are retained by the parser, but port color controls remain unavailable until detailed port rendering exists. Color changes produce blended fills; readable text/border roles remain controlled by the theme.
+Muted base colors can be customized for packages, part definitions and part usages, and reset. Existing direction-specific port preferences are retained by the parser, but detailed port color controls are not exposed. Color changes produce blended fills; readable text/border roles remain controlled by the theme.
 
-The current graph adapter maps exact engine notation kinds `package`, `part def` and `part` to palette roles. Other kinds keep neutral surfaces and their engine kind label. Detailed notation, custom connection routing and compound elements remain documented limits.
+The current graph adapter maps exact engine notation kinds `package`, `part def` and `part` to palette roles. Other kinds keep neutral surfaces and their engine kind label. Nested structures are supported; broader notation and custom connection routing remain documented limits.
 
 Appearance is a user preference. It does not enter project bundles, mark projects modified, reparse source or add model undo history. Source application reconciles compatible presentation mappings according to the workspace contract; appearance never invokes reconciliation or changes geometry.
 
 ## Registry workflow
 
-`components.json` configures the official React registry and local aliases. The shadcn MCP server can inspect components, usage examples and installation commands; it is development tooling and is not bundled into the app. It was already available in the development session; this repository does not modify personal MCP configuration.
+`components.json` configures the official React registry and local aliases. The shadcn MCP server can inspect components, usage examples and installation commands; it is development tooling and is not bundled into the app.
 
 After reviewing an item and its dependency changes, add only the controls needed for a concrete workflow:
 

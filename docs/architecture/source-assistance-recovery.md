@@ -1,8 +1,20 @@
-# Source assistance and local recovery
+# Source editing, assistance and recovery
 
 The workbench composes a separate Toolkit language adapter in `shell/session.ts`. Language queries are read-only and use every current draft source file, including unapplied text. Each request runs in a disposable worker against the pinned Toolkit library and negotiates UTF-16 positions. Normalization converts between raw source offsets and protocol positions, including CRLF and astral Unicode characters.
 
 Completion is explicit with Control+Space. Only supported single plain-text edits are offered; snippets, additional edits and commands are excluded. Hover and F1 display plain text. F12 navigates to one exact project-file definition; unavailable, ambiguous and library-only targets explain their limits. The editor rejects results after draft, session, file or busy-state changes and rechecks completion validity when applying it. Queries do not apply source, change model history or replace views.
+
+## Issue navigation
+
+OpenSysML's pinned ParseSources response supplies diagnostic `span.file` and one-based `span.startLine`. The existing semantic worker normalizes those to optional `file` and `line`. The workbench selects a whole reported line, retaining raw UTF-16 offsets and CRLF/CR/LF boundaries; it does not claim a column or token range that this transport does not carry.
+
+`WorkspaceState.diagnosticDocuments` records the exact source documents associated with visible diagnostics. Failed draft application and rejected semantic candidates retain their respective inputs; accepted model diagnostics use applied documents. This transient state is independent of the version-1 portable project. Draft edits clear obsolete diagnostics and their inputs.
+
+`workbench/issues/navigation.ts` resolves a diagnostic only when its file belongs to the current project and that file's current draft text exactly matches the diagnosed text. A known file without a line opens at the beginning with no text selected and an explicit explanation. Unknown files, unavailable snapshots and out-of-range lines expose a reason instead of a source action. A candidate error must not lend its location to the old live source.
+
+The click handler rechecks current diagnostic membership and resolves against the current workspace snapshot before changing source focus. Source reveal preserves Code/Split mode, opening Split when the source was hidden in Diagram mode. The open named view, selected semantic element, source text and saved geometry remain independent of issue browsing. Explicit editor-mode changes retain the existing diagram-fit policy.
+
+The browser scenarios combine actual pinned-engine errors with controlled normalized responses for unavailable locations and rejected-candidate evidence. Unit checks cover raw line bounds, Unicode, line endings and stale snapshots. These are navigation and preservation guarantees, not complete diagnostic or SysML conformance.
 
 ## Recovery storage
 

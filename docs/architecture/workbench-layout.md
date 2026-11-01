@@ -55,7 +55,7 @@ Lucide icons use the shared shadcn Button sizes, theme roles and focus indicator
 
 Apply and Download retain visible labels; frequent compact actions retain precise names such as Undo source. CodeMirror draft undo/redo is distinct from accepted source transaction history. Standard editor/search shortcuts are documented in the README; Tab retains focus navigation. Existing kind labels remain visible alongside Explorer icons; those icons do not establish SysML notation support.
 
-[Browser testing](../testing.md) describes verification; [verification](../verification.md) records actual outcomes and remaining gaps. Full tab docking, floating windows, semantic language assistance and complete accessibility certification remain separate work.
+[Browser testing](../testing.md) describes verification; [verification](../verification.md) records actual outcomes and remaining gaps. Full tab docking, floating windows and complete accessibility auditing remain separate work. Engine-backed language queries are documented in [source editing and recovery](source-assistance-recovery.md).
 
 ## Model ownership tree
 
