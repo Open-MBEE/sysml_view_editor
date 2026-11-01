@@ -174,6 +174,8 @@ npm run test:e2e                    # fresh build, real engines and visual compa
 npm run preview -- --host 127.0.0.1
 ```
 
+PR CI runs all fast checks plus twelve critical browser workflows, adding visual comparisons for code changes. Full browser coverage runs weekly, manually and for release/main/hotfix PRs and pushes. Run `npm run test:e2e -- --project=functional --grep @critical` to reproduce the smaller browser gate; `npm run test:e2e` still runs everything. See [CI coverage](docs/testing.md#ci-coverage) for selection and deferred coverage.
+
 Functional checks can use installed Chrome with `PLAYWRIGHT_BROWSER_CHANNEL=chrome npm run test:e2e -- --project=functional`. Visual comparisons always use bundled Chromium and reviewed platform-specific baselines. The browser suite starts its own fresh production server; port **4175** must be free. See [browser testing and baseline review](docs/testing.md).
 
 Production hosting must serve `index.html` for direct `/app` navigation while retaining normal asset paths; use the SPA fallback for your hosting provider. `/app/?example=1` is canonicalized to `/app` before the explicitly requested example opens, and reload does not repeat that opening action.

@@ -2,7 +2,9 @@ name: Validate
 on:
   pull_request:
   push:
-    branches: [main, develop, 'release/**', 'hotfix/**']
+    branches: [main, 'release/**', 'hotfix/**']
+  schedule:
+    - cron: '0 4 * * 1'
   workflow_dispatch:
 permissions:
   contents: read
@@ -15,15 +17,31 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
         with:
           node-version-file: .nvmrc
           cache: npm
+      - name: Select browser coverage
+        id: browser-plan
+        env:
+          PR_BASE_REF: ${{ github.base_ref }}
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: node scripts/ci-test-plan.mjs
       - run: npm ci
       - run: npm run check
       - run: npm audit --audit-level=low
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - name: Full browser suite
+        if: steps.browser-plan.outputs.full == 'true'
+        run: npm run test:e2e
+      - name: Critical browser workflows
+        if: steps.browser-plan.outputs.full != 'true'
+        run: npm run test:e2e -- --project=functional --grep @critical --reporter=list --output=sandbox/playwright/critical
+      - name: Visual comparisons for code changes
+        if: steps.browser-plan.outputs.visual == 'true'
+        run: npm run test:e2e -- --project=visual
       - name: Retain browser test evidence
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

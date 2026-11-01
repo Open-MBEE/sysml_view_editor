@@ -24,6 +24,30 @@ PLAYWRIGHT_BROWSER_CHANNEL=chrome npm run test:e2e -- --project=functional
 
 The browser-channel override applies only to functional checks. Visual checks always use the Chromium version installed for the locked Playwright version. The checked-in baselines were generated on Linux; use the same OS, browser and fonts for comparisons. Other platforms need separately reviewed baselines, not wider mismatch thresholds. Visual tests fix the viewport, locale, timezone, system theme and reduced-motion preference, and wait for the example diagram and local fonts before capture.
 
+## CI coverage
+
+The required `checks` job always runs formatting, architecture, TypeScript, unit/script tests and the dependency audit. Browser coverage is selected separately:
+
+| Trigger                                                                                                                                   | Browser coverage                                                                                                                                                                                                                                          |
+| ----------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Every PR                                                                                                                                  | Twelve `@critical` real-engine scenarios: entry, source-defined views, invalid drafts, rename and cancellation, native view creation, typed part/connection authoring, source undo/redo, exact save/reopen, engine failure recovery and IndexedDB restore |
+| PR with code, assets, examples, tooling or unknown paths                                                                                  | All visual comparisons as well as the critical scenarios                                                                                                                                                                                                  |
+| Documentation-only PR                                                                                                                     | Critical scenarios; no visual comparisons                                                                                                                                                                                                                 |
+| PR targeting `main`, `release/**`, `hotfix/**`; weekly Monday at 04:00 UTC; manual dispatch; or push to `main`, `release/**`, `hotfix/**` | Complete functional and visual suites                                                                                                                                                                                                                     |
+
+There is no duplicate run on a merge push to `develop`; its PR must pass `checks`. Scheduled runs use the repository's default branch. The full run must pass before release, and remains available manually on any branch. Scheduled failures need triage; they do not retroactively block an already merged PR. The reduced PR suite intentionally defers the extended preservation/failure matrix, language assistance, engine identity investigations and example-library sweeps to full runs.
+
+The selector in `scripts/ci-test-plan.mjs` only exempts Markdown documentation, root license/notice files and CODEOWNERS from visual checks. Missing/empty change lists retain visual coverage; a missing PR base SHA or failed Git comparison fails the job. No whole-workflow path filters leave required checks pending. Critical traces/screenshots use a separate output directory so the visual run does not erase them. Baselines and assertions are unchanged; full local runs still select every test. Browser workers remain at one until isolation and resource use are measured.
+
+Reproduce the PR browser gate locally:
+
+```sh
+npm run test:e2e -- --project=functional --grep @critical
+npm run test:e2e -- --project=visual  # also required for code changes
+```
+
+When adding a semantic command, keep a real-engine acceptance path in the critical set. Use `npm run test:e2e -- --project=functional --grep @critical --list` to review membership. Moving a regression out of the PR gate needs an explicit coverage decision; never remove a tag merely to avoid a failure.
+
 ## Example library
 
 The [example catalog](../examples/README.md) supplies independent source projects, per-view engine expectations and visual targets. `npm run test:examples` runs its metadata/inventory/index checks and all library browser scenarios. These scenarios observe the actual worker replies, verify named views and node/relationship multisets, check rendered/partial/unavailable app behavior, and download/reopen exact sources. Unavailable renderers are tested as explicit app behavior rather than skipped. Current diagram PNGs and engine JSON are retained per view under `sandbox/playwright/results/examples-example-library-*/` and attached to the HTML report. These captures record current behavior; they are not visual-comparison baselines or evidence that every listed visual target is satisfied.
