@@ -15,7 +15,7 @@ Deliberate faults removed the stale-completion guard, startup-record protection,
 
 `npm run test:e2e -- --project=visual --output sandbox/playwright/editor-workflows-visual-full --reporter=list`: all 33 normal visual comparisons passed. Eight new recovery-dialog/symbol-information captures cover desktop/narrow widths in both themes. Fifteen existing baselines changed intentionally for the Local recovery header action; pixel comparisons confirm every difference is within y=23–39, with content below the header unchanged. New images and before/after/diff sheets were inspected. Evidence: `sandbox/language-recovery-new-contact-sheet.jpg`, `sandbox/recovery-header-comparison-1.jpg`, `sandbox/recovery-header-comparison-2.jpg`, `sandbox/recovery-header-diff-evidence.json`.
 
-The final full functional run is in progress; its result will be recorded separately. Firefox/WebKit and complete accessibility auditing remain outside this checkpoint. Hosted CI is separate from local evidence.
+`npm run test:e2e -- --project=functional --output=sandbox/playwright/editor-final-functional --reporter=list --max-failures=1`: all 74 scenarios passed in 11.9 minutes through one fresh production build, with no retries or skips. This includes all 61 prior scenarios and the 4 language/9 recovery additions. Together with the normal visual run, all 107 browser scenarios passed across the two runs. Firefox/WebKit and complete accessibility auditing remain outside this checkpoint. Hosted CI is separate from local evidence. [Validate run 41314513339](https://github.com/Open-MBEE/sysml_view_editor/actions/runs/41314513339) passed for code head `f708b84` before this final documentation-only record update.
 
 ## Navigable diagnostics checkpoint
 
