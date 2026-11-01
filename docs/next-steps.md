@@ -1,10 +1,10 @@
 # Next steps
 
-Updated 2026-10-30 from the development sequence recorded on 2026-10-26. Planned work below is not implemented unless explicitly marked. [Capabilities](capabilities.md) records current behavior; [verification](verification.md) records checks actually performed. No delivery dates or individual owners are assigned here.
+Updated 2026-11-01 from the development sequence recorded on 2026-10-26. Planned work below is not implemented unless explicitly marked. [Capabilities](capabilities.md) records current behavior; [verification](verification.md) records checks actually performed. No delivery dates or individual owners are assigned here.
 
 ## Current position
 
-The foundation and identity investigation are committed in `a2d0d91` and `fd54b67`; the assembly editing milestone is committed in `ead6337` on `feat/clean-foundation`. It implements reviewed rename layout preservation, bounded source-edit preservation, and typed part/port-connection authoring. The current usability pass adds resizable panels, contextual Lucide controls, measured toolbar alignment and an expandable ownership tree with keyboard navigation and diagram-selection reveal. [Smart air workshop](../examples/air-compressor/README.md) replaces the small Workshop as startup: nine source files and fourteen named views, opening its pneumatic assembly in Diagram mode. The smaller examples remain focused workflow fixtures. [Verification](verification.md) records exact local results, inspected captures and deliberate regression faults; hosted CI has not been run for this pass.
+The foundation and identity investigation are committed in `a2d0d91` and `fd54b67`; the assembly editing milestone is committed in `ead6337` on `feat/clean-foundation`. It implements reviewed rename layout preservation, bounded source-edit preservation, and typed part/port-connection authoring. The current usability pass adds resizable panels, contextual Lucide controls, measured toolbar alignment and an expandable ownership tree with keyboard navigation and diagram-selection reveal. [Smart air workshop](../examples/air-compressor/README.md) replaces the small Workshop as startup: nine source files and fourteen named views, opening its pneumatic assembly in Diagram mode. The smaller examples remain focused workflow fixtures. [Verification](verification.md) records exact local results, inspected captures and deliberate regression faults; the source-assistance/recovery code also passed hosted Validate; see the verification record for the tested revision.
 
 The [identity investigation](architecture/identity-reconciliation.md) compares fresh parses, definition/usage renames, an unrelated-file edit, offset shifts, reordered/inserted usages, file/owner moves and changed types. It records a counterexample where unchanged symbol/origin/context IDs identify the wrong usage. Its original complete splice-based join covered a definition rename. The new production browser scenarios verify both definition and usage renames, including distinct saved views and fresh import; broader comparison cases remain explicit invalidation targets.
 
@@ -137,11 +137,21 @@ Alongside those tasks, prioritize usability issues observed while completing the
 
 Acceptance should describe a concrete task: navigate an issue, find a part, reveal its source, correct it and preserve the work. New editor or recovery dependencies require review; browser preferences, recovery data and portable project files have different responsibilities.
 
-## Keep views simple throughout
+## Next priority: automatic model exploration
 
-Keep one list of named SysML views and a contextual **New view of selection** action. Existing views open directly. New views ask for a subject, representation and name; ownership, exposure and filters use advanced settings or source until richer controls earn their place.
+Agreed direction: opening is exploration; creating a named view is authorship. A new import should open a supported system structure when there is one unambiguous system subject, or a project overview when there are multiple or ambiguous subjects. Reopening should restore a valid prior browsing context once its storage contract is implemented.
 
-Source owns view declarations and semantic scope. Presentation owns symbol geometry; camera and editor arrangement are separate workspace concerns. Switching source files does not implicitly replace the open view. Avoid adding parallel view catalogues or requiring new declarations just to inspect an existing one.
+Scope and representation are independent navigation choices. Files are source documents, not system boundaries; selecting a file does not implicitly change diagram scope. Named SysML views remain explicit, source-owned presentations and continue to open directly.
+
+First implement read-only exploration for models without view declarations: trace the actual engine projection contract, show a project/package overview and supported system structure, and verify exact source/draft/history/layout preservation. Share evaluation/rendering and semantic correspondence with named views. Do not silently insert view declarations or infer ownership and identity from diagram geometry.
+
+Then add explicit creation of a named view from a suitable exploration and define persistence of browsing context through the owning schemas. The current portable project and recovery formats do not store exploration scope/representation. Additional state/action representations require verified engine and renderer support.
+
+See the [exploration plan and acceptance criteria](architecture/model-exploration.md) and [domain glossary](../CONTEXT.md). This supersedes selection/reveal as the next feature priority; selection consistency, source/canvas reveal and model-wide search remain follow-on usability work.
+
+## Application entry and shell planning
+
+Plan the landing → project launcher → workbench journey alongside automatic exploration, using the earlier workspace as the visual/interaction reference with OpenMBEE product branding. The launcher should distinguish local folders, imported project files and a future versioned Flexo checkout; their save, download and publish workflows are different. The [shell planning draft](architecture/application-shell.md) records the proposed screen hierarchy, shared shadcn visual language, capability gates and open discovery questions. Landing/launcher changes, direct folder access and remote checkout are planned rather than implemented.
 
 ## Future integrations planned
 
