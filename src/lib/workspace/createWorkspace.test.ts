@@ -78,6 +78,26 @@ function setup() {
   };
 }
 describe('source transactions', () => {
+  it('keeps recovered projects unsaved until download and retains the baseline after a failed open', async () => {
+    const { workspace } = setup();
+    await workspace.open(project(), { unsaved: true });
+    expect(workspace.snapshot().dirty).toBe(true);
+    expect(workspace.snapshot().canUndo).toBe(false);
+    workspace.updateDraft('model.sysml', source + '\n');
+    workspace.discardDrafts();
+    expect(workspace.snapshot().dirty).toBe(true);
+    const invalid = {
+      ...project(),
+      documents: [{ name: 'model.sysml', text: 'broken' }],
+    };
+    await expect(workspace.open(invalid)).rejects.toThrow();
+    expect(workspace.snapshot().dirty).toBe(true);
+    workspace.markSaved(workspace.serialize());
+    expect(workspace.snapshot().dirty).toBe(false);
+    await workspace.open(project());
+    expect(workspace.snapshot().dirty).toBe(false);
+  });
+
   it('cancels an in-flight proposal without changing source, layout or history', async () => {
     const { workspace, transformations } = setup();
     await workspace.open(project());

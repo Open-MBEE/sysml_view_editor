@@ -1,5 +1,33 @@
 # Verification record
 
+## Source assistance and recovery checkpoint
+
+Recorded 2026-11-01 on `feature/source-assistance-recovery`, using Node 26.3.1, npm 11.16.0 and the pinned browser engines. No production dependencies, engine pins or portable project fields changed.
+
+- `npm run check`: passed formatting, architecture, TypeScript, 118 Vitest tests and 5 Node tests.
+- Fresh production builds passed through the focused Playwright runs, retaining the existing bundle-size warning.
+- `language-assistance.spec.ts`: all 4 actual-engine scenarios passed in `sandbox/playwright/language-integration-options`.
+- `recovery.spec.ts`: all 9 scenarios passed across `sandbox/playwright/recovery-integration`, `recovery-integration-remaining`, `recovery-integration-clean` and `recovery-integration-validation`; see the final full-suite record for the combined run.
+
+Queries retain the full draft source set, raw CRLF/Unicode ranges and project-only target policy. Real-engine completion is applied and undone/redone; held and failed actual library assets verify stale cancellation, exact retained work and retry. Recovery checks compare durable IndexedDB payloads, both view layouts, invalid drafts, active view, explicit discard, storage denial, competing-tab conflicts, persisted settings and keyboard focus containment/return. Restored clean geometry stays modified until download and requires replacement confirmation. A real-engine rejected recovery retains the current bundle and stored record. Discarded drafts disappear from the durable recovery record.
+
+Deliberate faults removed the stale-completion guard, startup-record protection, clean-transition clearing and restored-unsaved baseline. Each targeted assertion failed; restored code passed. Logs: `sandbox/language-stale-fault.log`, `sandbox/recovery-pending-fault.log`, `sandbox/recovery-clean-fault.log`, `sandbox/recovery-unsaved-fault.log`. Controlled storage/asset failures establish failure-policy behavior; successful semantic operations still use the real pinned engines.
+
+`npm run test:e2e -- --project=visual --output sandbox/playwright/editor-workflows-visual-full --reporter=list`: all 33 normal visual comparisons passed. Eight new recovery-dialog/symbol-information captures cover desktop/narrow widths in both themes. Fifteen existing baselines changed intentionally for the Local recovery header action; pixel comparisons confirm every difference is within y=23–39, with content below the header unchanged. New images and before/after/diff sheets were inspected. Evidence: `sandbox/language-recovery-new-contact-sheet.jpg`, `sandbox/recovery-header-comparison-1.jpg`, `sandbox/recovery-header-comparison-2.jpg`, `sandbox/recovery-header-diff-evidence.json`.
+
+The final full functional run is in progress; its result will be recorded separately. Firefox/WebKit and complete accessibility auditing remain outside this checkpoint. Hosted CI is separate from local evidence.
+
+## Navigable diagnostics checkpoint
+
+Recorded 2026-11-01 on `feature/source-diagnostics`; commit `a4c544b`.
+
+- `npm run check`: passed formatting, architecture, TypeScript, 87 Vitest tests and 5 Node tests.
+- `npm run build`: passed, with the existing bundle-size warning.
+- `npm run test:e2e -- --project=functional diagnostics.spec.ts preservation.spec.ts --max-failures=1 --output sandbox/playwright/diagnostics-final-functional --reporter=list`: 8 passed.
+- `npm run test:e2e -- --project=visual --output sandbox/playwright/diagnostics-final-visual --reporter=list --max-failures=1`: all 25 passed.
+
+The first diagnostic scenario uses the real engine. Three controlled normalized-response scenarios establish missing/file-only/stale-candidate policy. Four new desktop/narrow light/dark diagnostic captures were inspected; existing 21 baselines stayed unchanged at this checkpoint. A deliberate removal of the diagnosed-text equality guard caused the stale-location unit regression to fail; the restored implementation and focused browser checks passed. Evidence: `sandbox/diagnostic-stale-fault.log`, `sandbox/diagnostic-visual-review.jpg` and the browser output directories above. The other functional scenarios were not rerun locally for this checkpoint.
+
 ## CodeMirror source editor checkpoint
 
 Recorded 2026-11-01 on `feat/source-editor`, using Node 26.3.1, npm 11.16.0, locked Linux Chromium and the existing pinned browser engines. The approved CodeMirror dependencies are pinned in the npm manifest/lockfile; engine pins and the portable project format are unchanged.

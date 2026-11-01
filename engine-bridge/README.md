@@ -5,7 +5,7 @@ The browser app requires OpenSysML and SysML Toolkit WASM workers. Preparation s
 | Engine        | Pin                                                  | Purpose                                                     |
 | ------------- | ---------------------------------------------------- | ----------------------------------------------------------- |
 | OpenSysML     | 0.10.0 / `08ef397841767b829e492bbecf6d723483b4421e`  | Parsing, model inspection, validation and native evaluation |
-| SysML Toolkit | 0.10.10 / `339ef0e073d06e553e81c079755ddfcd224e4b92` | Source transformation proposals                             |
+| SysML Toolkit | 0.10.10 / `339ef0e073d06e553e81c079755ddfcd224e4b92` | Source transformations and draft language queries           |
 
 `scripts/prepare-opensysml.mjs` verifies the source archive, applies the retained overlays under `engine-bridge/opensysml/`, runs bridge tests and builds with Go 1.25.11. The derived module exposes `studio_evaluate_view_v1` and `studio_relationships_v1`. It records source/archive, overlay, builder, toolchain, binary and runtime identities. Set `SYSML_GO` to a local Go 1.25.11 binary on platforms without the pinned Linux x64 download path.
 
@@ -18,3 +18,5 @@ For an engine upgrade, update explicit pins/checksums, review overlay seams, com
 The structural bridge retains engine hierarchy, inherited-port correspondence and exact connection endpoints. It adds explicit declaration directions and reference modifiers by recorded origin, without inferring effective directions from types or conjugation. The assembly sources under `examples/assembly/` are copied into the Go bridge test package and included in preparation's input digest. [Structural contract trace and scope](../docs/architecture/structural-views.md).
 
 `insertMember` supports typed part and connection creation. Creation may insert within the recorded owner or promote only its terminal semicolon to a body; existing surrounding source is retained. Toolkit accepts some directionally incompatible connections, so the workspace separately checks explicit out/inout-to-in/inout direction, identical resolved type and exact evaluated usage/port endpoints. Conjugated or ambiguous endpoint paths remain unavailable for graphical creation. [Authoring scope and evidence](../docs/architecture/graphical-authoring.md).
+
+Toolkit also supplies read-only completion, hover and definition queries through a separate disposable language worker. Queries use the complete draft source set, negotiate UTF-16 positions and normalize only supported results. The workbench rejects stale replies; completion edits remain unapplied draft changes until the normal source transaction validates them. Engine pins, prepared assets and provenance are unchanged. See [source assistance](../docs/architecture/source-assistance-recovery.md).

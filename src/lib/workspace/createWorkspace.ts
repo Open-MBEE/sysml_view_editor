@@ -308,7 +308,7 @@ export function createWorkspace(dependencies: {
         listeners.delete(listener);
       };
     },
-    async open(project: ProjectBundle) {
+    async open(project: ProjectBundle, options: { unsaved?: boolean } = {}) {
       // Round-trip through the format reader before accepting caller-owned data.
       const candidate = JSON.parse(serializeProject(project)) as ProjectBundle;
       const { token, signal } = begin();
@@ -317,7 +317,7 @@ export function createWorkspace(dependencies: {
         current(token);
         history.clear();
         proposals.clear();
-        saved = serializeProject(candidate);
+        saved = options.unsaved ? '' : serializeProject(candidate);
         restore({ project: candidate, model });
       } finally {
         finish(token);
