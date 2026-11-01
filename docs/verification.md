@@ -1,5 +1,15 @@
 # Verification record
 
+## Mobile header integration fix
+
+Recorded 2026-11-02. Review found that the base header rules overrode the earlier mobile breakpoint. At 390 px the 62 px banner contained actions extending to 83 px; the new containment assertion failed with a 21 px overflow. Moving the mobile rules after the base and wider breakpoints lets the header grow with its wrapped actions.
+
+`npm run test:e2e -- --project=functional toolbar.spec.ts appearance.spec.ts --output=sandbox/playwright/mobile-header-functional --reporter=list --max-failures=1` passed all eight scenarios after the fix. The regression covers 390, 600 and 601 px, toolbar separation, keyboard Appearance dismissal/focus return, Projects/Resume focus return and an exact project-bundle comparison. Red evidence: `sandbox/cleanup-design/mobile-header-before.log` and `sandbox/playwright/mobile-header-before`.
+
+Four new header captures at 390/600 px in light/dark were inspected. The normal comparison run, `npm run test:e2e -- --project=visual --output=sandbox/playwright/mobile-header-visual-final --reporter=list --max-failures=1`, passed all 47 comparisons without baseline updates, retries or skips. `npm run check` passed, including 118 Vitest tests and six Node checks; fresh production builds passed through these browser runs with the existing bundle-size warning.
+
+[Validate run 41336740488](https://github.com/Open-MBEE/sysml_view_editor/actions/runs/41336740488) passed all 128 browser scenarios for the preceding head `ddd5196`. That hosted result predates this mobile fix; its new full CI run is separate. Firefox/WebKit and a complete accessibility audit were not run for this fix.
+
 ## Shell cleanup and structural card checkpoint
 
 Recorded 2026-11-01 on `feature/openmbee-shell`, using Node 26.3.1, npm 11.16.0 and the existing pinned browser engines. The private package is now `@openmbee/sysml-view-editor`; dependency versions, engine pins and portable project fields are unchanged. TypeScript now checks unused locals/parameters; two unused imports were removed.

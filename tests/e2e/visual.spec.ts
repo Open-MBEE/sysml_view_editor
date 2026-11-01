@@ -525,3 +525,26 @@ for (const theme of ['light', 'dark']) {
     });
   }
 }
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [390, 600]) {
+    test(`mobile project header in ${theme} at ${width}`, async ({ page }) => {
+      await ready(page, { split: false });
+      await page.setViewportSize({ width, height: 900 });
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const dialog = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+      await expect(dialog).not.toBeVisible();
+      await page.mouse.move(0, 0);
+      await expect(page.getByRole('banner')).toHaveScreenshot(
+        `mobile-header-${theme}-${width}.png`,
+      );
+    });
+  }
+}

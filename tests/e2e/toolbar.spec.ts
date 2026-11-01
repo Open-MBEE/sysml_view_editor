@@ -4,6 +4,7 @@ import {
   test,
   expect,
   ready,
+  waitForLauncher,
   openWorkshop,
   downloadProject,
   diagramCamera,
@@ -146,4 +147,92 @@ test('centres source commands and mode icons over their panes while resizing', a
     })
     .toBeGreaterThanOrEqual(0);
   await expect.poll(modeGap).toBeGreaterThanOrEqual(8);
+});
+
+test('keeps wrapped mobile project actions inside the header and above source controls', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto('/app');
+  await waitForLauncher(page);
+  await page.getByRole('button', { name: 'Load example', exact: true }).click();
+  await expect(
+    page.getByRole('combobox', { name: 'Named view', exact: true }),
+  ).toHaveValue('CompressorViews::pneumatics');
+  await expect(
+    page.getByRole('group', { name: 'part pump : Pump', exact: true }),
+  ).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  const header = page.getByRole('banner');
+  const actions = header.getByRole('navigation', {
+    name: 'Project actions',
+    exact: true,
+  });
+  for (const width of [390, 600, 601]) {
+    await page.setViewportSize({ width, height: 900 });
+    await expect
+      .poll(
+        async () => {
+          const [container, content] = await Promise.all([
+            header.boundingBox(),
+            actions.boundingBox(),
+          ]);
+          return (
+            container!.y + container!.height - content!.y - content!.height
+          );
+        },
+        { timeout: 5000 },
+      )
+      .toBeGreaterThanOrEqual(0);
+    await expect
+      .poll(
+        async () => {
+          const [container, history, source, modes] = await Promise.all([
+            header.boundingBox(),
+            page
+              .getByRole('group', {
+                name: 'Source transaction history',
+                exact: true,
+              })
+              .boundingBox(),
+            page
+              .getByRole('group', { name: 'Source actions', exact: true })
+              .boundingBox(),
+            page
+              .getByRole('group', { name: 'Editor layout', exact: true })
+              .boundingBox(),
+          ]);
+          return (
+            Math.min(history!.y, source!.y, modes!.y) -
+            container!.y -
+            container!.height
+          );
+        },
+        { timeout: 5000 },
+      )
+      .toBeGreaterThanOrEqual(0);
+  }
+  await page.setViewportSize({ width: 390, height: 900 });
+  const before = (await downloadProject(page)).bundle;
+  const appearance = actions.getByRole('button', {
+    name: 'Appearance',
+    exact: true,
+  });
+  await appearance.focus();
+  await appearance.press('Enter');
+  const dialog = page.getByRole('dialog', { name: 'Appearance', exact: true });
+  await expect(
+    dialog.getByRole('combobox', { name: 'Theme', exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(dialog).not.toBeVisible();
+  await expect(appearance).toBeFocused();
+  await header.getByRole('button', { name: 'Projects', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Resume project', exact: true })
+    .click();
+  await expect(
+    header.getByRole('button', { name: 'Projects', exact: true }),
+  ).toBeFocused();
+  expect((await downloadProject(page)).bundle).toEqual(before);
 });
