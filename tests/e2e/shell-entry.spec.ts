@@ -40,7 +40,7 @@ async function workshopFiles() {
   );
 }
 
-test('opens the OpenMBEE landing and empty launcher without loading an example or model engine', async ({
+test('@critical opens the OpenMBEE landing and empty launcher without loading an example or model engine', async ({
   page,
 }) => {
   const engineRequests: string[] = [];
@@ -93,7 +93,7 @@ test('opens the OpenMBEE landing and empty launcher without loading an example o
   expect(engineRequests).toEqual([]);
 });
 
-test('landing and direct example links open the real model once and reload returns to the empty launcher', async ({
+test('@critical landing and direct example links open the real model once and reload returns to the empty launcher', async ({
   page,
 }) => {
   await page.goto('/');

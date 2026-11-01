@@ -13,7 +13,7 @@ import {
   expectRenderedPositions,
 } from './support';
 
-test('creates a typed part and connects its actual inherited usage ports through reviewed source transactions', async ({
+test('@critical creates a typed part and connects its actual inherited usage ports through reviewed source transactions', async ({
   page,
 }, testInfo) => {
   test.setTimeout(180_000);

@@ -15,7 +15,7 @@ import {
   moveNode,
   downloadProject,
 } from './support';
-test('loads real source-defined views and keeps the view stable when changing files', async ({
+test('@critical loads real source-defined views and keeps the view stable when changing files', async ({
   page,
 }) => {
   await openWorkshop(page);
@@ -38,7 +38,7 @@ test('loads real source-defined views and keeps the view stable when changing fi
   ).toHaveSource(/package WorkshopViews/);
   await expect(diagramNode(page, 'primary : Motor')).toBeVisible();
 });
-test('retains an invalid draft and the last valid diagram', async ({
+test('@critical retains an invalid draft and the last valid diagram', async ({
   page,
 }) => {
   await openWorkshop(page);
@@ -67,7 +67,7 @@ test('retains an invalid draft and the last valid diagram', async ({
     page.getByRole('textbox', { name: 'SysML source' }),
   ).toHaveSource(/package Workshop/);
 });
-test('uses Toolkit rename, updates both references, and supports exact undo/redo', async ({
+test('@critical uses Toolkit rename, updates both references, and supports exact undo/redo', async ({
   page,
 }) => {
   await openWorkshop(page);
@@ -98,7 +98,7 @@ test('uses Toolkit rename, updates both references, and supports exact undo/redo
   await expect(diagramNode(page, 'primary : Drive')).toBeVisible();
   await expect(diagramNode(page, 'standby : Drive')).toBeVisible();
 });
-test('creates a native view declaration through a reviewed transaction', async ({
+test('@critical creates a native view declaration through a reviewed transaction', async ({
   page,
 }) => {
   await openWorkshop(page);
@@ -132,7 +132,7 @@ test('creates a native view declaration through a reviewed transaction', async (
   ).toBe(true);
   expect(bundle.drafts).toEqual(bundle.documents);
 });
-test('downloads and reopens a project with the draft and diagram positions intact', async ({
+test('@critical downloads and reopens a project with the draft and diagram positions intact', async ({
   page,
 }) => {
   await openWorkshop(page);
@@ -208,7 +208,7 @@ test('downloads and reopens a project with the draft and diagram positions intac
   expect(reopened.bundle.presentations).toEqual(bundle.presentations);
 });
 
-test('cancels a reviewed rename without changing source, references or history', async ({
+test('@critical cancels a reviewed rename without changing source, references or history', async ({
   page,
 }) => {
   await openWorkshop(page);
@@ -233,7 +233,7 @@ test('cancels a reviewed rename without changing source, references or history',
   expect((await downloadProject(page)).bundle).toEqual(before);
 });
 
-test('distinguishes repeated usages when selecting a diagram symbol', async ({
+test('@critical distinguishes repeated usages when selecting a diagram symbol', async ({
   page,
 }) => {
   await openWorkshop(page);
@@ -260,7 +260,7 @@ test('distinguishes repeated usages when selecting a diagram symbol', async ({
   }
 });
 
-test('retains source, draft and diagram after engine asset failure, then recovers', async ({
+test('@critical retains source, draft and diagram after engine asset failure, then recovers', async ({
   page,
 }) => {
   await openWorkshop(page);

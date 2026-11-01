@@ -76,7 +76,7 @@ async function savedDraft(page: Page) {
   return { expected, draft, raw: (await readRecovery(page))! };
 }
 
-test('restores exact applied source, invalid drafts and both view layouts from IndexedDB after reload', async ({
+test('@critical restores exact applied source, invalid drafts and both view layouts from IndexedDB after reload', async ({
   page,
 }) => {
   const { expected, draft } = await savedDraft(page);
