@@ -1,4 +1,5 @@
 import {
+  readSource,
   test,
   expect,
   openWorkshop,
@@ -15,9 +16,9 @@ test('separates appearance from model edits and follows system changes only when
   await openWorkshop(page);
   const root = page.locator('html');
   await expect(root).toHaveAttribute('data-theme', 'light');
-  const source = await page
-    .getByRole('textbox', { name: 'SysML source' })
-    .inputValue();
+  const source = await readSource(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  );
   await page.getByRole('button', { name: 'Appearance', exact: true }).click();
   const dialog = page.getByRole('dialog', { name: 'Appearance', exact: true });
   await dialog.getByLabel('Theme', { exact: true }).selectOption('system');
@@ -44,9 +45,9 @@ test('separates appearance from model edits and follows system changes only when
     }
   }
   await dialog.getByRole('button', { name: 'Done', exact: true }).click();
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    source,
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource(source);
   await expect(
     page.getByRole('button', { name: 'Undo source', exact: true }),
   ).toBeDisabled();

@@ -1,4 +1,5 @@
 import {
+  fillSource,
   test,
   selectModelElement,
   waitForStartup,
@@ -37,7 +38,7 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
   });
   const editor = await source.elementHandle();
   const draft = documents[0]!.text + '\n// retain this unfinished draft\npart';
-  await source.fill(draft);
+  await fillSource(source, draft);
   const before = (await downloadProject(page)).bundle;
   await panDiagram(page);
   const camera = await diagramCamera(page);
@@ -62,14 +63,27 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
   await expect
     .poll(() => regionSize(inspector, 'width'))
     .toBeGreaterThan(right);
-  const sourceWidth = await regionSize(source, 'width');
+  const sourceWidth = await regionSize(
+    page.getByRole('region', { name: 'Source editor', exact: true }),
+    'width',
+  );
   await dragSeparator(page, 'Resize Source and Diagram', 'x', -45);
   await expect
-    .poll(() => regionSize(source, 'width'))
+    .poll(() =>
+      regionSize(
+        page.getByRole('region', { name: 'Source editor', exact: true }),
+        'width',
+      ),
+    )
     .toBeLessThan(sourceWidth - 20);
   await dragSeparator(page, 'Resize Source and Diagram', 'x', -800);
   await expect
-    .poll(() => regionSize(source, 'width'))
+    .poll(() =>
+      regionSize(
+        page.getByRole('region', { name: 'Source editor', exact: true }),
+        'width',
+      ),
+    )
     .toBeGreaterThanOrEqual(159);
   await expect(source).toBeVisible();
   expect((await toolbarCenterOffsets(page)).source).toBeLessThan(1);
@@ -88,7 +102,7 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
   // Explicit editor modes refit the view; divider changes above preserve the camera.
   for (const mode of ['Diagram', 'Code', 'Split'])
     await page.getByRole('button', { name: mode, exact: true }).click();
-  await expect(source).toHaveValue(draft);
+  await expect(source).toHaveSource(draft);
   expect(
     await source.evaluate((node, original) => node === original, editor),
   ).toBe(true);
@@ -218,7 +232,7 @@ test('opens resizable Issues on validation failure and retains the invalid draft
     exact: true,
   });
   const before = (await downloadProject(page)).bundle;
-  await source.fill('package Unfinished { part');
+  await fillSource(source, 'package Unfinished { part');
   await page.getByRole('button', { name: 'Apply source', exact: true }).click();
   const issues = page.getByRole('region', { name: 'Issues', exact: true });
   await expect(issues).toBeVisible();
@@ -234,7 +248,7 @@ test('opens resizable Issues on validation failure and retains the invalid draft
   expect(failed.documents).toEqual(before.documents);
   expect(failed.presentations).toEqual(before.presentations);
   expect(failed.drafts[0]!.text).toBe('package Unfinished { part');
-  await expect(source).toHaveValue('package Unfinished { part');
+  await expect(source).toHaveSource('package Unfinished { part');
   await expect(
     page.getByRole('group', { name: 'part pump : Pump', exact: true }),
   ).toBeVisible();

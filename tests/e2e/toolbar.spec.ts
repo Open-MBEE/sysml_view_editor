@@ -1,4 +1,6 @@
 import {
+  readSource,
+  fillSource,
   test,
   expect,
   ready,
@@ -22,7 +24,7 @@ test('icon actions retain accessible names, tooltips and exact source undo/redo'
     name: 'SysML source',
     exact: true,
   });
-  const original = await source.inputValue();
+  const original = await readSource(source);
   const undo = page.getByRole('button', { name: 'Undo source', exact: true });
   const redo = page.getByRole('button', { name: 'Redo source', exact: true });
   await expect(undo).toBeDisabled();
@@ -35,16 +37,16 @@ test('icon actions retain accessible names, tooltips and exact source undo/redo'
   await expect(
     page.getByRole('button', { name: 'Split', exact: true }),
   ).toBeFocused();
-  await source.fill(original + '\n// toolbar history\n');
+  await fillSource(source, original + '\n// toolbar history\n');
   await page.getByRole('button', { name: 'Apply source', exact: true }).click();
   await expect(undo).toBeEnabled();
   await undo.focus();
   await expect(page.getByRole('tooltip')).toHaveText('Undo source');
   await page.keyboard.press('Enter');
-  await expect(source).toHaveValue(original);
+  await expect(source).toHaveSource(original);
   await expect(redo).toBeEnabled();
   await redo.click();
-  await expect(source).toHaveValue(original + '\n// toolbar history\n');
+  await expect(source).toHaveSource(original + '\n// toolbar history\n');
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();

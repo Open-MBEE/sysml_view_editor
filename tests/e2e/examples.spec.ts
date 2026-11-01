@@ -26,7 +26,7 @@ for (const entry of catalog.examples) {
       })),
     );
     const source = page.getByRole('textbox', { name: 'SysML source' });
-    await expect(source).toHaveValue(documents[0]!.text);
+    await expect(source).toHaveSource(documents[0]!.text);
     const diagram = page.getByRole('region', { name: 'Diagram', exact: true });
     for (const view of entry.views) {
       const button = page.getByTitle(view.id, { exact: true });
@@ -110,7 +110,7 @@ for (const entry of catalog.examples) {
       mimeType: 'application/json',
       buffer,
     });
-    await expect(source).toHaveValue(documents[0]!.text);
+    await expect(source).toHaveSource(documents[0]!.text);
     await expect(
       page.getByTitle(entry.views[0]!.id, { exact: true }),
     ).toHaveAttribute('aria-current', 'page');

@@ -220,3 +220,59 @@ for (const theme of ['light', 'dark']) {
     });
   }
 }
+
+for (const theme of ['light', 'dark']) {
+  for (const narrow of [false, true]) {
+    test(`source editor and search in ${theme}${narrow ? ' narrow' : ''}`, async ({
+      page,
+    }) => {
+      if (narrow) await page.setViewportSize({ width: 768, height: 900 });
+      await ready(page);
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      await page
+        .getByRole('dialog')
+        .getByLabel('Theme', { exact: true })
+        .selectOption(theme);
+      await page.getByRole('button', { name: 'Done', exact: true }).click();
+      const sourcePane = page.getByRole('region', {
+        name: 'Source editor',
+        exact: true,
+      });
+      const axis = narrow ? 'height' : 'width';
+      const available =
+        (await sourcePane.boundingBox())![axis] +
+        (await page
+          .getByRole('region', { name: 'Diagram', exact: true })
+          .boundingBox())![axis];
+      await page.getByRole('button', { name: 'Code', exact: true }).click();
+      await expect
+        .poll(async () => (await sourcePane.boundingBox())![axis])
+        .toBeGreaterThanOrEqual(available - 1);
+      const source = page.getByRole('textbox', {
+        name: 'SysML source',
+        exact: true,
+      });
+      const keyword = source.getByText('package', { exact: true });
+      await expect(keyword).toHaveCSS(
+        'color',
+        theme === 'light' ? 'rgb(109, 58, 198)' : 'rgb(196, 164, 255)',
+      );
+      await source.press('ControlOrMeta+f');
+      const editor = page.getByRole('region', {
+        name: 'Source editor',
+        exact: true,
+      });
+      await editor
+        .getByRole('textbox', { name: 'Find', exact: true })
+        .fill('Compressor');
+      await expect(
+        editor.getByRole('textbox', { name: 'Replace', exact: true }),
+      ).toBeInViewport({ ratio: 1 });
+      await expect(page).toHaveScreenshot(
+        `source-editor-${theme}${narrow ? '-narrow' : ''}.png`,
+      );
+    });
+  }
+}

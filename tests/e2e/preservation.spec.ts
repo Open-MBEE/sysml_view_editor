@@ -1,4 +1,5 @@
 import {
+  fillSource,
   test,
   selectModelElement,
   waitForStartup,
@@ -83,7 +84,7 @@ for (const rename of [
       .click();
     await expect(
       page.getByRole('textbox', { name: 'SysML source' }),
-    ).toHaveValue(documents[0]!.text);
+    ).toHaveSource(documents[0]!.text);
     expect(
       semanticPositions((await downloadProject(page)).bundle, evaluations),
     ).toEqual(semanticPositions(before, evaluations));
@@ -92,7 +93,7 @@ for (const rename of [
       .click();
     await expect(
       page.getByRole('textbox', { name: 'SysML source' }),
-    ).toHaveValue(accepted.documents[0]!.text);
+    ).toHaveSource(accepted.documents[0]!.text);
     expect(
       semanticPositions((await downloadProject(page)).bundle, evaluations),
     ).toEqual(expected);
@@ -106,7 +107,7 @@ for (const rename of [
     });
     await expect(
       page.getByRole('textbox', { name: 'SysML source' }),
-    ).toHaveValue(accepted.documents[0]!.text);
+    ).toHaveSource(accepted.documents[0]!.text);
     for (const view of ['structure', 'devices']) {
       await openView(page, view);
       await expectRenderedPositions(
@@ -151,9 +152,9 @@ test('retains both views through a Unicode source insertion and an unrelated-fil
       buffer: Buffer.from(doc.text),
     })),
   );
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    documents[0]!.text,
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource(documents[0]!.text);
   for (const view of ['structure', 'devices']) {
     await openView(page, view);
     await moveNode(
@@ -169,7 +170,10 @@ test('retains both views through a Unicode source insertion and an unrelated-fil
     ['notes.sysml', 'package Notes { part def MarkerChanged; }\n'],
   ]) {
     await page.getByRole('button', { name: file!, exact: true }).click();
-    await page.getByRole('textbox', { name: 'SysML source' }).fill(text!);
+    await fillSource(
+      page.getByRole('textbox', { name: 'SysML source' }),
+      text!,
+    );
     await page
       .getByRole('button', { name: 'Apply source', exact: true })
       .click();
@@ -186,7 +190,7 @@ test('retains both views through a Unicode source insertion and an unrelated-fil
       .click();
     await expect(
       page.getByRole('textbox', { name: 'SysML source' }),
-    ).toHaveValue(prior.documents.find((item) => item.name === file)!.text);
+    ).toHaveSource(prior.documents.find((item) => item.name === file)!.text);
     expect(
       semanticPositions((await downloadProject(page)).bundle, evaluations),
     ).toEqual(expected);
@@ -195,15 +199,16 @@ test('retains both views through a Unicode source insertion and an unrelated-fil
       .click();
     await expect(
       page.getByRole('textbox', { name: 'SysML source' }),
-    ).toHaveValue(text!);
+    ).toHaveSource(text!);
     expect(
       semanticPositions((await downloadProject(page)).bundle, evaluations),
     ).toEqual(expected);
     prior = applied;
   }
-  await page
-    .getByRole('textbox', { name: 'SysML source' })
-    .fill('package Unfinished { part');
+  await fillSource(
+    page.getByRole('textbox', { name: 'SysML source' }),
+    'package Unfinished { part',
+  );
   await page.getByRole('button', { name: 'Apply source', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Issues' })).toBeVisible();
   const rejected = (await downloadProject(page)).bundle;
@@ -224,9 +229,9 @@ test('retains both views through a Unicode source insertion and an unrelated-fil
     mimeType: 'application/json',
     buffer: saved.buffer,
   });
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    '// λ 🔧 unchanged declarations\n' + documents[0]!.text,
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource('// λ 🔧 unchanged declarations\n' + documents[0]!.text);
   for (const view of ['structure', 'devices']) {
     await openView(page, view);
     await expectRenderedPositions(page, saved.bundle, 'AssemblyViews::' + view);
@@ -263,7 +268,10 @@ test('invalidates reordered usage mappings instead of lending another usage its 
     'part primary : Device;\n            part standby : Device;',
     'part standby : Device;\n            part primary : Device;',
   );
-  await page.getByRole('textbox', { name: 'SysML source' }).fill(reordered);
+  await fillSource(
+    page.getByRole('textbox', { name: 'SysML source' }),
+    reordered,
+  );
   await page.getByRole('button', { name: 'Apply source', exact: true }).click();
   await expect(page.getByRole('status')).toContainText(
     '4 saved positions were arranged again',
@@ -272,9 +280,9 @@ test('invalidates reordered usage mappings instead of lending another usage its 
   expect(after.documents[0]!.text).toBe(reordered);
   expect(semanticPositions(after, evaluations)).toEqual(retained);
   await page.getByRole('button', { name: 'Undo source', exact: true }).click();
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    documents[0]!.text,
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource(documents[0]!.text);
   expect(
     semanticPositions((await downloadProject(page)).bundle, evaluations),
   ).toEqual(semanticPositions(before, evaluations));

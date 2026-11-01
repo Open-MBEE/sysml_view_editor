@@ -121,6 +121,8 @@ The pinned Toolkit audit confirmed `insertMember` for typed parts and connection
 
 The usability pass adds [resizable panels and Lucide action icons](architecture/workbench-layout.md), with browser-only arrangement preferences and preservation checks.
 
+CodeMirror 6 now supplies lexical SysML highlighting, line numbers, bracket matching/closing, indentation, current-file find/replace and local draft undo/redo. It is a workbench integration; semantic validity remains with the pinned engines. External file/source replacements reset local editor history; toolbar history continues to own accepted model revisions.
+
 Next bounded task: make source diagnostics navigable. The current Issues panel displays severity, filename, optional line and message, but has no source-navigation action. Trace the pinned diagnostic contract before adding range fields; do not invent a precise range when only a line or message is available. Reuse the existing source-reveal path and retain the open diagram, drafts and per-view geometry.
 
 Acceptance for that task:
@@ -135,7 +137,7 @@ After that task, prioritize usability issues observed while completing the assem
 - Consistent selection across Explorer, diagram and Inspector, with explicit source/canvas reveal actions.
 - Find/search and discoverable keyboard shortcuts.
 - Clear applied/draft/modified/download feedback.
-- Source-language assistance after choosing an editor integration against these needs.
+- Engine-backed completion, hover and go-to-definition through the CodeMirror integration, after tracing the pinned engine contracts. Lexical highlighting supplies no semantic evidence.
 - Recovery of unfinished work, with an explicit storage/versioning policy and failure handling.
 
 Acceptance should describe a concrete task: navigate an issue, find a part, reveal its source, correct it and preserve the work. New editor or recovery dependencies require review; browser preferences, recovery data and portable project files have different responsibilities.

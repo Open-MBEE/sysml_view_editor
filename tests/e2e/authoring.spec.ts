@@ -174,13 +174,13 @@ test('creates a typed part and connects its actual inherited usage ports through
   });
 
   await page.getByRole('button', { name: 'Undo source', exact: true }).click();
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    created.documents[0]!.text,
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource(created.documents[0]!.text);
   await page.getByRole('button', { name: 'Undo source', exact: true }).click();
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    documents[0]!.text,
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource(documents[0]!.text);
   expect(
     semanticPositions((await downloadProject(page)).bundle, evaluations),
   ).toEqual(originalPositions);
@@ -193,7 +193,7 @@ test('creates a typed part and connects its actual inherited usage ports through
       .click();
     await expect(
       page.getByRole('textbox', { name: 'SysML source' }),
-    ).toHaveValue(text);
+    ).toHaveSource(text);
   }
   const saved = await downloadProject(page);
   await page.reload();
@@ -203,9 +203,9 @@ test('creates a typed part and connects its actual inherited usage ports through
     mimeType: 'application/json',
     buffer: saved.buffer,
   });
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    connected.documents[0]!.text,
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource(connected.documents[0]!.text);
   for (const view of ['structure', 'devices']) {
     await openView(page, view);
     await expectRenderedPositions(page, saved.bundle, 'AssemblyViews::' + view);
@@ -401,7 +401,7 @@ test('adds a nested part to a typed usage by promoting only its semicolon owner'
     page.getByRole('complementary', { name: 'Properties' }),
   ).toContainText('Assembly::Station::bay::primary::nested');
   await page.getByRole('button', { name: 'Undo source', exact: true }).click();
-  await expect(page.getByRole('textbox', { name: 'SysML source' })).toHaveValue(
-    documents[0]!.text,
-  );
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource(documents[0]!.text);
 });
