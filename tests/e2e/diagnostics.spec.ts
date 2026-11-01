@@ -13,7 +13,7 @@ import {
   semanticPositions,
   selectModelElement,
   panDiagram,
-  waitForStartup,
+  startExample,
 } from './support';
 
 test('opens a real diagnostic in the correct file by pointer and keyboard while retaining drafts and saved views', async ({
@@ -90,7 +90,7 @@ test('opens a real diagnostic in the correct file by pointer and keyboard while 
   await page.getByRole('button', { name: 'Redo source', exact: true }).click();
   await expect(source).toHaveSource(saved.bundle.documents[0]!.text);
   await page.reload();
-  await waitForStartup(page);
+  await startExample(page);
   await page.locator('input[type=file]').setInputFiles({
     name: 'diagnostics.sysml-project.json',
     mimeType: 'application/json',

@@ -2,7 +2,7 @@ import {
   fillSource,
   test,
   selectModelElement,
-  waitForStartup,
+  startExample,
   expect,
   ready,
   importAssembly,
@@ -197,7 +197,7 @@ test('collapses and restores sizes with keyboard focus, persists UI preferences 
   expect((await downloadProject(page)).bundle).toEqual(before);
   await expect(page.getByRole('banner')).not.toContainText('modified');
   await page.reload();
-  await waitForStartup(page);
+  await startExample(page);
   await expect
     .poll(() => regionSize(explorer, 'width'))
     .toBeCloseTo(expanded, 0);

@@ -7,7 +7,7 @@ import {
   openWorkshop,
   selectModelElement,
   modelTreeItem,
-  waitForStartup,
+  startExample,
   openView,
   diagramNode,
   diagramState,
@@ -24,9 +24,18 @@ test('loads real source-defined views and keeps the view stable when changing fi
     page.getByRole('textbox', { name: 'SysML source' }),
   ).toHaveSource(/package WorkshopViews/);
   const diagram = page.getByRole('region', { name: 'Diagram', exact: true });
-  await expect(diagram.getByText('overview', { exact: true })).toBeVisible();
+  const view = diagram.getByRole('combobox', {
+    name: 'Named view',
+    exact: true,
+  });
+  await expect(view).toBeVisible();
+  await expect(view).toHaveValue('WorkshopViews::overview');
+  await expect(diagramNode(page, 'Workshop::Motor')).toBeVisible();
   await openView(page, 'compressor');
-  await expect(diagram.getByText('compressor', { exact: true })).toBeVisible();
+  await expect(view).toHaveValue('WorkshopViews::compressor');
+  await expect(
+    page.getByRole('textbox', { name: 'SysML source' }),
+  ).toHaveSource(/package WorkshopViews/);
   await expect(diagramNode(page, 'primary : Motor')).toBeVisible();
 });
 test('retains an invalid draft and the last valid diagram', async ({
@@ -108,11 +117,20 @@ test('creates a native view declaration through a reviewed transaction', async (
   await expect(
     page.getByRole('button', { name: 'CompressorDetail', exact: true }),
   ).toBeVisible();
-  await expect(
-    page
-      .getByRole('region', { name: 'Diagram', exact: true })
-      .getByText('CompressorDetail', { exact: true }),
-  ).toBeVisible();
+  const view = page
+    .getByRole('region', { name: 'Diagram', exact: true })
+    .getByRole('combobox', { name: 'Named view', exact: true });
+  await expect(view).toBeVisible();
+  await expect(view).toHaveValue('Workshop::CompressorDetail');
+  await expect(diagramNode(page, 'primary : Motor')).toBeVisible();
+  await expect(diagramNode(page, 'standby : Motor')).toBeVisible();
+  const bundle = (await downloadProject(page)).bundle;
+  expect(
+    bundle.documents.some((file) =>
+      file.text.includes('view CompressorDetail'),
+    ),
+  ).toBe(true);
+  expect(bundle.drafts).toEqual(bundle.documents);
 });
 test('downloads and reopens a project with the draft and diagram positions intact', async ({
   page,
@@ -163,7 +181,7 @@ test('downloads and reopens a project with the draft and diagram positions intac
 
   // Reopen into a fresh page so the old renderer cannot supply the position.
   await page.reload();
-  await waitForStartup(page);
+  await startExample(page);
   await page.locator('input[type=file]').setInputFiles({
     name: 'saved.sysml-project.json',
     mimeType: 'application/json',

@@ -1,12 +1,13 @@
 import {
   test,
-  waitForStartup,
+  startExample,
   expect,
   ready,
   observeEvaluations,
   downloadProject,
   diagramSymbol,
   connectionPoints,
+  namedViewButton,
 } from './support';
 import { loadCatalog, loadExample } from '../../examples/catalog';
 import { writeFile } from 'node:fs/promises';
@@ -29,7 +30,7 @@ for (const entry of catalog.examples) {
     await expect(source).toHaveSource(documents[0]!.text);
     const diagram = page.getByRole('region', { name: 'Diagram', exact: true });
     for (const view of entry.views) {
-      const button = page.getByTitle(view.id, { exact: true });
+      const button = namedViewButton(page, view.id);
       await button.click();
       await expect(button).toHaveAttribute('aria-current', 'page');
       await expect(button).toBeEnabled();
@@ -104,16 +105,17 @@ for (const entry of catalog.examples) {
     expect(bundle.documents).toEqual(documents);
     expect(bundle.drafts).toEqual(documents);
     await page.reload();
-    await waitForStartup(page);
+    await startExample(page);
     await page.locator('input[type=file]').setInputFiles({
       name: entry.id + '.sysml-project.json',
       mimeType: 'application/json',
       buffer,
     });
     await expect(source).toHaveSource(documents[0]!.text);
-    await expect(
-      page.getByTitle(entry.views[0]!.id, { exact: true }),
-    ).toHaveAttribute('aria-current', 'page');
+    await expect(namedViewButton(page, entry.views[0]!.id)).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
     const reopened = (await downloadProject(page)).bundle;
     expect(reopened.documents).toEqual(documents);
     expect(reopened.drafts).toEqual(documents);

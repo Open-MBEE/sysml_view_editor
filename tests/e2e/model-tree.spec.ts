@@ -6,6 +6,7 @@ import {
   modelTreeItem,
   downloadProject,
   diagramCamera,
+  namedViewButton,
 } from './support';
 
 test('nests actual action parameters by owner and retains an invalid draft, source file, applied view and geometry while browsing', async ({
@@ -86,7 +87,7 @@ test('nests actual action parameters by owner and retains an invalid draft, sour
       .getByText('system.sysml', { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByTitle('CompressorViews::pneumatics', { exact: true }),
+    namedViewButton(page, 'CompressorViews::pneumatics'),
   ).toHaveAttribute('aria-current', 'page');
   expect((await downloadProject(page)).bundle).toEqual(before);
   expect(await diagramCamera(page)).toEqual(camera);

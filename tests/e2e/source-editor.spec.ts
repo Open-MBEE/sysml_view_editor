@@ -6,7 +6,7 @@ import {
   fillSource,
   copySourceSelection,
   downloadProject,
-  waitForStartup,
+  startExample,
   diagramState,
   diagramNode,
 } from './support';
@@ -128,7 +128,7 @@ test('retains a virtualized long draft across file switches, local undo and fres
   expect(saved.bundle.documents[0]!.text).toBe(original);
   expect(saved.bundle.drafts[0]!.text).toBe(draft);
   await page.reload();
-  await waitForStartup(page);
+  await startExample(page);
   await page.locator('input[type=file]').setInputFiles({
     name: 'draft.sysml-project.json',
     mimeType: 'application/json',

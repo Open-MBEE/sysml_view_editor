@@ -1,7 +1,7 @@
 import {
   copySourceSelection,
   test,
-  waitForStartup,
+  startExample,
   expect,
   ready,
   importAssembly,
@@ -151,7 +151,7 @@ test('moves an assembly with its descendants and reopens absolute positions with
   await openView(page, 'structure');
   await expect.poll(() => nodePosition(primary)).toEqual(childAfter);
   await page.reload();
-  await waitForStartup(page);
+  await startExample(page);
   await page.locator('input[type=file]').setInputFiles({
     name: 'assembly.sysml-project.json',
     mimeType: 'application/json',
