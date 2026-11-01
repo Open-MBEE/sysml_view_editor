@@ -493,3 +493,35 @@ for (const theme of ['light', 'dark']) {
     });
   }
 }
+
+for (const theme of ['light', 'dark']) {
+  for (const narrow of [false, true]) {
+    test(`selected structural nodes in ${theme}${narrow ? ' narrow' : ''}`, async ({
+      page,
+    }) => {
+      if (narrow) await page.setViewportSize({ width: 768, height: 900 });
+      await ready(page, { split: false });
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const dialog = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+      const tank = page.getByRole('group', {
+        name: 'part tank : Tank',
+        exact: true,
+      });
+      await tank.getByText('tank', { exact: true }).click();
+      await expect(tank).toHaveClass(/selected/);
+      await page.mouse.move(0, 0);
+      await expect(
+        page.getByRole('region', { name: 'Diagram', exact: true }),
+      ).toHaveScreenshot(
+        `selected-structure-${theme}${narrow ? '-narrow' : ''}.png`,
+      );
+    });
+  }
+}

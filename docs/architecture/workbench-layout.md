@@ -70,3 +70,7 @@ Diagram selection opens the selected declaration's owner chain without taking fo
 ## Entry and session lifetime
 
 The public landing lives at `/`; `/app` starts with a project launcher. Source/diagram panels are created on first successful project opening and remain mounted while the launcher or landing is displayed. Inactive workbench surfaces are hidden and inert, retaining the live source editor, history and camera. Appearance state belongs to one application provider. Modal controls close when their owning route becomes inactive, and focus returns to visible controls or the current route heading. A full browser reload is a new session with an explicit recovery choice.
+
+## Shell code ownership
+
+`Workbench.tsx` retains the live session, project-opening validation, selection and reviewed-command orchestration. `ProjectHeader.tsx` and `SourceToolbar.tsx` render shell controls through explicit callbacks. `projectFiles.ts` owns local bundle construction, file reading and browser download preparation; workspace validation and saved-state tracking retain their existing contracts. Panel controls and preferences remain in `WorkbenchPanels.tsx` and `layout.ts`. Surface CSS is imported through `ui/theme.css`; see the [design-system ownership table](../design-system.md#ownership).

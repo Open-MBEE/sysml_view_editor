@@ -1,0 +1,299 @@
+/* Diagram canvas, structural notation and controls. */
+
+.diagram-context [data-slot='native-select-wrapper'] {
+  width: min(132px, 100%);
+}
+.diagram-context select {
+  width: 100%;
+  max-width: 132px;
+  font-size: 11px;
+}
+.diagram-pane .diagram-actions {
+  margin-left: auto;
+}
+.diagram-context {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+.diagram-context-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: 120px;
+}
+.diagram-context-meta .diagram-representation {
+  font-weight: 550;
+  color: var(--sysml-text);
+}
+.diagram-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-left: auto;
+}
+.diagram-pane > .pane-heading {
+  height: auto;
+  min-height: 44px;
+  flex-wrap: wrap;
+  justify-content: start;
+  padding-block: 5px;
+}
+.diagram-slot {
+  display: flex;
+  min-width: 0;
+  min-height: 0;
+  border-left: 1px solid var(--sysml-border);
+}
+.diagram-slot[hidden] {
+  display: none;
+}
+.canvas {
+  flex: 1;
+  min-height: 0;
+  background: var(--sysml-canvas);
+}
+.empty {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 35px;
+  color: var(--sysml-muted);
+  line-height: 1.7;
+}
+.empty h2 {
+  font-size: 19px;
+  font-weight: 500;
+  color: var(--sysml-text);
+}
+.empty p {
+  max-width: 350px;
+  font-size: 13px;
+}
+.notices {
+  font-size: 11px;
+  padding: 10px;
+  color: var(--sysml-muted);
+}
+.react-flow__node {
+  border: 1px solid var(--sysml-node-border);
+  border-radius: var(--sysml-control-radius);
+  background: var(--sysml-surface);
+  color: var(--sysml-text);
+  font-size: 12px;
+  box-shadow: 0 2px 5px #00000008;
+}
+.react-flow__edge-text {
+  font-size: 10px;
+}
+.react-flow__handle {
+  opacity: 0;
+  pointer-events: none;
+}
+.structure-node {
+  --structure-header-bg: var(--sysml-usage-bg);
+  padding: 0;
+  text-align: left;
+}
+.structure-node.model-definition {
+  --structure-header-bg: var(--sysml-definition-bg);
+}
+.structure-heading {
+  padding: 10px 16px;
+  overflow: hidden;
+  background: var(--structure-header-bg);
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--sysml-border) 65%, transparent);
+  border-radius: var(--sysml-control-radius) var(--sysml-control-radius) 0 0;
+}
+.structure-meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 5px;
+  font-size: 10px;
+  color: var(--sysml-muted);
+}
+.structure-heading .model-node-kind {
+  display: inline-flex;
+  margin: 0;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--sysml-stroke) 8%, transparent);
+  line-height: 14px;
+}
+.structure-heading strong {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 18px;
+}
+.structure-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 650;
+}
+.structure-type {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 450;
+  color: var(--sysml-muted);
+}
+.model-reference {
+  border-style: dashed;
+}
+.structure-ports {
+  display: flex;
+  flex-direction: column;
+}
+.structure-port {
+  --port-color: var(--sysml-structure);
+  --port-fill: var(--sysml-port-inout-bg);
+  position: relative;
+  min-height: 30px;
+  flex-grow: 1;
+  border-top: 1px solid color-mix(in srgb, var(--sysml-border) 45%, transparent);
+}
+.structure-port:first-child {
+  border-top: 0;
+}
+.structure-compound .structure-port {
+  flex-grow: 0;
+}
+.structure-port.in {
+  --port-color: var(--sysml-info);
+  --port-fill: var(--sysml-port-in-bg);
+}
+.structure-port.out {
+  --port-color: var(--sysml-warning-border);
+  --port-text: var(--sysml-warning);
+  --port-fill: var(--sysml-port-out-bg);
+}
+.structure-port button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+  padding: 2px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--sysml-text);
+  font-size: 11px;
+  text-align: left;
+}
+.port-label {
+  display: flex;
+  align-items: baseline;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+  white-space: nowrap;
+}
+.port-name {
+  font-weight: 550;
+}
+.port-type {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--sysml-muted);
+}
+.structure-port.out .port-label {
+  justify-content: flex-end;
+}
+.structure-port.out .port-direction {
+  order: 2;
+  text-align: right;
+}
+.port-direction {
+  min-width: 25px;
+  font-size: 9px;
+  font-weight: 650;
+  color: var(--port-text, var(--port-color));
+}
+.structure-port .react-flow__handle {
+  opacity: 1;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--port-color);
+  border-radius: 1px;
+  background: var(--port-fill);
+}
+.structure-node-handle {
+  opacity: 0;
+}
+
+.react-flow__node.model-definition {
+  background: var(--sysml-definition-bg);
+}
+.react-flow__node.model-usage {
+  background: var(--sysml-usage-bg);
+  border-radius: 0;
+}
+.react-flow__node.model-package {
+  background: var(--sysml-package-bg);
+}
+.react-flow__node.selected {
+  outline: 2px solid var(--sysml-accent);
+  outline-offset: 2px;
+}
+.model-node-kind {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 10px;
+  color: var(--sysml-muted);
+}
+.react-flow__node.structure-node {
+  background: var(--sysml-surface);
+  border-radius: var(--sysml-control-radius);
+}
+.react-flow__node.structure-node.structure-compound {
+  background: color-mix(
+    in srgb,
+    var(--sysml-definition-bg) 30%,
+    var(--sysml-canvas)
+  );
+  box-shadow: none;
+}
+.structure-compound > .structure-heading {
+  background: transparent;
+}
+.react-flow .react-flow__node.structure-node.selected {
+  outline: 2px solid var(--sysml-accent);
+  outline-offset: 0;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--sysml-accent) 14%, transparent);
+}
+@media (forced-colors: active) {
+  .structure-port .react-flow__handle {
+    border-color: ButtonText;
+    background: Canvas;
+  }
+  .react-flow .react-flow__node.structure-node.selected {
+    outline-color: Highlight;
+  }
+}
+.diagram-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--sysml-border);
+  border-radius: var(--sysml-control-radius);
+  background: var(--sysml-surface);
+  box-shadow: 0 2px 5px var(--sysml-shadow);
+  max-height: calc(100% - 20px);
+  overflow: auto;
+}

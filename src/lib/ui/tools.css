@@ -1,0 +1,321 @@
+/* Explorer/model tree, Inspector and Issues. */
+.explorer {
+  background: var(--sysml-surface);
+  border-right: 1px solid var(--sysml-border);
+  overflow: auto;
+  padding: 18px 10px;
+}
+.explorer section + section {
+  margin-top: 28px;
+}
+.explorer h2 {
+  font-size: 11px;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--sysml-muted);
+  margin: 0 8px 12px;
+}
+.section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.explorer button {
+  display: flex;
+  justify-content: flex-start;
+  height: auto;
+  min-height: 32px;
+  white-space: normal;
+  gap: 9px;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 8px;
+  border-radius: var(--sysml-control-radius);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.explorer-filename {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.explorer button:hover {
+  background: var(--sysml-subtle);
+}
+.explorer .active {
+  background: var(--sysml-active-bg);
+  color: var(--sysml-active-text);
+}
+.section-heading .small {
+  width: auto;
+  padding: 3px 6px;
+  font-size: 11px;
+  color: var(--sysml-accent);
+}
+.explorer small {
+  display: block;
+  font-size: 10px;
+  color: var(--sysml-muted);
+  margin-top: 3px;
+  line-height: 1.5;
+}
+.file-mark {
+  font: 10px var(--sysml-font-mono);
+  color: var(--sysml-accent);
+}
+.view-mark {
+  font-size: 17px;
+  color: var(--sysml-accent);
+}
+.kind-mark {
+  color: var(--sysml-muted);
+}
+.explorer p {
+  font-size: 12px;
+  padding: 0 8px;
+  color: var(--sysml-muted);
+  line-height: 1.6;
+}
+.properties {
+  overflow: auto;
+  border-left: 1px solid var(--sysml-border);
+  padding: 22px 18px;
+  background: var(--sysml-surface);
+}
+.properties h2 {
+  margin: 0 0 24px;
+  font-size: 11px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--sysml-muted);
+}
+.properties h3 {
+  font-size: 17px;
+  margin: 0 0 6px;
+  font-weight: 500;
+}
+.properties .kind {
+  font: 11px var(--sysml-font-mono);
+  color: var(--sysml-accent);
+}
+.properties dl {
+  font-size: 11px;
+  margin: 26px 0;
+}
+.properties dt {
+  color: var(--sysml-muted);
+  margin-top: 16px;
+}
+.properties dd {
+  margin: 6px 0;
+  overflow-wrap: anywhere;
+  line-height: 1.7;
+}
+.properties p {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--sysml-muted);
+}
+.properties button {
+  width: 100%;
+  margin-bottom: 10px;
+  min-height: 32px;
+  height: auto;
+  white-space: normal;
+}
+.properties form {
+  margin: 22px 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--sysml-border);
+}
+.properties label {
+  font-size: 12px;
+}
+.properties input {
+  width: 100%;
+  margin: 8px 0 10px;
+}
+.issues {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 20px;
+  border-top: 1px solid var(--sysml-border);
+  background: var(--sysml-surface);
+}
+.issues h2 {
+  font-size: 11px;
+  margin: 0 0 8px;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--sysml-muted);
+}
+.issues p {
+  font: 11px/1.7 var(--sysml-font-mono);
+  margin: 5px 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.issues strong {
+  color: var(--sysml-error);
+}
+/* Model ownership is expressed by nested tree/group roles; indentation stays
+   bounded so deeply nested declarations remain reachable in narrow panels. */
+.model-tree,
+.model-tree ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.model-tree {
+  container-type: inline-size;
+}
+.model-tree [role='treeitem'] {
+  outline: none;
+}
+.model-tree-row {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-width: 0;
+  height: 32px;
+  min-height: 32px;
+  gap: 4px;
+  padding: 3px 4px 3px calc(var(--tree-indent) + 4px);
+  border-radius: var(--sysml-control-radius);
+  cursor: pointer;
+  font-size: 12px;
+}
+.model-tree-row:hover {
+  background: var(--sysml-subtle);
+}
+.model-tree [aria-selected='true'] > .model-tree-row {
+  background: var(--sysml-active-bg);
+  color: var(--sysml-active-text);
+  box-shadow: inset 2px 0 var(--sysml-accent);
+}
+.model-tree [role='treeitem']:focus-visible > .model-tree-row {
+  outline: var(--sysml-focus-width) solid var(--sysml-accent);
+  outline-offset: -2px;
+}
+.model-tree-guides {
+  position: absolute;
+  inset-block: 0;
+  left: 14px;
+  width: var(--tree-indent);
+  background: repeating-linear-gradient(
+    90deg,
+    var(--sysml-border) 0 1px,
+    transparent 1px 14px
+  );
+  pointer-events: none;
+}
+.model-tree-row.has-parent::after {
+  position: absolute;
+  left: var(--tree-indent);
+  top: 50%;
+  width: 8px;
+  border-top: 1px solid var(--sysml-border);
+  content: '';
+  pointer-events: none;
+}
+.model-tree-disclosure {
+  display: grid;
+  flex: 0 0 20px;
+  height: 26px;
+  place-items: center;
+}
+.model-tree-disclosure svg {
+  width: 12px;
+  height: 12px;
+}
+.model-tree-disclosure .expanded {
+  transform: rotate(90deg);
+}
+.model-tree-kind {
+  display: grid;
+  flex: 0 0 20px;
+  height: 22px;
+  place-items: center;
+  border-radius: 4px;
+  color: var(--sysml-muted);
+  background: var(--sysml-subtle);
+}
+.model-tree-kind svg {
+  width: 14px;
+  height: 14px;
+}
+.model-tree-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+}
+.model-tree-detail {
+  flex: 0 1 auto;
+  max-width: 42%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--sysml-muted);
+  font-size: 10px;
+  font-weight: 400;
+}
+.model-tree-actions {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+.model-tree-actions button {
+  width: 24px;
+  min-height: 24px;
+  height: 24px;
+  padding: 3px;
+}
+@container (max-width: 200px) {
+  .model-tree-detail {
+    display: none;
+  }
+}
+@media (forced-colors: active) {
+  .model-tree [role='treeitem']:focus-visible > .model-tree-row {
+    outline-color: Highlight;
+  }
+  .model-tree [aria-selected='true'] > .model-tree-row {
+    border: 1px solid Highlight;
+  }
+}
+.issue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.issue-list > li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--sysml-border);
+}
+.issue-location {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: 11px;
+}
+.issue-location > span {
+  color: var(--sysml-muted);
+  overflow-wrap: anywhere;
+}
+.issue-location button {
+  max-width: 100%;
+  height: auto;
+  min-height: 24px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}

@@ -1,30 +1,13 @@
 import {
   WorkbenchLayout,
   WorkbenchPanels,
-  WorkbenchToolbar,
   IssuesToggle,
 } from './WorkbenchPanels';
-import {
-  Undo2,
-  Redo2,
-  FilePlus2,
-  FolderOpen,
-  Download,
-  Check,
-  X,
-  CodeXml,
-  Columns2,
-  Network,
-  PanelsTopLeft,
-} from 'lucide-react';
-import { IconButton } from '$lib/ui/IconButton';
-import { Button } from '$lib/ui/primitives/button';
-import { AppearanceSettings } from '$lib/ui/AppearanceSettings';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createBrowserSession } from './session';
 import { exampleProject, exampleView } from './example';
 import type { Workspace, WorkspaceState } from '$lib/workspace/createWorkspace';
-import { readProject, type ProjectBundle } from '$lib/workspace/persistence';
+import type { ProjectBundle } from '$lib/workspace/persistence';
 import type { EditProposal, SemanticCommand } from '$lib/workspace/editing';
 import type { ModelElement, Diagnostic } from '$lib/workspace/project';
 import { Explorer } from '../explorer/Explorer';
@@ -41,7 +24,13 @@ import {
 } from '../recovery/RecoveryControls';
 import type { RecoveryEntry } from '../recovery/envelope';
 import { ProjectLauncher } from '../entry/ProjectLauncher';
-import { Brand } from '../entry/Brand';
+import { ProjectHeader } from './ProjectHeader';
+import { SourceToolbar } from './SourceToolbar';
+import {
+  createLocalProject,
+  readProjectFiles,
+  downloadProject,
+} from './projectFiles';
 import type { EntryRequest } from '../entry/Application';
 
 const initial: WorkspaceState = {
@@ -269,64 +258,23 @@ export function Workbench({
     );
   }
   function newProject(projectName: string) {
-    const normalized =
-        projectName.trim().replace(/[^A-Za-z0-9_]/g, '') || 'Model',
-      name = /^[A-Za-z_]/.test(normalized) ? normalized : 'Model' + normalized;
-    const documents = [
-      { name: 'model.sysml', text: `package ${name} {\n\n}\n` },
-    ];
     setDialog(null);
     void run(() =>
-      open(
-        {
-          format: 'sysmlv2-view-project',
-          version: 1,
-          name: projectName.trim() || 'My project',
-          documents,
-          drafts: documents,
-          presentations: {},
-        },
-        { origin: 'New local project', mode: 'code', unsaved: true },
-      ),
+      open(createLocalProject(projectName), {
+        origin: 'New local project',
+        mode: 'code',
+        unsaved: true,
+      }),
     );
   }
   async function importFiles(files: FileList | null) {
     if (!files?.length) return;
     const chosen = Array.from(files);
     if (!replaceAllowed()) return;
-    if (chosen.length === 1 && chosen[0]!.name.endsWith('.json')) {
-      await open(readProject(await chosen[0]!.text()));
-      return;
-    }
-    const documents = await Promise.all(
-      chosen.map(async (item) => ({
-        name: item.webkitRelativePath || item.name,
-        text: await item.text(),
-      })),
-    );
-    await open({
-      format: 'sysmlv2-view-project',
-      version: 1,
-      name: chosen[0]!.name.replace(/\.sysml$/, ''),
-      documents,
-      drafts: documents,
-      presentations: {},
-    });
+    await open(await readProjectFiles(chosen));
   }
   function download() {
-    const session = workspace(),
-      serialized = session.serialize(),
-      url = URL.createObjectURL(
-        new Blob([serialized], { type: 'application/json' }),
-      ),
-      link = document.createElement('a');
-    link.href = url;
-    link.download =
-      (session.snapshot().project?.name.replace(/[^A-Za-z0-9_-]/g, '-') ||
-        'model') + '.sysml-project.json';
-    link.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-    session.markSaved(serialized);
+    downloadProject(workspace());
     setMessage(
       'Project download prepared. Keep the downloaded file to reopen your work.',
     );
@@ -541,168 +489,65 @@ export function Workbench({
       )}
       {everOpened && (
         <div className="app" hidden={launcherOpen} inert={launcherOpen}>
-          <header className="topbar">
-            <Brand onHome={onHome} />
-            <Button
-              ref={launcherTrigger}
-              variant="ghost"
-              aria-label="Projects"
-              onClick={() => {
-                setError('');
-                setLauncherOpen(true);
-              }}
-            >
-              <PanelsTopLeft aria-hidden="true" />
-              <span className="button-label">Projects</span>
-            </Button>
-            <div className="project-identity">
-              <span className="project-name">
-                {state.project?.name ?? 'Workspace'}
-                {state.dirty ? ' · modified' : ''}
-              </span>
-              <small className="project-origin">{origin}</small>
-            </div>
-            <nav aria-label="Project actions">
-              <AppearanceSettings active={active && !launcherOpen} />
+          <ProjectHeader
+            state={state}
+            origin={origin}
+            active={active && !launcherOpen}
+            projectsRef={launcherTrigger}
+            onHome={onHome}
+            onProjects={() => {
+              setError('');
+              setLauncherOpen(true);
+            }}
+            onNew={() => {
+              if (replaceAllowed()) setDialog('project');
+            }}
+            onOpen={() => picker.current?.click()}
+            onDownload={() => void run(download)}
+            recovery={
               <RecoveryButton
                 recovery={recovery}
                 onRestore={restoreRecovery}
                 busy={state.busy}
                 active={active && !launcherOpen}
               />
-              <Button
-                variant="ghost"
-                disabled={state.busy}
-                aria-label="New project"
-                onClick={() => {
-                  if (replaceAllowed()) setDialog('project');
-                }}
-              >
-                <FilePlus2 aria-hidden="true" />
-                <span className="button-label">New project</span>
-              </Button>
-              <Button
-                variant="ghost"
-                disabled={state.busy}
-                aria-label="Open"
-                onClick={() => picker.current?.click()}
-              >
-                <FolderOpen aria-hidden="true" />
-                <span className="button-label">Open</span>
-              </Button>
-              <Button
-                variant="default"
-                disabled={!state.project || state.busy}
-                onClick={() => void run(download)}
-              >
-                <Download aria-hidden="true" />
-                Download project
-              </Button>
-            </nav>
-          </header>
+            }
+          />
           <RecoveryBanner
             recovery={recovery}
             onRestore={restoreRecovery}
             busy={state.busy}
           />
-          <WorkbenchToolbar
-            history={
-              <div
-                className="source-history"
-                role="group"
-                aria-label="Source transaction history"
-              >
-                <IconButton
-                  variant="ghost"
-                  disabled={state.busy || state.unapplied || !state.canUndo}
-                  onClick={() =>
-                    void run(async () => {
-                      const session = workspace(),
-                        id = session.snapshot().view?.view;
-                      session.undo();
-                      await refreshView(session, id);
-                    })
-                  }
-                  label="Undo source"
-                  size="icon-xs"
-                  icon={Undo2}
-                />
-                <IconButton
-                  variant="ghost"
-                  disabled={state.busy || state.unapplied || !state.canRedo}
-                  onClick={() =>
-                    void run(async () => {
-                      const session = workspace(),
-                        id = session.snapshot().view?.view;
-                      session.redo();
-                      await refreshView(session, id);
-                    })
-                  }
-                  label="Redo source"
-                  size="icon-xs"
-                  icon={Redo2}
-                />
-              </div>
+          <SourceToolbar
+            state={state}
+            mode={mode}
+            onMode={setMode}
+            onUndo={() =>
+              void run(async () => {
+                const session = workspace(),
+                  id = session.snapshot().view?.view;
+                session.undo();
+                await refreshView(session, id);
+              })
             }
-            sourceActions={
-              <div
-                className="source-actions"
-                role="group"
-                aria-label="Source actions"
-              >
-                <span className={state.unapplied ? 'pending' : ''}>
-                  {state.busy
-                    ? 'Working…'
-                    : state.unapplied
-                      ? 'Draft not applied'
-                      : 'Source applied'}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="xs"
-                  aria-label="Discard draft"
-                  disabled={state.busy || !state.unapplied}
-                  onClick={() => void run(() => workspace().discardDrafts())}
-                >
-                  <X aria-hidden="true" />
-                  Discard
-                </Button>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  disabled={state.busy || !state.unapplied}
-                  onClick={() =>
-                    void run(async () => {
-                      const session = workspace(),
-                        id = session.snapshot().view?.view;
-                      await session.apply();
-                      setMessage('Source applied.');
-                      setFocusRange(undefined);
-                      await refreshView(session, id);
-                    })
-                  }
-                >
-                  <Check aria-hidden="true" />
-                  Apply source
-                </Button>
-              </div>
+            onRedo={() =>
+              void run(async () => {
+                const session = workspace(),
+                  id = session.snapshot().view?.view;
+                session.redo();
+                await refreshView(session, id);
+              })
             }
-            modes={
-              <div className="modes" role="group" aria-label="Editor layout">
-                {(['code', 'split', 'diagram'] as const).map((value) => (
-                  <IconButton
-                    key={value}
-                    label={value.charAt(0).toUpperCase() + value.slice(1)}
-                    icon={
-                      { code: CodeXml, split: Columns2, diagram: Network }[
-                        value
-                      ]
-                    }
-                    aria-pressed={mode === value}
-                    onClick={() => setMode(value)}
-                  />
-                ))}
-              </div>
+            onDiscard={() => void run(() => workspace().discardDrafts())}
+            onApply={() =>
+              void run(async () => {
+                const session = workspace(),
+                  id = session.snapshot().view?.view;
+                await session.apply();
+                setMessage('Source applied.');
+                setFocusRange(undefined);
+                await refreshView(session, id);
+              })
             }
           />
           <main

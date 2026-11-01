@@ -1,0 +1,77 @@
+/* Application-wide layout defaults and shared product identity. */
+/* Entry surfaces share the workbench's appearance roles and owned controls. */
+.route-surface[hidden],
+.app[hidden] {
+  display: none;
+}
+.product-brand[data-slot='button'] {
+  display: flex;
+  height: auto;
+  align-items: baseline;
+  gap: 7px;
+  padding: 4px 0;
+  color: var(--sysml-text);
+  text-decoration: none;
+  font-size: 14px;
+}
+.product-brand > span:first-child {
+  font-weight: 720;
+}
+.product-brand > span:last-child {
+  font-weight: 450;
+  color: var(--sysml-muted);
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--sysml-border);
+  padding: 4px 12px;
+  font-size: 10px;
+  color: var(--sysml-muted);
+  background: var(--sysml-surface);
+}
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 11px/1.7 var(--sysml-font-mono);
+  padding: 15px;
+  background: var(--sysml-canvas);
+  border: 1px solid var(--sysml-border);
+}
+h4 {
+  font-size: 11px;
+  color: var(--sysml-muted);
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
+:root {
+  --xy-node-color: var(--sysml-text);
+  --xy-node-background-color: var(--sysml-surface);
+}

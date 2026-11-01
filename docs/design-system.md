@@ -13,7 +13,14 @@ The OpenMBEE landing, launcher and React workbench share one appearance system, 
 | `src/lib/ui/appearance.ts`          | Framework-independent preference validation, storage helpers and safe custom-color blending            |
 | `src/lib/ui/AppearanceSettings.tsx` | Browser storage, system-theme subscription and appearance controls                                     |
 | `src/lib/ui/Dialog.tsx`             | Shared controlled modal composition and focus return for workbench actions                             |
-| `src/lib/ui/theme.css`              | Workbench arrangement and panel/diagram styling                                                        |
+| `src/lib/ui/theme.css`              | Stylesheet entry point; imports the owning surface styles                                              |
+| `src/lib/ui/base.css`               | Application defaults and shared product identity                                                       |
+| `src/lib/ui/workbench.css`          | Shell, toolbar and resizable panels                                                                    |
+| `src/lib/ui/source.css`             | CodeMirror and language-query presentation                                                             |
+| `src/lib/ui/diagram.css`            | Canvas, structural notation, ports and diagram controls                                                |
+| `src/lib/ui/tools.css`              | Explorer/model tree, Inspector and Issues                                                              |
+| `src/lib/ui/dialogs.css`            | Modal forms, source review and appearance settings                                                     |
+| `src/lib/ui/entry.css`              | Landing and project launcher                                                                           |
 
 Use the installed shadcn primitives for new controls. The Button defaults to compact `sm` sizing with 12 px labels; callers choose an explicit variant. Do not introduce competing button styles or independent palette stores. Component sources are owned code: review registry updates rather than overwriting local changes blindly.
 
@@ -65,3 +72,9 @@ The Model tree uses the shared Button through `asChild` for its rows and IconBut
 The OpenMBEE landing and project launcher use the existing Geist/Lucide/shadcn foundation and appearance roles. `ui/entry.css` owns their responsive arrangements. A single `AppearanceProvider` owns theme/palette preferences and root tokens across landing, launcher and retained workbench; individual Appearance buttons own only their dialog visibility. Navigating between surfaces must not reset appearance or create competing preference stores. The product uses a typographic OpenMBEE identity; no invented brand mark or copied predecessor license claims are introduced.
 
 Entry screens remain useful at 390, 768 and 1440 px. The launcher is a full app surface, not an empty workbench behind a modal. Contextual source and diagram actions remain in their own workbench rows; the Named view selector exposes actual authored views and its supported representation, without implying automatic model exploration.
+
+## Structural diagram cards
+
+Structural cards use a subtle palette-driven header, a small kind badge, a prominent declaration/instance name and quieter type text. Port rows separate name/type labels and place explicit direction text beside the corresponding square handle; directions remain engine-provided, including undirected/inout cases. Selected cards use an accent outline and halo without tinting their text. Compound containers use a lighter blend of the definition/canvas roles so their child cards stand out. Light/dark and forced-color styles share the same semantic tokens.
+
+The styling retains renderer node dimensions and absolute saved positions. Leaf port rows share the existing body space; the real handles remain the source of connection endpoint coordinates. UI labels do not infer effective direction through conjugation.

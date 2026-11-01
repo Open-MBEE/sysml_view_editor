@@ -1,0 +1,92 @@
+/* Modal forms, review and appearance settings. */
+.app-dialog {
+  display: block;
+  width: fit-content;
+  border: 1px solid var(--sysml-border);
+  border-radius: 9px;
+  padding: 28px;
+  max-width: min(960px, 95vw);
+  min-width: min(440px, 95vw);
+  max-height: 85dvh;
+  overflow: auto;
+  color: var(--sysml-text);
+  background: var(--sysml-surface);
+  box-shadow: 0 22px 80px var(--sysml-shadow);
+}
+.app-dialog h2 {
+  margin: 0 0 14px;
+  font-size: 21px;
+  padding-right: 24px;
+  font-weight: 550;
+}
+.app-dialog p {
+  max-width: 480px;
+  line-height: 1.7;
+  color: var(--sysml-muted);
+  font-size: 12px;
+}
+.app-dialog .endpoint-summary {
+  margin: 7px 0 0;
+  overflow-wrap: anywhere;
+}
+.app-dialog label {
+  display: block;
+  font-size: 12px;
+  margin: 18px 0 7px;
+}
+.app-dialog input,
+.app-dialog select {
+  width: 100%;
+}
+.app-dialog [data-slot='native-select-wrapper'] {
+  width: 100%;
+}
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 25px;
+}
+.app-dialog details {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--sysml-muted);
+}
+.source-review {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+.dialog-error {
+  color: var(--sysml-error);
+}
+@media (max-width: 800px) {
+  .source-review {
+    grid-template-columns: 1fr;
+  }
+}
+.app-dialog .recovery-preference {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-dialog .recovery-preference input[type='checkbox'] {
+  width: auto;
+  margin: 0;
+  accent-color: var(--sysml-accent);
+}
+.appearance-options {
+  width: min(420px, 80vw);
+}
+.appearance-options .color-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sysml-space-4);
+}
+.appearance-options input[type='color'] {
+  min-height: 36px;
+  padding: 3px;
+}
+.appearance-options .dialog-actions {
+  justify-content: space-between;
+}

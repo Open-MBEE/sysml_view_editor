@@ -1,8 +1,4 @@
-/* Entry surfaces share the workbench's appearance roles and owned controls. */
-.route-surface[hidden],
-.app[hidden] {
-  display: none;
-}
+/* Landing and project-launcher surfaces. */
 .entry-page {
   min-height: 100dvh;
   color: var(--sysml-text);
@@ -28,23 +24,6 @@
   display: flex;
   align-items: center;
   gap: 12px;
-}
-.product-brand[data-slot='button'] {
-  display: flex;
-  height: auto;
-  align-items: baseline;
-  gap: 7px;
-  padding: 4px 0;
-  color: var(--sysml-text);
-  text-decoration: none;
-  font-size: 14px;
-}
-.product-brand > span:first-child {
-  font-weight: 720;
-}
-.product-brand > span:last-child {
-  font-weight: 450;
-  color: var(--sysml-muted);
 }
 .stage-label {
   color: var(--sysml-muted);
@@ -240,13 +219,6 @@
 .skip-link:focus {
   top: 12px;
 }
-.project-origin {
-  display: block;
-  font-size: 10px;
-  font-weight: 400;
-  line-height: 1.6;
-  color: var(--sysml-muted);
-}
 @media (max-width: 900px) {
   .landing-intro {
     gap: 32px;
@@ -313,73 +285,4 @@
 /* Route headings receive programmatic focus; interactive controls keep rings. */
 .entry-page h1:focus {
   outline: none;
-}
-.project-identity {
-  flex: 1;
-  min-width: 0;
-}
-.project-identity .project-name {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.diagram-pane > .pane-heading {
-  height: auto;
-  min-height: 44px;
-  flex-wrap: wrap;
-  justify-content: start;
-  padding-block: 6px;
-}
-.diagram-context {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 4px 10px;
-  min-width: 0;
-}
-.diagram-context [data-slot='native-select-wrapper'] {
-  width: min(132px, 100%);
-}
-.diagram-context select {
-  width: 100%;
-  max-width: 132px;
-  font-size: 11px;
-}
-.diagram-pane .diagram-actions {
-  margin-left: auto;
-}
-@media (max-width: 1100px) {
-  .topbar .project-origin {
-    display: none;
-  }
-}
-.diagram-context {
-  max-width: 100%;
-}
-@media (max-width: 600px) {
-  .topbar {
-    height: auto;
-    min-height: 62px;
-    flex-wrap: wrap;
-    padding: 8px 10px;
-    gap: 8px;
-  }
-  .topbar nav {
-    width: 100%;
-    justify-content: flex-end;
-    border-top: 1px solid var(--sysml-border);
-    padding-top: 6px;
-  }
-}
-
-.diagram-context-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  max-width: 120px;
-}
-.diagram-context-meta .diagram-representation {
-  font-weight: 550;
-  color: var(--sysml-text);
 }
