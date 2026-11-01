@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-labelledby="title description">
-  <title id="title">SysML v2 View Editor</title>
+  <title id="title">OpenMBEE View Editor</title>
   <desc id="description">Author source, review changes and explore connected views. A browser workbench with local project files and pinned WebAssembly engines.</desc>
   <defs>
     <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
@@ -12,7 +12,7 @@
   <rect x="56" y="48" width="32" height="4" rx="2" fill="#68dec6" />
   <g font-family="Arial, Helvetica, sans-serif">
     <text x="102" y="56" fill="#b0d3dc" font-size="13" letter-spacing="2">SYSML V2 / BROWSER WORKSPACE</text>
-    <text x="54" y="130" fill="#f4f8fb" font-size="52" font-weight="700" letter-spacing="-1">SysML v2 View Editor</text>
+    <text x="54" y="130" fill="#f4f8fb" font-size="52" font-weight="700" letter-spacing="-1">OpenMBEE View Editor</text>
     <text x="56" y="175" fill="#c0d4df" font-size="21">Author source. Review changes. Explore connected views.</text>
     <text x="56" y="235" fill="#68dec6" font-size="12" letter-spacing="1.5">SOURCE &amp; DIAGRAMS</text>
     <path d="M250 223v15M487 223v15" stroke="#426174" />

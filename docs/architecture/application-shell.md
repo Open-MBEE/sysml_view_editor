@@ -1,6 +1,6 @@
 # Application shell and opening a project
 
-Planning draft, 2026-11-01. The agreed exploration model is recorded in [model exploration](model-exploration.md). This document proposes the surrounding entry and workbench experience; it does not describe implemented landing, folder or remote-repository support.
+Entry slice implemented, 2026-11-01; target folder/remote/exploration workflows remain planned. The agreed exploration model is recorded in [model exploration](model-exploration.md). This document records the surrounding entry and workbench direction. The delivered slice supplies landing, a launcher for existing New/Open/example/recovery capabilities, shared appearance, retained-session navigation and a named-view selector. Direct folder access, remote repositories and automatic exploration are not implemented.
 
 ## Product journey
 

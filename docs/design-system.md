@@ -59,3 +59,9 @@ Resizable, Tooltip and Popover are owned official registry primitives. `react-re
 Tool headers, dividers, collapse controls and preference handling live in the workbench, outside semantic workspace state. Focus transfer follows committed visibility, hidden tools are inert, and panel geometry is a browser preference. See [panel contracts](architecture/workbench-layout.md).
 
 The Model tree uses the shared Button through `asChild` for its rows and IconButton for expand/collapse-all controls. Native `tree`, `treeitem` and `group` roles express ownership; one roving tab stop, explicit selection and arrow-key navigation belong to the tree component. Chevron targets fold branches without changing the inspected selection. Kind icons are decorative; text labels and full declaration/type tooltips provide context.
+
+## Entry surfaces and shared appearance
+
+The OpenMBEE landing and project launcher use the existing Geist/Lucide/shadcn foundation and appearance roles. `ui/entry.css` owns their responsive arrangements. A single `AppearanceProvider` owns theme/palette preferences and root tokens across landing, launcher and retained workbench; individual Appearance buttons own only their dialog visibility. Navigating between surfaces must not reset appearance or create competing preference stores. The product uses a typographic OpenMBEE identity; no invented brand mark or copied predecessor license claims are introduced.
+
+Entry screens remain useful at 390, 768 and 1440 px. The launcher is a full app surface, not an empty workbench behind a modal. Contextual source and diagram actions remain in their own workbench rows; the Named view selector exposes actual authored views and its supported representation, without implying automatic model exploration.

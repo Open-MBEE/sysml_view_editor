@@ -53,3 +53,5 @@ Unit tests exercise workspace interfaces with controlled engine responses. These
 The [panel shell](workbench-layout.md) composes resizable tools and editors, with validated browser layout preferences and accessible icon actions. It owns no semantic transactions or portable-project fields. Divider movement retains camera/model-space geometry; explicit editor mode changes retain the existing fit-to-pane behavior.
 
 [Source assistance and local recovery](source-assistance-recovery.md) describes draft-bound language queries, supported edits, the independent recovery envelope and concurrency policy.
+
+The [application shell](application-shell.md) separates the public landing, explicit launcher and live workbench. The workbench session remains mounted during internal launcher/home navigation; full reload offers recovery explicitly. Entry pages use shared appearance state and defer engine work until a project-opening action.
