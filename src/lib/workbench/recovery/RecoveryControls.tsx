@@ -132,6 +132,7 @@ export interface RecoveryControlsProps {
   /** Confirm replacement, open, then call recovery.acceptRestored synchronously before awaiting view setup. */
   onRestore: (entry: RecoveryEntry) => Promise<void>;
   busy?: boolean;
+  active?: boolean;
 }
 
 function RecoveryActions({ recovery, onRestore, busy }: RecoveryControlsProps) {
@@ -237,6 +238,9 @@ export function RecoveryBanner(props: RecoveryControlsProps) {
 export function RecoveryButton(props: RecoveryControlsProps) {
   const { recovery } = props;
   const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (props.active === false) setOpen(false);
+  }, [props.active]);
   return (
     <>
       <Button

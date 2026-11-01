@@ -1,6 +1,7 @@
 @import './shadcn.css';
 @import './tokens.css';
 @import './controls.css';
+@import './entry.css';
 
 * {
   box-sizing: border-box;
@@ -424,7 +425,7 @@ h4 {
   .button-label {
     display: none;
   }
-  footer span:last-child {
+  .app > footer span:last-child {
     display: none;
   }
   .source-review {
