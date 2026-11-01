@@ -123,22 +123,17 @@ The usability pass adds [resizable panels and Lucide action icons](architecture/
 
 CodeMirror 6 now supplies lexical SysML highlighting, line numbers, bracket matching/closing, indentation, current-file find/replace and local draft undo/redo. It is a workbench integration; semantic validity remains with the pinned engines. External file/source replacements reset local editor history; toolbar history continues to own accepted model revisions.
 
-Next bounded task: make source diagnostics navigable. The current Issues panel displays severity, filename, optional line and message, but has no source-navigation action. Trace the pinned diagnostic contract before adding range fields; do not invent a precise range when only a line or message is available. Reuse the existing source-reveal path and retain the open diagram, drafts and per-view geometry.
+Navigable diagnostics are implemented through the existing source editor. Each issue is bound to the exact source documents that produced it. Available file/line locations select the whole reported line; file-only locations open without selecting unrelated text. Missing files, out-of-range lines and rejected candidate snapshots are explained instead of targeting current draft text. Editing clears obsolete issues. Real-engine and controlled policy scenarios verify drafts, saved geometry, keyboard focus, undo/redo and reopen. See [source navigation](architecture/source-navigation.md).
 
-Acceptance for that task:
+Engine-backed completion, hover and go-to-definition through the pinned Toolkit language server and explicit browser recovery are implemented. See the [verification record](verification.md) for the actual local checks and remaining coverage limits. The source editor's lexical mode supplies no semantic evidence. Bind each query to its full draft source set, reject stale results and unsupported partial edits, and retain project/view state on engine failures. Recovery uses a separate validated storage envelope, explicit restore/discard choice and atomic conflict checks. See [implementation policy](architecture/source-assistance-recovery.md).
 
-- From an issue with a known file/line, open the correct source file and focus the available location by keyboard or pointer; explain a missing/stale location without selecting unrelated text.
-- Correct the draft and apply it successfully; keep the prior applied diagram and all draft text when validation fails.
-- Preserve compatible positions in both views, and keep selection, dirty/download feedback and undo/redo consistent.
-- Verify real-engine diagnostics plus controlled missing/stale-location cases, keyboard focus and changed light/dark/narrow layouts. Record local evidence separately from hosted CI.
-
-After that task, prioritize usability issues observed while completing the assembly workflow:
+Alongside those tasks, prioritize usability issues observed while completing the assembly workflow:
 
 - Consistent selection across Explorer, diagram and Inspector, with explicit source/canvas reveal actions.
-- Find/search and discoverable keyboard shortcuts.
+- Model-wide search and discoverable keyboard shortcuts.
 - Clear applied/draft/modified/download feedback.
-- Engine-backed completion, hover and go-to-definition through the CodeMirror integration, after tracing the pinned engine contracts. Lexical highlighting supplies no semantic evidence.
-- Recovery of unfinished work, with an explicit storage/versioning policy and failure handling.
+- Improve discoverability of the implemented completion, hover and definition shortcuts without conflating lexical highlighting with semantic validation.
+- Extend recovery coverage only where observed failures justify it; retain explicit storage/versioning and conflict policies.
 
 Acceptance should describe a concrete task: navigate an issue, find a part, reveal its source, correct it and preserve the work. New editor or recovery dependencies require review; browser preferences, recovery data and portable project files have different responsibilities.
 

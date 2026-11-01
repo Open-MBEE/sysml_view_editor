@@ -533,6 +533,45 @@ h4 {
   border: 1px solid var(--sysml-border);
   border-radius: var(--sysml-control-radius);
 }
+.app-dialog .recovery-preference {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-dialog .recovery-preference input[type='checkbox'] {
+  width: auto;
+  margin: 0;
+  accent-color: var(--sysml-accent);
+}
+.source-editor .cm-tooltip {
+  color: var(--sysml-text);
+  background: var(--sysml-surface);
+  border: 1px solid var(--sysml-border);
+  border-radius: var(--sysml-control-radius);
+  box-shadow: 0 4px 16px var(--sysml-shadow);
+}
+.source-editor .source-symbol-information {
+  max-width: min(480px, calc(100vw - 32px));
+  max-height: min(320px, 50vh);
+  overflow: auto;
+  padding: 10px 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 13px/1.6 var(--sysml-font-mono);
+}
+.source-editor .cm-tooltip-autocomplete > ul {
+  max-width: min(600px, calc(100vw - 32px));
+  font-family: var(--sysml-font-mono);
+}
+.source-editor .cm-tooltip-autocomplete > ul > li[aria-selected] {
+  color: var(--sysml-active-text);
+  background: var(--sysml-active-bg);
+  outline: 1px solid var(--sysml-accent);
+  outline-offset: -1px;
+}
+.source-editor .cm-completionDetail {
+  color: var(--sysml-muted);
+}
 .source-editor .syntax-keyword {
   color: var(--sysml-source);
 }
@@ -1025,4 +1064,33 @@ h4 {
   .model-tree [aria-selected='true'] > .model-tree-row {
     border: 1px solid Highlight;
   }
+}
+
+.issue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.issue-list > li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--sysml-border);
+}
+.issue-location {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: 11px;
+}
+.issue-location > span {
+  color: var(--sysml-muted);
+  overflow-wrap: anywhere;
+}
+.issue-location button {
+  max-width: 100%;
+  height: auto;
+  min-height: 24px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
 }

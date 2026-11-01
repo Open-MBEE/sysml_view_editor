@@ -20,18 +20,25 @@ import { IconButton } from '$lib/ui/IconButton';
 import { Button } from '$lib/ui/primitives/button';
 import { AppearanceSettings } from '$lib/ui/AppearanceSettings';
 import { useEffect, useRef, useState } from 'react';
-import { createBrowserWorkspace } from './session';
+import { createBrowserSession } from './session';
 import { exampleProject, exampleView } from './example';
 import type { Workspace, WorkspaceState } from '$lib/workspace/createWorkspace';
 import { readProject, type ProjectBundle } from '$lib/workspace/persistence';
 import type { EditProposal, SemanticCommand } from '$lib/workspace/editing';
-import type { ModelElement } from '$lib/workspace/project';
+import type { ModelElement, Diagnostic } from '$lib/workspace/project';
 import { Explorer } from '../explorer/Explorer';
 import { SourceEditor } from '../source/SourceEditor';
 import { Diagram } from '../diagrams/Diagram';
 import { Properties } from '../properties/Properties';
 import { Issues } from '../issues/Issues';
+import { issueLocation } from '../issues/navigation';
 import { WorkbenchDialogs } from './WorkbenchDialogs';
+import {
+  useLocalRecovery,
+  RecoveryButton,
+  RecoveryBanner,
+} from '../recovery/RecoveryControls';
+import type { RecoveryEntry } from '../recovery/envelope';
 
 const initial: WorkspaceState = {
   project: null,
@@ -43,6 +50,7 @@ const initial: WorkspaceState = {
   canUndo: false,
   canRedo: false,
   diagnostics: [],
+  diagnosticDocuments: [],
   view: null,
   layoutNotices: [],
 };
@@ -50,6 +58,9 @@ type Mode = 'split' | 'code' | 'diagram';
 export function Workbench() {
   const ref = useRef<Workspace | null>(null),
     picker = useRef<HTMLInputElement>(null);
+  const languageRef = useRef<
+    ReturnType<typeof createBrowserSession>['language'] | null
+  >(null);
   const workspaceSurface = useRef<HTMLElement>(null);
   const reviewGeneration = useRef(0);
   const [state, setState] = useState(initial),
@@ -73,6 +84,30 @@ export function Workbench() {
       start: number;
       end: number;
     }>();
+  const recovery = useLocalRecovery({
+    state,
+    activeFile: file,
+    activeView: state.view?.view ?? null,
+  });
+  async function restoreRecovery(entry: RecoveryEntry) {
+    if (!replaceAllowed()) return;
+    const session = workspace();
+    await session.open(entry.project, { unsaved: true });
+    const restored = session.snapshot();
+    recovery.acceptRestored({
+      project: restored.project!,
+      activeFile: entry.activeFile,
+      activeView: entry.activeView,
+      dirty: restored.dirty || restored.unapplied,
+    });
+    setSelected('');
+    setSymbolSelection(undefined);
+    setFile(entry.activeFile ?? entry.project.drafts[0]!.name);
+    setFocusRange(undefined);
+    setMode('split');
+    setMessage('Local recovery restored.');
+    await refreshView(session, entry.activeView ?? undefined);
+  }
   const element = state.model?.elements.find((item) => item.id === selected);
   const selectedCorrespondence =
     symbolSelection?.view === state.view?.view &&
@@ -112,7 +147,8 @@ export function Workbench() {
     if (target) await session.openView(target.id);
   }
   useEffect(() => {
-    const session = createBrowserWorkspace();
+    const { workspace: session, language } = createBrowserSession();
+    languageRef.current = language;
     ref.current = session;
     const unsubscribe = session.subscribe(setState);
     let closed = false;
@@ -129,7 +165,10 @@ export function Workbench() {
       closed = true;
       unsubscribe();
       session.dispose();
-      if (ref.current === session) ref.current = null;
+      if (ref.current === session) {
+        ref.current = null;
+        languageRef.current = null;
+      }
     };
   }, []);
   async function run(action: () => unknown | Promise<unknown>) {
@@ -333,6 +372,27 @@ export function Workbench() {
     setSymbolSelection(undefined);
     setFocusRange(undefined);
   }
+  function navigateIssue(issue: Diagnostic) {
+    const current = workspace().snapshot();
+    if (!current.diagnostics.includes(issue)) {
+      setMessage(
+        'This issue is no longer current. Apply the draft to refresh diagnostics.',
+      );
+      return;
+    }
+    const location = issueLocation(
+      issue,
+      current.diagnosticDocuments,
+      current.project?.drafts ?? [],
+    );
+    if (!('target' in location)) {
+      setMessage(location.reason);
+      return;
+    }
+    setFile(location.target.file);
+    if (mode === 'diagram') setMode('split');
+    setFocusRange(location.target);
+  }
   function revealSource() {
     if (focusRange) {
       setFile(focusRange.file);
@@ -375,6 +435,11 @@ export function Workbench() {
           </span>
           <nav aria-label="Project actions">
             <AppearanceSettings />
+            <RecoveryButton
+              recovery={recovery}
+              onRestore={restoreRecovery}
+              busy={state.busy}
+            />
             <Button
               variant="ghost"
               disabled={state.busy || !state.project}
@@ -405,6 +470,11 @@ export function Workbench() {
             </Button>
           </nav>
         </header>
+        <RecoveryBanner
+          recovery={recovery}
+          onRestore={restoreRecovery}
+          busy={state.busy}
+        />
         <WorkbenchToolbar
           history={
             <div
@@ -530,6 +600,33 @@ export function Workbench() {
                 <SourceEditor
                   file={source}
                   disabled={state.busy}
+                  languageContext={state.project?.drafts}
+                  onLanguage={async (query, signal) => {
+                    const session = workspace();
+                    const drafts = session.snapshot().project?.drafts;
+                    const language = languageRef.current;
+                    if (!drafts || !language || session.snapshot().busy)
+                      throw new Error(
+                        'Source assistance is unavailable while the workspace is busy.',
+                      );
+                    const isCurrent = () =>
+                      ref.current === session &&
+                      !signal.aborted &&
+                      !session.snapshot().busy &&
+                      session.snapshot().project?.drafts === drafts;
+                    const result = await language.query(drafts, query, signal);
+                    return { result, isCurrent };
+                  }}
+                  onDefinition={(target) => {
+                    setFile(target.file);
+                    if (mode === 'diagram') setMode('split');
+                    setFocusRange({
+                      file: target.file,
+                      start: target.from,
+                      end: target.to,
+                    });
+                  }}
+                  onLanguageMessage={setMessage}
                   selection={
                     focusRange?.file === source.name ? focusRange : undefined
                   }
@@ -572,6 +669,9 @@ export function Workbench() {
             issues={
               <Issues
                 diagnostics={state.diagnostics}
+                diagnosticDocuments={state.diagnosticDocuments}
+                drafts={state.project?.drafts ?? []}
+                onNavigate={navigateIssue}
                 error={dialog ? '' : error}
               />
             }

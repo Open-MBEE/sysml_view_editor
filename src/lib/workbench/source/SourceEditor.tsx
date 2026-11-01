@@ -9,6 +9,8 @@ import {
 } from '@codemirror/language';
 import { tags } from '@lezer/highlight';
 import type { SourceDocument } from '$lib/workspace/project';
+import { createSourceAssistance, type LanguageReply } from './assistance';
+import type { LanguageQuery } from '$lib/workspace/language';
 import { sysmlLanguage } from './sysml-language';
 import { applyEditorChanges, editorOffset } from './source-text';
 
@@ -25,11 +27,22 @@ export function SourceEditor({
   disabled = false,
   selection,
   onChange,
+  onLanguage,
+  onDefinition,
+  onLanguageMessage,
+  languageContext,
 }: {
   file: SourceDocument;
   disabled?: boolean;
   selection?: { start: number; end: number };
   onChange: (value: string) => void;
+  onLanguage?: (
+    query: LanguageQuery,
+    signal: AbortSignal,
+  ) => Promise<LanguageReply>;
+  onDefinition?: (target: { file: string; from: number; to: number }) => void;
+  onLanguageMessage?: (message: string) => void;
+  languageContext?: unknown;
 }) {
   const host = useRef<HTMLDivElement>(null);
   const editor = useRef<{
@@ -41,13 +54,36 @@ export function SourceEditor({
     state: (file: SourceDocument) => EditorState;
   }>(undefined);
   const edited = useEffectEvent(onChange);
+  const query = useEffectEvent(
+    async (request: LanguageQuery, signal: AbortSignal) => {
+      if (!onLanguage) throw new Error('Source assistance is unavailable.');
+      return onLanguage(request, signal);
+    },
+  );
+  const navigate = useEffectEvent(
+    (target: { file: string; from: number; to: number }) =>
+      onDefinition?.(target),
+  );
+  const notify = useEffectEvent((message: string) =>
+    onLanguageMessage?.(message),
+  );
+  const assistance =
+    useRef<ReturnType<typeof createSourceAssistance>>(undefined);
   useLayoutEffect(() => {
     const access = new Compartment();
+    const language = createSourceAssistance({
+      current: () => editor.current,
+      query,
+      navigate,
+      notify,
+    });
+    assistance.current = language;
     const state = (document: SourceDocument) =>
       EditorState.create({
         doc: document.text,
         extensions: [
           basicSetup,
+          language.extensions,
           sysmlLanguage,
           syntaxHighlighting(highlighting),
           indentUnit.of('    '),
@@ -68,10 +104,15 @@ export function SourceEditor({
     const view = new EditorView({ state: state(file), parent: host.current! });
     editor.current = { view, name: file.name, text: file.text, access, state };
     return () => {
+      language.dispose();
+      assistance.current = undefined;
       editor.current = undefined;
       view.destroy();
     };
   }, []);
+  useLayoutEffect(() => {
+    assistance.current?.clear();
+  }, [languageContext, file.name, file.text, disabled]);
   useLayoutEffect(() => {
     const current = editor.current!;
     if (current.name !== file.name || current.text !== file.text) {
@@ -116,8 +157,9 @@ export function SourceEditor({
       </header>
       <p id="source-help" className="sr-only">
         Find and replace with Control+F or Command+F. Tab leaves the editor.
-        Editing undo affects this draft; toolbar Undo source restores applied
-        revisions.
+        Request completion with Control+Space. Press F1 for symbol information
+        or F12 for its definition. Escape dismisses symbol information. Editing
+        undo affects this draft; toolbar Undo source restores applied revisions.
       </p>
       <div className="source-editor" ref={host} />
     </section>

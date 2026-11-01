@@ -4,7 +4,7 @@ import type { ChangeSet } from '@codemirror/state';
 export function editorOffset(text: string, sourceOffset: number) {
   return text.slice(0, sourceOffset).replace(/\r\n?/g, '\n').length;
 }
-function sourceOffset(text: string, offset: number) {
+export function sourceOffset(text: string, offset: number) {
   let removed = 0;
   for (const match of text.matchAll(/\r\n/g)) {
     if (match.index - removed >= offset) break;

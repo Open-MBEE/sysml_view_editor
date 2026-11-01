@@ -9,6 +9,7 @@ One static browser application contains a framework-independent workspace and a 
 | `workspace/project`         | Source documents, validation of membership/limits, applied model records, exact source digests    |
 | `workspace/editing`         | Command schemas, engine-facing interfaces and command postconditions                              |
 | `workspace/views`           | Evaluated artifact/identity contracts and revision checks                                         |
+| `workspace/language`        | Read-only source query/result contracts and UTF-16 source positions                               |
 | `workspace/history`         | Accepted transaction history                                                                      |
 | `workspace/persistence`     | Versioned project schema, serialization and format rules                                          |
 | `workspace/createWorkspace` | Session lifetime and prepare/accept orchestration                                                 |
@@ -17,7 +18,7 @@ One static browser application contains a framework-independent workspace and a 
 | `contracts`                 | Shared validation mechanics; schemas remain with their owners                                     |
 | `ui`                        | Shared React controls, theme tokens and browser appearance preferences; no workspace transactions |
 
-The workspace imports neither React/DOM nor engine implementations. Engine adapters satisfy the two interfaces declared by editing; they have distinct roles. `workbench/shell/session.ts` constructs them and creates a session. UI entry points call the same workspace operations. `npm run check:architecture` checks import direction and platform globals.
+The workspace imports neither React/DOM nor engine implementations. Semantic and transformation adapters satisfy the two interfaces declared by editing; a separate language adapter satisfies the read-only contract in `workspace/language`. `workbench/shell/session.ts` constructs them and creates a session. UI entry points call the same workspace operations. `npm run check:architecture` checks import direction and platform globals.
 
 ## Transaction interface
 
@@ -48,3 +49,5 @@ Unit tests exercise workspace interfaces with controlled engine responses. These
 ## Workbench arrangement
 
 The [panel shell](workbench-layout.md) composes resizable tools and editors, with validated browser layout preferences and accessible icon actions. It owns no semantic transactions or portable-project fields. Divider movement retains camera/model-space geometry; explicit editor mode changes retain the existing fit-to-pane behavior.
+
+[Source assistance and local recovery](source-assistance-recovery.md) describes draft-bound language queries, supported edits, the independent recovery envelope and concurrency policy.

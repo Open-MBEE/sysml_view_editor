@@ -5,6 +5,10 @@ import {
   importAssembly,
   showAssemblyDiagram,
   modelTreeItem,
+  openWorkshop,
+  downloadProject,
+  fillSource,
+  copySourceSelection,
 } from './support';
 
 for (const theme of ['light', 'dark']) {
@@ -273,6 +277,163 @@ for (const theme of ['light', 'dark']) {
       await expect(page).toHaveScreenshot(
         `source-editor-${theme}${narrow ? '-narrow' : ''}.png`,
       );
+    });
+  }
+}
+
+for (const theme of ['light', 'dark']) {
+  for (const narrow of [false, true]) {
+    test(`navigable source diagnostics in ${theme}${narrow ? ' narrow' : ''}`, async ({
+      page,
+    }) => {
+      if (narrow) await page.setViewportSize({ width: 768, height: 900 });
+      await openWorkshop(page);
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      await page
+        .getByRole('dialog')
+        .getByLabel('Theme', { exact: true })
+        .selectOption(theme);
+      await page.getByRole('button', { name: 'Done', exact: true }).click();
+      const original = (await downloadProject(page)).bundle.documents[0]!.text;
+      await fillSource(
+        page.getByRole('textbox', { name: 'SysML source', exact: true }),
+        original.replace('part def Motor;', 'part def Motor :> Missing;'),
+      );
+      await page
+        .getByRole('button', { name: 'Apply source', exact: true })
+        .click();
+      const link = page
+        .getByRole('region', { name: 'Issues', exact: true })
+        .getByRole('button', { name: /Open model.sysml at line/ })
+        .first();
+      await expect(link).toBeVisible();
+      await expect(
+        page.getByRole('button', { name: 'Apply source', exact: true }),
+      ).toBeEnabled();
+      await expect(
+        page.getByRole('textbox', { name: 'SysML source', exact: true }),
+      ).toHaveAttribute('aria-readonly', 'false');
+      await link.focus();
+      await expect(link).toBeFocused();
+      await expect(page).toHaveScreenshot(
+        `diagnostics-${theme}${narrow ? '-narrow' : ''}.png`,
+      );
+    });
+  }
+}
+
+for (const theme of ['light', 'dark']) {
+  for (const narrow of [false, true]) {
+    test(`local recovery dialog in ${theme}${narrow ? ' narrow' : ''}`, async ({
+      page,
+    }) => {
+      if (narrow) await page.setViewportSize({ width: 768, height: 900 });
+      await ready(page, { split: false });
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      const trigger = page.getByRole('button', {
+        name: 'Local recovery',
+        exact: true,
+      });
+      await trigger.focus();
+      await trigger.press('Enter');
+      const dialog = page.getByRole('dialog', {
+        name: 'Local recovery',
+        exact: true,
+      });
+      await expect(
+        dialog.getByText(
+          'Local recovery is ready. Unsaved source drafts and diagram positions are saved after edits.',
+          { exact: true },
+        ),
+      ).toBeVisible();
+      await expect(dialog).toBeInViewport({ ratio: 1 });
+      await expect(
+        dialog.getByRole('checkbox', {
+          name: 'Save recovery locally',
+          exact: true,
+        }),
+      ).toBeChecked();
+      await expect(dialog).toHaveScreenshot(
+        `local-recovery-${theme}${narrow ? '-narrow' : ''}.png`,
+      );
+      await page.keyboard.press('Escape');
+      await expect(dialog).not.toBeVisible();
+      await expect(trigger).toBeFocused();
+    });
+
+    test(`engine symbol information in ${theme}${narrow ? ' narrow' : ''}`, async ({
+      page,
+    }) => {
+      if (narrow) await page.setViewportSize({ width: 768, height: 900 });
+      await openWorkshop(page);
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      await page.getByRole('button', { name: 'Code', exact: true }).click();
+      const source = page.getByRole('textbox', {
+        name: 'SysML source',
+        exact: true,
+      });
+      const original = (await downloadProject(page)).bundle.documents[0]!.text;
+      await fillSource(
+        source,
+        original.replace(
+          'part def Motor;',
+          'part def Motor { doc /* Shared compressor drive.\n\nThis definition powers the primary and standby usages while keeping each usage distinct. */ }',
+        ),
+      );
+      await source.press('ControlOrMeta+Home');
+      await source.press('ControlOrMeta+f');
+      const find = page
+        .getByRole('region', { name: 'Source editor', exact: true })
+        .getByRole('textbox', { name: 'Find', exact: true });
+      await find.fill('');
+      await find.pressSequentially('Motor');
+      await find.press('Enter');
+      await find.press('Escape');
+      await expect.poll(() => copySourceSelection(source)).toBe('Motor');
+      await source.press('ArrowRight');
+      await source.press('ArrowLeft');
+      await page.mouse.move(0, 0);
+      await source.press('F1');
+      const information = page.getByRole('tooltip', {
+        name: 'Symbol information',
+        exact: true,
+      });
+      await expect(information).toContainText('Workshop::Motor');
+      await expect(information).toContainText('Shared compressor drive.');
+      await expect(information).toContainText('keeping each usage distinct.');
+      await expect(source).toHaveAttribute(
+        'aria-describedby',
+        'source-help source-symbol-info',
+      );
+      await expect(information).toBeInViewport({ ratio: 1 });
+      await expect(page).toHaveScreenshot(
+        `symbol-information-${theme}${narrow ? '-narrow' : ''}.png`,
+      );
+      await source.press('Escape');
+      await expect(information).not.toBeVisible();
+      await expect(source).toBeFocused();
     });
   }
 }

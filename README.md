@@ -44,17 +44,20 @@ SysML v2 View Editor brings source editing, named model views and reviewed graph
 ## Features
 
 - **Edit highlighted SysML source.** CodeMirror provides line numbers, bracket matching/closing, indentation, find/replace and draft undo/redo. Apply or discard changes, undo/redo accepted source transactions, and keep the last valid model when a draft fails validation.
+- **Query the draft model.** Request engine-backed completion, symbol information and project-file definitions against the complete current source set.
 - **Open source-defined views.** Navigate named SysML views independently of the active source file. Inspect nested parts, typed inherited ports and resolved connection endpoints.
+- **Navigate source issues.** Open an issue’s reported file and line in the source editor. Missing or stale locations are explained while drafts and the last valid diagram are retained.
 - **Browse the model hierarchy.** Expand packages, definitions and declared members in the Model tree. Inspect type/kind labels; use arrow keys, type-ahead and Enter/Space to navigate and select.
 - **Review graphical changes.** Rename parts, create native views, add typed part usages and connect compatible directed ports through an exact source-change preview.
 - **Preserve compatible layouts.** Keep verified symbol positions across supported edits, including inactive views. Unsafe identity mappings are reported and arranged again.
 - **Keep projects portable.** Download applied source, unfinished drafts and compatible diagram positions together; reopen the bundle or import multiple SysML files.
+- **Recover unfinished work.** Restore or discard one local browser recovery copy, with explicit storage errors and protection against competing tabs.
 - **Arrange your workspace.** Resize or collapse Explorer, Inspector, source/diagram panes and Issues using dividers, keyboard controls or panel options.
 - **Choose your appearance.** Use Light, Dark or Follow system, six diagram palettes and custom muted element colors. Theme and panel preferences stay in the browser.
 
 Structural workflows have real-engine browser coverage; behavior, use-case, state, sequence and geometry renderers remain unavailable. See [capabilities and limits](docs/capabilities.md) and [local verification](docs/verification.md) for the implemented scope.
 
-In the source editor, use **Ctrl+F** / **Cmd+F** for find/replace and **Ctrl+Z** / **Cmd+Z** for draft editing undo; **Ctrl+Y** / **Cmd+Shift+Z** redo draft edits. **Tab** moves focus out of the editor. Toolbar **Undo source** / **Redo source** operate on accepted model revisions. Highlighting is lexical; the pinned engines still validate source when you apply it. Completion, hover, go-to-definition, formatting and inline diagnostics remain future work.
+In the source editor, use **Ctrl+F** / **Cmd+F** for find/replace and **Ctrl+Z** / **Cmd+Z** for draft editing undo; **Ctrl+Y** / **Cmd+Shift+Z** redo draft edits. **Tab** moves focus out of the editor. Toolbar **Undo source** / **Redo source** operate on accepted model revisions. Highlighting is lexical; the pinned engines still validate source when you apply it. Use **Ctrl+Space** for engine-backed completion, **F1** for symbol information and **F12** for project-file definitions; pointing at a symbol also requests hover information. Queries use the complete current draft source set. Unsupported completion edits and stale replies are rejected. Formatting and inline diagnostics remain future work.
 
 ## Quick start
 
@@ -124,13 +127,14 @@ React Flow draws the interactive diagrams and ELK supplies automatic layout. The
 
 ## Projects and workspace
 
-**Download project** saves one `.sysml-project.json`; **Open** accepts that bundle or multiple `.sysml` files. Downloads do not write back to the imported folder. There is no automatic work-recovery store, so retain the downloaded project to preserve source and drafts across reloads.
+**Download project** saves one `.sysml-project.json`; **Open** accepts that bundle or multiple `.sysml` files. Downloads do not write back to the imported folder. **Local recovery** keeps one recovery copy in this browser using IndexedDB, including applied source, unapplied drafts, diagram positions and the active file/view. On reload, choose **Restore recovery** or **Discard recovery** before new work can replace that copy. The dialog can disable local saving or retry storage failures. Browser storage can be cleared; retain downloaded projects as portable backups. Restored work remains modified until downloaded. With saving enabled, returning to a clean project clears this session’s older recovery; a competing tab cannot silently overwrite a newer copy.
 
-| Data                                                             | Where it lives                                        |
-| ---------------------------------------------------------------- | ----------------------------------------------------- |
-| Applied source, unapplied drafts and compatible symbol positions | Downloaded project bundle                             |
-| Theme, palette, custom colors and panel arrangement              | Browser preferences; separate from project content    |
-| Undo history, selection and camera                               | Current session; not restored from the project bundle |
+| Data                                                             | Where it lives                                              |
+| ---------------------------------------------------------------- | ----------------------------------------------------------- |
+| Applied source, unapplied drafts and compatible symbol positions | Downloaded project bundle                                   |
+| Unfinished project plus active file/view                         | One local IndexedDB recovery copy; explicit restore/discard |
+| Theme, palette, custom colors and panel arrangement              | Browser preferences; separate from project content          |
+| Undo history, selection and camera                               | Current session; not restored from the project bundle       |
 
 Drag a divider or focus it and use arrow keys to resize a panel. Header options provide button alternatives. Reopen collapsed tools from their edge rails, open **Issues** from the footer, or use **Workspace layout** to adjust/reset the arrangement. Below 900 px, the source/diagram split becomes vertical. [Panel behavior](docs/architecture/workbench-layout.md).
 

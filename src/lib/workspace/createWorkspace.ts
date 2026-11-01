@@ -44,6 +44,7 @@ export interface WorkspaceState {
   readonly canUndo: boolean;
   readonly canRedo: boolean;
   readonly diagnostics: readonly Diagnostic[];
+  readonly diagnosticDocuments: ProjectBundle['documents'];
   readonly view: EvaluatedView | null;
   readonly layoutNotices: readonly LayoutNotice[];
 }
@@ -72,6 +73,7 @@ export function createWorkspace(dependencies: {
     canUndo: false,
     canRedo: false,
     diagnostics: [],
+    diagnosticDocuments: [],
     view: null,
     layoutNotices: [],
   });
@@ -140,7 +142,11 @@ export function createWorkspace(dependencies: {
   ) {
     const model = await dependencies.semantic.parse(documents, signal);
     if (model.diagnostics.some((item) => item.severity === 'error')) {
-      if (!signal.aborted) publish({ diagnostics: model.diagnostics });
+      if (!signal.aborted)
+        publish({
+          diagnostics: model.diagnostics,
+          diagnosticDocuments: documents,
+        });
       validate(model);
     }
     validate(model);
@@ -157,6 +163,7 @@ export function createWorkspace(dependencies: {
       revision: state.revision + 1,
       view: null,
       diagnostics: value.model.diagnostics,
+      diagnosticDocuments: value.project.documents,
       layoutNotices,
     });
   }
@@ -301,7 +308,7 @@ export function createWorkspace(dependencies: {
         listeners.delete(listener);
       };
     },
-    async open(project: ProjectBundle) {
+    async open(project: ProjectBundle, options: { unsaved?: boolean } = {}) {
       // Round-trip through the format reader before accepting caller-owned data.
       const candidate = JSON.parse(serializeProject(project)) as ProjectBundle;
       const { token, signal } = begin();
@@ -310,7 +317,7 @@ export function createWorkspace(dependencies: {
         current(token);
         history.clear();
         proposals.clear();
-        saved = serializeProject(candidate);
+        saved = options.unsaved ? '' : serializeProject(candidate);
         restore({ project: candidate, model });
       } finally {
         finish(token);
@@ -332,6 +339,7 @@ export function createWorkspace(dependencies: {
       publish({
         project: { ...project, drafts },
         diagnostics: [],
+        diagnosticDocuments: [],
         busy: false,
       });
     },
@@ -343,6 +351,7 @@ export function createWorkspace(dependencies: {
       publish({
         project: { ...project, drafts: project.documents },
         diagnostics: state.model?.diagnostics ?? [],
+        diagnosticDocuments: project.documents,
       });
     },
     async apply() {
