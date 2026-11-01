@@ -38,3 +38,7 @@ Acceptance:
 The first slice keeps exploration navigation transient. Persisting an exploration across reloads or portable reopen is a later explicit storage decision: the current recovery envelope records only an active file and named-view identity, and the portable bundle has no exploration field. Any persistence change must follow the owning schema, versioning and compatibility-fixture requirements.
 
 Follow-up slices are explicit creation of a named view from exploration, storage/restoration of browsing context, and additional representation families supported by actual engine and renderer evidence. State and action representations require independent engine and renderer verification.
+
+## Engine evidence
+
+The [pinned-engine investigation](../research/automatic-exploration-contract.md) executed the current WASM boundary and native renderer. Declaration-free project/package rendering has a promising underlying seam, but the browser contract still requires named views. A typed system usage did not automatically unfold its definition’s internals. The first delivered exploration must therefore use an overview until structural subject/usage expansion is proven, rather than promise an inferred full-system diagram.
