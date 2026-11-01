@@ -18,6 +18,7 @@
 </p>
 
 <p align="center">
+  <a href="https://openmbee-view-editor.vercel.app/app">Open live app</a> ·
   <a href="#quick-start">Quick start</a> ·
   <a href="#features">Features</a> ·
   <a href="#examples">Examples</a> ·
@@ -30,6 +31,8 @@
 ---
 
 > **Sandbox stage** — Actively iterating on the design and implementation. Features, interfaces and workflows may change. Not intended for production use.
+
+[Try the hosted sandbox](https://openmbee-view-editor.vercel.app/app). Open a local project or choose **Load example** to explore the built-in model. The hosted app is deployed manually and may lag behind `develop`.
 
 OpenMBEE View Editor brings source editing, named model views and reviewed graphical authoring into one local workbench. Open a multi-file model, inspect its structure and connections, review supported edits, then download the source and compatible diagram positions as one project.
 
