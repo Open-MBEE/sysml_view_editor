@@ -5,6 +5,9 @@ import {
   importAssembly,
   showAssemblyDiagram,
   modelTreeItem,
+  openWorkshop,
+  downloadProject,
+  fillSource,
 } from './support';
 
 for (const theme of ['light', 'dark']) {
@@ -272,6 +275,49 @@ for (const theme of ['light', 'dark']) {
       ).toBeInViewport({ ratio: 1 });
       await expect(page).toHaveScreenshot(
         `source-editor-${theme}${narrow ? '-narrow' : ''}.png`,
+      );
+    });
+  }
+}
+
+for (const theme of ['light', 'dark']) {
+  for (const narrow of [false, true]) {
+    test(`navigable source diagnostics in ${theme}${narrow ? ' narrow' : ''}`, async ({
+      page,
+    }) => {
+      if (narrow) await page.setViewportSize({ width: 768, height: 900 });
+      await openWorkshop(page);
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      await page
+        .getByRole('dialog')
+        .getByLabel('Theme', { exact: true })
+        .selectOption(theme);
+      await page.getByRole('button', { name: 'Done', exact: true }).click();
+      const original = (await downloadProject(page)).bundle.documents[0]!.text;
+      await fillSource(
+        page.getByRole('textbox', { name: 'SysML source', exact: true }),
+        original.replace('part def Motor;', 'part def Motor :> Missing;'),
+      );
+      await page
+        .getByRole('button', { name: 'Apply source', exact: true })
+        .click();
+      const link = page
+        .getByRole('region', { name: 'Issues', exact: true })
+        .getByRole('button', { name: /Open model.sysml at line/ })
+        .first();
+      await expect(link).toBeVisible();
+      await expect(
+        page.getByRole('button', { name: 'Apply source', exact: true }),
+      ).toBeEnabled();
+      await expect(
+        page.getByRole('textbox', { name: 'SysML source', exact: true }),
+      ).toHaveAttribute('aria-readonly', 'false');
+      await link.focus();
+      await expect(link).toBeFocused();
+      await expect(page).toHaveScreenshot(
+        `diagnostics-${theme}${narrow ? '-narrow' : ''}.png`,
       );
     });
   }

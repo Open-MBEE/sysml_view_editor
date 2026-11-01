@@ -42,6 +42,7 @@ SysML v2 View Editor brings source editing, named model views and reviewed graph
 
 - **Edit highlighted SysML source.** CodeMirror provides line numbers, bracket matching/closing, indentation, find/replace and draft undo/redo. Apply or discard changes, undo/redo accepted source transactions, and keep the last valid model when a draft fails validation.
 - **Open source-defined views.** Navigate named SysML views independently of the active source file. Inspect nested parts, typed inherited ports and resolved connection endpoints.
+- **Navigate source issues.** Open an issue’s reported file and line in the source editor. Missing or stale locations are explained while drafts and the last valid diagram are retained.
 - **Browse the model hierarchy.** Expand packages, definitions and declared members in the Model tree. Inspect type/kind labels; use arrow keys, type-ahead and Enter/Space to navigate and select.
 - **Review graphical changes.** Rename parts, create native views, add typed part usages and connect compatible directed ports through an exact source-change preview.
 - **Preserve compatible layouts.** Keep verified symbol positions across supported edits, including inactive views. Unsafe identity mappings are reported and arranged again.

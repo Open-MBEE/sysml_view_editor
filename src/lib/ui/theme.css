@@ -1026,3 +1026,32 @@ h4 {
     border: 1px solid Highlight;
   }
 }
+
+.issue-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.issue-list > li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--sysml-border);
+}
+.issue-location {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  font-size: 11px;
+}
+.issue-location > span {
+  color: var(--sysml-muted);
+  overflow-wrap: anywhere;
+}
+.issue-location button {
+  max-width: 100%;
+  height: auto;
+  min-height: 24px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}

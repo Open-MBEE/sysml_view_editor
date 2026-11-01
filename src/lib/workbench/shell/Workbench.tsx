@@ -25,12 +25,13 @@ import { exampleProject, exampleView } from './example';
 import type { Workspace, WorkspaceState } from '$lib/workspace/createWorkspace';
 import { readProject, type ProjectBundle } from '$lib/workspace/persistence';
 import type { EditProposal, SemanticCommand } from '$lib/workspace/editing';
-import type { ModelElement } from '$lib/workspace/project';
+import type { ModelElement, Diagnostic } from '$lib/workspace/project';
 import { Explorer } from '../explorer/Explorer';
 import { SourceEditor } from '../source/SourceEditor';
 import { Diagram } from '../diagrams/Diagram';
 import { Properties } from '../properties/Properties';
 import { Issues } from '../issues/Issues';
+import { issueLocation } from '../issues/navigation';
 import { WorkbenchDialogs } from './WorkbenchDialogs';
 
 const initial: WorkspaceState = {
@@ -43,6 +44,7 @@ const initial: WorkspaceState = {
   canUndo: false,
   canRedo: false,
   diagnostics: [],
+  diagnosticDocuments: [],
   view: null,
   layoutNotices: [],
 };
@@ -333,6 +335,27 @@ export function Workbench() {
     setSymbolSelection(undefined);
     setFocusRange(undefined);
   }
+  function navigateIssue(issue: Diagnostic) {
+    const current = workspace().snapshot();
+    if (!current.diagnostics.includes(issue)) {
+      setMessage(
+        'This issue is no longer current. Apply the draft to refresh diagnostics.',
+      );
+      return;
+    }
+    const location = issueLocation(
+      issue,
+      current.diagnosticDocuments,
+      current.project?.drafts ?? [],
+    );
+    if (!('target' in location)) {
+      setMessage(location.reason);
+      return;
+    }
+    setFile(location.target.file);
+    if (mode === 'diagram') setMode('split');
+    setFocusRange(location.target);
+  }
   function revealSource() {
     if (focusRange) {
       setFile(focusRange.file);
@@ -572,6 +595,9 @@ export function Workbench() {
             issues={
               <Issues
                 diagnostics={state.diagnostics}
+                diagnosticDocuments={state.diagnosticDocuments}
+                drafts={state.project?.drafts ?? []}
+                onNavigate={navigateIssue}
                 error={dialog ? '' : error}
               />
             }

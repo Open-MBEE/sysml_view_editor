@@ -136,6 +136,12 @@ describe('source transactions', () => {
     );
     expect(workspace.snapshot().project?.drafts[0]?.text).toBe('broken');
     expect(workspace.snapshot().diagnostics[0]?.message).toBe('Invalid source');
+    expect(workspace.snapshot().diagnosticDocuments).toEqual([
+      { name: 'model.sysml', text: 'broken' },
+    ]);
+    workspace.updateDraft('model.sysml', 'new draft');
+    expect(workspace.snapshot().diagnostics).toEqual([]);
+    expect(workspace.snapshot().diagnosticDocuments).toEqual([]);
   });
   it('prepares without publishing, accepts once, and restores a transaction through undo', async () => {
     const { workspace } = setup();
