@@ -5,10 +5,7 @@ import type {
   SourceDocument,
   ModelSnapshot,
 } from '../../src/lib/workspace/project';
-import {
-  readModelSnapshot,
-  validateDocuments,
-} from '../../src/lib/workspace/project';
+import { readModelSnapshot } from '../../src/lib/workspace/project';
 import {
   validateEvaluation,
   type EvaluatedView,
