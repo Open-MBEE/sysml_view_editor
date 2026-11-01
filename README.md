@@ -186,6 +186,8 @@ Flexo MMS checkout and publishing are planned; the current workbench uses local 
 
 ## Contributing
 
+The default branch, `develop`, holds ongoing sandbox work. Feature PRs target `develop`; releases and hotfixes follow the [Git Flow workflow](docs/git-workflow.md). `main` requires a code-owner approval and passing CI.
+
 Start with the [contribution guide](CONTRIBUTING.md), [architecture decisions](docs/decisions/0001-foundation.md) and the acceptance criteria in [next steps](docs/next-steps.md). Keep changes focused, preserve license/provenance notices and request approval before adding production dependencies. Use the [project repository](https://github.com/Open-MBEE/sysml_view_editor) for bugs and feature requests.
 
 ## Security

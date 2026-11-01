@@ -31,7 +31,7 @@ Schemas live with the module that owns the contract. Infer the TypeScript data t
 
 ## Review and checks
 
-Use a feature branch and a focused pull request. Run `npm run check`, `npm run build` and browser scenarios appropriate to the change. CI runs these checks against the pinned engines; local success is not evidence that hosted CI passed. Include exact results and skipped checks in the PR template. Keep examples, capabilities and setup instructions consistent with behavior.
+Start feature and documentation branches from `develop` and target `develop` in a focused pull request. Integration requires passing CI and resolved conversations, with zero mandatory approvals. Promotions to `main` require one code-owner approval plus CI. Follow [the Git Flow workflow](docs/git-workflow.md) for release/hotfix origins, merge-back and tagging. Run `npm run check`, `npm run build` and browser scenarios appropriate to the change. CI runs these checks against the pinned engines; local success is not evidence that hosted CI passed. Include exact results and skipped checks in the PR template. Keep examples, capabilities and setup instructions consistent with behavior.
 
 ```sh
 npm run check
