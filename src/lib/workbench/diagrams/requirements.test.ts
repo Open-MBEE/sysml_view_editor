@@ -5,6 +5,7 @@ import {
   layoutRequirements,
   requirementEdgeLabel,
   requirementHeight,
+  relatedElementHeight,
   requirementWidth,
 } from './requirements';
 
@@ -76,6 +77,8 @@ it('retains exact native symbol and relationship-index identities with distinct 
   expect(result.edges[3]!.ariaLabel).toContain('Capacity::standby::capacity');
   expect(result.nodes[0]!.ariaLabel).toContain('REQ-1');
   expect(result.nodes[3]!.ariaLabel).toContain('related context');
+  expect(result.nodes[3]!.style?.height).toBe(relatedElementHeight);
+  expect(result.nodes[0]!.style?.height).toBe(requirementHeight);
 });
 
 it('keeps display-name duplicates separate and restores absolute saved positions without mutating the artifact', async () => {
@@ -143,4 +146,24 @@ it('rejects unresolved and duplicate identities rather than silently discarding 
   await expect(
     layoutRequirements({ ...artifact, kind: 'tree' }, {}),
   ).rejects.toThrow('native requirement');
+});
+
+it('keeps bounded sizes independent of metadata length and exposure membership', async () => {
+  const verbose: ViewArtifact = {
+    ...artifact,
+    nodes: artifact.nodes.map((node) => ({
+      ...node,
+      name: node.name.repeat(10),
+      documentation: ['Long documentation. '.repeat(100)],
+      exposure: node.exposure === 'contextual' ? 'selected' : 'contextual',
+    })),
+  };
+  const original = await layoutRequirements(artifact, {});
+  const expanded = await layoutRequirements(verbose, {});
+  expect(expanded.nodes.map((node) => node.style)).toEqual(
+    original.nodes.map((node) => node.style),
+  );
+  expect(expanded.nodes[0]!.data.item.documentation![0]).toContain(
+    'Long documentation. ',
+  );
 });
