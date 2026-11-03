@@ -145,6 +145,12 @@ func (e *Engine) evaluateView(req *JRenderViewRequest) ([]byte, error) {
 			return nil, err
 		}
 	}
+	if data.Kind == view.KindRequirement {
+		out.Artifact, err = cached.requirementNotation(out.Artifact, data, out.Selected, declarations)
+		if err != nil {
+			return nil, err
+		}
+	}
 	out.RenderStatus = "available"
 	contexts := map[string][]string{}
 	for _, node := range data.Nodes {

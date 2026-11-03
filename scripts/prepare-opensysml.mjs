@@ -15,6 +15,8 @@ const overlays = [
   'validated_view_test.go',
   'geometry_pose.go',
   'geometry_view.go',
+  'requirements_view.go',
+  'requirements_view_test.go',
   'relationships.go',
   'relationships_test.go',
 ];
@@ -95,6 +97,17 @@ for (const [name, folder] of [
       name.endsWith('_test.go') ? 'studio_view_test.go' : 'studio_view.go',
     ),
   );
+await cp(
+  resolve(root, 'engine-bridge/opensysml/requirements_view.go'),
+  resolve(source, 'internal/frontend/engine/studio_requirements_view.go'),
+);
+await cp(
+  resolve(root, 'engine-bridge/opensysml/requirements_view_test.go'),
+  resolve(
+    source,
+    'internal/frontend/combined/studio_requirements_view_test.go',
+  ),
+);
 await cp(
   resolve(root, 'engine-bridge/opensysml/relationships.go'),
   resolve(source, 'internal/frontend/engine/studio_relationships.go'),

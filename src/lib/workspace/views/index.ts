@@ -41,6 +41,7 @@ export function validateEvaluation(
     throw new Error('View response omitted its artifact.');
   if (result.artifact?.kind === 'interconnection')
     validateStructure(result.artifact);
+  if (result.artifact?.kind === 'requirement') validateRequirements(result);
   return result;
 }
 
@@ -80,6 +81,72 @@ function validateStructure(artifact: ViewArtifact) {
         throw new Error(
           'Structural view has an unresolved connection endpoint.',
         );
+    }
+  }
+}
+
+/** Requirement relationships must carry exact source correspondence, not labels. */
+function validateRequirements(result: EvaluatedView) {
+  const artifact = result.artifact!;
+  validateStructure(artifact);
+  if (!result.selected)
+    throw new Error('Requirements view omitted its exposed subjects.');
+  const selected = new Set(result.selected.map((item) => item.id));
+  if (selected.size !== result.selected.length)
+    throw new Error('Requirements view has duplicate exposed subjects.');
+  const correspondence = new Map(
+    result.correspondence.map((item) => [item.symbol, item]),
+  );
+  if (correspondence.size !== result.correspondence.length)
+    throw new Error('Requirements view has duplicate correspondence.');
+  const subject = (symbol: string) => {
+    const item = correspondence.get(symbol);
+    if (!item || !item.subject.origin || !item.subject.id)
+      throw new Error('Requirements view omitted exact source correspondence.');
+    return item.subject;
+  };
+  const ids = new Set(artifact.nodes.map((node) => node.id));
+  for (const node of artifact.nodes) {
+    const source = subject(node.id);
+    const exposure = selected.has(source.id) ? 'selected' : 'contextual';
+    if (node.exposure !== exposure)
+      throw new Error(
+        'Requirements view misrepresented selected versus related context.',
+      );
+  }
+  const owners = new Map<string, string>();
+  artifact.edges.forEach((edge, index) => {
+    const id = `edge:${index}`;
+    if (ids.has(id))
+      throw new Error('Requirements edge identity collides with a node.');
+    const declaration = subject(id);
+    if (
+      edge.kind === 'satisfy' &&
+      (typeof edge.negated !== 'boolean' || typeof edge.asserted !== 'boolean')
+    )
+      throw new Error('Requirements view omitted satisfaction polarity.');
+    if (edge.kind === 'composition' || edge.kind === 'reference') {
+      if (
+        !edge.ownership ||
+        (edge.ownership === 'direct') !==
+          (declaration.id === subject(edge.to).id)
+      )
+        throw new Error('Requirements view omitted exact ownership semantics.');
+      if (edge.ownership === 'direct') {
+        if (owners.has(edge.to) && owners.get(edge.to) !== edge.from)
+          throw new Error('Requirement usage has conflicting owners.');
+        owners.set(edge.to, edge.from);
+      }
+    }
+  });
+  for (const start of owners.keys()) {
+    const seen = new Set<string>();
+    let current: string | undefined = start;
+    while (current !== undefined) {
+      if (seen.has(current))
+        throw new Error('Requirements view has cyclic ownership.');
+      seen.add(current);
+      current = owners.get(current);
     }
   }
 }
