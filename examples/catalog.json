@@ -264,7 +264,7 @@
         {
           "id": "CapacityViews::requirements",
           "engineKind": "requirement",
-          "app": "unavailable",
+          "app": "partial",
           "nodeNames": [
             "CapacityRequirements::MinimumCapacity",
             "CapacityRequirements::usableCapacity",
@@ -277,7 +277,7 @@
             "Treat the declared constraint as model content, without claiming an execution result."
           ],
           "gaps": [
-            "The engine emits a requirement graph; the application has no requirement renderer."
+            "Requirement identifiers, documentation and relationships are shown; formal constraint and subject-parameter compartments are not drawn."
           ],
           "notices": []
         }
@@ -301,15 +301,15 @@
         {
           "id": "TraceViews::requirements",
           "engineKind": "requirement",
-          "app": "unavailable",
+          "app": "partial",
           "nodeNames": [
             "TraceRequirements::MinimumCapacity",
             "TraceRequirements::leftSpecification",
             "TraceRequirements::rightSpecification",
             "TraceRequirements::unlinkedCapacity",
             "TraceRequirements::excludedCapacity",
-            "TraceRequirements::leftSpecification::capacity",
-            "TraceRequirements::rightSpecification::capacity",
+            "TraceRequirements::leftSpecification::leftCapacity",
+            "TraceRequirements::rightSpecification::rightCapacity",
             "TraceSystem::spare",
             "TraceSystem::LeftPlant::tank",
             "TraceSystem::RightPlant::tank"
@@ -332,7 +332,7 @@
             "Label satisfying parts as engine-supplied related context without claiming executed verification."
           ],
           "gaps": [
-            "The engine emits a requirement graph; the application has no requirement renderer."
+            "Requirement identifiers, documentation and relationships are shown; formal constraint and subject-parameter compartments are not drawn."
           ],
           "notices": []
         },
@@ -347,11 +347,11 @@
             "",
             "leftSpecification",
             "installation",
-            "capacity",
+            "leftCapacity",
             "tank",
             "rightSpecification",
             "installation",
-            "capacity",
+            "rightCapacity",
             "tank",
             "unlinkedCapacity",
             "tank",
@@ -360,16 +360,16 @@
             "",
             "",
             "",
-            "TraceRequirements::CapacityRule",
-            "TraceSystem::LeftPlant",
+            "TraceSystem",
+            "Tank",
+            "capacity",
+            "LeftPlant",
             "tank",
             "capacity",
-            "TraceSystem::RightPlant",
+            "RightPlant",
             "tank",
             "capacity",
-            "TraceSystem::Tank",
-            "capacity",
-            "TraceSystem::spare",
+            "spare",
             "capacity"
           ],
           "edgeKinds": [
@@ -387,7 +387,6 @@
             "specialization",
             "composition",
             "specialization",
-            "typing",
             "specialization"
           ],
           "targets": [

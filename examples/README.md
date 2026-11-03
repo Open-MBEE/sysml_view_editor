@@ -13,8 +13,8 @@ Status is per view: **rendered** covers the stated fixture scope; **partial** sh
 | [Parts and definitions (blocks)](parts/model.sysml)                              | parts, blocks, definitions, usages, specialization, references, repeated-names                                                                                   | `structure`: rendered; `definitions`: partial                                                                                                                                                                                                                                                                                                                                |
 | [Ports and conjugation](ports/model.sysml)                                       | ports, interfaces, connections, conjugation                                                                                                                      | `link`: partial                                                                                                                                                                                                                                                                                                                                                              |
 | [Use cases and actors](use-cases/model.sysml)                                    | use-cases, actors, subjects, include, objectives                                                                                                                 | `scenarios`: unavailable; `definitions`: unavailable                                                                                                                                                                                                                                                                                                                         |
-| [Requirements and satisfaction](requirements/model.sysml)                        | requirements, documentation, constraints, satisfaction                                                                                                           | `requirements`: unavailable                                                                                                                                                                                                                                                                                                                                                  |
-| [Requirement hierarchy and satisfaction](requirements-traceability/system.sysml) | requirements, hierarchy, typing, satisfaction, negation, aliases, multiple-files, repeated-names                                                                 | `requirements`: unavailable; `overview`: partial                                                                                                                                                                                                                                                                                                                             |
+| [Requirements and satisfaction](requirements/model.sysml)                        | requirements, documentation, constraints, satisfaction                                                                                                           | `requirements`: partial                                                                                                                                                                                                                                                                                                                                                      |
+| [Requirement hierarchy and satisfaction](requirements-traceability/system.sysml) | requirements, hierarchy, typing, satisfaction, negation, aliases, multiple-files, repeated-names                                                                 | `requirements`: partial; `overview`: partial                                                                                                                                                                                                                                                                                                                                 |
 | [Actions and successions](actions/model.sysml)                                   | actions, behavior, succession, parameters                                                                                                                        | `process`: unavailable                                                                                                                                                                                                                                                                                                                                                       |
 | [States and transitions](states/model.sysml)                                     | states, nested-states, transitions, initial-state                                                                                                                | `states`: unavailable                                                                                                                                                                                                                                                                                                                                                        |
 | [Messages and sequence ordering](sequences/model.sysml)                          | sequences, messages, occurrences, ordering                                                                                                                       | `exchange`: unavailable                                                                                                                                                                                                                                                                                                                                                      |
@@ -115,26 +115,26 @@ Current gaps: The engine emits a case artifact; the application has no case rend
 
 Files: [model.sysml](requirements/model.sysml), [views.sysml](requirements/views.sysml).
 
-**CapacityViews::requirements** — engine artifact: `requirement`; app: **unavailable**.
+**CapacityViews::requirements** — engine artifact: `requirement`; app: **partial**.
 
 - Display requirement identifiers and readable requirement text.
 - Distinguish requirement typing from the storage satisfaction relationship.
 - Treat the declared constraint as model content, without claiming an execution result.
 
-Current gaps: The engine emits a requirement graph; the application has no requirement renderer.
+Current gaps: Requirement identifiers, documentation and relationships are shown; formal constraint and subject-parameter compartments are not drawn.
 
 ### Requirement hierarchy and satisfaction
 
 Files: [system.sysml](requirements-traceability/system.sysml), [requirements.sysml](requirements-traceability/requirements.sysml), [views.sysml](requirements-traceability/views.sysml).
 
-**TraceViews::requirements** — engine artifact: `requirement`; app: **unavailable**.
+**TraceViews::requirements** — engine artifact: `requirement`; app: **partial**.
 
 - Distinguish requirement identifiers, documentation, usage typing and direct ownership.
 - Keep the two capacity usages and same-name tank satisfiers separately traceable.
 - Render asserted negative satisfaction distinctly; a subject binding alone is not satisfaction.
 - Label satisfying parts as engine-supplied related context without claiming executed verification.
 
-Current gaps: The engine emits a requirement graph; the application has no requirement renderer.
+Current gaps: Requirement identifiers, documentation and relationships are shown; formal constraint and subject-parameter compartments are not drawn.
 
 **TraceViews::overview** — engine artifact: `tree`; app: **partial**.
 

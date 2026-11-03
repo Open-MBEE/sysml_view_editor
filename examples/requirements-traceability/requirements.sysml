@@ -11,14 +11,14 @@ package TraceRequirements {
     requirement <'REQ-LEFT'> leftSpecification {
         doc /* Capacity requirements for the left installation. */
         subject installation : Tank;
-        requirement <'REQ-LEFT-CAP'> capacity : CapacityRule {
+        requirement <'REQ-LEFT-CAP'> leftCapacity : CapacityRule {
             subject tank = TraceSystem::LeftPlant::tank;
         }
     }
     requirement <'REQ-RIGHT'> rightSpecification {
         doc /* Capacity requirements for the right installation. */
         subject installation : Tank;
-        requirement <'REQ-RIGHT-CAP'> capacity : CapacityRule {
+        requirement <'REQ-RIGHT-CAP'> rightCapacity : CapacityRule {
             subject tank = TraceSystem::RightPlant::tank;
         }
     }
@@ -29,6 +29,6 @@ package TraceRequirements {
         subject tank = TraceSystem::spare;
     }
     assert not satisfy excludedCapacity by TraceSystem::spare;
-    satisfy leftSpecification.capacity by TraceSystem::LeftPlant::tank;
-    satisfy rightSpecification.capacity by TraceSystem::RightPlant::tank;
+    satisfy leftSpecification.leftCapacity by TraceSystem::LeftPlant::tank;
+    satisfy rightSpecification.rightCapacity by TraceSystem::RightPlant::tank;
 }
