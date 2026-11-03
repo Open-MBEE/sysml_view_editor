@@ -1,5 +1,5 @@
 import { readFile } from 'node:fs/promises';
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import type { EvaluatedView } from '../../src/lib/workspace/views';
 import { expect, namedViewButton } from './support';
 
@@ -11,11 +11,11 @@ export const requirementViews = {
 export const expectedSatisfactionPairs = [
   [
     'TraceSystem::LeftPlant::tank',
-    'TraceRequirements::leftSpecification::capacity',
+    'TraceRequirements::leftSpecification::leftCapacity',
   ],
   [
     'TraceSystem::RightPlant::tank',
-    'TraceRequirements::rightSpecification::capacity',
+    'TraceRequirements::rightSpecification::rightCapacity',
   ],
 ] as const;
 
@@ -88,4 +88,71 @@ export function requirementEdgePairs(result: EvaluatedView, kind: string) {
     .sort((left, right) =>
       JSON.stringify(left).localeCompare(JSON.stringify(right)),
     );
+}
+
+export function requirementCard(
+  page: Page,
+  result: EvaluatedView,
+  qualifiedName: string,
+) {
+  const identity = requirementSymbol(result, qualifiedName);
+  const node = result.artifact!.nodes.find(
+    (item) => item.id === identity.symbol,
+  )!;
+  const name = `${node.kind} ${node.shortName ? node.shortName + ' ' : ''}${node.name}${node.type ? ' : ' + node.type : ''}${node.exposure === 'contextual' ? ', related context' : ''}`;
+  return page.getByRole('group', { name, exact: true });
+}
+
+export function requirementEdge(
+  page: Page,
+  result: EvaluatedView,
+  label: string,
+  from: string,
+  to: string,
+) {
+  const nodeLabel = (qualifiedName: string) => {
+    const identity = requirementSymbol(result, qualifiedName);
+    const node = result.artifact!.nodes.find(
+      (item) => item.id === identity.symbol,
+    )!;
+    return `${node.kind} ${node.shortName ? node.shortName + ' ' : ''}${node.name}${node.type ? ' : ' + node.type : ''}${node.exposure === 'contextual' ? ', related context' : ''}`;
+  };
+  return page.getByRole('group', {
+    name: `${label}: ${nodeLabel(from)} to ${nodeLabel(to)}`,
+    exact: true,
+  });
+}
+
+export async function waitForRequirements(
+  page: Page,
+  evaluations: readonly EvaluatedView[],
+) {
+  await expect
+    .poll(() =>
+      evaluations.some((item) => item.view === requirementViews.requirements),
+    )
+    .toBe(true);
+  const result = evaluations.findLast(
+    (item) => item.view === requirementViews.requirements,
+  )!;
+  expect(result.status).toBe('complete');
+  expect(result.renderStatus).toBe('available');
+  expect(result.artifact?.kind).toBe('requirement');
+  await expect(
+    requirementCard(page, result, 'TraceRequirements::MinimumCapacity'),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Download project', exact: true }),
+  ).toBeEnabled();
+  return result;
+}
+
+/** Bind values to the accessible endpoint group, not text anywhere in Inspector. */
+export function relationshipEndpoint(
+  properties: Locator,
+  label: 'Source' | 'Target',
+) {
+  return properties
+    .getByRole('group', { name: `${label} endpoint`, exact: true })
+    .getByRole('definition');
 }
