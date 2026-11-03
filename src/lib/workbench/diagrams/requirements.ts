@@ -3,7 +3,10 @@ import { MarkerType, type Edge, type Node } from '@xyflow/react';
 import type { ArtifactNode, Point, ViewArtifact } from '$lib/workspace/views';
 
 export const requirementWidth = 340;
-export const requirementHeight = 264;
+export const requirementHeight = 196;
+export const relatedElementHeight = 124;
+export const isRequirement = (item: ArtifactNode) =>
+  item.kind === 'requirement' || item.kind === 'requirement def';
 export type RequirementNode = Node<{ item: ArtifactNode }, 'requirement'>;
 type Relationship = ViewArtifact['edges'][number];
 
@@ -46,12 +49,12 @@ export async function layoutRequirements(
       'elk.algorithm': 'layered',
       'elk.direction': 'DOWN',
       'elk.spacing.nodeNode': '88',
-      'elk.layered.spacing.nodeNodeBetweenLayers': '104',
+      'elk.layered.spacing.nodeNodeBetweenLayers': '72',
     },
     children: artifact.nodes.map((item) => ({
       id: item.id,
       width: requirementWidth,
-      height: requirementHeight,
+      height: isRequirement(item) ? requirementHeight : relatedElementHeight,
     })),
     edges: artifact.edges.map((edge, index) => ({
       id: `edge:${index}`,
@@ -70,8 +73,11 @@ export async function layoutRequirements(
       data: { item },
       position: { x: point.x!, y: point.y! },
       ariaLabel: requirementNodeLabel(item),
-      className: `requirement-node${item.kind === 'requirement def' ? ' requirement-definition' : ''}${item.exposure === 'contextual' ? ' requirement-contextual' : ''}`,
-      style: { width: requirementWidth, height: requirementHeight },
+      className: `requirement-node${!isRequirement(item) ? ' requirement-element' : ''}${item.kind === 'requirement def' ? ' requirement-definition' : ''}${item.exposure === 'contextual' ? ' requirement-contextual' : ''}`,
+      style: {
+        width: requirementWidth,
+        height: isRequirement(item) ? requirementHeight : relatedElementHeight,
+      },
     };
   });
   const edges: Edge[] = artifact.edges.map((edge, index) => {

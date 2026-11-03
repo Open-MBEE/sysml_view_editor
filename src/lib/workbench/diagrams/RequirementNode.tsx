@@ -2,7 +2,10 @@ import { useContext } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { Button } from '$lib/ui/primitives/button';
 import { SelectDiagramSymbol } from './StructureNode';
-import type { RequirementNode as RequirementNodeType } from './requirements';
+import {
+  isRequirement,
+  type RequirementNode as RequirementNodeType,
+} from './requirements';
 
 export function RequirementNode({ data }: NodeProps<RequirementNodeType>) {
   const select = useContext(SelectDiagramSymbol);
@@ -36,17 +39,19 @@ export function RequirementNode({ data }: NodeProps<RequirementNodeType>) {
           </span>
         )}
       </div>
-      <div className="requirement-body">
-        {detail ? (
-          <p className="requirement-detail" title={detail}>
-            {detail}
-          </p>
-        ) : (
-          <p className="requirement-detail requirement-no-detail">
-            No additional details available.
-          </p>
-        )}
-      </div>
+      {isRequirement(item) && (
+        <div className="requirement-body">
+          {detail ? (
+            <p className="requirement-detail" title={detail}>
+              {detail}
+            </p>
+          ) : (
+            <p className="requirement-detail requirement-no-detail">
+              No additional details available.
+            </p>
+          )}
+        </div>
+      )}
       <Button
         type="button"
         variant="link"
