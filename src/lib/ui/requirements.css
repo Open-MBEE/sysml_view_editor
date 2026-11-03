@@ -1,0 +1,154 @@
+/* Native requirements graphs; colors express presentation, never verdicts. */
+.requirement-node {
+  --requirement-heading-bg: var(--sysml-usage-bg);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  text-align: left;
+}
+.requirement-node.requirement-definition {
+  --requirement-heading-bg: var(--sysml-definition-bg);
+}
+.requirement-node.requirement-contextual {
+  --requirement-heading-bg: var(--sysml-surface);
+  border-style: dashed;
+}
+.requirement-heading {
+  height: 132px;
+  flex-shrink: 0;
+  overflow: hidden;
+  padding: 12px 16px;
+  background: var(--requirement-heading-bg);
+  border-bottom: 1px solid var(--sysml-border);
+  border-radius: var(--sysml-control-radius) var(--sysml-control-radius) 0 0;
+}
+.requirement-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--sysml-muted);
+  font-size: 10px;
+  line-height: 16px;
+}
+.requirement-meta .model-node-kind {
+  display: inline-flex;
+  margin: 0;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--sysml-stroke) 8%, transparent);
+}
+.requirement-identifier {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--sysml-font-mono);
+  font-size: 11px;
+  line-height: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.requirement-name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 18px;
+}
+.requirement-type {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-top: 4px;
+  color: var(--sysml-muted);
+  font-size: 11px;
+  line-height: 16px;
+}
+.requirement-body {
+  flex: 1;
+  min-height: 0;
+  padding: 12px 16px 8px;
+  overflow: hidden;
+}
+.requirement-detail {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  margin: 0;
+  white-space: pre-line;
+  font-size: 12px;
+  line-height: 17px;
+}
+.requirement-no-detail {
+  color: var(--sysml-muted);
+}
+.requirement-inspect {
+  flex-shrink: 0;
+  align-self: flex-start;
+  margin: 0 16px 10px;
+  height: 24px;
+  padding: 0;
+  color: var(--sysml-muted);
+  font-size: 11px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.requirement-inspect:hover {
+  color: var(--sysml-text);
+}
+.requirement-inspect:focus-visible {
+  outline: 2px solid var(--sysml-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+.react-flow .react-flow__node.requirement-node.selected,
+.react-flow .react-flow__node.requirement-node:focus-visible,
+.react-flow .react-flow__node.requirement-node:focus-within {
+  outline: 2px solid var(--sysml-accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--sysml-accent) 12%, transparent);
+}
+.requirement-edge .react-flow__edge-path {
+  stroke: var(--sysml-stroke);
+  stroke-width: 1.5;
+}
+.requirement-satisfaction .react-flow__edge-path {
+  stroke-dasharray: 6 4;
+}
+.requirement-negated .react-flow__edge-path {
+  stroke-dasharray: 2 4;
+}
+.requirement-edge .react-flow__edge-text {
+  fill: var(--sysml-text);
+  font-size: 11px;
+}
+.requirement-edge .react-flow__edge-textbg {
+  fill: var(--sysml-surface);
+  fill-opacity: 1;
+}
+.react-flow .react-flow__edge.requirement-edge.selected .react-flow__edge-path,
+.react-flow
+  .react-flow__edge.requirement-edge:focus-visible
+  .react-flow__edge-path {
+  stroke: var(--sysml-accent);
+  stroke-width: 2.5;
+}
+@media (forced-colors: active) {
+  .requirement-node {
+    border-color: CanvasText;
+  }
+  .react-flow .react-flow__node.requirement-node.selected,
+  .react-flow .react-flow__node.requirement-node:focus-within {
+    outline-color: Highlight;
+  }
+  .requirement-edge .react-flow__edge-path {
+    stroke: CanvasText;
+  }
+}
