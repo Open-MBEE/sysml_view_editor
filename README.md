@@ -193,7 +193,7 @@ Start with the [documentation index](docs/README.md) for current capabilities, a
 
 This implementation supports a bounded source/structure editing workflow. It does not claim complete SysML v2 language, notation, execution or interchange conformance. Owned-port boundary notation, effective conjugated directions, behavior renderers and broader editing commands remain explicit gaps.
 
-Flexo MMS checkout and publishing are planned; the current workbench uses local project files. Read the [integration research](docs/research/openmbee-flexo-mms.md) and [roadmap](docs/next-steps.md#3-flexo-checkout-then-reviewed-publication) for the proposed direction.
+Flexo MMS checkout and publishing are planned; the current workbench uses local project files. Read the [integration research](docs/research/openmbee-flexo-mms.md) and [roadmap](docs/next-steps.md#4-flexo-checkout-then-reviewed-publication) for the proposed direction.
 
 ## Contributing
 
