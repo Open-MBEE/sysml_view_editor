@@ -156,3 +156,34 @@ export function relationshipEndpoint(
     .getByRole('group', { name: `${label} endpoint`, exact: true })
     .getByRole('definition');
 }
+
+/** Renderer geometry stays in helpers; Fit must expose every requirement node. */
+export async function expectRequirementsFit(page: Page) {
+  const canvas = page
+    .getByRole('region', { name: 'Diagram', exact: true })
+    .locator('.react-flow');
+  await expect
+    .poll(
+      () =>
+        canvas.evaluate((element) => {
+          const bounds = element.getBoundingClientRect();
+          const nodes = [...element.querySelectorAll('.react-flow__node')];
+          if (!nodes.length) return -1;
+          return Math.min(
+            ...nodes.map((node) => {
+              const box = node.getBoundingClientRect();
+              return Math.min(
+                box.left - bounds.left,
+                bounds.right - box.right,
+                box.top - bounds.top,
+                bounds.bottom - box.bottom,
+              );
+            }),
+          );
+        }),
+      {
+        message: 'Requirements Fit keeps every node inside the visible canvas',
+      },
+    )
+    .toBeGreaterThanOrEqual(0);
+}

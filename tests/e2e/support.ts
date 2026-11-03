@@ -8,6 +8,7 @@ import type { ProjectBundle } from '../../src/lib/workspace/persistence';
 import { readFile } from 'node:fs/promises';
 import { readEvaluatedView } from '../../src/lib/workspace/views/schema';
 import type { EvaluatedView } from '../../src/lib/workspace/views';
+import { originKey } from '../../src/lib/workspace/editing/evidence';
 
 /** Compare saved geometry by actual per-view semantic occurrence, not n0 IDs. */
 export function semanticPositions(
@@ -15,6 +16,36 @@ export function semanticPositions(
   evaluations: readonly EvaluatedView[],
 ) {
   const positions: Record<string, { x: number; y: number }> = {};
+  function subjectKey(
+    subject: EvaluatedView['correspondence'][number]['subject'],
+  ) {
+    if (subject.qualifiedName) return subject.qualifiedName;
+    const origin = subject.origin;
+    expect(
+      origin,
+      'An unnamed declaration must retain its exact source origin',
+    ).toBeDefined();
+    expect(
+      origin!.nameLength,
+      'A named declaration must not lose its qualified name',
+    ).toBe(0);
+    expect(subject.id).toBe(originKey(origin!));
+    const document = bundle.documents.find(
+      (item) => item.name === origin!.file,
+    );
+    expect(
+      document,
+      'The anonymous declaration belongs to an applied source',
+    ).toBeDefined();
+    const bytes = new TextEncoder().encode(document!.text);
+    expect(origin!.offset).toBeGreaterThanOrEqual(0);
+    expect(origin!.length).toBeGreaterThan(0);
+    expect(origin!.offset + origin!.length).toBeLessThanOrEqual(bytes.length);
+    const text = new TextDecoder('utf-8', { fatal: true }).decode(
+      bytes.slice(origin!.offset, origin!.offset + origin!.length),
+    );
+    return JSON.stringify({ anonymousOrigin: subject.id, text });
+  }
   for (const [view, presentation] of Object.entries(bundle.presentations)) {
     const evaluated = evaluations.findLast(
       (item) => item.view === view && item.modelHash === presentation.modelHash,
@@ -33,11 +64,15 @@ export function semanticPositions(
         const item = evaluated!.correspondence.find(
           (item) => item.subject.id === origin,
         );
-        expect(item?.subject.qualifiedName).toBeTruthy();
-        return item!.subject.qualifiedName!;
+        expect(
+          item,
+          'Every occurrence context must retain source correspondence',
+        ).toBeDefined();
+        return subjectKey(item!.subject);
       });
-      positions[JSON.stringify([view, match.subject.qualifiedName, context])] =
-        { ...point };
+      positions[JSON.stringify([view, subjectKey(match.subject), context])] = {
+        ...point,
+      };
     }
   }
   return positions;

@@ -392,6 +392,7 @@ export function Diagram({
                   padding: view?.artifact?.kind === 'requirement' ? 0.1 : 0.2,
                   maxZoom: 1,
                 }}
+                minZoom={view?.artifact?.kind === 'requirement' ? 0.1 : 0.5}
                 nodesConnectable={false}
                 nodesDraggable={!disabled && !locked}
                 elementsSelectable={!locked}

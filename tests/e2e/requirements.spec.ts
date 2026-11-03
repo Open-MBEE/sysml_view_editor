@@ -25,6 +25,7 @@ import {
   importRequirementsTraceability,
   waitForRequirements,
   relationshipEndpoint,
+  expectRequirementsFit,
 } from './requirements-support';
 
 // This observes the production workers. It establishes the engine projection,
@@ -299,7 +300,34 @@ test('retains independent requirement and overview positions plus invalid drafts
     result,
     'TraceRequirements::leftSpecification::leftCapacity',
   );
-  const moved = await moveNode(page, requirement);
+  await moveNode(page, requirement);
+  const pointerSaved = (await downloadProject(page)).bundle;
+  const symbol = requirementSymbol(
+    result,
+    'TraceRequirements::leftSpecification::leftCapacity',
+  ).symbol;
+  const pointerPosition =
+    pointerSaved.presentations[requirementViews.requirements]!.positions[
+      symbol
+    ]!;
+  await requirement.focus();
+  await requirement.press('Enter');
+  const beforeKeyboard = await nodePosition(requirement);
+  await requirement.press('ArrowRight');
+  await expect
+    .poll(() => nodePosition(requirement))
+    .not.toEqual(beforeKeyboard);
+  const moved = await nodePosition(requirement);
+  const keyboardSaved = (await downloadProject(page)).bundle;
+  expect(
+    keyboardSaved.presentations[requirementViews.requirements]!.positions[
+      symbol
+    ],
+  ).toEqual({
+    x: pointerPosition.x + 5,
+    y: pointerPosition.y,
+  });
+  expect(keyboardSaved.documents).toEqual(documents);
   await namedViewButton(page, requirementViews.overview).click();
   await expect
     .poll(() =>
@@ -372,6 +400,9 @@ test('retains the accepted requirement graph and draft after real engine failure
   await ready(page, { split: false });
   const documents = await importRequirementsTraceability(page);
   const result = await waitForRequirements(page, evaluations);
+  await expectRequirementsFit(page);
+  await page.getByRole('button', { name: 'Fit view', exact: true }).click();
+  await expectRequirementsFit(page);
   const card = requirementCard(
     page,
     result,
