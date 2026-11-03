@@ -6,6 +6,7 @@ import {
   ReactFlowProvider,
   Background,
   applyNodeChanges,
+  applyEdgeChanges,
   useReactFlow,
   useNodesInitialized,
   useStore,
@@ -21,7 +22,9 @@ import {
 } from '$lib/ui/primitives/native-select';
 import { layoutStructure, absolutePositions } from './structure';
 import { StructureNode, SelectDiagramSymbol } from './StructureNode';
-const nodeTypes = { structure: StructureNode };
+import { RequirementNode } from './RequirementNode';
+import { layoutRequirements } from './requirements';
+const nodeTypes = { structure: StructureNode, requirement: RequirementNode };
 function FitAvailableSpace({
   padding,
   layoutMode,
@@ -106,7 +109,9 @@ export function Diagram({
     view?.status === 'complete' &&
     view.renderStatus === 'available' &&
     view.artifact &&
-    ['tree', 'interconnection', 'definition'].includes(view.artifact.kind);
+    ['tree', 'interconnection', 'definition', 'requirement'].includes(
+      view.artifact.kind,
+    );
   const [initialPresentation] = useState(presentation);
   useEffect(() => {
     const artifact = view?.artifact;
@@ -135,8 +140,13 @@ export function Diagram({
       initialPresentation?.modelHash === view?.modelHash
         ? initialPresentation.positions
         : {};
-    if (artifact.kind === 'interconnection') {
-      void layoutStructure(artifact, stored)
+    if (
+      artifact.kind === 'interconnection' ||
+      artifact.kind === 'requirement'
+    ) {
+      const layout =
+        artifact.kind === 'requirement' ? layoutRequirements : layoutStructure;
+      void layout(artifact, stored)
         .then((result) => {
           if (cancelled) return;
           setNodes(result.nodes);
@@ -268,9 +278,11 @@ export function Diagram({
               <span className="diagram-representation">
                 {view.artifact.kind === 'interconnection'
                   ? 'Structure'
-                  : view.artifact.kind === 'tree'
-                    ? 'Overview tree'
-                    : 'Named view'}
+                  : view.artifact.kind === 'requirement'
+                    ? 'Requirements'
+                    : view.artifact.kind === 'tree'
+                      ? 'Overview tree'
+                      : 'Named view'}
               </span>
             )}
             <span className="diagram-revision">
@@ -282,24 +294,26 @@ export function Diagram({
             </span>
           </div>
         </div>
-        <div className="diagram-actions">
-          <Button
-            variant="ghost"
-            disabled={disabled || !view}
-            onClick={onCreatePart}
-          >
-            <SquarePlus aria-hidden="true" />
-            New part
-          </Button>
-          <Button
-            variant="ghost"
-            disabled={disabled || view?.artifact?.kind !== 'interconnection'}
-            onClick={onConnectPorts}
-          >
-            <Cable aria-hidden="true" />
-            Connect ports
-          </Button>
-        </div>
+        {view?.artifact?.kind !== 'requirement' && (
+          <div className="diagram-actions">
+            <Button
+              variant="ghost"
+              disabled={disabled || !view}
+              onClick={onCreatePart}
+            >
+              <SquarePlus aria-hidden="true" />
+              New part
+            </Button>
+            <Button
+              variant="ghost"
+              disabled={disabled || view?.artifact?.kind !== 'interconnection'}
+              onClick={onConnectPorts}
+            >
+              <Cable aria-hidden="true" />
+              Connect ports
+            </Button>
+          </div>
+        )}
       </header>
       {!view ? (
         <div className="empty">
@@ -335,9 +349,39 @@ export function Diagram({
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
-                onNodesChange={(changes) =>
-                  setNodes((current) => applyNodeChanges(changes, current))
-                }
+                onNodesChange={(changes) => {
+                  setNodes((current) => applyNodeChanges(changes, current));
+                  if (view?.artifact?.kind === 'requirement') {
+                    for (const change of changes)
+                      if (change.type === 'select' && change.selected)
+                        onSelect(change.id);
+                    if (
+                      !disabled &&
+                      !locked &&
+                      changes.some(
+                        (change) =>
+                          change.type === 'position' &&
+                          change.position &&
+                          change.dragging === false,
+                      )
+                    )
+                      onMove(
+                        absolutePositions(applyNodeChanges(changes, nodes)),
+                      );
+                  }
+                }}
+                onEdgesChange={(changes) => {
+                  setEdges((current) => applyEdgeChanges(changes, current));
+                  if (view?.artifact?.kind === 'requirement') {
+                    for (const change of changes)
+                      if (change.type === 'select' && change.selected)
+                        onSelect(change.id);
+                  }
+                }}
+                edgesFocusable={!locked}
+                onEdgeClick={(_event, edge) => {
+                  if (view?.artifact?.kind === 'requirement') onSelect(edge.id);
+                }}
                 fitView
                 fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
                 nodesConnectable={false}
@@ -345,15 +389,16 @@ export function Diagram({
                 elementsSelectable={!locked}
                 deleteKeyCode={null}
                 onNodeClick={(_event, node) => onSelect(node.id)}
-                onNodeDragStop={(_event, node) =>
-                  onMove(
-                    absolutePositions(
-                      nodes.map((current) =>
-                        current.id === node.id ? node : current,
+                onNodeDragStop={(_event, node) => {
+                  if (view?.artifact?.kind !== 'requirement')
+                    onMove(
+                      absolutePositions(
+                        nodes.map((current) =>
+                          current.id === node.id ? node : current,
+                        ),
                       ),
-                    ),
-                  )
-                }
+                    );
+                }}
               >
                 <FitAvailableSpace
                   layoutMode={layoutMode}

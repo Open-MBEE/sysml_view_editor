@@ -249,3 +249,21 @@ it.each(['owner', 'file', 'delete', 'replace'] as const)(
     expect(result.notice.invalidated).toBe(1);
   },
 );
+it('refuses to borrow saved geometry across representation changes with identical subjects', () => {
+  const oldView = view('old');
+  const newView = view('fresh');
+  const changed = {
+    ...newView,
+    artifact: { ...newView.artifact!, kind: 'requirement' },
+  };
+  expect(() =>
+    reconcileView({
+      oldView,
+      newView: changed,
+      presentation,
+      before,
+      after: { ...before, modelHash: 'fresh' },
+      edits: [],
+    }),
+  ).toThrow('View representation changed');
+});

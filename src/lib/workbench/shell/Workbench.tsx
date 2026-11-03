@@ -14,6 +14,7 @@ import { Explorer } from '../explorer/Explorer';
 import { SourceEditor } from '../source/SourceEditor';
 import { Diagram } from '../diagrams/Diagram';
 import { Properties } from '../properties/Properties';
+import { diagramRelationshipSelection } from '../properties/diagram-selection';
 import { Issues } from '../issues/Issues';
 import { issueLocation } from '../issues/navigation';
 import { WorkbenchDialogs } from './WorkbenchDialogs';
@@ -128,6 +129,13 @@ export function Workbench({
           (item) => item.symbol === symbolSelection?.symbol,
         )
       : undefined;
+  const relationshipSelection = diagramRelationshipSelection(
+    state.view,
+    selectedCorrespondence?.symbol,
+  );
+  const selectedArtifactNode = state.view?.artifact?.nodes.find(
+    (item) => item.id === selectedCorrespondence?.symbol,
+  );
   const usageContext = selectedCorrespondence?.context
     .slice(0, -1)
     .map(
@@ -366,6 +374,8 @@ export function Workbench({
     const correspondence = state.view?.correspondence.find(
       (item) => item.symbol === symbol,
     );
+    setSymbolSelection(undefined);
+    setSelected(correspondence?.subject.qualifiedName ?? '');
     if (correspondence && state.view)
       setSymbolSelection({
         view: state.view.view,
@@ -645,6 +655,10 @@ export function Workbench({
               inspector={
                 <Properties
                   element={element}
+                  artifactNode={selectedArtifactNode}
+                  relationship={relationshipSelection}
+                  sourceAvailable={!!focusRange}
+                  readOnlyDiagram={state.view?.artifact?.kind === 'requirement'}
                   usageContext={usageContext}
                   disabled={state.busy || state.unapplied}
                   onRename={(name) => void run(() => reviewRename(name))}
