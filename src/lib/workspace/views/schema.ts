@@ -28,6 +28,12 @@ export const ArtifactNodeSchema = Type.Object({
   name: Type.String(),
   kind: Type.String(),
   type: Type.Optional(Type.String()),
+  detail: Type.Optional(Type.String()),
+  shortName: Type.Optional(Type.String()),
+  documentation: Type.Optional(Type.Array(Type.String())),
+  exposure: Type.Optional(
+    Type.Union([Type.Literal('selected'), Type.Literal('contextual')]),
+  ),
   parent: Type.Optional(Type.String()),
   ports: Type.Optional(Type.Array(ArtifactPortSchema)),
   reference: Type.Optional(Type.Boolean()),
@@ -45,6 +51,11 @@ export const ArtifactEdgeSchema = Type.Object({
   ),
   label: Type.Optional(Type.String()),
   kind: Type.String(),
+  negated: Type.Optional(Type.Boolean()),
+  asserted: Type.Optional(Type.Boolean()),
+  ownership: Type.Optional(
+    Type.Union([Type.Literal('direct'), Type.Literal('via-type')]),
+  ),
 });
 export const EvaluatedViewSchema = Type.Object({
   schemaVersion: Type.Literal(1),
@@ -62,6 +73,7 @@ export const EvaluatedViewSchema = Type.Object({
   ]),
   diagnostics: Type.Array(Type.String()),
   correspondence: Type.Array(CorrespondenceSchema),
+  selected: Type.Optional(Type.Array(ViewSubjectSchema)),
   artifact: Type.Optional(
     Type.Object({
       kind: Type.String(),
