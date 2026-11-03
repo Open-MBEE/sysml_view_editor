@@ -112,6 +112,11 @@ export function Diagram({
     ['tree', 'interconnection', 'definition', 'requirement'].includes(
       view.artifact.kind,
     );
+  const fitPadding = ['interconnection', 'requirement'].includes(
+    view?.artifact?.kind ?? '',
+  )
+    ? 0.1
+    : 0.2;
   const [initialPresentation] = useState(presentation);
   useEffect(() => {
     const artifact = view?.artifact;
@@ -383,7 +388,10 @@ export function Diagram({
                   if (view?.artifact?.kind === 'requirement') onSelect(edge.id);
                 }}
                 fitView
-                fitViewOptions={{ padding: 0.2, maxZoom: 1 }}
+                fitViewOptions={{
+                  padding: view?.artifact?.kind === 'requirement' ? 0.1 : 0.2,
+                  maxZoom: 1,
+                }}
                 nodesConnectable={false}
                 nodesDraggable={!disabled && !locked}
                 elementsSelectable={!locked}
@@ -402,17 +410,13 @@ export function Diagram({
               >
                 <FitAvailableSpace
                   layoutMode={layoutMode}
-                  padding={
-                    view?.artifact?.kind === 'interconnection' ? 0.1 : 0.2
-                  }
+                  padding={fitPadding}
                 />
                 <Background />
                 <DiagramControls
                   locked={locked}
                   onLock={setLocked}
-                  padding={
-                    view?.artifact?.kind === 'interconnection' ? 0.1 : 0.2
-                  }
+                  padding={fitPadding}
                 />
               </ReactFlow>
             </SelectDiagramSymbol.Provider>

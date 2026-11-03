@@ -54,14 +54,18 @@ export function Properties({
                 </dd>
               </>
             )}
-            <dt>Source</dt>
-            <dd>
-              {relationship.source.qualifiedName ?? relationship.source.id}
-            </dd>
-            <dt>Target</dt>
-            <dd>
-              {relationship.target.qualifiedName ?? relationship.target.id}
-            </dd>
+            <div role="group" aria-label="Source endpoint">
+              <dt>Source</dt>
+              <dd>
+                {relationship.source.qualifiedName ?? relationship.source.id}
+              </dd>
+            </div>
+            <div role="group" aria-label="Target endpoint">
+              <dt>Target</dt>
+              <dd>
+                {relationship.target.qualifiedName ?? relationship.target.id}
+              </dd>
+            </div>
             {relationship.declaration.qualifiedName && (
               <>
                 <dt>Declaration</dt>
