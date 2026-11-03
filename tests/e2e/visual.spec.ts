@@ -9,7 +9,13 @@ import {
   downloadProject,
   fillSource,
   copySourceSelection,
+  observeEvaluations,
 } from './support';
+import {
+  importRequirementsTraceability,
+  waitForRequirements,
+  requirementCard,
+} from './requirements-support';
 
 for (const theme of ['light', 'dark']) {
   test(`workbench and appearance dialog in ${theme}`, async ({ page }) => {
@@ -545,6 +551,50 @@ for (const theme of ['light', 'dark']) {
       await expect(page.getByRole('banner')).toHaveScreenshot(
         `mobile-header-${theme}-${width}.png`,
       );
+    });
+  }
+}
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [1440, 768]) {
+    test(`requirement hierarchy and declared satisfaction in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      const evaluations = await observeEvaluations(page);
+      await ready(page, { split: false });
+      await importRequirementsTraceability(page);
+      const result = await waitForRequirements(page, evaluations);
+      await expect(
+        page.getByRole('region', { name: 'Issues', exact: true }),
+      ).not.toBeVisible();
+      await page.setViewportSize({ width, height: 900 });
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const dialog = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+      await expect(dialog).not.toBeVisible();
+      await requirementCard(page, result, 'TraceRequirements::MinimumCapacity')
+        .getByRole('button', {
+          name: 'Inspect REQ-CAP TraceRequirements::MinimumCapacity',
+          exact: true,
+        })
+        .click();
+      await expect(
+        page.getByRole('complementary', { name: 'Properties', exact: true }),
+      ).toContainText(
+        'are model content, not evidence that a test has passed.',
+      );
+      await expect(
+        page.getByRole('button', { name: 'Download project', exact: true }),
+      ).toBeEnabled();
+      await page.evaluate(() => document.fonts.ready);
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(`requirements-${theme}-${width}.png`);
     });
   }
 }
