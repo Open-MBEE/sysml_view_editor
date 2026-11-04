@@ -30,7 +30,7 @@ Implement a focused change, run the relevant checks, commit with a Conventional 
 
 Documentation and ordinary fixes also target `develop`. Reserve `hotfix/*` for an urgent correction to code already released on `main`.
 
-CI validates every PR. Pushes to `main`, `develop`, `release/**` and `hotfix/**` also run validation. The existing workflow still checks formatting, architecture, types, unit/script tests, dependency audit and the pinned-engine browser suite. Local success and a hosted CI result are separate evidence.
+CI validates every PR. Pushes to `main`, `release/**` and `hotfix/**` run the full suite, as do release-targeted PRs, weekly schedules and manual dispatch. There is no duplicate validation push after merging into `develop`. Development PRs run all fast checks and critical browser workflows, adding visual comparisons for code changes; see [CI coverage](testing.md#ci-coverage). Local success and a hosted CI result are separate evidence.
 
 ## Prepare a release
 

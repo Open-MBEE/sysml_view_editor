@@ -1,6 +1,6 @@
 # Requirements and satisfaction diagrams
 
-Planned session, 2026-11-03, on `feature/requirements-traceability`. This is an implementation plan, not a capability claim. Agreed scope: requirements, their hierarchy and declared satisfaction relationships. Start read-only for model semantics; presentation movement and source navigation are permitted.
+Implemented bounded projection, 2026-11-03, on `feature/requirements-traceability`. Native requirement artifacts render requirement definitions/usages, declared identifiers and documentation, typing, direct/type-based ownership and declared positive/negated satisfaction. Model semantics remain read-only through this diagram; presentation movement and source navigation are permitted. The session gates below retain the implementation scope; [verification](../verification.md) records actual checks.
 
 ## User outcome
 
@@ -13,17 +13,17 @@ Open the requirements example or the compressor project, choose an appropriate a
 
 A satisfaction declaration is not proof that a requirement is met. Do not display pass/fail, verified status or global coverage percentages. An absent visible link means no satisfaction link is shown in this scope; it does not establish that the whole model has no satisfier.
 
-## Starting evidence and gates
+## Engine and representation boundary
 
-`Diagram.tsx` currently accepts only tree, interconnection and definition artifacts. The capacity requirements fixture is catalogued as a native `requirement` artifact with `MinimumCapacity`, `usableCapacity` and `storage` nodes plus `typing`/`satisfy` edges, but the app has no renderer for it. The compressor requirements view is a partial `tree` projection. Confirm both through fresh actual-worker captures; do not assume that every requirement-bearing view has the same artifact kind.
+`Diagram.tsx` accepts tree, interconnection, definition and native `requirement` artifacts. The capacity and explicit traceability fixtures now render dedicated requirement graphs. The compressor requirements view remains a partial generic `tree`; the frontend does not coerce every requirement-bearing tree into a richer graph. A tested alternative compressor exposure would also introduce verification context and declaration-owned satisfier endpoints rather than full instance paths, so that model is unchanged pending a separate expansion contract.
 
 The retained `engine-bridge/opensysml/relationships.go` implements `EvaluateRelationships` for resolved allocation, satisfaction and verification endpoints, including declaration/source/target origins. Its retained Go tests cover aliases, cross-file endpoints, deterministic results and refusal of invalid/incomplete evidence. This code is a useful seam, not fresh execution evidence for this session. The browser semantic worker currently exposes parse and named-view evaluation only.
 
-The current artifact node schema does not explicitly transport requirement identifiers, documentation or constraints. Native renderer code already supplies a `detail` field combining a short identifier and bounded documentation excerpt, but the TypeScript schema does not type it. Confirm its actual bytes and omissions before choosing separate metadata fields. Prefer the existing `EvaluateView` artifact when it supplies sufficient evidence; expose `EvaluateRelationships` in the browser only if a demonstrated gap requires it. Do not recover relationships or identities with source regexes, infer links from labels, or equate a declared subject with a satisfaction assertion.
+The existing `EvaluateView` path supplies the normalized artifact; no additional worker operation is needed. Optional node fields type native `detail`, exact `shortName`, full AST-backed `documentation` and selected/contextual `exposure`. `detail` remains an opaque native excerpt; the frontend never splits it into identifiers or documentation. Satisfaction edges carry explicit `negated` and `asserted` booleans (`asserted` records the explicit source `assert` prefix, never an execution result); composition/reference edges carry `ownership: direct | via-type` from exact origins. Native requirement validation requires selected subjects, valid topology, exact node/edge source correspondence, consistent exposure, explicit satisfaction polarity and noncyclic direct ownership before publication. Engine pins and archives are unchanged; overlay/test bytes update derived-WASM provenance.
 
 Preserve authored view exposure and filters. The capacity view filters for requirements but its recorded native graph includes `storage`; compare selected membership, artifact nodes and correspondence to understand engine-provided related context. Do not assume all artifact nodes are directly exposed, hide native context without explanation, or synthesize additional nodes ourselves. For truly absent endpoints, show explicitly outside-view context or use a deliberately authored traceability view exposing both endpoint families. Never inject hidden view declarations.
 
-## Session checkpoints
+## Implementation checkpoints
 
 Each checkpoint must leave a reviewable, working subset. Record actual commands, outcomes and gaps in verification; keep transient traces under ignored `sandbox/`.
 
@@ -41,7 +41,7 @@ Suggested atomic commit boundaries are engine evidence/bridge, validated project
 
 ## Subagents and worktrees
 
-Use one coordinator/integration checkout and three bounded coding worktrees. The current checkout holds uncommitted planning edits; this planning step does not commit, push or create coding worktrees. Before implementation, establish an authorized committed planning baseline. After the engine evidence gate, the coordinator publishes the smallest compiling contract checkpoint, and all implementation branches start from that exact commit rather than an independently advancing `develop`.
+The session uses one coordinator/integration checkout and three bounded coding worktrees, all started at committed planning baseline `a097907`. The engine contract landed as `af5d1f3`, the renderer as `cf73d95` with compact follow-up `ba14383`, and focused functional tests as `455d0ed`. The coordinator integrates shared changes; dependent branches consume explicit compiling checkpoints rather than independently advancing `develop`. Actual commits remain identifiable in Git history.
 
 | Owner              | Branch / sibling worktree suffix                           | Exclusive implementation ownership                                                                                                                                                                                                                             |
 | ------------------ | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -65,7 +65,7 @@ Each agent's handoff must state its base commit and contract version, files chan
 
 ### Shared integration decisions
 
-- Prefer rendering the proven native `requirement` artifact before inventing a new requirement extraction endpoint. Full requirement documentation may need additional engine evidence; a combined abbreviated `detail` string is not structured metadata.
+- Prefer rendering the proven native `requirement` artifact before inventing a new requirement extraction endpoint. Full documentation now comes from AST documentation spans; a combined abbreviated `detail` string is not structured metadata.
 - Ground exact relationship meanings and notation in the formal SysML v2 specification alongside pinned-engine evidence. The imported tutorial series supports the shared definition/usage mental model, not detailed satisfaction/use-case conformance.
 - A native `composition` edge can connect an owner to a type while labeling an undrawn owned usage. Do not call that literal ownership of the drawn type; prove hierarchy through resolved membership and edge correspondence.
 - Native edge correspondence uses `edge:<index>` while current generic rendered edges use `edge-<index>`. Align selectable identity and source correspondence in coordinator-owned code; never match edges by label.
@@ -101,6 +101,14 @@ Follow the [example-library workflow](../../examples/README.md). Extend small in
 For important new regressions, demonstrate failure under a bounded fault, restore the behavior and rerun. Assertions should establish exact semantic endpoint identity, source location and project preservation, not only node counts or screenshots. Add a focused critical real-engine path for the new supported workflow without promoting every extended matrix case into PR CI.
 
 Run `npm run check`, `npm run build`, relevant functional browser scenarios and the full visual project. Inspect desktop/narrow and light/dark captures, keyboard access and any dialog focus containment/return. Full semantic regressions are required when shared projection, reconciliation or transaction behavior changes. No skipped assertion, relaxed mismatch threshold or automatic baseline update substitutes for diagnosing a failure.
+
+## Notation scope
+
+The [SysML v2 language specification](https://www.omg.org/spec/SysML/2.0/Language/PDF), requirement satisfaction in section 7.21.1, distinguishes positive and negated satisfaction assertions. These are model declarations; this UI does not execute them or report evaluation results. Text labels distinguish typing, direct containment, owned-feature-via-type and positive/negated satisfaction. Shapes and styling are a bounded editor presentation, not a claim of complete standardized graphical notation. The [OMG issue tracker](https://issues.omg.org/issues/spec/SysML/2.0) records SYSML21-671 concerning missing graphical productions for negated satisfaction; explicit text preserves that distinction without inventing a standard symbol.
+
+Requirement cards use stable bounds by native kind, a bounded documentation preview and full available text in the Inspector. Related model elements have compact neutral cards. Nodes and relationships are keyboard selectable; `edge:<index>` aligns with revision-bound native correspondence, including anonymous relationship declarations. Source/target details have separately named accessible groups. The diagram hides part/connection authoring and Inspector semantic edit controls in requirement mode. Invalid drafts retain the last applied graph and disable geometry edits.
+
+Positions remain absolute model-space coordinates in project format version 1. Requirement pointer and keyboard movement use the existing validated presentation update. Source-driven representation changes invalidate old geometry explicitly instead of borrowing another representation's layout. Some typing edges share smoothstep runs; selection/source reveal distinguishes the exact declarations. Camera persistence, full constraint/subject compartments, manual overlap avoidance and obstacle-aware/parallel routing remain outside this slice.
 
 ## Deferred work
 

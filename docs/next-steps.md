@@ -1,6 +1,6 @@
 # Next steps
 
-Updated 2026-11-03. This is the forward plan; [capabilities](capabilities.md) describes shipped behavior and [verification](verification.md) records actual checks. No delivery dates are assigned.
+Updated 2026-11-04. This is the forward plan; [capabilities](capabilities.md) describes shipped behavior and [verification](verification.md) records actual checks. No delivery dates are assigned.
 
 ## Current position
 
@@ -8,7 +8,7 @@ The editor supports reviewed rename/view/part/connection commands, bounded layou
 
 ## 1. Requirements and satisfaction diagrams
 
-The next feature session is [requirements, hierarchy and declared satisfaction](architecture/requirements-views.md), on `feature/requirements-traceability`. Prove the pinned engine metadata, relationship endpoints and view membership first, then deliver a dedicated read-only renderer, source reveal and exact preservation checks. Declared satisfaction is not a test result. Verification coverage and graphical relationship authoring remain separate follow-ups.
+The active feature branch `feature/requirements-traceability` implements a bounded [native requirements renderer](architecture/requirements-views.md), with identifiers/documentation, typing/ownership, declared satisfaction polarity, source reveal and presentation preservation. The capacity and traceability fixtures establish this subset; the compressor requirements view remains a generic tree. Complete review and validation before integrating. Declared satisfaction is not a test result. Verification coverage and graphical relationship authoring remain separate follow-ups.
 
 ## 2. Read-only automatic exploration
 

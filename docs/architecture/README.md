@@ -40,6 +40,8 @@ Named views are actual SysML usages. Open existing views without authoring anoth
 
 Semantic subject identity, usage context and symbol identity remain distinct. Geometry changes never imply semantic containment or connectivity. The bounded structural projection consumes engine parent IDs, typed inherited ports and explicit connection endpoints; port selection retains its usage context. `moveSymbols` validates a complete presentation batch before publishing it, so moving a group and its descendants keeps version-1 absolute coordinates consistent without a source transaction. [Structural projection, engine trace and limits](structural-views.md).
 
+Native `requirement` artifacts have a dedicated read-only projection with exact identifiers/documentation, selected/contextual membership, typing, direct/type-based ownership and declared satisfaction polarity. Node/edge correspondence supports source reveal, including anonymous relationships. The default compressor requirements tree is retained; native requirement rendering does not imply automatic system/usage expansion or execution results. [Requirements contract and limits](requirements-views.md).
+
 Reviewed `createPart` and `connectPorts` commands share this transaction path with rename and view creation. The workspace verifies explicit endpoint direction, identical resolved port type and actual evaluated connection endpoints; Toolkit edit acceptance alone is insufficient. [Graphical authoring contracts](graphical-authoring.md).
 
 ## TypeBox
