@@ -14,6 +14,8 @@ import {
 import {
   importRequirementsTraceability,
   waitForRequirements,
+  centerRequirementCard,
+  zoomRequirementForReading,
   requirementCard,
 } from './requirements-support';
 
@@ -593,6 +595,25 @@ for (const theme of ['light', 'dark']) {
         page.getByRole('button', { name: 'Download project', exact: true }),
       ).toBeEnabled();
       await page.evaluate(() => document.fonts.ready);
+      await page.mouse.move(0, 0);
+      if (width === 1440)
+        await expect(page).toHaveScreenshot(
+          `requirements-overview-${theme}.png`,
+        );
+      if (width === 768)
+        await page
+          .getByRole('button', { name: 'Collapse Explorer', exact: true })
+          .click();
+      const selectedRequirement = requirementCard(
+        page,
+        result,
+        'TraceRequirements::MinimumCapacity',
+      );
+      await zoomRequirementForReading(page, selectedRequirement);
+      await selectedRequirement.focus();
+      await selectedRequirement.press('Enter');
+      await expect(selectedRequirement).toBeFocused();
+      await centerRequirementCard(page, selectedRequirement);
       await page.mouse.move(0, 0);
       await expect(page).toHaveScreenshot(`requirements-${theme}-${width}.png`);
     });

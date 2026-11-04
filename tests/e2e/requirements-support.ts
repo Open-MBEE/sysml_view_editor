@@ -1,7 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page } from '@playwright/test';
 import type { EvaluatedView } from '../../src/lib/workspace/views';
-import { expect, namedViewButton } from './support';
+import { expect, namedViewButton, diagramState } from './support';
 
 export const requirementViews = {
   requirements: 'TraceViews::requirements',
@@ -186,4 +186,126 @@ export async function expectRequirementsFit(page: Page) {
       },
     )
     .toBeGreaterThanOrEqual(0);
+}
+
+/** Center the focused card with a real canvas pan, retaining model-space geometry. */
+export async function centerRequirementCard(page: Page, card: Locator) {
+  const canvas = page
+    .getByRole('region', { name: 'Diagram', exact: true })
+    .locator('.react-flow');
+  const bounds = (await canvas.boundingBox())!;
+  const box = (await card.boundingBox())!;
+  const before = await diagramState(page);
+  const delta = {
+    x: bounds.x + bounds.width / 2 - box.x - box.width / 2,
+    y: bounds.y + bounds.height / 2 - box.y - box.height / 2,
+  };
+  const start = {
+    x: delta.x >= 0 ? bounds.x + 50 : bounds.x + bounds.width - 50,
+    y: delta.y >= 0 ? bounds.y + 50 : bounds.y + bounds.height - 50,
+  };
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down({ button: 'middle' });
+  await page.mouse.move(start.x + delta.x, start.y + delta.y, { steps: 8 });
+  await page.mouse.up({ button: 'middle' });
+  await settledRequirementViewport(page);
+  await expect
+    .poll(
+      async () => {
+        const current = (await card.boundingBox())!;
+        const viewport = (await canvas.boundingBox())!;
+        return Math.min(
+          current.x - viewport.x,
+          current.y - viewport.y,
+          viewport.x + viewport.width - current.x - current.width,
+          viewport.y + viewport.height - current.y - current.height,
+        );
+      },
+      {
+        message:
+          'Focused requirement card stays fully readable inside the canvas',
+      },
+    )
+    .toBeGreaterThanOrEqual(0);
+  await expect.poll(() => diagramState(page)).toEqual(before);
+}
+
+/** Wait for rendered viewport geometry to stop changing across consecutive frames. */
+async function settledRequirementViewport(page: Page) {
+  return page
+    .getByRole('region', { name: 'Diagram', exact: true })
+    .locator('.react-flow')
+    .evaluate(async (canvas) => {
+      const viewport = canvas.querySelector('.react-flow__viewport');
+      if (!viewport) throw new Error('Requirement viewport is unavailable.');
+      let previous = '',
+        stableFrames = 0;
+      const deadline = performance.now() + 5000;
+      while (performance.now() < deadline) {
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => resolve()),
+        );
+        const bounds = canvas.getBoundingClientRect();
+        const transform = getComputedStyle(viewport).transform;
+        const sample = JSON.stringify([
+          bounds.x,
+          bounds.y,
+          bounds.width,
+          bounds.height,
+          transform,
+        ]);
+        stableFrames = sample === previous ? stableFrames + 1 : 0;
+        if (bounds.width > 0 && bounds.height > 0 && stableFrames >= 3)
+          return transform;
+        previous = sample;
+      }
+      throw new Error('Requirement viewport geometry did not settle.');
+    });
+}
+
+/**
+ * Normalize through the visible maximum-zoom endpoint, then five real zoom-out
+ * actions. React Flow documents each zoom-out as 1/1.2 of the previous scale.
+ * This does not depend on whether initial fit finished before a panel resize.
+ */
+export async function zoomRequirementForReading(page: Page, card: Locator) {
+  const zoomIn = page.getByRole('button', { name: 'Zoom in', exact: true });
+  const zoomOut = page.getByRole('button', { name: 'Zoom out', exact: true });
+  await settledRequirementViewport(page);
+  for (let attempt = 0; attempt < 24 && (await zoomIn.isEnabled()); attempt++) {
+    const before = (await card.boundingBox())!.width;
+    await zoomIn.click();
+    await settledRequirementViewport(page);
+    const after = (await card.boundingBox())!.width;
+    expect(
+      after,
+      'Each zoom-in action increases the rendered card scale',
+    ).toBeGreaterThan(before);
+    if (await zoomIn.isEnabled()) expect(after).toBeCloseTo(before * 1.2, 2);
+  }
+  await expect(
+    zoomIn,
+    'Reach the visible maximum zoom before normalizing',
+  ).toBeDisabled();
+  const maximumWidth = (await card.boundingBox())!.width;
+  for (let step = 0; step < 5; step++) {
+    const before = (await card.boundingBox())!.width;
+    await zoomOut.click();
+    await expect
+      .poll(async () => (await card.boundingBox())!.width, {
+        message: 'Zoom-out reaches the documented complete 1/1.2 scale step',
+      })
+      .toBeCloseTo(before / 1.2, 2);
+    await settledRequirementViewport(page);
+  }
+  const width = (await card.boundingBox())!.width;
+  expect(
+    width,
+    'Focused card has the same zoom regardless of initial fit',
+  ).toBeCloseTo(maximumWidth / 1.2 ** 5, 2);
+  expect(
+    width,
+    'Focused requirement text remains readable',
+  ).toBeGreaterThanOrEqual(240);
+  return width;
 }
