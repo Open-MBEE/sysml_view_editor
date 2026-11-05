@@ -37,7 +37,7 @@ This slice establishes the fixture's nested interconnection workflow. GeneralVie
 
 ## Planned edge interactions and routing
 
-The broader structural/tree interaction and routing follow-up remains planned. Native requirement graphs now support pointer/keyboard relationship selection and exact endpoint/source inspection. Context7 MCP documentation was checked against the installed React Flow implementation on 2026-11-01.
+The broader structural/tree interaction and routing follow-up remains planned. Native requirement graphs now support pointer/keyboard relationship selection and exact endpoint/source inspection. Read-only exploration also has ownership grouping, distinct parallel relationship lanes and exact edge inspection; its compact geometry is separate from named-view presentations. Context7 MCP documentation was checked against the installed React Flow implementation on 2026-11-01.
 
 Current projections use ELK node placement and React Flow `smoothstep` edges; they do not consume ELK edge sections. The structural layout does not pass actual port geometry to ELK, and saved node positions can replace the initially calculated coordinates. Adopting initial ELK routes without reconciling those positions would leave stale paths.
 

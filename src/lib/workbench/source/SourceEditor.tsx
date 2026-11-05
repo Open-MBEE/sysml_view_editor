@@ -34,7 +34,7 @@ export function SourceEditor({
 }: {
   file: SourceDocument;
   disabled?: boolean;
-  selection?: { start: number; end: number };
+  selection?: { start: number; end: number; focus?: boolean };
   onChange: (value: string) => void;
   onLanguage?: (
     query: LanguageQuery,
@@ -147,7 +147,7 @@ export function SourceEditor({
       },
       scrollIntoView: true,
     });
-    view.focus();
+    if (selection.focus !== false) view.focus();
   }, [selection, file.name]);
   return (
     <section className="editor-pane" aria-label="Source editor">

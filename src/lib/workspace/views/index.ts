@@ -48,7 +48,7 @@ export function validateEvaluation(
 export type ViewArtifact = NonNullable<EvaluatedView['artifact']>;
 export type ArtifactNode = ViewArtifact['nodes'][number];
 
-function validateStructure(artifact: ViewArtifact) {
+export function validateStructure(artifact: ViewArtifact) {
   const nodes = new Map(artifact.nodes.map((node) => [node.id, node]));
   const symbols = new Set(nodes.keys());
   if (nodes.size !== artifact.nodes.length)

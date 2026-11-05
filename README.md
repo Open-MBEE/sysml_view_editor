@@ -137,7 +137,7 @@ React Flow draws the interactive diagrams and ELK supplies automatic layout. The
 
 Use **Projects** to return to the launcher and **Resume project** to continue. The live workbench stays mounted while you browse the launcher or landing page, retaining source drafts, accepted history, selection and diagram state. A full reload starts at the launcher; existing browser recovery is offered explicitly. Landing and app share one appearance preference controller.
 
-Folder write-back, Flexo project/branch checkout and automatic diagrams for models without named views remain planned. Opening source imports copies; it does not connect to a folder or remote branch.
+Models without named views open a temporary project overview. Choose **Explore model** in the diagram’s view selector to browse project/package scopes or an explicit part definition/usage, with separate scope and representation controls and a full qualified scope caption. Overview boxes show package/ownership hierarchy; parallel declarations have separate relationship labels. Exploration uses applied source, preserves drafts and saved named-view positions, and does not persist its scope or allow graphical edits. Typed usages do not automatically expand their type’s internals. Folder write-back and Flexo project/branch checkout remain planned. Opening source imports copies; it does not connect to a folder or remote branch.
 
 **Download project** saves one `.sysml-project.json`; **Open** accepts that bundle or multiple `.sysml` files. Downloads do not write back to the imported folder. **Local recovery** keeps one recovery copy in this browser using IndexedDB, including applied source, unapplied drafts, diagram positions and the active file/view. On reload, choose **Restore recovery** or **Discard recovery** before new work can replace that copy. The dialog can disable local saving or retry storage failures. Browser storage can be cleared; retain downloaded projects as portable backups. Restored work remains modified until downloaded. With saving enabled, returning to a clean project clears this session’s older recovery; a competing tab cannot silently overwrite a newer copy.
 
@@ -178,7 +178,7 @@ npm run test:e2e                    # fresh build, real engines and visual compa
 npm run preview -- --host 127.0.0.1
 ```
 
-PR CI runs all fast checks plus thirteen critical browser workflows, adding visual comparisons for code changes. Full browser coverage runs weekly, manually and for release/main/hotfix PRs and pushes. Run `npm run test:e2e -- --project=functional --grep @critical` to reproduce the smaller browser gate; `npm run test:e2e` still runs everything. See [CI coverage](docs/testing.md#ci-coverage) for selection and deferred coverage.
+PR CI runs all fast checks plus fourteen critical browser workflows, adding visual comparisons for code changes. Full browser coverage runs weekly, manually and for release/main/hotfix PRs and pushes. Run `npm run test:e2e -- --project=functional --grep @critical` to reproduce the smaller browser gate; `npm run test:e2e` still runs everything. See [CI coverage](docs/testing.md#ci-coverage) for selection and deferred coverage.
 
 Functional checks can use installed Chrome with `PLAYWRIGHT_BROWSER_CHANNEL=chrome npm run test:e2e -- --project=functional`. Visual comparisons always use bundled Chromium and reviewed platform-specific baselines. The browser suite starts its own fresh production server; port **4175** must be free. See [browser testing and baseline review](docs/testing.md).
 

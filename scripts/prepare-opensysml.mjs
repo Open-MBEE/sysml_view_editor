@@ -11,6 +11,8 @@ const archiveHash =
 const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const overlays = [
   'evaluate_view.go',
+  'exploration.go',
+  'exploration_test.go',
   'validated_view.go',
   'validated_view_test.go',
   'geometry_pose.go',
@@ -97,6 +99,14 @@ for (const [name, folder] of [
       name.endsWith('_test.go') ? 'studio_view_test.go' : 'studio_view.go',
     ),
   );
+for (const [name, folder] of [
+  ['exploration.go', 'engine'],
+  ['exploration_test.go', 'combined'],
+])
+  await cp(
+    resolve(root, 'engine-bridge/opensysml', name),
+    resolve(source, 'internal/frontend', folder, 'studio_' + name),
+  );
 await cp(
   resolve(root, 'engine-bridge/opensysml/requirements_view.go'),
   resolve(source, 'internal/frontend/engine/studio_requirements_view.go'),
@@ -134,6 +144,11 @@ async function replace(file, before, after) {
 await replace(
   'internal/frontend/engine/engine.go',
   'case "RenderView":',
+  'case "Explore":\n var req JExploreRequest\n if err := decode(params, &req); err != nil { return nil, err }\n return e.explore(&req)\n case "RenderView":',
+);
+await replace(
+  'internal/frontend/engine/engine.go',
+  'case "RenderView":',
   'case "EvaluateRelationships":\n var req JRenderViewRequest\n if err := decode(params, &req); err != nil { return nil, err }\n return e.studioRelationships(&req)\n case "RenderView":',
 );
 await replace(
@@ -144,12 +159,12 @@ await replace(
 await replace(
   'internal/frontend/combined/combined.go',
   'case "GetServerInfo":',
-  'case "EvaluateRelationships":\n return s.evaluateRelationships(ctx,params)\n case "EvaluateView":\n return s.evaluateView(ctx,params)\n case "GetServerInfo":',
+  'case "Explore":\n return s.explore(ctx,params)\n case "EvaluateRelationships":\n return s.evaluateRelationships(ctx,params)\n case "EvaluateView":\n return s.evaluateView(ctx,params)\n case "GetServerInfo":',
 );
 await replace(
   'internal/frontend/combined/combined.go',
   'var capabilities = []string{',
-  'var capabilities = []string{\n "studio_evaluate_view_v1",\n "studio_relationships_v1",',
+  'var capabilities = []string{\n "studio_exploration_v1",\n "studio_evaluate_view_v1",\n "studio_relationships_v1",',
 );
 let go = process.env.SYSML_GO;
 if (!go) {
@@ -224,6 +239,7 @@ await writeFile(
       patchHash,
       toolchain,
       bridge: 'studio_evaluate_view_v1',
+      exploration: 'studio_exploration_v1',
       builderHash: digest(await readFile(fileURLToPath(import.meta.url))),
       binaryHash: digest(
         await readFile(resolve(destination, 'sysml-wasm.wasm')),

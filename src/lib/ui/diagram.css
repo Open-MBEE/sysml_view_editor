@@ -297,3 +297,77 @@
   max-height: calc(100% - 20px);
   overflow: auto;
 }
+
+/* Transient exploration: compact containment, without changing named-view geometry. */
+.exploration-node .structure-heading {
+  box-sizing: border-box;
+  padding: 7px 12px;
+}
+.exploration-node .structure-meta {
+  margin-bottom: 3px;
+  line-height: 14px;
+}
+.exploration-node .structure-heading strong {
+  font-size: 12px;
+  line-height: 16px;
+}
+.exploration-node.model-package {
+  --structure-header-bg: var(--sysml-package-bg);
+}
+.exploration-node.structure-compound {
+  border-style: solid;
+}
+.diagram-exploration .exploration-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  color: var(--sysml-muted);
+  font-size: 10px;
+  min-width: 0;
+  max-width: 100%;
+}
+.diagram-exploration .exploration-field [data-slot='native-select-wrapper'] {
+  width: 170px;
+  max-width: 100%;
+}
+.diagram-exploration
+  .exploration-scope-field
+  [data-slot='native-select-wrapper'] {
+  width: 270px;
+}
+.diagram-exploration .exploration-field select {
+  max-width: none;
+}
+.diagram-exploration .diagram-context {
+  align-items: end;
+  width: 100%;
+}
+.exploration-current {
+  flex-basis: 100%;
+  display: flex;
+  align-items: baseline;
+  gap: 5px 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+  padding-top: 3px;
+  font-size: 12px;
+}
+.exploration-current > span {
+  color: var(--sysml-muted);
+  font-size: 11px;
+}
+.exploration-current strong {
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+.diagram-exploration .diagram-context-meta {
+  max-width: none;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+}
+
+.exploration-leaf .structure-heading {
+  border-bottom: 0;
+  border-radius: inherit;
+}

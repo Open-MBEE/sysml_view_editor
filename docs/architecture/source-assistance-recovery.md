@@ -4,6 +4,8 @@ The workbench composes a separate Toolkit language adapter in `shell/session.ts`
 
 Completion is explicit with Control+Space. Only supported single plain-text edits are offered; snippets, additional edits and commands are excluded. Hover and F1 display plain text. F12 navigates to one exact project-file definition; unavailable, ambiguous and library-only targets explain their limits. The editor rejects results after draft, session, file or busy-state changes and rechecks completion validity when applying it. Queries do not apply source, change model history or replace views.
 
+Diagram selection can highlight a declaration passively without moving focus away from the diagram. Explicit Open source, issue navigation and definition navigation focus the editor. This distinction prevents the Enter key used to select a diagram relationship from being inserted into the source editor during the same key event.
+
 ## Issue navigation
 
 OpenSysML's pinned ParseSources response supplies diagnostic `span.file` and one-based `span.startLine`. The existing semantic worker normalizes those to optional `file` and `line`. The workbench selects a whole reported line, retaining raw UTF-16 offsets and CRLF/CR/LF boundaries; it does not claim a column or token range that this transport does not carry.

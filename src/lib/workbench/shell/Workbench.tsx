@@ -3,7 +3,7 @@ import {
   WorkbenchPanels,
   IssuesToggle,
 } from './WorkbenchPanels';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createBrowserSession } from './session';
 import { exampleProject, exampleView } from './example';
 import type { Workspace, WorkspaceState } from '$lib/workspace/createWorkspace';
@@ -46,6 +46,7 @@ const initial: WorkspaceState = {
   diagnostics: [],
   diagnosticDocuments: [],
   view: null,
+  exploration: null,
   layoutNotices: [],
 };
 type Mode = 'split' | 'code' | 'diagram';
@@ -84,6 +85,9 @@ export function Workbench({
     modelHash: string;
     symbol: string;
   }>();
+  const [explorationFocus, setExplorationFocus] = useState<
+    'scope' | 'representation'
+  >();
   const [mode, setMode] = useState<Mode>('diagram'),
     [dialog, setDialog] = useState<
       'project' | 'view' | 'part' | 'connection' | 'proposal' | null
@@ -93,6 +97,7 @@ export function Workbench({
       file: string;
       start: number;
       end: number;
+      focus?: boolean;
     }>();
   const recovery = useLocalRecovery({
     state,
@@ -122,25 +127,36 @@ export function Workbench({
     await refreshView(session, entry.activeView ?? undefined);
   }
   const element = state.model?.elements.find((item) => item.id === selected);
+  // Adapt only for shared rendering/selection; workspace state and saved views stay distinct.
+  const displayedView = useMemo(
+    () =>
+      state.view ??
+      (state.exploration ? { ...state.exploration, view: '' } : null),
+    [state.view, state.exploration],
+  );
+  const diagramIdentity = state.exploration
+    ? JSON.stringify(state.exploration.request)
+    : state.view?.view;
   const selectedCorrespondence =
-    symbolSelection?.view === state.view?.view &&
-    symbolSelection?.modelHash === state.view?.modelHash
-      ? state.view?.correspondence.find(
+    symbolSelection?.view === diagramIdentity &&
+    symbolSelection?.modelHash === displayedView?.modelHash
+      ? displayedView?.correspondence.find(
           (item) => item.symbol === symbolSelection?.symbol,
         )
       : undefined;
   const relationshipSelection = diagramRelationshipSelection(
-    state.view,
+    displayedView,
     selectedCorrespondence?.symbol,
+    !!state.exploration,
   );
-  const selectedArtifactNode = state.view?.artifact?.nodes.find(
+  const selectedArtifactNode = displayedView?.artifact?.nodes.find(
     (item) => item.id === selectedCorrespondence?.symbol,
   );
   const usageContext = selectedCorrespondence?.context
     .slice(0, -1)
     .map(
       (origin) =>
-        state.view?.correspondence.find((item) => item.subject.id === origin)
+        displayedView?.correspondence.find((item) => item.subject.id === origin)
           ?.subject.qualifiedName ?? 'Unresolved context',
     );
   const source =
@@ -165,6 +181,11 @@ export function Workbench({
         .model?.elements.filter((item) => item.kind === 'viewUsage') ?? [];
     const target = views.find((item) => item.id === preferred) ?? views[0];
     if (target) await session.openView(target.id);
+    else
+      await session.explore({
+        scope: { kind: 'project' },
+        representation: 'tree',
+      });
   }
   useEffect(() => {
     const { workspace: session, language } = createBrowserSession();
@@ -371,15 +392,15 @@ export function Workbench({
     );
   }
   function selectSymbol(symbol: string) {
-    const correspondence = state.view?.correspondence.find(
+    const correspondence = displayedView?.correspondence.find(
       (item) => item.symbol === symbol,
     );
     setSymbolSelection(undefined);
     setSelected(correspondence?.subject.qualifiedName ?? '');
-    if (correspondence && state.view)
+    if (correspondence && displayedView)
       setSymbolSelection({
-        view: state.view.view,
-        modelHash: state.view.modelHash,
+        view: diagramIdentity ?? '',
+        modelHash: displayedView.modelHash,
         symbol,
       });
     if (correspondence?.subject.qualifiedName) {
@@ -398,6 +419,7 @@ export function Workbench({
         try {
           setFocusRange({
             file: document.name,
+            focus: false,
             start: decoder.decode(bytes.slice(0, origin.offset)).length,
             end: decoder.decode(bytes.slice(0, origin.offset + origin.length))
               .length,
@@ -439,7 +461,7 @@ export function Workbench({
       setFile(focusRange.file);
       setMode('split');
       // Repeat the reveal even when the same file and layout are already open.
-      setFocusRange({ ...focusRange });
+      setFocusRange({ ...focusRange, focus: true });
     } else
       setMessage(
         'Select this element in a diagram to reveal its recorded source range.',
@@ -640,15 +662,24 @@ export function Workbench({
                   busy={state.busy}
                   onOpenView={(id) => void run(() => workspace().openView(id))}
                   layoutMode={mode}
-                  key={(state.view?.view ?? 'none') + ':' + state.revision}
-                  view={state.view}
+                  key={(diagramIdentity ?? 'none') + ':' + state.revision}
+                  view={displayedView}
+                  exploration={state.exploration?.request}
+                  elements={state.model?.elements ?? []}
+                  explorationFocus={explorationFocus}
+                  onExplore={(request, focus) => {
+                    setExplorationFocus(focus);
+                    void run(() => workspace().explore(request));
+                  }}
                   presentation={compatiblePresentation}
                   disabled={state.busy || state.unapplied}
                   onSelect={selectSymbol}
                   onCreatePart={newPart}
                   onConnectPorts={newConnection}
                   onMove={(positions) =>
-                    void run(() => workspace().moveSymbols(positions))
+                    state.exploration
+                      ? undefined
+                      : void run(() => workspace().moveSymbols(positions))
                   }
                 />
               }
@@ -658,7 +689,10 @@ export function Workbench({
                   artifactNode={selectedArtifactNode}
                   relationship={relationshipSelection}
                   sourceAvailable={!!focusRange}
-                  readOnlyDiagram={state.view?.artifact?.kind === 'requirement'}
+                  readOnlyDiagram={
+                    !!state.exploration ||
+                    state.view?.artifact?.kind === 'requirement'
+                  }
                   usageContext={usageContext}
                   disabled={state.busy || state.unapplied}
                   onRename={(name) => void run(() => reviewRename(name))}

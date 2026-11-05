@@ -75,7 +75,9 @@ export function Explorer({
             {view.name}
           </Button>
         ))}
-        {!views.length && <p>Create a view of a model element to begin.</p>}
+        {!views.length && (
+          <p>No named views. Explore the model or create a view.</p>
+        )}
       </section>
       <ModelTree
         key={state.project?.name}

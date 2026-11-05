@@ -1,3 +1,4 @@
+import { noViews, assemblyExploration } from './exploration-support';
 import {
   test,
   expect,
@@ -10,6 +11,7 @@ import {
   fillSource,
   copySourceSelection,
   observeEvaluations,
+  overviewRoutingGeometry,
 } from './support';
 import {
   importRequirementsTraceability,
@@ -619,3 +621,138 @@ for (const theme of ['light', 'dark']) {
     });
   }
 }
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [1440, 768]) {
+    test(`read-only model exploration in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await noViews(page);
+      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      const before = (await downloadProject(page)).bundle;
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      await expect(appearance).not.toBeVisible();
+      await expect(
+        page.getByRole('button', { name: 'Appearance', exact: true }),
+      ).toBeFocused();
+      if (width === 768) {
+        await page
+          .getByRole('button', { name: 'Collapse Explorer', exact: true })
+          .click();
+        await expect(
+          page.getByRole('button', { name: 'Show Explorer', exact: true }),
+        ).toBeFocused();
+      }
+      const scope = page.getByRole('combobox', {
+        name: 'Exploration scope',
+        exact: true,
+      });
+      const representation = page.getByRole('combobox', {
+        name: 'Exploration representation',
+        exact: true,
+      });
+      await scope.focus();
+      await expect(scope).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(representation).toBeFocused();
+      await page.evaluate(() => document.fonts.ready);
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `exploration-overview-${theme}-${width}.png`,
+      );
+      await scope.selectOption('P::System');
+      await expect(scope).toBeEnabled();
+      await representation.selectOption('interconnection');
+      await expect(
+        page.getByRole('group', {
+          name: 'part primary : Q::Motor',
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(representation).toBeEnabled();
+      await scope.focus();
+      await expect(scope).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(representation).toBeFocused();
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `exploration-structure-${theme}-${width}.png`,
+      );
+      expect((await downloadProject(page)).bundle).toEqual(before);
+    });
+  }
+}
+
+for (const theme of ['light', 'dark'])
+  for (const width of [1440, 768]) {
+    test(`assembly exploration routing in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await assemblyExploration(page);
+      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const dialog = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+      await expect(
+        page.getByRole('button', { name: 'Appearance', exact: true }),
+      ).toBeFocused();
+      if (width === 768) {
+        await page
+          .getByRole('button', { name: 'Collapse Explorer', exact: true })
+          .click();
+        await expect(
+          page.getByRole('button', { name: 'Show Explorer', exact: true }),
+        ).toBeFocused();
+      }
+      await page.getByRole('button', { name: 'Fit view', exact: true }).click();
+      await expect
+        .poll(async () => {
+          const g = await overviewRoutingGeometry(page);
+          return { hits: g.hits, count: g.labelCount };
+        })
+        .toEqual({ hits: [], count: 6 });
+      await page.evaluate(() => document.fonts.ready);
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `assembly-exploration-overview-${theme}-${width}.png`,
+      );
+      const scope = page.getByRole('combobox', {
+        name: 'Exploration scope',
+        exact: true,
+      });
+      await scope.selectOption('Assembly::Station');
+      await expect(scope).toBeEnabled();
+      const representation = page.getByRole('combobox', {
+        name: 'Exploration representation',
+        exact: true,
+      });
+      await representation.selectOption('interconnection');
+      await expect(representation).toBeEnabled();
+      await expect(
+        page.getByRole('group', { name: 'part primary : Device', exact: true }),
+      ).toBeVisible();
+      await page.getByRole('button', { name: 'Fit view', exact: true }).click();
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `assembly-exploration-structure-${theme}-${width}.png`,
+      );
+    });
+  }

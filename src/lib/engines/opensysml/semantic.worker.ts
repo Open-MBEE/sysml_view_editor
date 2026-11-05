@@ -62,13 +62,19 @@ self.onmessage = async (event: MessageEvent<unknown>) => {
         line: item.span?.startLine,
       }),
     );
-    if (operation === 'evaluate') {
+    if (operation === 'evaluate' || operation === 'explore') {
       if (parsed.modelHash !== request.modelHash)
         throw new Error('View request no longer matches source.');
-      const value = call<EvaluatedView>('EvaluateView', {
-        modelHash: parsed.modelHash,
-        view: request.view,
-      });
+      const value =
+        operation === 'explore'
+          ? call<unknown>('Explore', {
+              modelHash: parsed.modelHash,
+              request: request.request,
+            })
+          : call<EvaluatedView>('EvaluateView', {
+              modelHash: parsed.modelHash,
+              view: request.view,
+            });
       self.postMessage({ value });
       return;
     }

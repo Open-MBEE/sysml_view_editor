@@ -1,17 +1,22 @@
+import { useDiagramFit } from './useDiagramFit';
+import { layoutExploration, explorationKindLabel } from './exploration';
+import { ExplorationEdge } from './ExplorationEdge';
+import type { ExplorationRequest } from '$lib/workspace/exploration';
+import type { ModelElement } from '$lib/workspace/project';
 import { DiagramControls } from './DiagramControls';
 import { SquarePlus, Cable } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
   Background,
   applyNodeChanges,
   applyEdgeChanges,
-  useReactFlow,
   useNodesInitialized,
   useStore,
   type Node,
   type Edge,
+  type Rect,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import ELK from 'elkjs/lib/elk.bundled.js';
@@ -24,18 +29,21 @@ import { layoutStructure, absolutePositions } from './structure';
 import { StructureNode, SelectDiagramSymbol } from './StructureNode';
 import { RequirementNode } from './RequirementNode';
 import { layoutRequirements } from './requirements';
+const edgeTypes = { exploration: ExplorationEdge };
 const nodeTypes = { structure: StructureNode, requirement: RequirementNode };
 function FitAvailableSpace({
   padding,
   layoutMode,
+  bounds,
 }: {
   padding: number;
   layoutMode: string;
+  bounds?: Rect;
 }) {
   const width = useStore((state) => state.width);
   const height = useStore((state) => state.height);
   const initialized = useNodesInitialized();
-  const { fitView } = useReactFlow();
+  const fit = useDiagramFit(padding, bounds);
   const fitted = useRef(false);
   const previousMode = useRef(layoutMode);
   useEffect(() => {
@@ -57,14 +65,14 @@ function FitAvailableSpace({
     const firstFrame = requestAnimationFrame(() => {
       secondFrame = requestAnimationFrame(() => {
         fitted.current = true;
-        void fitView({ padding, maxZoom: 1 });
+        void fit();
       });
     });
     return () => {
       cancelAnimationFrame(firstFrame);
       cancelAnimationFrame(secondFrame);
     };
-  }, [initialized, width, height, padding, fitView, layoutMode]);
+  }, [initialized, width, height, fit, layoutMode]);
   return null;
 }
 
@@ -74,6 +82,13 @@ import type {
   Point,
 } from '$lib/workspace/views';
 interface Props {
+  exploration?: ExplorationRequest;
+  elements?: readonly ModelElement[];
+  explorationFocus?: 'scope' | 'representation';
+  onExplore?: (
+    request: ExplorationRequest,
+    focus?: 'scope' | 'representation',
+  ) => void;
   view: EvaluatedView | null;
   views: readonly { id: string; name: string }[];
   busy: boolean;
@@ -87,6 +102,10 @@ interface Props {
   layoutMode: 'code' | 'split' | 'diagram';
 }
 export function Diagram({
+  exploration,
+  explorationFocus,
+  elements = [],
+  onExplore,
   view,
   views,
   busy,
@@ -105,6 +124,20 @@ export function Diagram({
     [failure, setFailure] = useState(''),
     [layoutNotice, setLayoutNotice] = useState(''),
     [locked, setLocked] = useState(false);
+  const [sceneBounds, setSceneBounds] = useState<Rect>();
+  const scopeControl = useRef<HTMLSelectElement>(null);
+  const representationControl = useRef<HTMLSelectElement>(null);
+  useLayoutEffect(() => {
+    if (!busy && explorationFocus)
+      (explorationFocus === 'scope'
+        ? scopeControl
+        : representationControl
+      ).current?.focus({ preventScroll: true });
+  }, [busy, explorationFocus]);
+  const explorationSubject =
+    exploration?.scope.kind !== 'project'
+      ? exploration?.scope.subject
+      : undefined;
   const supported =
     view?.status === 'complete' &&
     view.renderStatus === 'available' &&
@@ -112,11 +145,11 @@ export function Diagram({
     ['tree', 'interconnection', 'definition', 'requirement'].includes(
       view.artifact.kind,
     );
-  const fitPadding = ['interconnection', 'requirement'].includes(
-    view?.artifact?.kind ?? '',
-  )
+  const fitPadding = exploration
     ? 0.1
-    : 0.2;
+    : ['interconnection', 'requirement'].includes(view?.artifact?.kind ?? '')
+      ? 0.1
+      : 0.2;
   const [initialPresentation] = useState(presentation);
   useEffect(() => {
     const artifact = view?.artifact;
@@ -139,6 +172,19 @@ export function Diagram({
         'This view has modeled coordinates that this renderer cannot edit.',
       );
       setArranging(false);
+      return;
+    }
+    if (exploration) {
+      try {
+        const result = layoutExploration(artifact);
+        setNodes(result.nodes);
+        setEdges(result.edges);
+        setSceneBounds(result.bounds);
+        setArranging(false);
+      } catch (error) {
+        setFailure(String(error));
+        setArranging(false);
+      }
       return;
     }
     const stored =
@@ -256,7 +302,10 @@ export function Diagram({
   for (const item of views)
     viewNames.set(item.name, (viewNames.get(item.name) ?? 0) + 1);
   return (
-    <section className="diagram-pane" aria-label="Diagram">
+    <section
+      className={`diagram-pane${exploration ? ' diagram-exploration' : ''}`}
+      aria-label="Diagram"
+    >
       <header className="pane-heading">
         <div className="diagram-context">
           <NativeSelect
@@ -264,20 +313,127 @@ export function Diagram({
             aria-label="Named view"
             title={view?.view ?? 'Choose a named view'}
             value={view?.view ?? ''}
-            disabled={busy || !views.length}
-            onChange={(event) => onOpenView(event.target.value)}
+            disabled={busy}
+            onChange={(event) =>
+              event.target.value
+                ? onOpenView(event.target.value)
+                : onExplore?.({
+                    scope: { kind: 'project' },
+                    representation: 'tree',
+                  })
+            }
           >
-            {!view && (
-              <NativeSelectOption value="" disabled>
-                Named view
-              </NativeSelectOption>
-            )}
+            <NativeSelectOption value="">Explore model</NativeSelectOption>
             {views.map((item) => (
               <NativeSelectOption key={item.id} value={item.id}>
                 {viewNames.get(item.name) === 1 ? item.name : item.id}
               </NativeSelectOption>
             ))}
           </NativeSelect>
+          {exploration && (
+            <>
+              <div className="exploration-field exploration-scope-field">
+                <label htmlFor="exploration-scope">Scope</label>
+                <NativeSelect
+                  size="sm"
+                  ref={scopeControl}
+                  id="exploration-scope"
+                  aria-label="Exploration scope"
+                  value={
+                    exploration.scope.kind === 'project'
+                      ? ''
+                      : exploration.scope.subject
+                  }
+                  disabled={busy}
+                  onChange={(event) => {
+                    const subject = event.target.value;
+                    const item = elements.find((item) => item.id === subject);
+                    onExplore?.(
+                      !subject
+                        ? { scope: { kind: 'project' }, representation: 'tree' }
+                        : item?.kind === 'package'
+                          ? {
+                              scope: { kind: 'package', subject },
+                              representation: 'tree',
+                            }
+                          : {
+                              scope: { kind: 'element', subject },
+                              representation: 'tree',
+                            },
+                      'scope',
+                    );
+                  }}
+                >
+                  <NativeSelectOption value="">
+                    Project overview
+                  </NativeSelectOption>
+                  {elements
+                    .filter((item) =>
+                      ['package', 'partDef', 'partUsage'].includes(item.kind),
+                    )
+                    .map((item) => (
+                      <NativeSelectOption key={item.id} value={item.id}>
+                        {item.id} · {explorationKindLabel(item.kind)}
+                      </NativeSelectOption>
+                    ))}
+                </NativeSelect>
+              </div>
+              <div className="exploration-field">
+                <label htmlFor="exploration-representation">
+                  Representation
+                </label>
+                <NativeSelect
+                  size="sm"
+                  ref={representationControl}
+                  id="exploration-representation"
+                  aria-label="Exploration representation"
+                  value={exploration.representation}
+                  disabled={busy}
+                  onChange={(event) =>
+                    onExplore?.(
+                      event.target.value === 'interconnection' &&
+                        exploration.scope.kind === 'element'
+                        ? {
+                            scope: exploration.scope,
+                            representation: 'interconnection',
+                          }
+                        : { ...exploration, representation: 'tree' },
+                      'representation',
+                    )
+                  }
+                >
+                  <NativeSelectOption value="tree">
+                    Ownership overview
+                  </NativeSelectOption>
+                  <NativeSelectOption
+                    value="interconnection"
+                    disabled={exploration.scope.kind !== 'element'}
+                  >
+                    Structure
+                  </NativeSelectOption>
+                </NativeSelect>
+              </div>
+              <div
+                className="exploration-current"
+                role="group"
+                aria-label="Current exploration scope"
+              >
+                <span>
+                  {exploration.scope.kind === 'project'
+                    ? 'Project'
+                    : explorationKindLabel(
+                        elements.find((item) => item.id === explorationSubject)
+                          ?.kind ?? exploration.scope.kind,
+                      )}
+                </span>
+                <strong>
+                  {exploration.scope.kind === 'project'
+                    ? 'Project overview'
+                    : exploration.scope.subject}
+                </strong>
+              </div>
+            </>
+          )}
           <div className="diagram-context-meta">
             {view?.artifact && (
               <span className="diagram-representation">
@@ -286,7 +442,9 @@ export function Diagram({
                   : view.artifact.kind === 'requirement'
                     ? 'Requirements'
                     : view.artifact.kind === 'tree'
-                      ? 'Overview tree'
+                      ? exploration
+                        ? 'Ownership overview'
+                        : 'Overview tree'
                       : 'Named view'}
               </span>
             )}
@@ -294,12 +452,14 @@ export function Diagram({
               {disabled
                 ? 'Applied revision · draft pending'
                 : view
-                  ? 'Applied model'
+                  ? exploration
+                    ? 'Temporary exploration · applied model'
+                    : 'Applied model'
                   : 'Choose a named view'}
             </span>
           </div>
         </div>
-        {view?.artifact?.kind !== 'requirement' && (
+        {!exploration && view?.artifact?.kind !== 'requirement' && (
           <div className="diagram-actions">
             <Button
               variant="ghost"
@@ -354,13 +514,15 @@ export function Diagram({
                 nodes={nodes}
                 edges={edges}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
                 onNodesChange={(changes) => {
                   setNodes((current) => applyNodeChanges(changes, current));
-                  if (view?.artifact?.kind === 'requirement') {
+                  if (view?.artifact?.kind === 'requirement' || exploration) {
                     for (const change of changes)
                       if (change.type === 'select' && change.selected)
                         onSelect(change.id);
                     if (
+                      !exploration &&
                       !disabled &&
                       !locked &&
                       changes.some(
@@ -377,7 +539,7 @@ export function Diagram({
                 }}
                 onEdgesChange={(changes) => {
                   setEdges((current) => applyEdgeChanges(changes, current));
-                  if (view?.artifact?.kind === 'requirement') {
+                  if (view?.artifact?.kind === 'requirement' || exploration) {
                     for (const change of changes)
                       if (change.type === 'select' && change.selected)
                         onSelect(change.id);
@@ -385,16 +547,24 @@ export function Diagram({
                 }}
                 edgesFocusable={!locked}
                 onEdgeClick={(_event, edge) => {
-                  if (view?.artifact?.kind === 'requirement') onSelect(edge.id);
+                  if (view?.artifact?.kind === 'requirement' || exploration)
+                    onSelect(edge.id);
                 }}
                 fitView
                 fitViewOptions={{
-                  padding: view?.artifact?.kind === 'requirement' ? 0.1 : 0.2,
+                  padding:
+                    exploration || view?.artifact?.kind === 'requirement'
+                      ? 0.1
+                      : 0.2,
                   maxZoom: 1,
                 }}
-                minZoom={view?.artifact?.kind === 'requirement' ? 0.1 : 0.5}
+                minZoom={
+                  exploration || view?.artifact?.kind === 'requirement'
+                    ? 0.1
+                    : 0.5
+                }
                 nodesConnectable={false}
-                nodesDraggable={!disabled && !locked}
+                nodesDraggable={!disabled && !locked && !exploration}
                 elementsSelectable={!locked}
                 deleteKeyCode={null}
                 onNodeClick={(_event, node) => onSelect(node.id)}
@@ -412,18 +582,31 @@ export function Diagram({
                 <FitAvailableSpace
                   layoutMode={layoutMode}
                   padding={fitPadding}
+                  bounds={sceneBounds}
                 />
                 <Background />
                 <DiagramControls
                   locked={locked}
                   onLock={setLocked}
                   padding={fitPadding}
+                  bounds={sceneBounds}
                 />
               </ReactFlow>
             </SelectDiagramSymbol.Provider>
           </ReactFlowProvider>
         </div>
       )}
+      {exploration?.scope.kind === 'element' &&
+        exploration.representation === 'interconnection' &&
+        elements.some(
+          (item) => item.id === explorationSubject && item.kind === 'partUsage',
+        ) && (
+          <p className="notices">
+            This usage projection does not automatically expand its type’s
+            internal structure. Select the definition to inspect its declared
+            internals.
+          </p>
+        )}
       {!!view?.artifact?.notices?.length && (
         <p className="notices">{view.artifact.notices.join(' · ')}</p>
       )}

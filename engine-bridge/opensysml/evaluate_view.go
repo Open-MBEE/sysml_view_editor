@@ -85,35 +85,7 @@ func (e *Engine) evaluateView(req *JRenderViewRequest) ([]byte, error) {
 		return marshal(out)
 	}
 	out.Status = "complete"
-	byOrigin := map[string]string{}
-	declarations := map[string]*symbols.Symbol{}
-	cached.Index.Registered(func(fqn string, syms []*symbols.Symbol) {
-		for _, sym := range syms {
-			origin := sym.Origin()
-			if origin.Located() {
-				byOrigin[originKey(origin)] = cached.Index.GetFQN(sym)
-				declarations[originKey(origin)] = sym
-			}
-		}
-	})
-	subject := func(origin symbols.Origin) ViewSubject {
-		id := originKey(origin)
-		ref := ViewSubject{ID: id, QualifiedName: byOrigin[id]}
-		if origin.Located() {
-			ref.Origin = &ViewOrigin{File: origin.Doc, Offset: origin.Span.Offset, Length: origin.Span.Len, NameOffset: origin.Name.Offset, NameLength: origin.Name.Len}
-		}
-		return ref
-	}
-	for _, sym := range selected {
-		ref := subject(sym.Origin())
-		if ref.QualifiedName == "" {
-			ref.QualifiedName = cached.Index.GetFQN(sym)
-		}
-		if ref.ID == "" {
-			ref.ID = "unlocated:" + ref.QualifiedName
-		}
-		out.Selected = append(out.Selected, ref)
-	}
+	out.Selected = cached.selectedSubjects(selected)
 	renderer := view.NewRenderer(typed, cached.resolver, cached.sourceText())
 	rendering, err := renderer.Render(matches[0])
 	if err != nil {
@@ -134,6 +106,31 @@ func (e *Engine) evaluateView(req *JRenderViewRequest) ([]byte, error) {
 		sort.Strings(out.Diagnostics)
 		return marshal(out)
 	}
+	return cached.normalizedRendering(out, selected, rendering)
+}
+
+func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*symbols.Symbol, rendering *view.Rendering) ([]byte, error) {
+	var err error
+	byOrigin := map[string]string{}
+	declarations := map[string]*symbols.Symbol{}
+	cached.Index.Registered(func(fqn string, syms []*symbols.Symbol) {
+		for _, sym := range syms {
+			origin := sym.Origin()
+			if origin.Located() {
+				byOrigin[originKey(origin)] = cached.Index.GetFQN(sym)
+				declarations[originKey(origin)] = sym
+			}
+		}
+	})
+	subject := func(origin symbols.Origin) ViewSubject {
+		id := originKey(origin)
+		ref := ViewSubject{ID: id, QualifiedName: byOrigin[id]}
+		if origin.Located() {
+			ref.Origin = &ViewOrigin{File: origin.Doc, Offset: origin.Span.Offset, Length: origin.Span.Len, NameOffset: origin.Name.Offset, NameLength: origin.Name.Len}
+		}
+		return ref
+	}
+	out.Selected = cached.selectedSubjects(selected)
 	data := rendering.DataFor(view.PortsFull)
 	out.Artifact, err = marshalRenderView(data)
 	if err != nil {
@@ -169,6 +166,33 @@ func (e *Engine) evaluateView(req *JRenderViewRequest) ([]byte, error) {
 		out.Correspondence = append(out.Correspondence, ViewCorrespondence{Symbol: fmt.Sprintf("edge:%d", i), Subject: subject(edge.Origin), Context: []string{}})
 	}
 	return marshal(out)
+}
+
+func (cached *cachedModel) selectedSubjects(selected []*symbols.Symbol) []ViewSubject {
+	byOrigin := map[string]string{}
+	cached.Index.Registered(func(_ string, syms []*symbols.Symbol) {
+		for _, sym := range syms {
+			if sym.Origin().Located() {
+				byOrigin[originKey(sym.Origin())] = cached.Index.GetFQN(sym)
+			}
+		}
+	})
+	out := []ViewSubject{}
+	for _, sym := range selected {
+		origin := sym.Origin()
+		ref := ViewSubject{ID: originKey(origin), QualifiedName: byOrigin[originKey(origin)]}
+		if ref.QualifiedName == "" {
+			ref.QualifiedName = cached.Index.GetFQN(sym)
+		}
+		if origin.Located() {
+			ref.Origin = &ViewOrigin{File: origin.Doc, Offset: origin.Span.Offset, Length: origin.Span.Len, NameOffset: origin.Name.Offset, NameLength: origin.Name.Len}
+		}
+		if ref.ID == "" {
+			ref.ID = "unlocated:" + ref.QualifiedName
+		}
+		out = append(out, ref)
+	}
+	return out
 }
 
 // The pinned renderer leaves structural pins undirected and omits reference

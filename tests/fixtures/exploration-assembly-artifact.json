@@ -1,0 +1,149 @@
+{
+  "view": "",
+  "kind": "tree",
+  "stated": "Read-only exploration",
+  "notices": [],
+  "nodes": [
+    {
+      "id": "n0",
+      "kind": "package",
+      "name": "Assembly",
+      "type": "",
+      "detail": ""
+    },
+    {
+      "id": "n1",
+      "kind": "port def",
+      "name": "Signal",
+      "type": "",
+      "detail": "",
+      "parent": "n0"
+    },
+    {
+      "id": "n2",
+      "kind": "part def",
+      "name": "Device",
+      "type": "",
+      "detail": "",
+      "parent": "n0"
+    },
+    {
+      "id": "n3",
+      "kind": "port",
+      "name": "input",
+      "type": "Signal",
+      "detail": "",
+      "parent": "n2"
+    },
+    {
+      "id": "n4",
+      "kind": "port",
+      "name": "output",
+      "type": "Signal",
+      "detail": "",
+      "parent": "n2"
+    },
+    {
+      "id": "n5",
+      "kind": "port",
+      "name": "service",
+      "type": "Signal",
+      "detail": "",
+      "parent": "n2"
+    },
+    {
+      "id": "n6",
+      "kind": "action def",
+      "name": "Inspect",
+      "type": "",
+      "detail": "",
+      "parent": "n0"
+    },
+    {
+      "id": "n7",
+      "kind": "part def",
+      "name": "Station",
+      "type": "",
+      "detail": "",
+      "parent": "n0"
+    },
+    {
+      "id": "n8",
+      "kind": "part",
+      "name": "bay",
+      "type": "",
+      "detail": "",
+      "parent": "n7"
+    },
+    {
+      "id": "n9",
+      "kind": "part",
+      "name": "primary",
+      "type": "Device",
+      "detail": "",
+      "parent": "n8"
+    },
+    {
+      "id": "n10",
+      "kind": "part",
+      "name": "standby",
+      "type": "Device",
+      "detail": "",
+      "parent": "n8"
+    },
+    {
+      "id": "n11",
+      "kind": "connection",
+      "name": "handoff",
+      "type": "",
+      "detail": "",
+      "parent": "n8"
+    },
+    {
+      "id": "n12",
+      "kind": "part",
+      "name": "monitor",
+      "type": "Device",
+      "detail": "",
+      "parent": "n7"
+    }
+  ],
+  "edges": [
+    {
+      "from": "n2",
+      "to": "n1",
+      "label": "input",
+      "kind": "composition"
+    },
+    {
+      "from": "n2",
+      "to": "n1",
+      "label": "output",
+      "kind": "composition"
+    },
+    {
+      "from": "n2",
+      "to": "n1",
+      "label": "service",
+      "kind": "composition"
+    },
+    {
+      "from": "n7",
+      "to": "n2",
+      "label": "monitor",
+      "kind": "reference"
+    },
+    {
+      "from": "n8",
+      "to": "n2",
+      "label": "primary",
+      "kind": "composition"
+    },
+    {
+      "from": "n8",
+      "to": "n2",
+      "label": "standby",
+      "kind": "composition"
+    }
+  ]
+}

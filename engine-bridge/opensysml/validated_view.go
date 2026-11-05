@@ -69,3 +69,32 @@ func (s *Server) evaluateRelationships(ctx context.Context, params []byte) ([]by
 	}
 	return body, err
 }
+
+func (s *Server) explore(ctx context.Context, params []byte) ([]byte, error) {
+	var req engine.JExploreRequest
+	if err := json.Unmarshal(params, &req); err != nil {
+		return nil, err
+	}
+	body, err := s.core.Call(ctx, "GetDiagnostics", params)
+	if err != nil {
+		return nil, err
+	}
+	var validation struct {
+		Diagnostics []struct {
+			Severity string `json:"severity"`
+		} `json:"diagnostics"`
+	}
+	if err = json.Unmarshal(body, &validation); err != nil {
+		return nil, err
+	}
+	for _, diagnostic := range validation.Diagnostics {
+		if diagnostic.Severity == "error" {
+			return json.Marshal(map[string]any{"schemaVersion": 1, "modelHash": req.ModelHash, "request": req.Request, "status": "invalid", "selected": []any{}, "diagnostics": []string{"Model validation failed; correct source diagnostics before exploring."}, "renderStatus": "unavailable", "correspondence": []any{}})
+		}
+	}
+	body, err = s.engine.Call(ctx, "Explore", params)
+	if err == nil {
+		s.touchRequest(params)
+	}
+	return body, err
+}

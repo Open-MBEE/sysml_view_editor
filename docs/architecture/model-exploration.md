@@ -1,6 +1,20 @@
 # Model exploration and named views
 
-Agreed direction, 2026-11-01. This document describes planned behavior, not an implemented capability. Current diagrams still require named SysML view usages.
+Agreed direction, 2026-11-01; first bounded implementation, 2026-11-05. Project/package overview trees and explicit part-definition/usage tree or structural projections are implemented on `feature/automatic-exploration`. The broader opening policy and follow-ups below remain planned.
+
+## Current bounded slice
+
+Imports without named views open a project overview; imports with named views retain their existing opening behavior. **Explore model** in the named-view selector opens temporary browsing. Separate **Exploration scope** and **Exploration representation** controls select project roots, a package or an explicit part declaration. Project/package scopes support overview trees; explicit part definitions/usages also support structural projection. Typed usages are not automatically unfolded and show that limit explicitly. No automatic system-root inference is claimed.
+
+Ownership overviews now draw nested packages and declarations from the native artifact's parent identities. Relationship endpoints do not determine ownership: for example, `Q` owns `Motor`, while `P::System` owns its `primary` and `standby` usages. Parallel declarations retain independent correspondence and keyboard/source inspection. Generated ownership layouts reserve right-side routing gutters within the nearest shared owner, with separate rectilinear tracks and label rows clear of declaration bodies and headers. Cross-root routes use the gaps between roots or space below intervening roots. Camera fitting includes route and label bounds. This routing depends on the generated vertical ownership layout; it is not a general router for arbitrary manually positioned diagrams.
+
+Exploration uses compact 52 px leaf cards without empty bodies, reduced containment padding and side-by-side leaf siblings in structural scopes. Named-view dimensions and stored geometry are unchanged. Visible Scope/Representation labels and a wrapping full qualified scope caption distinguish Part definition from Part usage, including long names at narrow widths. Selecting a diagram declaration highlights its source range without moving keyboard focus into the editor; explicit Open source still focuses the editor.
+
+`workspace/exploration` owns closed request/result schemas bound to the applied model hash. The semantic worker reparses the complete applied source set and calls the validated combined `Explore` bridge, which uses native `RenderExposed` without adding source. Named views and exploration share artifact/source normalization, but the exploration envelope has no authored `view` field. Source origins, topology, representation and request identity are checked before publication.
+
+`WorkspaceState.exploration` is independent of `view` and portable presentations. Success switches the active diagram without changing project data, dirty state, revision or semantic history. Failure, cancellation and superseded requests retain current work; draft changes invalidate pending work. Graphical movement and semantic authoring are disabled in exploration. Selection can reveal a source declaration, and source-file navigation does not change scope. Opening a named view exits exploration and restores its own saved geometry. Accepted source revisions clear the revision-bound exploration and use the opening fallback on refresh.
+
+Scope, camera and exploration layout are transient and are not saved in portable bundles or local recovery. Reopening falls back to the existing named-view preference or the project overview. Reviewed named-view creation from exploration, browsing-context persistence, automatic root detection and additional representation families remain follow-ups.
 
 Opening is exploration; creating a named view is authorship. Users should be able to inspect an imported project without first changing its source. The [domain glossary](../../CONTEXT.md) distinguishes source files, the project model, scopes, representations, explorations, named views, diagram presentations and cameras.
 
@@ -41,4 +55,4 @@ Follow-up slices are explicit creation of a named view from exploration, storage
 
 ## Engine evidence
 
-The [pinned-engine investigation](../research/automatic-exploration-contract.md) executed the current WASM boundary and native renderer. Declaration-free project/package rendering has a promising underlying seam, but the browser contract still requires named views. A typed system usage did not automatically unfold its definition’s internals. The first delivered exploration must therefore use an overview until structural subject/usage expansion is proven, rather than promise an inferred full-system diagram.
+The [pinned-engine investigation](../research/automatic-exploration-contract.md) executed the current WASM boundary and native renderer. The investigation originally identified a declaration-free project/package seam; the bounded implementation now exposes it through a separate browser contract. A typed system usage did not automatically unfold its definition’s internals. The first delivered exploration must therefore use an overview until structural subject/usage expansion is proven, rather than promise an inferred full-system diagram.

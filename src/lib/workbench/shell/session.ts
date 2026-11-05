@@ -5,11 +5,13 @@ import { createSourceLanguageEngine } from '$lib/engines/toolkit/language';
 /** Composition is the only workbench location that constructs engine adapters. */
 export function createBrowserSession() {
   const toolkitBase = new URL('vendor/sysml-toolkit/', document.baseURI).href;
+  const semantic = createSemanticEngine(
+    new URL('vendor/opensysml/', document.baseURI).href,
+  );
   return {
     workspace: createWorkspace({
-      semantic: createSemanticEngine(
-        new URL('vendor/opensysml/', document.baseURI).href,
-      ),
+      semantic,
+      exploration: semantic,
       transformations: createTransformationEngine(toolkitBase),
     }),
     language: createSourceLanguageEngine(toolkitBase),

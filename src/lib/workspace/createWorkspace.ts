@@ -1,4 +1,11 @@
 import {
+  readExplorationRequest,
+  validateExploration,
+  type ExplorationEngine,
+  type ExplorationRequest,
+  type ExplorationResult,
+} from './exploration';
+import {
   sameSources,
   sourceDigest,
   validateDocuments,
@@ -46,6 +53,7 @@ export interface WorkspaceState {
   readonly diagnostics: readonly Diagnostic[];
   readonly diagnosticDocuments: ProjectBundle['documents'];
   readonly view: EvaluatedView | null;
+  readonly exploration: ExplorationResult | null;
   readonly layoutNotices: readonly LayoutNotice[];
 }
 interface Accepted {
@@ -62,6 +70,7 @@ function immutable<T>(value: T): T {
 export function createWorkspace(dependencies: {
   semantic: SemanticEngine;
   transformations: TransformationEngine;
+  exploration?: ExplorationEngine;
 }) {
   let state: WorkspaceState = immutable({
     project: null,
@@ -75,6 +84,7 @@ export function createWorkspace(dependencies: {
     diagnostics: [],
     diagnosticDocuments: [],
     view: null,
+    exploration: null,
     layoutNotices: [],
   });
   const listeners = new Set<(value: WorkspaceState) => void>();
@@ -162,6 +172,7 @@ export function createWorkspace(dependencies: {
       model: value.model,
       revision: state.revision + 1,
       view: null,
+      exploration: null,
       diagnostics: value.model.diagnostics,
       diagnosticDocuments: value.project.documents,
       layoutNotices,
@@ -496,6 +507,54 @@ export function createWorkspace(dependencies: {
         proposal.layoutNotices,
       );
     },
+    async explore(input: ExplorationRequest) {
+      alive();
+      if (state.busy) throw new Error('Finish the current operation first.');
+      const request = readExplorationRequest(input);
+      const { project, model } = accepted();
+      if (!dependencies.exploration)
+        throw new Error('Model exploration is unavailable.');
+      if (request.scope.kind !== 'project') {
+        const scope = request.scope;
+        const matches = model.elements.filter(
+          (item) => item.id === scope.subject,
+        );
+        if (
+          matches.length !== 1 ||
+          (scope.kind === 'package' && matches[0]!.kind !== 'package')
+        )
+          throw new Error(
+            'Choose one project declaration in the requested scope.',
+          );
+      }
+      const { token, signal } = begin();
+      try {
+        const result = validateExploration(
+          await dependencies.exploration.explore(
+            project.documents,
+            model.modelHash,
+            request,
+            signal,
+          ),
+          model.modelHash,
+          request,
+          project.documents,
+        );
+        current(token);
+        if (
+          result.status !== 'complete' ||
+          result.renderStatus !== 'available' ||
+          !result.artifact
+        )
+          throw new Error(
+            result.diagnostics.join(' ') ||
+              'Exploration is unavailable; the previous diagram was retained.',
+          );
+        publish({ exploration: result, view: null });
+      } finally {
+        finish(token);
+      }
+    },
     async openView(id: string) {
       alive();
       if (state.busy) throw new Error('Finish the current operation first.');
@@ -515,7 +574,10 @@ export function createWorkspace(dependencies: {
           signal,
         );
         current(token);
-        publish({ view: validateEvaluation(result, model.modelHash, id) });
+        publish({
+          view: validateEvaluation(result, model.modelHash, id),
+          exploration: null,
+        });
       } finally {
         finish(token);
       }

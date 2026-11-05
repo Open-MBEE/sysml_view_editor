@@ -3,7 +3,7 @@ import type { Node, Edge } from '@xyflow/react';
 import type { ArtifactNode, Point, ViewArtifact } from '$lib/workspace/views';
 
 export type StructureNode = Node<
-  { item: ArtifactNode; compound: boolean },
+  { item: ArtifactNode; compound: boolean; compact?: boolean },
   'structure'
 >;
 const padding = 32;

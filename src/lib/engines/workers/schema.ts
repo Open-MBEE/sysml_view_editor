@@ -1,4 +1,5 @@
 import Type from 'typebox';
+import { ExplorationRequestSchema } from '$lib/workspace/exploration';
 import { validator } from '$lib/contracts/validation';
 import { SourceDocumentsSchema } from '$lib/workspace/project';
 import { SemanticCommandSchema } from '$lib/workspace/editing';
@@ -9,6 +10,15 @@ const common = {
   },
   closed = { additionalProperties: false };
 export const SemanticRequestSchema = Type.Union([
+  Type.Object(
+    {
+      ...common,
+      operation: Type.Literal('explore'),
+      modelHash: Type.String({ minLength: 1 }),
+      request: ExplorationRequestSchema,
+    },
+    closed,
+  ),
   Type.Object({ ...common, operation: Type.Literal('parse') }, closed),
   Type.Object(
     {

@@ -29,7 +29,7 @@ OpenMBEE View Editor is a sandbox browser workspace for SysML v2 source and name
 
 ## Planned work and research
 
-- [Model exploration](architecture/model-exploration.md): agreed behavior for browsing models without authored views; not implemented.
+- [Model exploration](architecture/model-exploration.md): bounded read-only browsing without authored views and its remaining opening/persistence work.
 - [Exploration engine investigation](research/automatic-exploration-contract.md): pinned renderer/WASM evidence and the next contract boundary.
 - [Flexo MMS integration](research/openmbee-flexo-mms.md): dated source research and unresolved interchange/concurrency gates; not implemented.
 

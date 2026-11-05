@@ -1,4 +1,8 @@
 import {
+  readExplorationResult,
+  type ExplorationResult,
+} from '../../src/lib/workspace/exploration';
+import {
   test as base,
   expect as baseExpect,
   type Locator,
@@ -291,6 +295,41 @@ export async function observeEvaluations(page: Page) {
   return evaluations;
 }
 
+/** Observe actual exploration envelopes; authored view evaluation stays separate. */
+export async function observeExplorations(page: Page) {
+  const results: ExplorationResult[] = [];
+  await page.exposeFunction('__recordExploration', (value: unknown) =>
+    results.push(readExplorationResult(value)),
+  );
+  await page.addInitScript(() => {
+    const host = window as typeof window & {
+      __recordExploration(value: unknown): Promise<void>;
+    };
+    const NativeWorker = window.Worker;
+    window.Worker = class extends NativeWorker {
+      constructor(url: string | URL, options?: WorkerOptions) {
+        super(url, options);
+        this.addEventListener('message', (event: MessageEvent<unknown>) => {
+          const reply = event.data as {
+            value?: {
+              schemaVersion?: unknown;
+              request?: unknown;
+              view?: unknown;
+            };
+          };
+          if (
+            reply?.value?.schemaVersion === 1 &&
+            reply.value.request &&
+            reply.value.view === undefined
+          )
+            void host.__recordExploration(reply.value);
+        });
+      }
+    };
+  });
+  return results;
+}
+
 export function diagramSymbol(page: Page, id: string) {
   return page
     .getByRole('region', { name: 'Diagram', exact: true })
@@ -571,4 +610,130 @@ export async function railEdgeOffset(
   return side === 'left'
     ? button.x - main.x
     : main.x + main.width - button.x - button.width;
+}
+
+/** Renderer-only geometry reads stay here; callers select exact native symbols. */
+export async function explorationNodeBoxes(
+  page: Page,
+  symbols: readonly string[],
+) {
+  return Promise.all(
+    symbols.map(async (symbol) => {
+      const box = await diagramSymbol(page, symbol).boundingBox();
+      if (!box) throw new Error(`Missing exploration symbol ${symbol}`);
+      return box;
+    }),
+  );
+}
+export async function explorationEdgeLabelBoxes(
+  page: Page,
+  symbols: readonly string[],
+) {
+  return Promise.all(
+    symbols.map(async (symbol) => {
+      const label = page
+        .getByRole('region', { name: 'Diagram', exact: true })
+        .locator(
+          `.react-flow__edge[data-id=${JSON.stringify(symbol)}] .react-flow__edge-text`,
+        );
+      const box = await label.boundingBox();
+      if (!box)
+        throw new Error(`Missing exploration relationship label ${symbol}`);
+      return box;
+    }),
+  );
+}
+export async function explorationScopeFits(page: Page) {
+  return page
+    .getByRole('group', { name: 'Current exploration scope', exact: true })
+    .evaluate((element) => {
+      const bounds = element.getBoundingClientRect();
+      const strong = element.querySelector('strong')!;
+      const text = strong.getBoundingClientRect();
+      return (
+        strong.scrollWidth <= strong.clientWidth &&
+        text.left >= bounds.left - 1 &&
+        text.right <= bounds.right + 1
+      );
+    });
+}
+
+/** Check actual SVG routes against declaration cards/headers in screen coordinates. */
+export async function overviewRoutingGeometry(page: Page) {
+  return page
+    .getByRole('region', { name: 'Diagram', exact: true })
+    .evaluate((region) => {
+      const cards = [
+        ...region.querySelectorAll<HTMLElement>('.react-flow__node'),
+      ].map((node) => {
+        const element = node.classList.contains('structure-compound')
+          ? node.querySelector('.structure-heading')!
+          : node;
+        return { id: node.dataset.id!, rect: element.getBoundingClientRect() };
+      });
+      const viewport = region
+        .querySelector('.react-flow')!
+        .getBoundingClientRect();
+      const hits: string[] = [],
+        labels: DOMRect[] = [];
+      let samples = 0;
+      for (const edge of region.querySelectorAll<SVGGElement>(
+        '.react-flow__edge',
+      )) {
+        const path = edge.querySelector<SVGPathElement>(
+          '.react-flow__edge-path',
+        )!;
+        const length = path.getTotalLength(),
+          matrix = path.getScreenCTM()!;
+        for (let distance = 0; distance <= length; distance += 3) {
+          const raw = path.getPointAtLength(distance),
+            point = new DOMPoint(raw.x, raw.y).matrixTransform(matrix);
+          samples++;
+          for (const card of cards) {
+            const r = card.rect;
+            if (
+              point.x > r.left + 1 &&
+              point.x < r.right - 1 &&
+              point.y > r.top + 1 &&
+              point.y < r.bottom - 1
+            ) {
+              hits.push(`${edge.dataset.id} crosses ${card.id}`);
+              break;
+            }
+          }
+        }
+        const label = edge
+          .querySelector('.react-flow__edge-textbg')
+          ?.getBoundingClientRect();
+        if (!label) {
+          hits.push(`${edge.dataset.id} missing label`);
+          continue;
+        }
+        for (const { id, rect: r } of cards)
+          if (
+            label.left < r.right &&
+            label.right > r.left &&
+            label.top < r.bottom &&
+            label.bottom > r.top
+          )
+            hits.push(`${edge.dataset.id} label covers ${id}`);
+        for (const r of labels)
+          if (
+            label.left < r.right &&
+            label.right > r.left &&
+            label.top < r.bottom &&
+            label.bottom > r.top
+          )
+            hits.push(`${edge.dataset.id} labels overlap`);
+        if (
+          label.left < viewport.left ||
+          label.right > viewport.right ||
+          label.top < viewport.top ||
+          label.bottom > viewport.bottom
+        )
+          hits.push(`${edge.dataset.id} label outside viewport`);
+        labels.push(label);
+      }
+      return { hits: [...new Set(hits)], labelCount: labels.length, samples };
+    });
 }
