@@ -264,7 +264,7 @@
         {
           "id": "CapacityViews::requirements",
           "engineKind": "requirement",
-          "app": "unavailable",
+          "app": "partial",
           "nodeNames": [
             "CapacityRequirements::MinimumCapacity",
             "CapacityRequirements::usableCapacity",
@@ -277,7 +277,124 @@
             "Treat the declared constraint as model content, without claiming an execution result."
           ],
           "gaps": [
-            "The engine emits a requirement graph; the application has no requirement renderer."
+            "Requirement identifiers, documentation and relationships are shown; formal constraint and subject-parameter compartments are not drawn."
+          ],
+          "notices": []
+        }
+      ]
+    },
+    {
+      "id": "requirements-traceability",
+      "title": "Requirement hierarchy and satisfaction",
+      "topics": [
+        "requirements",
+        "hierarchy",
+        "typing",
+        "satisfaction",
+        "negation",
+        "aliases",
+        "multiple-files",
+        "repeated-names"
+      ],
+      "files": ["system.sysml", "requirements.sysml", "views.sysml"],
+      "views": [
+        {
+          "id": "TraceViews::requirements",
+          "engineKind": "requirement",
+          "app": "partial",
+          "nodeNames": [
+            "TraceRequirements::MinimumCapacity",
+            "TraceRequirements::leftSpecification",
+            "TraceRequirements::rightSpecification",
+            "TraceRequirements::unlinkedCapacity",
+            "TraceRequirements::excludedCapacity",
+            "TraceRequirements::leftSpecification::leftCapacity",
+            "TraceRequirements::rightSpecification::rightCapacity",
+            "TraceSystem::spare",
+            "TraceSystem::LeftPlant::tank",
+            "TraceSystem::RightPlant::tank"
+          ],
+          "edgeKinds": [
+            "typing",
+            "typing",
+            "typing",
+            "composition",
+            "typing",
+            "composition",
+            "satisfy",
+            "satisfy",
+            "satisfy"
+          ],
+          "targets": [
+            "Distinguish requirement identifiers, documentation, usage typing and direct ownership.",
+            "Keep the two capacity usages and same-name tank satisfiers separately traceable.",
+            "Render asserted negative satisfaction distinctly; a subject binding alone is not satisfaction.",
+            "Label satisfying parts as engine-supplied related context without claiming executed verification."
+          ],
+          "gaps": [
+            "Requirement identifiers, documentation and relationships are shown; formal constraint and subject-parameter compartments are not drawn."
+          ],
+          "notices": []
+        },
+        {
+          "id": "TraceViews::overview",
+          "engineKind": "tree",
+          "app": "partial",
+          "nodeNames": [
+            "TraceRequirements",
+            "MinimumCapacity",
+            "tank",
+            "",
+            "leftSpecification",
+            "installation",
+            "leftCapacity",
+            "tank",
+            "rightSpecification",
+            "installation",
+            "rightCapacity",
+            "tank",
+            "unlinkedCapacity",
+            "tank",
+            "excludedCapacity",
+            "tank",
+            "",
+            "",
+            "",
+            "TraceSystem",
+            "Tank",
+            "capacity",
+            "LeftPlant",
+            "tank",
+            "capacity",
+            "RightPlant",
+            "tank",
+            "capacity",
+            "spare",
+            "capacity"
+          ],
+          "edgeKinds": [
+            "typing",
+            "typing",
+            "typing",
+            "typing",
+            "typing",
+            "typing",
+            "typing",
+            "specialization",
+            "specialization",
+            "specialization",
+            "composition",
+            "specialization",
+            "composition",
+            "specialization",
+            "specialization"
+          ],
+          "targets": [
+            "Retain the same source model as an independent generic overview.",
+            "Keep requirement-view and overview positions separate through save and reopen."
+          ],
+          "gaps": [
+            "This GeneralView produces a generic flat tree rather than dedicated requirement notation."
           ],
           "notices": []
         }

@@ -49,6 +49,10 @@ export function reconcileView(input: {
     !newView.artifact
   )
     throw new Error('View evaluation or rendering is unavailable.');
+  if (oldView.artifact.kind !== newView.artifact.kind)
+    throw new Error(
+      'View representation changed; saved positions require fresh layout.',
+    );
   const origins = new Map(
     oldView.correspondence.map((item) => [
       item.subject.id,

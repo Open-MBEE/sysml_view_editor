@@ -1,14 +1,18 @@
 # Next steps
 
-Updated 2026-11-01. This is the forward plan; [capabilities](capabilities.md) describes shipped behavior and [verification](verification.md) records actual checks. No delivery dates are assigned.
+Updated 2026-11-04. This is the forward plan; [capabilities](capabilities.md) describes shipped behavior and [verification](verification.md) records actual checks. No delivery dates are assigned.
 
 ## Current position
 
 The editor supports reviewed rename/view/part/connection commands, bounded layout preservation, CodeMirror source editing and draft language queries, issue navigation, resizable panels and explicit browser recovery. The OpenMBEE landing → launcher → workbench flow is implemented. Opening the app does not load an example implicitly. Current diagrams require authored named views.
 
-## 1. Read-only automatic exploration
+## 1. Requirements and satisfaction diagrams
 
-Next feature priority: inspect an imported model without adding view declarations. Use a project/package overview when a system subject is ambiguous; offer structural exploration only where the engine demonstrates the intended definition or usage expansion.
+The active feature branch `feature/requirements-traceability` implements a bounded [native requirements renderer](architecture/requirements-views.md), with identifiers/documentation, typing/ownership, declared satisfaction polarity, source reveal and presentation preservation. The capacity and traceability fixtures establish this subset; the compressor requirements view remains a generic tree. Complete review and validation before integrating. Declared satisfaction is not a test result. Verification coverage and graphical relationship authoring remain separate follow-ups.
+
+## 2. Read-only automatic exploration
+
+Separate planned track: inspect an imported model without adding view declarations. Use a project/package overview when a system subject is ambiguous; offer structural exploration only where the engine demonstrates the intended definition or usage expansion.
 
 The [engine investigation](research/automatic-exploration-contract.md) is complete for its bounded probes: native `RenderExposed` is promising, but the browser worker currently exposes only named-view evaluation. The tested typed usage did not unfold its definition's internals. Implement and validate that contract before promising a consolidated system diagram.
 
@@ -22,13 +26,13 @@ Acceptance is owned by the [exploration plan](architecture/model-exploration.md)
 
 Then add reviewed named-view creation from an exploration and define browsing-context persistence. Portable bundles and recovery do not currently store exploration scope/representation; any format change needs schema/version and compatibility fixtures.
 
-## 2. Local folder workflow
+## 3. Local folder workflow
 
 Start with explicit import semantics: membership, exclusions, source limits, permission cancellation and unsupported-browser fallback. Existing Open imports copies and Download exports a bundle.
 
 Direct file saving is a separate gate: identify written files, validate permission, detect external changes and retain local work on failed or ambiguous writes. Do not label imported copies as folder-backed editing. See [shell capability gates](architecture/application-shell.md#future-opening-workflows).
 
-## 3. Flexo checkout, then reviewed publication
+## 4. Flexo checkout, then reviewed publication
 
 Follow the [integration research](research/openmbee-flexo-mms.md): prove unchanged interchange and foreign element identity preservation on a pinned deployment, then read an immutable commit selected through project/branch. Identify generated authoring text explicitly.
 

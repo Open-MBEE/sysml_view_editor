@@ -16,15 +16,16 @@ OpenMBEE View Editor is a sandbox browser workspace for SysML v2 source and name
 
 ## Implementation contracts
 
-| Guide                                                                       | Purpose                                                        |
-| --------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| [Application shell](architecture/application-shell.md)                      | Landing, launcher, navigation and session preservation         |
-| [Workbench layout](architecture/workbench-layout.md)                        | Panels, toolbar alignment, model tree and editor lifetime      |
-| [Source editing and recovery](architecture/source-assistance-recovery.md)   | Draft queries, issue navigation and browser recovery           |
-| [Structural views](architecture/structural-views.md)                        | Hierarchy, ports, connections and geometry projection          |
-| [Graphical authoring](architecture/graphical-authoring.md)                  | Reviewed semantic commands and supported endpoint rules        |
-| [Identity and layout preservation](architecture/identity-reconciliation.md) | Identity domains, verified edits and conservative invalidation |
-| [Project format](architecture/project-format.md)                            | Portable version-1 data and compatibility rules                |
+| Guide                                                                       | Purpose                                                                                  |
+| --------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [Application shell](architecture/application-shell.md)                      | Landing, launcher, navigation and session preservation                                   |
+| [Workbench layout](architecture/workbench-layout.md)                        | Panels, toolbar alignment, model tree and editor lifetime                                |
+| [Source editing and recovery](architecture/source-assistance-recovery.md)   | Draft queries, issue navigation and browser recovery                                     |
+| [Structural views](architecture/structural-views.md)                        | Hierarchy, ports, connections and geometry projection                                    |
+| [Requirements and satisfaction](architecture/requirements-views.md)         | Native graphs, identifiers/docs, relationship polarity, source reveal and bounded limits |
+| [Graphical authoring](architecture/graphical-authoring.md)                  | Reviewed semantic commands and supported endpoint rules                                  |
+| [Identity and layout preservation](architecture/identity-reconciliation.md) | Identity domains, verified edits and conservative invalidation                           |
+| [Project format](architecture/project-format.md)                            | Portable version-1 data and compatibility rules                                          |
 
 ## Planned work and research
 
