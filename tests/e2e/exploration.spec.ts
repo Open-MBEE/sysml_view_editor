@@ -2,6 +2,7 @@ import {
   test,
   expect,
   openWorkshop,
+  ready,
   downloadProject,
   observeExplorations,
   diagramSymbol,
@@ -328,4 +329,64 @@ test('shows the entire qualified scope and its definition/usage kind at narrow w
   await expect(caption).toContainText(prefix + '::installedDrive');
   await expect(caption).toContainText('Part usage');
   await expect.poll(() => explorationScopeFits(page)).toBe(true);
+});
+
+test('retries an initial exploration asset failure without reopening or changing source', async ({
+  page,
+}) => {
+  await ready(page);
+  let requests = 0;
+  const asset = '**/vendor/opensysml/sysml-wasm.wasm';
+  await page.route(asset, async (route) => {
+    requests++;
+    if (requests === 2)
+      await route.fulfill({
+        status: 503,
+        body: 'Controlled initial exploration failure',
+      });
+    else await route.continue();
+  });
+  await page.locator('input[type=file]').setInputFiles(
+    documents.map((file) => ({
+      name: file.name,
+      mimeType: 'text/plain',
+      buffer: Buffer.from(file.text),
+    })),
+  );
+  await expect(
+    page.getByText('OpenSysML browser assets are unavailable.', {
+      exact: true,
+    }),
+  ).toBeVisible();
+  expect(requests).toBe(2);
+  const before = (await downloadProject(page)).bundle;
+  expect(before.documents).toEqual(documents);
+  await expect(
+    page.getByRole('combobox', { name: 'Exploration scope', exact: true }),
+  ).not.toBeVisible();
+  const retry = page.getByRole('button', {
+    name: 'Explore model',
+    exact: true,
+  });
+  await expect(retry).toBeEnabled({ timeout: 3000 });
+  await page.unroute(asset);
+  await retry.focus();
+  await retry.press('Enter');
+  await expect(
+    page.getByRole('combobox', { name: 'Exploration scope', exact: true }),
+  ).toBeEnabled();
+  await expect(
+    page.getByRole('group', { name: 'part def System', exact: true }),
+  ).toBeVisible();
+  await expect(retry).not.toBeVisible();
+  await expect(
+    page.getByRole('combobox', { name: 'Exploration scope', exact: true }),
+  ).toBeFocused();
+  await expect(
+    page.getByRole('button', { name: 'Apply source', exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole('button', { name: 'Undo source', exact: true }),
+  ).toBeDisabled();
+  expect((await downloadProject(page)).bundle).toEqual(before);
 });

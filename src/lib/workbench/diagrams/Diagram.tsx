@@ -484,9 +484,22 @@ export function Diagram({
         <div className="empty">
           <h2>One model. Focused views.</h2>
           <p>
-            Open a named view from the sidebar, or select a model element and
-            create one.
+            Explore the applied model, open a named view from the sidebar, or
+            select a model element and create one.
           </p>
+          {onExplore && (
+            <Button
+              disabled={busy}
+              onClick={() =>
+                onExplore(
+                  { scope: { kind: 'project' }, representation: 'tree' },
+                  'scope',
+                )
+              }
+            >
+              Explore model
+            </Button>
+          )}
         </div>
       ) : failure ? (
         <div className="empty" role="alert">

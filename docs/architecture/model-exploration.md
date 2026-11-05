@@ -14,6 +14,8 @@ Exploration uses compact 52 px leaf cards without empty bodies, reduced containm
 
 `WorkspaceState.exploration` is independent of `view` and portable presentations. Success switches the active diagram without changing project data, dirty state, revision or semantic history. Failure, cancellation and superseded requests retain current work; draft changes invalidate pending work. Graphical movement and semantic authoring are disabled in exploration. Selection can reveal a source declaration, and source-file navigation does not change scope. Opening a named view exits exploration and restores its own saved geometry. Accepted source revisions clear the revision-bound exploration and use the opening fallback on refresh.
 
+Before an exploration succeeds, the empty diagram offers an explicit **Explore model** action. It retries the applied project overview independently of the already-selected navigation option, stays disabled while busy and focuses Scope on success. This preserves recovery from an initial engine failure without reopening or changing source.
+
 Scope, camera and exploration layout are transient and are not saved in portable bundles or local recovery. Reopening falls back to the existing named-view preference or the project overview. Reviewed named-view creation from exploration, browsing-context persistence, automatic root detection and additional representation families remain follow-ups.
 
 Opening is exploration; creating a named view is authorship. Users should be able to inspect an imported project without first changing its source. The [domain glossary](../../CONTEXT.md) distinguishes source files, the project model, scopes, representations, explorations, named views, diagram presentations and cameras.

@@ -1,5 +1,19 @@
 # Verification record
 
+## Initial exploration failure recovery
+
+Recorded 2026-11-05 for PR #11. The Codex review correctly identified that a no-view project's initial exploration failure left the only selector option already selected, with no change event available to retry. The empty diagram now exposes **Explore model**, disabled while busy, using the existing read-only command and focusing Scope after success.
+
+The focused regression lets the pinned parse worker succeed and fails only the following exploration WASM request. Before the fix it failed because the retry button did not exist (`sandbox/exploration-retry-red.log`). After the fix both initial and later asset-failure cases passed: `npm run test:e2e -- --project=functional exploration.spec.ts --grep 'retries an initial|asset failure preserves' --output=sandbox/playwright/exploration-retry-green` (two passed, 15.1 seconds). It verifies the exact portable bundle, applied source, disabled source undo/apply controls and successful native diagram after keyboard retry. The final initial-failure case also asserts Scope focus.
+
+`npm run check` passed 151 Vitest tests and ten Node checks, formatting, architecture and TypeScript (`sandbox/exploration-retry-check.log`). A first attempt stopped at test formatting; the corrected run passed. Fresh production builds passed through the browser runs. The combined targeted functional/visual baseline generation passed five cases in 27.6 seconds (`sandbox/exploration-retry-review.log`). All four new retry-state captures were inspected at desktop/narrow sizes in light/dark; existing baselines were not updated.
+
+The first normal visual comparison exposed a delayed sidebar tooltip at narrow width. Dismissing it with Escape also restores its trigger's focus, so the capture now dismisses the tooltip, explicitly focuses the retry button afterward and asserts that focus before capture. Intermediate comparisons recorded these test-setup differences under `sandbox/playwright/exploration-retry-visual-final`, `exploration-retry-visual-confirmed` and `exploration-retry-visual-final-normal`; existing visual assertions were not weakened. Final captures intentionally include the retry button's keyboard focus ring.
+
+Final baseline generation passed four cases in 22.7 seconds (`sandbox/exploration-retry-focus-final-review.log`). The final normal comparison `npm run test:e2e -- --project=visual --grep 'initial exploration retry' --output=sandbox/playwright/exploration-retry-confirmed` passed all four in 21.6 seconds without updates, retries or skips. Final captures were inspected.
+
+Full browser suites, hosted CI and comprehensive accessibility were not established by these local runs. No dependencies, engine pins or saved formats changed.
+
 ## Assembly overview routing
 
 Recorded 2026-11-05 on `feature/automatic-exploration`, using Node 26.3.1 and the existing pinned browser engine. Ownership layouts reserve shared-owner gutters and separate rectilinear tracks/label rows. Fit includes route and label bounds. Structural layouts, semantic endpoints, native correspondence and portable data remain unchanged.

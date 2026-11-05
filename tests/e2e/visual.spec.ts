@@ -1,4 +1,4 @@
-import { noViews, assemblyExploration } from './exploration-support';
+import { noViews, assemblyExploration, documents } from './exploration-support';
 import {
   test,
   expect,
@@ -753,6 +753,71 @@ for (const theme of ['light', 'dark'])
       await page.mouse.move(0, 0);
       await expect(page).toHaveScreenshot(
         `assembly-exploration-structure-${theme}-${width}.png`,
+      );
+    });
+  }
+
+for (const theme of ['light', 'dark'])
+  for (const width of [1440, 768]) {
+    test(`initial exploration retry in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await ready(page, { split: false });
+      let requests = 0;
+      await page.route('**/vendor/opensysml/sysml-wasm.wasm', async (route) => {
+        requests++;
+        if (requests === 2)
+          await route.fulfill({
+            status: 503,
+            body: 'Controlled initial exploration failure',
+          });
+        else await route.continue();
+      });
+      await page.locator('input[type=file]').setInputFiles(
+        documents.map((file) => ({
+          name: file.name,
+          mimeType: 'text/plain',
+          buffer: Buffer.from(file.text),
+        })),
+      );
+      await expect(
+        page.getByText('OpenSysML browser assets are unavailable.', {
+          exact: true,
+        }),
+      ).toBeVisible();
+      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const dialog = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+      await expect(
+        page.getByRole('button', { name: 'Appearance', exact: true }),
+      ).toBeFocused();
+      if (width === 768)
+        await page
+          .getByRole('button', { name: 'Collapse Explorer', exact: true })
+          .click();
+      await page
+        .getByRole('button', { name: 'Explore model', exact: true })
+        .focus();
+      await page.evaluate(() => document.fonts.ready);
+      await page.mouse.move(0, 0);
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('tooltip')).not.toBeVisible();
+      const retry = page.getByRole('button', {
+        name: 'Explore model',
+        exact: true,
+      });
+      await retry.focus();
+      await expect(retry).toBeFocused();
+      await expect(page).toHaveScreenshot(
+        `initial-exploration-retry-${theme}-${width}.png`,
       );
     });
   }

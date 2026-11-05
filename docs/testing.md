@@ -106,3 +106,5 @@ Inspect each generated image and available diff before retaining it. Keep expect
 For a critical regression, demonstrate that the assertion detects a deliberate, bounded fault, restore the original behavior, and rerun. Keep fault experiments isolated from unrelated user edits. Report the injected fault, expected failure and restored passing result without claiming broader coverage.
 
 `overview-routing.spec.ts` checks the assembly overview against a retained native-worker artifact, samples actual SVG routes against card bodies/headers, checks six label rectangles, reveals every exact declaration by keyboard and preserves the portable bundle. Four assembly visual scenarios cover overview and structure at desktop/narrow widths in light/dark. Renderer geometry reads stay in `support.ts`.
+
+The initial-exploration failure regression lets the actual parse worker load, fails the following exploration WASM request, then retries with the asset restored. It checks unchanged source/presentations/history and keyboard focus on Scope. Four visual cases retain the retry state at desktop/narrow widths in both themes.
