@@ -531,11 +531,49 @@ export async function diagramState(page: Page) {
 
 export async function dragNode(page: Page, node: Locator) {
   await node.scrollIntoViewIfNeeded();
-  const box = await node.boundingBox();
-  expect(box).not.toBeNull();
-  // Stay inside a fitted card's header, including small action/state nodes.
-  const x = box!.x + Math.min(30, box!.width / 3);
-  const y = box!.y + Math.min(25, box!.height / 3);
+  // Mode changes fit the camera after ResizeObserver and animation frames.
+  // Wait for observable heading/viewport geometry, then perform one gesture.
+  const { x, y } = await node.evaluate(
+    (element) =>
+      new Promise<{ x: number; y: number }>((resolve, reject) => {
+        let previous = '',
+          stable = 0;
+        const timer = setTimeout(
+          () => reject(new Error('Diagram drag geometry did not settle.')),
+          5000,
+        );
+        const sample = () => {
+          const heading =
+            element.querySelector('.structure-heading, .requirement-heading') ??
+            element;
+          const box = heading.getBoundingClientRect();
+          const viewport = element.closest('.react-flow__viewport');
+          const key = JSON.stringify([
+            box.x,
+            box.y,
+            box.width,
+            box.height,
+            viewport && getComputedStyle(viewport).transform,
+          ]);
+          stable = key === previous ? stable + 1 : 0;
+          previous = key;
+          const x = box.x + Math.min(30, box.width / 3),
+            y = box.y + box.height / 2;
+          const hit = document.elementFromPoint(x, y);
+          if (
+            stable >= 3 &&
+            box.width > 0 &&
+            box.height > 0 &&
+            hit &&
+            element.contains(hit)
+          ) {
+            clearTimeout(timer);
+            resolve({ x, y });
+          } else requestAnimationFrame(sample);
+        };
+        requestAnimationFrame(sample);
+      }),
+  );
   await page.mouse.move(x, y);
   await page.mouse.down();
   await page.mouse.move(x + 80, y + 55, { steps: 8 });

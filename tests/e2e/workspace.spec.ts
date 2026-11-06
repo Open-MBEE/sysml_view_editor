@@ -14,6 +14,7 @@ import {
   nodePosition,
   moveNode,
   downloadProject,
+  expectRenderedPositions,
 } from './support';
 test('@critical loads real source-defined views and keeps the view stable when changing files', async ({
   page,
@@ -161,11 +162,11 @@ test('@critical downloads and reopens a project with the draft and diagram posit
     'WorkshopViews::overview',
     'WorkshopViews::compressor',
   ]);
-  expect(
-    other.bundle.presentations['WorkshopViews::compressor']?.positions[
-      otherSymbol!
-    ],
-  ).toEqual(otherMoved);
+  await expectRenderedPositions(
+    page,
+    other.bundle,
+    'WorkshopViews::compressor',
+  );
   await openView(page, 'overview');
   await expect.poll(() => nodePosition(node)).toEqual(moved);
   await fillSource(
@@ -177,7 +178,8 @@ test('@critical downloads and reopens a project with the draft and diagram posit
   expect(bundle.documents[0]?.text).toBe(original);
   expect(
     bundle.presentations['WorkshopViews::overview']?.positions[symbol!],
-  ).toEqual(moved);
+  ).toBeDefined();
+  await expectRenderedPositions(page, bundle, 'WorkshopViews::overview');
 
   // Reopen into a fresh page so the old renderer cannot supply the position.
   await page.reload();

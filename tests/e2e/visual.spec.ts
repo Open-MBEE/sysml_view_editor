@@ -746,7 +746,7 @@ for (const theme of ['light', 'dark'])
           const g = await overviewRoutingGeometry(page);
           return { hits: g.hits, count: g.labelCount };
         })
-        .toEqual({ hits: [], count: 6 });
+        .toEqual({ hits: [], count: 13 });
       await page.evaluate(() => document.fonts.ready);
       await page.mouse.move(0, 0);
       await expect(page).toHaveScreenshot(
@@ -953,3 +953,44 @@ for (const theme of ['light', 'dark'])
       }
     });
   }
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [1440, 768]) {
+    for (const representation of [
+      'Requirements table',
+      'Traceability matrix',
+    ]) {
+      test(`${representation} ${theme} ${width}`, async ({ page }) => {
+        await ready(page);
+        await importRequirementsTraceability(page);
+        await expect(
+          page.getByRole('button', { name: 'Download project', exact: true }),
+        ).toBeEnabled();
+        await page
+          .getByRole('button', { name: 'Appearance', exact: true })
+          .click();
+        const dialog = page.getByRole('dialog', {
+          name: 'Appearance',
+          exact: true,
+        });
+        await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+        await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+        await page.setViewportSize({ width, height: 900 });
+        await page
+          .getByRole('button', { name: representation, exact: true })
+          .click();
+        const panel = page.getByRole('region', {
+          name: representation,
+          exact: true,
+        });
+        await expect(panel.getByRole('table')).toBeVisible();
+        await expect(
+          panel.getByRole('button', { name: 'Export CSV', exact: true }),
+        ).toBeEnabled();
+        await expect(page).toHaveScreenshot(
+          `${representation === 'Requirements table' ? 'requirements-table' : 'traceability-matrix'}-${theme}-${width}.png`,
+        );
+      });
+    }
+  }
+}

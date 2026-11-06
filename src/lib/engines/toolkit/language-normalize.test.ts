@@ -147,3 +147,53 @@ describe('language normalization', () => {
     ).toThrow();
   });
 });
+
+describe('references and formatting', () => {
+  it('keeps project reference ranges exact and reports omitted library targets', () => {
+    const range = {
+      start: { line: 1, character: 15 },
+      end: { line: 1, character: 20 },
+    };
+    expect(
+      normalizeLanguage(sources, { ...query, kind: 'references' }, [
+        { uri: sourceURI(sources[0]!.name), range },
+        { uri: 'sysmlv2-lib:/library.sysml', range },
+      ]),
+    ).toEqual({
+      kind: 'references',
+      targets: [
+        {
+          file: sources[0]!.name,
+          line: 2,
+          from: sources[0]!.text.indexOf('Motor'),
+          to: sources[0]!.text.indexOf('Motor') + 5,
+        },
+      ],
+      omitted: 1,
+    });
+  });
+  it('applies nonoverlapping formatting edits while preserving CRLF and rejects overlaps', () => {
+    const files = [{ name: 'a.sysml', text: 'package P {\r\npart p;\r\n}' }];
+    const range = {
+      start: { line: 1, character: 0 },
+      end: { line: 1, character: 7 },
+    };
+    expect(
+      normalizeLanguage(
+        files,
+        { kind: 'formatting', file: 'a.sysml', offset: 0 },
+        [{ range, newText: '    part p;' }],
+      ),
+    ).toEqual({ kind: 'formatting', text: 'package P {\r\n    part p;\r\n}' });
+    expect(() =>
+      normalizeLanguage(
+        files,
+        { kind: 'formatting', file: 'a.sysml', offset: 0 },
+        [
+          { range, newText: 'x' },
+          { range, newText: 'y' },
+        ],
+      ),
+    ).toThrow('Overlapping');
+  });
+});

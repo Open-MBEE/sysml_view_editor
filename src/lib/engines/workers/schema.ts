@@ -13,6 +13,14 @@ export const SemanticRequestSchema = Type.Union([
   Type.Object(
     {
       ...common,
+      operation: Type.Literal('requirements'),
+      modelHash: Type.String({ minLength: 1 }),
+    },
+    closed,
+  ),
+  Type.Object(
+    {
+      ...common,
       operation: Type.Literal('explore'),
       modelHash: Type.String({ minLength: 1 }),
       request: ExplorationRequestSchema,

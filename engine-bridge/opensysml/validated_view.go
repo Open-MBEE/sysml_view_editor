@@ -60,7 +60,7 @@ func (s *Server) evaluateRelationships(ctx context.Context, params []byte) ([]by
 	}
 	for _, diagnostic := range validation.Diagnostics {
 		if diagnostic.Severity == "error" {
-			return json.Marshal(map[string]any{"schemaVersion": 1, "modelHash": req.ModelHash, "status": "invalid", "relationships": []any{}, "diagnostics": []string{"Model validation failed; relationship endpoints are unavailable."}})
+			return json.Marshal(map[string]any{"schemaVersion": 1, "modelHash": req.ModelHash, "status": "invalid", "relationships": []any{}, "requirements": []any{}, "diagnostics": []string{"Model validation failed; relationship endpoints are unavailable."}})
 		}
 	}
 	body, err = s.engine.Call(ctx, "EvaluateRelationships", params)

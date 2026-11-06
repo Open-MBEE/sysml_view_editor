@@ -122,6 +122,30 @@ func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*sy
 			}
 		}
 	})
+	// The semantic index also owns anonymous members (including synthesized
+	// satisfy subjects). Inspect their AST kind, never their rendered text.
+	seenDeclarations := map[*symbols.Symbol]bool{}
+	var visitDeclaration func(*symbols.Symbol)
+	visitDeclaration = func(sym *symbols.Symbol) {
+		if sym == nil || seenDeclarations[sym] || cached.Index.IsLibraryDocument(sym.DocName) {
+			return
+		}
+		seenDeclarations[sym] = true
+		key := originKey(sym.Origin())
+		if key != "" && declarations[key] == nil {
+			declarations[key] = sym
+		}
+		if sym.Scope != nil {
+			for _, member := range sym.Scope.AllMembers() {
+				visitDeclaration(member)
+			}
+		}
+	}
+	cached.Index.Registered(func(_ string, syms []*symbols.Symbol) {
+		for _, sym := range syms {
+			visitDeclaration(sym)
+		}
+	})
 	subject := func(origin symbols.Origin) ViewSubject {
 		id := originKey(origin)
 		ref := ViewSubject{ID: id, QualifiedName: byOrigin[id]}
@@ -131,8 +155,130 @@ func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*sy
 		return ref
 	}
 	out.Selected = cached.selectedSubjects(selected)
-	data := rendering.DataFor(view.PortsFull)
-	out.Artifact, err = marshalRenderView(data)
+	// Keep complete semantic labels in the bridge; our renderer owns presentation.
+	shown := view.Shown{}
+	for _, element := range view.Elements() {
+		shown[element] = true
+	}
+	data := rendering.DataWith(view.Options{Ports: view.PortsFull, Show: shown})
+	// The supported tree/structural projection retains explicit declaration
+	// ownership. 0.12 additionally expands inherited usages; selected roots
+	// remain native, while their implicit inherited children stay out of scope.
+	if data.Kind == view.KindTree || data.Kind == view.KindInterconnection {
+		kept := map[string]bool{}
+		redirect := map[string]string{}
+		original := map[string]view.NodeData{}
+		for _, node := range data.Nodes {
+			original[node.ID] = node
+		}
+		exposed := map[string]bool{}
+		for _, sym := range selected {
+			exposed[originKey(sym.Origin())] = true
+		}
+		nodes := data.Nodes[:0]
+		for _, node := range data.Nodes {
+			syntheticSubject := false
+			unsupportedConstraint := false
+			if sym := declarations[originKey(node.Origin)]; sym != nil {
+				if rel, ok := sym.Decl.(*ast.Relationship); ok && rel.Kind == ast.RelSubject {
+					syntheticSubject = true
+				}
+				unsupportedConstraint = data.Kind == view.KindInterconnection && (sym.Kind == symbols.SymbolConstraintDef || sym.Kind == symbols.SymbolConstraintUsage)
+			}
+			if node.Inherited || syntheticSubject || unsupportedConstraint || (node.Parent != "" && !kept[node.Parent]) {
+				redirect[node.ID] = redirect[node.Parent]
+				continue
+			}
+			redirect[node.ID] = node.ID
+			kept[node.ID] = true
+			nodes = append(nodes, node)
+		}
+		data.Nodes = nodes
+		edges := data.Edges[:0]
+		for _, edge := range data.Edges {
+			if data.Kind == view.KindInterconnection {
+				// Keep connectors declared in a visible occurrence, or explicitly
+				// exposed. Do not leak a type's inherited internal connections.
+				if declaration := declarations[originKey(edge.Origin)]; declaration != nil && !exposed[originKey(edge.Origin)] {
+					owner := declaration.Owner()
+					visibleOwner := false
+					for _, endpoint := range []string{edge.From, edge.To} {
+						for id := endpoint; id != ""; id = original[id].Parent {
+							if owner != nil && kept[id] && originKey(original[id].Origin) == originKey(owner.Origin()) {
+								visibleOwner = true
+								break
+							}
+						}
+					}
+					if !visibleOwner {
+						continue
+					}
+				}
+				// Native hierarchy records the nearest retained boundary. A
+				// hidden internal pin cannot become a pin on that boundary.
+				if from := redirect[edge.From]; from != "" && from != edge.From {
+					edge.From, edge.FromPort = from, ""
+				}
+				if to := redirect[edge.To]; to != "" && to != edge.To {
+					edge.To, edge.ToPort = to, ""
+				}
+			}
+			if kept[edge.From] && kept[edge.To] {
+				edges = append(edges, edge)
+			}
+		}
+		data.Edges = edges
+	}
+	// Version-1 presentations key positions by the native ordinal symbol IDs.
+	// After projecting away new inherited/attribute nodes, retain the existing
+	// declaration-order numbering and rewrite every dependent endpoint/port.
+	if data.Kind == view.KindTree || data.Kind == view.KindInterconnection {
+		ids := map[string]string{"": ""}
+		for i, node := range data.Nodes {
+			id := fmt.Sprintf("n%d", i)
+			ids[node.ID] = id
+			for j, port := range node.Ports {
+				ids[port.ID] = fmt.Sprintf("%s.%d", id, j)
+			}
+		}
+		for i := range data.Nodes {
+			node := &data.Nodes[i]
+			node.ID = ids[node.ID]
+			node.Parent = ids[node.Parent]
+			for j := range node.Ports {
+				node.Ports[j].ID = ids[node.Ports[j].ID]
+			}
+		}
+		for i := range data.Edges {
+			edge := &data.Edges[i]
+			edge.From = ids[edge.From]
+			edge.To = ids[edge.To]
+			edge.FromPort = ids[edge.FromPort]
+			edge.ToPort = ids[edge.ToPort]
+		}
+	}
+	// Requirement edge keywords are presentation; polarity and kind travel
+	// separately and the browser supplies their accessible labels.
+	for i := range data.Edges {
+		if data.Edges[i].Kind == view.EdgeSatisfy {
+			data.Edges[i].Label = data.Edges[i].Name
+		}
+	}
+	// 0.12 separates association end labels from the edge label. The
+	// browser's tree contract exposes the composed member as its label.
+	if data.Kind == view.KindTree {
+		names := map[string]string{}
+		for _, node := range data.Nodes {
+			names[node.ID] = node.Name
+		}
+		for i := range data.Edges {
+			edge := &data.Edges[i]
+			if (edge.Kind == view.EdgeComposition || edge.Kind == view.EdgeReference) && edge.Label == "" {
+				edge.Label = names[edge.To]
+			}
+		}
+	}
+	out.Artifact, err = marshalRenderView(cached, data)
 	if err != nil {
 		return nil, err
 	}
@@ -147,6 +293,48 @@ func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*sy
 		if err != nil {
 			return nil, err
 		}
+	}
+	// Native JSON omits empty collections; available empty graphs keep arrays.
+	var artifact map[string]json.RawMessage
+	if err = json.Unmarshal(out.Artifact, &artifact); err != nil {
+		return nil, err
+	}
+	for _, key := range []string{"nodes", "edges"} {
+		if len(artifact[key]) == 0 || string(artifact[key]) == "null" {
+			artifact[key] = json.RawMessage(`[]`)
+		}
+	}
+	var nodeObjects []map[string]json.RawMessage
+	if err = json.Unmarshal(artifact["nodes"], &nodeObjects); err != nil {
+		return nil, err
+	}
+	for _, node := range nodeObjects {
+		if len(node["name"]) == 0 {
+			node["name"] = json.RawMessage(`""`)
+		}
+		if len(node["ports"]) > 0 {
+			var ports []map[string]json.RawMessage
+			if err = json.Unmarshal(node["ports"], &ports); err != nil {
+				return nil, err
+			}
+			for _, port := range ports {
+				if len(port["name"]) == 0 {
+					port["name"] = json.RawMessage(`""`)
+				}
+			}
+			node["ports"], err = json.Marshal(ports)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	artifact["nodes"], err = json.Marshal(nodeObjects)
+	if err != nil {
+		return nil, err
+	}
+	out.Artifact, err = json.Marshal(artifact)
+	if err != nil {
+		return nil, err
 	}
 	out.RenderStatus = "available"
 	contexts := map[string][]string{}

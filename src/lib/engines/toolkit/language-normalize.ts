@@ -5,7 +5,11 @@ import {
   type LanguageQuery,
   type LanguageResult,
 } from '$lib/workspace/language';
-import { positionOffset, sourceURI } from '$lib/workspace/language/positions';
+import {
+  positionOffset,
+  sourceURI,
+  sourcePosition,
+} from '$lib/workspace/language/positions';
 import type { SourceDocument } from '$lib/workspace/project';
 const position = Type.Object({
   line: Type.Integer({ minimum: 0 }),
@@ -40,6 +44,52 @@ export function normalizeLanguage(
   const file = sources.find((s) => s.name === query.file);
   if (!file) throw new Error('Language query source is unavailable.');
   const text = file.text;
+  if (query.kind === 'references') {
+    if (raw !== null && !Array.isArray(raw))
+      throw new Error('Invalid references result.');
+    const targets = [];
+    let omitted = 0;
+    for (const value of (raw ?? []) as unknown[]) {
+      const item = object(value),
+        target = sources.find((s) => sourceURI(s.name) === item.uri);
+      if (!target) {
+        omitted++;
+        continue;
+      }
+      targets.push({
+        file: target.name,
+        line:
+          sourcePosition(target.text, offsets(target.text, item.range).from)
+            .line + 1,
+        ...offsets(target.text, item.range),
+      });
+    }
+    return readLanguageResult({ kind: 'references', targets, omitted });
+  }
+  if (query.kind === 'formatting') {
+    if (raw !== null && !Array.isArray(raw))
+      throw new Error('Invalid formatting result.');
+    const edits = ((raw ?? []) as unknown[])
+      .map((value) => {
+        const item = object(value);
+        if (typeof item.newText !== 'string')
+          throw new Error('Invalid formatting edit.');
+        return { ...offsets(text, item.range), text: item.newText };
+      })
+      .sort((a, b) => b.from - a.from || b.to - a.to);
+    let formatted = text,
+      boundary = text.length;
+    const separator = text.match(/\r\n?|\n/)?.[0] ?? '\n';
+    for (const edit of edits) {
+      if (edit.to > boundary) throw new Error('Overlapping formatting edits.');
+      formatted =
+        formatted.slice(0, edit.from) +
+        edit.text.replace(/\r\n?|\n/g, separator) +
+        formatted.slice(edit.to);
+      boundary = edit.from;
+    }
+    return readLanguageResult({ kind: 'formatting', text: formatted });
+  }
   if (query.kind === 'definition') {
     const candidates = raw == null ? [] : Array.isArray(raw) ? raw : [raw];
     if (candidates.length !== 1)

@@ -8,7 +8,7 @@ import (
 )
 
 func TestStudioRelationships(t *testing.T) {
-	server, err := New("v0.10.0")
+	server, err := New("v0.12.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -26,7 +26,7 @@ func TestStudioRelationships(t *testing.T) {
 		return out
 	}
 	documents := []any{
-		map[string]any{"name": "requirements.sysml", "content": `package Requirements { requirement safety; alias Safe for safety; }`},
+		map[string]any{"name": "requirements.sysml", "content": `package Requirements { requirement <'R-1'> safety { doc /* Keep the system safe. */ } alias Safe for safety; }`},
 		map[string]any{"name": "system.sysml", "content": `package System {
    private import Requirements::*;
    part pump { satisfy Safe; }
@@ -40,6 +40,14 @@ func TestStudioRelationships(t *testing.T) {
 	result := call("EvaluateRelationships", map[string]any{"modelHash": parsed["modelHash"]})
 	if result["status"] != "complete" {
 		t.Fatalf("%v", result)
+	}
+	rows := result["requirements"].([]any)
+	if len(rows) != 1 {
+		t.Fatalf("Expected one requirement, got %v", rows)
+	}
+	row := rows[0].(map[string]any)
+	if row["shortName"] != "R-1" || row["kind"] != "requirementUsage" || !reflect.DeepEqual(row["documentation"], []any{"Keep the system safe."}) {
+		t.Fatalf("Lost requirement content: %v", row)
 	}
 	pairs := map[string][][2]string{}
 	for _, raw := range result["relationships"].([]any) {
@@ -83,6 +91,15 @@ func TestStudioRelationships(t *testing.T) {
 	noEnds := call("EvaluateRelationships", map[string]any{"modelHash": unspecified["modelHash"]})
 	if noEnds["status"] == "complete" || len(noEnds["relationships"].([]any)) != 0 {
 		t.Fatalf("Missing endpoints were called complete: %v", noEnds)
+	}
+	negative := call("ParseSources", map[string]any{"documents": []any{map[string]any{"name": "negative.sysml", "content": "package N { requirement r; part p; assert not satisfy r by p; }"}}, "strictConformance": true})
+	negLinks := call("EvaluateRelationships", map[string]any{"modelHash": negative["modelHash"]})
+	if negLinks["status"] != "complete" {
+		t.Fatalf("%v", negLinks)
+	}
+	negativeEdges := negLinks["relationships"].([]any)
+	if len(negativeEdges) != 1 || negativeEdges[0].(map[string]any)["negated"] != true || negativeEdges[0].(map[string]any)["asserted"] != true {
+		t.Fatalf("Lost negative assertion: %v", negativeEdges)
 	}
 	if _, err := server.Call(context.Background(), "EvaluateRelationships", []byte(`{"modelHash":"absent"}`)); err == nil {
 		t.Fatal("Missing revision was accepted")

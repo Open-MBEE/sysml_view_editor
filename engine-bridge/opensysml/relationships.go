@@ -7,13 +7,23 @@ import (
 	"github.com/Open-MBEE/OpenSysML/internal/semantic/semantics"
 	"github.com/Open-MBEE/OpenSysML/internal/semantic/symbols"
 	"github.com/Open-MBEE/OpenSysML/internal/syntax/ast"
+	"github.com/Open-MBEE/OpenSysML/internal/syntax/source"
 )
 
 type StudioRelationship struct {
 	Kind        string      `json:"kind"`
+	Negated     bool        `json:"negated"`
+	Asserted    bool        `json:"asserted"`
 	Declaration ViewSubject `json:"declaration"`
 	Source      ViewSubject `json:"source"`
 	Target      ViewSubject `json:"target"`
+}
+
+type StudioRequirement struct {
+	Subject       ViewSubject `json:"subject"`
+	Kind          string      `json:"kind"`
+	ShortName     string      `json:"shortName"`
+	Documentation []string    `json:"documentation"`
 }
 
 // These are declared, resolved relationships, not satisfaction or verification verdicts.
@@ -35,6 +45,7 @@ func (e *Engine) studioRelationships(req *JRenderViewRequest) ([]byte, error) {
 		return ref
 	}
 	edges := []StudioRelationship{}
+	requirements := []StudioRequirement{}
 	diagnostics := []string{}
 	seen := map[*symbols.Symbol]bool{}
 	var visit func(*symbols.Symbol)
@@ -43,11 +54,34 @@ func (e *Engine) studioRelationships(req *JRenderViewRequest) ([]byte, error) {
 			return
 		}
 		seen[sym] = true
+		isRequirement := sym.Kind == symbols.SymbolRequirementDef
+		if usage, ok := sym.Decl.(*ast.Usage); ok && usage.Kind == ast.UsageRequirement {
+			isRequirement = true
+		}
+		if isRequirement {
+			row := StudioRequirement{Subject: subject(sym), Kind: sym.Kind.String(), ShortName: sym.ShortName, Documentation: []string{}}
+			if sym.Scope != nil {
+				sym.Scope.ForEachMember(func(member *symbols.Symbol) bool {
+					if doc, ok := member.Decl.(*ast.Documentation); ok {
+						if body := source.CommentProse(cached.sourceText()(member.DocName, doc.BodySpan)); body != "" {
+							row.Documentation = append(row.Documentation, body)
+						}
+					}
+					return true
+				})
+			}
+			requirements = append(requirements, row)
+		}
 		before := len(edges)
 		for _, kind := range []semantics.RelationshipKind{semantics.RelationshipAllocation, semantics.RelationshipSatisfaction, semantics.RelationshipVerification} {
 			for _, edge := range typed.RelationshipEdgesOf(sym, kind) {
 				if edge.Source != nil && edge.Target != nil {
-					edges = append(edges, StudioRelationship{Kind: string(kind), Declaration: subject(sym), Source: subject(edge.Source), Target: subject(edge.Target)})
+					link := StudioRelationship{Kind: string(kind), Declaration: subject(sym), Source: subject(edge.Source), Target: subject(edge.Target)}
+					if usage, ok := sym.Decl.(*ast.Usage); ok {
+						link.Negated = usage.IsNegated
+						link.Asserted = usage.PrefixKeyword == "assert"
+					}
+					edges = append(edges, link)
 				}
 			}
 		}
@@ -78,11 +112,13 @@ func (e *Engine) studioRelationships(req *JRenderViewRequest) ([]byte, error) {
 		}
 		return a.Target.ID < b.Target.ID
 	})
+	sort.Slice(requirements, func(i, j int) bool { return requirements[i].Subject.ID < requirements[j].Subject.ID })
 	status := "complete"
 	if len(diagnostics) > 0 {
 		status = "indeterminate"
 		edges = []StudioRelationship{}
+		requirements = []StudioRequirement{}
 		sort.Strings(diagnostics)
 	}
-	return marshal(map[string]any{"schemaVersion": 1, "modelHash": req.ModelHash, "status": status, "relationships": edges, "diagnostics": diagnostics})
+	return marshal(map[string]any{"schemaVersion": 1, "modelHash": req.ModelHash, "status": status, "relationships": edges, "requirements": requirements, "diagnostics": diagnostics})
 }

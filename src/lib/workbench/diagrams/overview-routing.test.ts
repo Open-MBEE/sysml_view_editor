@@ -131,7 +131,7 @@ it('routes every native assembly overview link and label clear of declaration ca
     artifact.edges.map((_, i) => `edge:${i}`),
   );
   expect(edges.map((e) => [e.source, e.target, e.label])).toEqual(
-    artifact.edges.map((e) => [e.from, e.to, e.label]),
+    artifact.edges.map((e) => [e.from, e.to, e.label || e.kind]),
   );
 });
 

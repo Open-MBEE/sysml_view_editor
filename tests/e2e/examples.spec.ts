@@ -10,8 +10,20 @@ import {
   namedViewButton,
 } from './support';
 import { loadCatalog, loadExample } from '../../examples/catalog';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 
+const expectedTreeRelationships = JSON.parse(
+  await readFile(
+    new URL(
+      '../fixtures/opensysml-0.12-tree-relationships.json',
+      import.meta.url,
+    ),
+    'utf8',
+  ),
+) as Record<
+  string,
+  { kind: string; from: string; to: string; declaration: string }[]
+>;
 const catalog = await loadCatalog();
 for (const entry of catalog.examples) {
   test(`example library: ${entry.id}`, async ({ page }, testInfo) => {
@@ -47,6 +59,23 @@ for (const entry of catalog.examples) {
       expect(result.artifact?.edges.map((edge) => edge.kind).sort()).toEqual(
         [...view.edgeKinds].sort(),
       );
+      if (expectedTreeRelationships[view.id]) {
+        const symbols = new Map(
+          result.correspondence.map((c) => [c.symbol, c]),
+        );
+        const name = (id: string) =>
+          symbols.get(id)!.subject.qualifiedName ?? symbols.get(id)!.subject.id;
+        const actual = result.artifact!.edges.map((edge, i) => ({
+          kind: edge.kind,
+          from: name(edge.from),
+          to: name(edge.to),
+          declaration: symbols.get('edge:' + i)!.subject.id,
+        }));
+        expect(
+          actual,
+          'Resolved 0.12 tree relationships and exact source declarations',
+        ).toEqual(expectedTreeRelationships[view.id]);
+      }
       for (const notice of view.notices) {
         expect(result.artifact?.notices).toContain(notice);
         await expect(diagram).toContainText(notice);

@@ -1,0 +1,45 @@
+{
+  "format": "sysmlv2-view-project",
+  "version": 1,
+  "name": "model",
+  "documents": [
+    {
+      "name": "model.sysml",
+      "text": "package P { part def Motor; part def System { part primary : Motor; part standby : Motor; } part system : System; }"
+    },
+    {
+      "name": "views.sysml",
+      "text": "package V { private import P::*; view structure : StandardViewDefinitions::InterconnectionView { expose System; } }"
+    }
+  ],
+  "drafts": [
+    {
+      "name": "model.sysml",
+      "text": "package P { part def Motor; part def System { part primary : Motor; part standby : Motor; } part system : System; }"
+    },
+    {
+      "name": "views.sysml",
+      "text": "package V { private import P::*; view structure : StandardViewDefinitions::InterconnectionView { expose System; } }"
+    }
+  ],
+  "presentations": {
+    "V::structure": {
+      "sourceHash": "ba8af7737f3e98f942abceba1a42281023a4dbc9453fa13561a39d5c175250d5",
+      "modelHash": "a7fa257d2e263b249db2b68fff9e7d6c16a8a9d464e54b684f9deea722ca4d9b",
+      "positions": {
+        "n0": {
+          "x": 82,
+          "y": 60
+        },
+        "n1": {
+          "x": 114,
+          "y": 146
+        },
+        "n2": {
+          "x": 114,
+          "y": 312
+        }
+      }
+    }
+  }
+}

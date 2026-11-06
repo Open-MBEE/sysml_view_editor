@@ -8,7 +8,7 @@ import (
 )
 
 func TestStudioRequirementsNotation(t *testing.T) {
-	server, err := New("v0.10.0")
+	server, err := New("v0.12.0")
 	if err != nil {
 		t.Fatal(err)
 	}

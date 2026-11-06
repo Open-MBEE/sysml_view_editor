@@ -10,6 +10,8 @@ export const LanguageQuerySchema = Type.Object(
       Type.Literal('completion'),
       Type.Literal('hover'),
       Type.Literal('definition'),
+      Type.Literal('references'),
+      Type.Literal('formatting'),
     ]),
     file: Type.String({ minLength: 1 }),
     offset,
@@ -26,6 +28,27 @@ const ItemSchema = Type.Object(
   closed,
 );
 export const LanguageResultSchema = Type.Union([
+  Type.Object(
+    {
+      kind: Type.Literal('references'),
+      targets: Type.Array(
+        Type.Object(
+          { file: Type.String(), line: Type.Integer({ minimum: 1 }), ...range },
+          closed,
+        ),
+        { maxItems: 10000 },
+      ),
+      omitted: Type.Integer({ minimum: 0 }),
+    },
+    closed,
+  ),
+  Type.Object(
+    {
+      kind: Type.Literal('formatting'),
+      text: Type.String({ maxLength: 5 * 1024 * 1024 }),
+    },
+    closed,
+  ),
   Type.Object(
     {
       kind: Type.Literal('completion'),

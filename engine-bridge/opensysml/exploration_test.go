@@ -7,7 +7,7 @@ import (
 )
 
 func TestStudioExploration(t *testing.T) {
-	server, err := New("v0.10.0")
+	server, err := New("v0.12.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -34,7 +34,7 @@ func TestStudioExploration(t *testing.T) {
 		count                         int
 	}{
 		{"project", "", "tree", 9}, {"package", "P", "tree", 6},
-		{"element", "P::System", "interconnection", 3}, {"element", "P::system", "interconnection", 1},
+		{"element", "P::system", "tree", 1}, {"element", "P::System", "interconnection", 3}, {"element", "P::system", "interconnection", 1},
 	} {
 		scope := map[string]any{"kind": tc.kind}
 		if tc.subject != "" {
@@ -47,6 +47,9 @@ func TestStudioExploration(t *testing.T) {
 		artifact := result["artifact"].(map[string]any)
 		if artifact["kind"] != tc.representation || len(artifact["nodes"].([]any)) != tc.count {
 			t.Fatalf("%v", artifact)
+		}
+		if _, ok := artifact["edges"].([]any); !ok {
+			t.Fatalf("Missing empty edge array: %v", artifact)
 		}
 		for _, raw := range result["correspondence"].([]any) {
 			item := raw.(map[string]any)

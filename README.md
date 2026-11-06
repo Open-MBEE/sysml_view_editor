@@ -74,7 +74,7 @@ npm ci
 npm run dev -- --host 127.0.0.1
 ```
 
-Open the URL printed by Vite. The first dev/build verifies and prepares checksum-pinned browser engines. It needs network access, `tar` and disk space for the Go build cache. Linux x64 can download the pinned Go 1.25.11 toolchain into ignored `sandbox/`; on other platforms, set `SYSML_GO` to that Go version's binary. Later runs verify and reuse prepared assets. See [engine preparation](engine-bridge/README.md).
+Open the URL printed by Vite. The first dev/build verifies and prepares checksum-pinned browser engines. It needs network access, `tar` and disk space for the Go build cache. Linux x64 can download the pinned Go 1.27.3 toolchain into ignored `sandbox/`; on other platforms, set `SYSML_GO` to that Go version's binary. Later runs verify and reuse prepared assets. See [engine preparation](engine-bridge/README.md).
 
 Vite excludes generated `sandbox/` contents and prepared `static/vendor/` binaries from development watching; app sources remain watched. If an older dev process reported `ENOSPC` from those directories, restart it with the current configuration.
 
@@ -103,6 +103,12 @@ Use **Open** to select both SysML files from [`examples/assembly/`](examples/ass
 - Use source undo/redo, switch views and download/reopen the project to continue working.
 
 Connection creation currently requires explicit compatible directions and identical resolved port types. Conjugated and ambiguous endpoint paths are unavailable for graphical creation. [Authoring workflow and supported subset](docs/architecture/graphical-authoring.md).
+
+### 4. Inspect requirements and source
+
+Choose **Requirements table** above the diagram to browse applied requirement identifiers, documentation and declared links; search or sort the rows and export CSV. **Traceability matrix** shows satisfaction or verification declarations against linked elements, including explicitly negated links. These are read-only views, not executed verification results. Click a requirement or link to reveal its source; apply or discard a changed draft in that file first.
+
+In the source pane, **Find references** (also Shift+F12) lists project reference locations. **Format source** formats the current draft with Toolkit. Formatting supports local editor undo; **Apply source** validates and accepts it into source history. Failed or stale queries retain your work.
 
 ## Examples
 

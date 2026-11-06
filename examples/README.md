@@ -36,6 +36,7 @@ Files: [model.sysml](comments/model.sysml), [views.sysml](comments/views.sysml).
 - Show documentation and semantic comment callouts anchored to the correct element.
 - Preserve Unicode punctuation and text through download/reopen.
 - Fit qualified names inside their symbols at a readable scale.
+- Retain resolved typing and distinguish declared ownership, references and specialization kinds.
 
 Current gaps: Documentation and semantic comment callouts are not drawn or transported as note bodies/anchors by the current bridge. Long qualified labels can extend past the fixed-width tree nodes.
 
@@ -54,6 +55,7 @@ Files: [model.sysml](packages/model.sysml), [views.sysml](packages/views.sysml).
 
 - Show nested package/type ownership without merging similarly named elements.
 - Preserve resolution of Controller and Sensor across private imports.
+- Retain resolved typing and distinguish declared ownership, references and specialization kinds.
 
 Current gaps: The outline is a flat tree; package containers and import arrows require the package renderer.
 
@@ -141,6 +143,7 @@ Current gaps: Requirement identifiers, documentation and relationships are shown
 
 - Retain the same source model as an independent generic overview.
 - Keep requirement-view and overview positions separate through save and reopen.
+- Retain resolved typing and distinguish declared ownership, references and specialization kinds.
 
 Current gaps: This GeneralView produces a generic flat tree rather than dedicated requirement notation.
 
@@ -202,6 +205,7 @@ Files: [model.sysml](workshop/model.sysml), [views.sysml](workshop/views.sysml).
 
 - Show both Motor usages and their shared definition.
 - Keep the active view stable when changing source files.
+- Retain resolved typing and distinguish declared ownership, references and specialization kinds.
 
 **WorkshopViews::compressor** — engine artifact: `interconnection`; app: **rendered**.
 

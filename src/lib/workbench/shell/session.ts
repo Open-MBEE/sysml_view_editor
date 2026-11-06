@@ -12,6 +12,7 @@ export function createBrowserSession() {
     workspace: createWorkspace({
       semantic,
       exploration: semantic,
+      requirements: semantic,
       transformations: createTransformationEngine(toolkitBase),
     }),
     language: createSourceLanguageEngine(toolkitBase),

@@ -69,7 +69,14 @@ test('@critical opens a no-view multi-file model as an overview and distinguishe
       );
     })
     .toBe(true);
-  for (const [index, name] of ['primary', 'standby'].entries()) {
+  for (const name of ['primary', 'standby']) {
+    // Native 0.12 tree edges are emitted in a different order. Bind the
+    // assertion to the exact declaration, rather than a transient edge index.
+    const symbol = overview.correspondence.find(
+      (item) =>
+        item.symbol.startsWith('edge:') &&
+        item.subject.qualifiedName === `P::System::${name}`,
+    )!.symbol;
     const relation = page.getByRole('group', {
       name: new RegExp(`composition ${name}:`),
     });
@@ -101,8 +108,8 @@ test('@critical opens a no-view multi-file model as an overview and distinguishe
       )
       .toBe(`part ${name} : Q::Motor;`);
     expect(
-      overview.correspondence.find((item) => item.symbol === `edge:${index}`)
-        ?.subject.qualifiedName,
+      overview.correspondence.find((item) => item.symbol === symbol)?.subject
+        .qualifiedName,
     ).toBe(`P::System::${name}`);
   }
   const before = (await downloadProject(page)).bundle;

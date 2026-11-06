@@ -29,3 +29,9 @@ A startup record blocks replacement until an explicit restore/discard choice. Re
 Writes and deletion use an atomic compare-and-swap transaction against the exact previously read string. A competing tab's change causes a visible conflict; retry reads and protects that copy for an explicit choice. Denied storage and write failures retain the editable project and permit retry. Malformed or future string envelopes remain protected until explicit discard. An unsupported non-string IndexedDB value is retained and reported unavailable; this version cannot discard that value through the app.
 
 Only one recovery copy is kept, without a time-based expiration. Disabling saving retains the existing record until discarded. Browser storage is local to the origin and may be cleared or unavailable; downloaded project files remain the portable backup mechanism.
+
+## References and formatting
+
+The same draft-bound Toolkit language worker also handles `textDocument/references` (without the declaration) and `textDocument/formatting`. Reference ranges are normalized from UTF-16 LSP positions, limited to project documents and displayed with file/line locations; omitted library locations are counted explicitly. Navigating a result rechecks the originating source-set lifetime.
+
+Formatting accepts only in-bounds, nonoverlapping text edits. It retains the file's line-separator convention and updates the editor as one undoable draft transaction. Formatting does not accept a semantic model, replace other files or bypass Apply source. Draft edits, file changes, busy state and session replacement invalidate outstanding language results; failure keeps source and accepted history unchanged.

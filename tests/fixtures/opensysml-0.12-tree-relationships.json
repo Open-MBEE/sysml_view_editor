@@ -1,0 +1,208 @@
+{
+  "DocumentationViews::overview": [
+    {
+      "kind": "composition",
+      "from": "CommentExample::ServiceLoop",
+      "to": "CommentExample::ServiceLoop::pump",
+      "declaration": "model.sysml@374:17"
+    },
+    {
+      "kind": "typing",
+      "from": "CommentExample::ServiceLoop::pump",
+      "to": "CommentExample::Pump",
+      "declaration": "model.sysml@386:4"
+    }
+  ],
+  "OrganizationViews::outline": [
+    {
+      "kind": "composition",
+      "from": "Organization::Control::Controller",
+      "to": "Organization::Control::Controller::feedback",
+      "declaration": "model.sysml@187:23"
+    },
+    {
+      "kind": "typing",
+      "from": "Organization::Control::Controller::feedback",
+      "to": "Organization::Common::Sensor",
+      "declaration": "model.sysml@203:6"
+    },
+    {
+      "kind": "composition",
+      "from": "Organization::Plant::Installation",
+      "to": "Organization::Plant::Installation::controller",
+      "declaration": "model.sysml@340:29"
+    },
+    {
+      "kind": "typing",
+      "from": "Organization::Plant::Installation::controller",
+      "to": "Organization::Control::Controller",
+      "declaration": "model.sysml@358:10"
+    }
+  ],
+  "TraceViews::overview": [
+    {
+      "kind": "typing",
+      "from": "TraceRequirements::MinimumCapacity::tank",
+      "to": "TraceSystem::Tank",
+      "declaration": ""
+    },
+    {
+      "kind": "typing",
+      "from": "TraceRequirements::leftSpecification::installation",
+      "to": "TraceSystem::Tank",
+      "declaration": ""
+    },
+    {
+      "kind": "typing",
+      "from": "TraceRequirements::leftSpecification::leftCapacity",
+      "to": "TraceRequirements::MinimumCapacity",
+      "declaration": "requirements.sysml@677:12"
+    },
+    {
+      "kind": "typing",
+      "from": "TraceRequirements::rightSpecification::installation",
+      "to": "TraceSystem::Tank",
+      "declaration": ""
+    },
+    {
+      "kind": "typing",
+      "from": "TraceRequirements::rightSpecification::rightCapacity",
+      "to": "TraceRequirements::MinimumCapacity",
+      "declaration": "requirements.sysml@975:12"
+    },
+    {
+      "kind": "typing",
+      "from": "TraceRequirements::unlinkedCapacity",
+      "to": "TraceRequirements::MinimumCapacity",
+      "declaration": "requirements.sysml@1116:15"
+    },
+    {
+      "kind": "typing",
+      "from": "TraceRequirements::excludedCapacity",
+      "to": "TraceRequirements::MinimumCapacity",
+      "declaration": "requirements.sysml@1235:15"
+    },
+    {
+      "kind": "subsetting",
+      "from": "requirements.sysml@1306:58",
+      "to": "TraceRequirements::excludedCapacity",
+      "declaration": ""
+    },
+    {
+      "kind": "subsetting",
+      "from": "requirements.sysml@1369:71",
+      "to": "TraceRequirements::leftSpecification::leftCapacity",
+      "declaration": ""
+    },
+    {
+      "kind": "subsetting",
+      "from": "requirements.sysml@1445:74",
+      "to": "TraceRequirements::rightSpecification::rightCapacity",
+      "declaration": ""
+    },
+    {
+      "kind": "composition",
+      "from": "TraceSystem",
+      "to": "TraceSystem::spare",
+      "declaration": "system.sysml@322:64"
+    },
+    {
+      "kind": "reference",
+      "from": "TraceSystem::Tank",
+      "to": "TraceSystem::Tank::capacity",
+      "declaration": "system.sysml@50:40"
+    },
+    {
+      "kind": "composition",
+      "from": "TraceSystem::LeftPlant",
+      "to": "TraceSystem::LeftPlant::tank",
+      "declaration": "system.sysml@129:71"
+    },
+    {
+      "kind": "typing",
+      "from": "TraceSystem::LeftPlant::tank",
+      "to": "TraceSystem::Tank",
+      "declaration": "system.sysml@141:4"
+    },
+    {
+      "kind": "reference",
+      "from": "TraceSystem::LeftPlant::tank",
+      "to": "TraceSystem::LeftPlant::tank::capacity",
+      "declaration": "system.sysml@160:30"
+    },
+    {
+      "kind": "redefinition",
+      "from": "TraceSystem::LeftPlant::tank::capacity",
+      "to": "TraceSystem::Tank::capacity",
+      "declaration": "system.sysml@174:8"
+    },
+    {
+      "kind": "composition",
+      "from": "TraceSystem::RightPlant",
+      "to": "TraceSystem::RightPlant::tank",
+      "declaration": "system.sysml@240:71"
+    },
+    {
+      "kind": "typing",
+      "from": "TraceSystem::RightPlant::tank",
+      "to": "TraceSystem::Tank",
+      "declaration": "system.sysml@252:4"
+    },
+    {
+      "kind": "reference",
+      "from": "TraceSystem::RightPlant::tank",
+      "to": "TraceSystem::RightPlant::tank::capacity",
+      "declaration": "system.sysml@271:30"
+    },
+    {
+      "kind": "redefinition",
+      "from": "TraceSystem::RightPlant::tank::capacity",
+      "to": "TraceSystem::Tank::capacity",
+      "declaration": "system.sysml@285:8"
+    },
+    {
+      "kind": "typing",
+      "from": "TraceSystem::spare",
+      "to": "TraceSystem::Tank",
+      "declaration": "system.sysml@335:4"
+    },
+    {
+      "kind": "reference",
+      "from": "TraceSystem::spare",
+      "to": "TraceSystem::spare::capacity",
+      "declaration": "system.sysml@350:30"
+    },
+    {
+      "kind": "redefinition",
+      "from": "TraceSystem::spare::capacity",
+      "to": "TraceSystem::Tank::capacity",
+      "declaration": "system.sysml@364:8"
+    }
+  ],
+  "WorkshopViews::overview": [
+    {
+      "kind": "composition",
+      "from": "Workshop::Compressor",
+      "to": "Workshop::Compressor::primary",
+      "declaration": "model.sysml@156:21"
+    },
+    {
+      "kind": "composition",
+      "from": "Workshop::Compressor",
+      "to": "Workshop::Compressor::standby",
+      "declaration": "model.sysml@186:21"
+    },
+    {
+      "kind": "typing",
+      "from": "Workshop::Compressor::primary",
+      "to": "Workshop::Motor",
+      "declaration": "model.sysml@171:5"
+    },
+    {
+      "kind": "typing",
+      "from": "Workshop::Compressor::standby",
+      "to": "Workshop::Motor",
+      "declaration": "model.sysml@201:5"
+    }
+  ]
+}

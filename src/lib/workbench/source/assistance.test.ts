@@ -95,3 +95,13 @@ describe('source assistance snapshot lifetime', () => {
     expect(test.view.state.doc.toString()).toBe('part x : Mo;');
   });
 });
+
+it('does not format a newer draft with a stale result', async () => {
+  const test = setup(async () => ({
+    result: { kind: 'formatting', text: 'part x : Motor;' },
+    isCurrent: () => false,
+  }));
+  await test.assistance.format();
+  expect(test.dispatch).not.toHaveBeenCalled();
+  expect(test.view.state.doc.toString()).toBe('part x : Mo;');
+});

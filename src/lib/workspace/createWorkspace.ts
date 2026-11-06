@@ -1,4 +1,8 @@
 import {
+  validateRequirementsResult,
+  type RequirementsEngine,
+} from './requirements';
+import {
   readExplorationRequest,
   validateExploration,
   type ExplorationEngine,
@@ -71,6 +75,7 @@ export function createWorkspace(dependencies: {
   semantic: SemanticEngine;
   transformations: TransformationEngine;
   exploration?: ExplorationEngine;
+  requirements?: RequirementsEngine;
 }) {
   let state: WorkspaceState = immutable({
     project: null,
@@ -304,6 +309,31 @@ export function createWorkspace(dependencies: {
   }
   return {
     snapshot: () => state,
+    async requirements(signal?: AbortSignal) {
+      alive();
+      const { project, model } = accepted();
+      if (!dependencies.requirements)
+        throw new Error('Requirements inspection is unavailable.');
+      const result = await dependencies.requirements.requirements(
+        project.documents,
+        model.modelHash,
+        signal,
+      );
+      if (
+        disposed ||
+        signal?.aborted ||
+        state.model !== model ||
+        state.project?.documents !== project.documents
+      )
+        throw new Error(
+          'Requirements response is stale; current project was retained.',
+        );
+      return validateRequirementsResult(
+        result,
+        model.modelHash,
+        project.documents,
+      );
+    },
     cancelPending() {
       alive();
       controller?.abort();

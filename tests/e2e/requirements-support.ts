@@ -190,6 +190,7 @@ export async function expectRequirementsFit(page: Page) {
 
 /** Center the focused card with a real canvas pan, retaining model-space geometry. */
 export async function centerRequirementCard(page: Page, card: Locator) {
+  await settledRequirementViewport(page);
   const canvas = page
     .getByRole('region', { name: 'Diagram', exact: true })
     .locator('.react-flow');

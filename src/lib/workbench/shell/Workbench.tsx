@@ -1,3 +1,6 @@
+import { RequirementsPanel } from '../requirements/RequirementsPanel';
+import type { RequirementSubject } from '$lib/workspace/requirements';
+import { Button } from '$lib/ui/primitives/button';
 import {
   WorkbenchLayout,
   WorkbenchPanels,
@@ -59,6 +62,9 @@ export function Workbench({
   entryRequest: EntryRequest;
   onHome: () => void;
 }) {
+  const [dataMode, setDataMode] = useState<'diagram' | 'table' | 'matrix'>(
+    'diagram',
+  );
   const [readySession, setReadySession] = useState<Workspace | null>(null);
   const [launcherOpen, setLauncherOpen] = useState(true);
   const [everOpened, setEverOpened] = useState(false);
@@ -108,6 +114,7 @@ export function Workbench({
     if (!replaceAllowed()) return;
     const session = workspace();
     await session.open(entry.project, { unsaved: true });
+    setDataMode('diagram');
     const restored = session.snapshot();
     recovery.acceptRestored({
       project: restored.project!,
@@ -261,6 +268,7 @@ export function Workbench({
   ) {
     const session = workspace();
     await session.open(project, { unsaved: options.unsaved });
+    setDataMode('diagram');
     setSelected('');
     setSymbolSelection(undefined);
     setFile(project.drafts[0]!.name);
@@ -390,6 +398,7 @@ export function Workbench({
         ? command.owner + '::' + command.name
         : active,
     );
+    if (command.kind === 'createView') setDataMode('diagram');
   }
   function selectSymbol(symbol: string) {
     const correspondence = displayedView?.correspondence.find(
@@ -455,6 +464,29 @@ export function Workbench({
     setFile(location.target.file);
     if (mode === 'diagram') setMode('split');
     setFocusRange(location.target);
+  }
+  function revealRequirement(subject: RequirementSubject) {
+    const origin = subject.origin;
+    const project = workspace().snapshot().project;
+    const applied = project?.documents.find((d) => d.name === origin?.file);
+    const draft = project?.drafts.find((d) => d.name === origin?.file);
+    if (!origin || !applied || applied.text !== draft?.text) {
+      setMessage(
+        'Apply or discard this file’s draft before revealing its applied source.',
+      );
+      return;
+    }
+    const bytes = new TextEncoder().encode(applied.text),
+      decoder = new TextDecoder('utf-8', { fatal: true });
+    setSelected(subject.qualifiedName ?? '');
+    setSymbolSelection(undefined);
+    setFile(applied.name);
+    setMode('split');
+    setFocusRange({
+      file: applied.name,
+      start: decoder.decode(bytes.slice(0, origin.offset)).length,
+      end: decoder.decode(bytes.slice(0, origin.offset + origin.length)).length,
+    });
   }
   function revealSource() {
     if (focusRange) {
@@ -599,7 +631,17 @@ export function Workbench({
                     setFile(name);
                     if (mode === 'diagram') setMode('split');
                   }}
-                  onView={(id) => void run(() => workspace().openView(id))}
+                  onView={(id) =>
+                    void run(async () => {
+                      setDataMode('diagram');
+                      try {
+                        await workspace().openView(id);
+                      } catch (error) {
+                        setDataMode(dataMode);
+                        throw error;
+                      }
+                    })
+                  }
                   onSelect={selectElement}
                   onNewView={newView}
                 />
@@ -653,40 +695,81 @@ export function Workbench({
                 ) : null
               }
               diagram={
-                <Diagram
-                  views={
-                    state.model?.elements.filter(
-                      (item) => item.kind === 'viewUsage',
-                    ) ?? []
-                  }
-                  busy={state.busy}
-                  onOpenView={(id) => void run(() => workspace().openView(id))}
-                  layoutMode={mode}
-                  key={(diagramIdentity ?? 'none') + ':' + state.revision}
-                  view={displayedView}
-                  guide={
-                    origin === 'Built-in example' && displayedView
-                      ? roverGuide[displayedView.view]
-                      : undefined
-                  }
-                  exploration={state.exploration?.request}
-                  elements={state.model?.elements ?? []}
-                  explorationFocus={explorationFocus}
-                  onExplore={(request, focus) => {
-                    setExplorationFocus(focus);
-                    void run(() => workspace().explore(request));
-                  }}
-                  presentation={compatiblePresentation}
-                  disabled={state.busy || state.unapplied}
-                  onSelect={selectSymbol}
-                  onCreatePart={newPart}
-                  onConnectPorts={newConnection}
-                  onMove={(positions) =>
-                    state.exploration
-                      ? undefined
-                      : void run(() => workspace().moveSymbols(positions))
-                  }
-                />
+                <div className="model-data-surface">
+                  <div
+                    className="model-data-tabs"
+                    role="group"
+                    aria-label="Model representation"
+                  >
+                    {(['diagram', 'table', 'matrix'] as const).map((value) => (
+                      <Button
+                        key={value}
+                        size="xs"
+                        variant={dataMode === value ? 'secondary' : 'ghost'}
+                        aria-pressed={dataMode === value}
+                        disabled={state.busy}
+                        onClick={() => setDataMode(value)}
+                      >
+                        {value === 'diagram'
+                          ? 'Diagram view'
+                          : value === 'table'
+                            ? 'Requirements table'
+                            : 'Traceability matrix'}
+                      </Button>
+                    ))}
+                  </div>
+                  {dataMode !== 'diagram' && readySession && (
+                    <RequirementsPanel
+                      workspace={readySession}
+                      state={state}
+                      mode={dataMode}
+                      onReveal={revealRequirement}
+                    />
+                  )}
+                  <div
+                    className="model-data-diagram"
+                    style={
+                      dataMode === 'diagram' ? undefined : { display: 'none' }
+                    }
+                  >
+                    <Diagram
+                      views={
+                        state.model?.elements.filter(
+                          (item) => item.kind === 'viewUsage',
+                        ) ?? []
+                      }
+                      busy={state.busy}
+                      onOpenView={(id) =>
+                        void run(() => workspace().openView(id))
+                      }
+                      layoutMode={mode}
+                      key={(diagramIdentity ?? 'none') + ':' + state.revision}
+                      view={displayedView}
+                      guide={
+                        origin === 'Built-in example' && displayedView
+                          ? roverGuide[displayedView.view]
+                          : undefined
+                      }
+                      exploration={state.exploration?.request}
+                      elements={state.model?.elements ?? []}
+                      explorationFocus={explorationFocus}
+                      onExplore={(request, focus) => {
+                        setExplorationFocus(focus);
+                        void run(() => workspace().explore(request));
+                      }}
+                      presentation={compatiblePresentation}
+                      disabled={state.busy || state.unapplied}
+                      onSelect={selectSymbol}
+                      onCreatePart={newPart}
+                      onConnectPorts={newConnection}
+                      onMove={(positions) =>
+                        state.exploration
+                          ? undefined
+                          : void run(() => workspace().moveSymbols(positions))
+                      }
+                    />
+                  </div>
+                </div>
               }
               inspector={
                 <Properties

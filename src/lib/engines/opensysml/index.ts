@@ -1,4 +1,8 @@
 import {
+  validateRequirementsResult,
+  type RequirementsEngine,
+} from '$lib/workspace/requirements';
+import {
   validateExploration,
   type ExplorationEngine,
 } from '$lib/workspace/exploration';
@@ -8,8 +12,24 @@ import { validateEvaluation } from '$lib/workspace/views';
 import { requestWorker } from '../workers/request';
 export function createSemanticEngine(
   base: string,
-): SemanticEngine & ExplorationEngine {
+): SemanticEngine & ExplorationEngine & RequirementsEngine {
   return {
+    requirements(documents, modelHash, signal) {
+      return requestWorker(
+        new Worker(new URL('./semantic.worker.ts', import.meta.url), {
+          type: 'module',
+        }),
+        {
+          protocolVersion: 1,
+          operation: 'requirements',
+          documents,
+          modelHash,
+          base,
+        },
+        (value) => validateRequirementsResult(value, modelHash, documents),
+        signal,
+      );
+    },
     explore(documents, modelHash, request, signal) {
       return requestWorker(
         new Worker(new URL('./semantic.worker.ts', import.meta.url), {

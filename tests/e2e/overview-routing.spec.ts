@@ -25,7 +25,7 @@ test('routes the real assembly overview clear of cards and labels while preservi
       const geometry = await overviewRoutingGeometry(page);
       return { hits: geometry.hits, count: geometry.labelCount };
     })
-    .toEqual({ hits: [], count: 6 });
+    .toEqual({ hits: [], count: 13 });
   const expected: Record<string, string> = {
     input: 'in port input : Signal;',
     output: 'out port output : Signal;',
@@ -33,10 +33,20 @@ test('routes the real assembly overview clear of cards and labels while preservi
     monitor: 'ref part monitor : Device;',
     primary: 'part primary : Device;',
     standby: 'part standby : Device;',
+    bay: `part bay {
+            part primary : Device;
+            part standby : Device;
+            connection handoff connect primary.output to standby.input;
+        }`,
   };
   for (const edge of results[0]!.artifact!.edges) {
+    const from = results[0]!.artifact!.nodes.find(
+      (node) => node.id === edge.from,
+    )!;
+    const to = results[0]!.artifact!.nodes.find((node) => node.id === edge.to)!;
     const relation = page.getByRole('group', {
-      name: new RegExp(`^${edge.kind} ${edge.label}:`),
+      name: `${edge.kind} ${edge.label ?? ''}: ${from.name} to ${to.name}`,
+      exact: true,
     });
     await relation.focus();
     await relation.press('Enter');
@@ -54,7 +64,20 @@ test('routes the real assembly overview clear of cards and labels while preservi
           page.getByRole('textbox', { name: 'SysML source', exact: true }),
         ),
       )
-      .toBe(expected[edge.label!]);
+      .toBe(
+        edge.kind === 'typing'
+          ? (
+              {
+                input: 'Signal',
+                output: 'Signal',
+                service: 'Signal',
+                primary: 'Device',
+                standby: 'Device',
+                monitor: 'Device',
+              } as Record<string, string>
+            )[from.name]
+          : expected[edge.label!],
+      );
   }
   expect((await downloadProject(page)).bundle).toEqual(before);
   const scope = page.getByRole('combobox', {

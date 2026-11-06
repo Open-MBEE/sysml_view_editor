@@ -22,12 +22,13 @@
             "CommentExample::ServiceLoop",
             "pump"
           ],
-          "edgeKinds": ["composition"],
+          "edgeKinds": ["composition", "typing"],
           "targets": [
             "Keep line and block comments intact in source.",
             "Show documentation and semantic comment callouts anchored to the correct element.",
             "Preserve Unicode punctuation and text through download/reopen.",
-            "Fit qualified names inside their symbols at a readable scale."
+            "Fit qualified names inside their symbols at a readable scale.",
+            "Retain resolved typing and distinguish declared ownership, references and specialization kinds."
           ],
           "gaps": [
             "Documentation and semantic comment callouts are not drawn or transported as note bodies/anchors by the current bridge.",
@@ -72,10 +73,11 @@
             "Installation",
             "controller"
           ],
-          "edgeKinds": ["composition", "composition"],
+          "edgeKinds": ["composition", "typing", "composition", "typing"],
           "targets": [
             "Show nested package/type ownership without merging similarly named elements.",
-            "Preserve resolution of Controller and Sensor across private imports."
+            "Preserve resolution of Controller and Sensor across private imports.",
+            "Retain resolved typing and distinguish declared ownership, references and specialization kinds."
           ],
           "gaps": [
             "The outline is a flat tree; package containers and import arrows require the package renderer."
@@ -380,18 +382,27 @@
             "typing",
             "typing",
             "typing",
-            "specialization",
-            "specialization",
-            "specialization",
+            "subsetting",
+            "subsetting",
+            "subsetting",
             "composition",
-            "specialization",
+            "reference",
             "composition",
-            "specialization",
-            "specialization"
+            "typing",
+            "reference",
+            "redefinition",
+            "composition",
+            "typing",
+            "reference",
+            "redefinition",
+            "typing",
+            "reference",
+            "redefinition"
           ],
           "targets": [
             "Retain the same source model as an independent generic overview.",
-            "Keep requirement-view and overview positions separate through save and reopen."
+            "Keep requirement-view and overview positions separate through save and reopen.",
+            "Retain resolved typing and distinguish declared ownership, references and specialization kinds."
           ],
           "gaps": [
             "This GeneralView produces a generic flat tree rather than dedicated requirement notation."
@@ -539,10 +550,11 @@
             "primary",
             "standby"
           ],
-          "edgeKinds": ["composition", "composition"],
+          "edgeKinds": ["composition", "composition", "typing", "typing"],
           "targets": [
             "Show both Motor usages and their shared definition.",
-            "Keep the active view stable when changing source files."
+            "Keep the active view stable when changing source files.",
+            "Retain resolved typing and distinguish declared ownership, references and specialization kinds."
           ],
           "gaps": [],
           "notices": []
