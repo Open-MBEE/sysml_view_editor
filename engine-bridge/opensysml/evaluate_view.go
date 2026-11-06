@@ -137,7 +137,7 @@ func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*sy
 		return nil, err
 	}
 	if data.Kind == view.KindInterconnection {
-		out.Artifact, err = structuralNotation(out.Artifact, data, declarations)
+		out.Artifact, err = cached.structuralNotation(out.Artifact, data, declarations)
 		if err != nil {
 			return nil, err
 		}
@@ -198,15 +198,16 @@ func (cached *cachedModel) selectedSubjects(selected []*symbols.Symbol) []ViewSu
 // The pinned renderer leaves structural pins undirected and omits reference
 // modifiers. Carry only explicit declaration modifiers, using recorded origins;
 // do not infer flow direction from port types, conjugation or connector order.
-func structuralNotation(raw []byte, data view.Data, declarations map[string]*symbols.Symbol) ([]byte, error) {
+func (cached *cachedModel) structuralNotation(raw []byte, data view.Data, declarations map[string]*symbols.Symbol) ([]byte, error) {
 	var base JRenderViewResponse
 	if err := json.Unmarshal(raw, &base); err != nil {
 		return nil, err
 	}
 	type node struct {
 		JRenderNode
-		Reference bool   `json:"reference,omitempty"`
-		Direction string `json:"direction,omitempty"`
+		Reference             bool     `json:"reference,omitempty"`
+		Direction             string   `json:"direction,omitempty"`
+		AttributeDeclarations []string `json:"attributeDeclarations,omitempty"`
 	}
 	out := struct {
 		*JRenderViewResponse
@@ -221,6 +222,14 @@ func structuralNotation(raw []byte, data view.Data, declarations map[string]*sym
 	}
 	for i, original := range data.Nodes {
 		item := node{JRenderNode: base.Nodes[i]}
+		if sym := declarations[originKey(original.Origin)]; sym != nil {
+			text := cached.sourceText()
+			for _, member := range cached.typedModel().MembersOf(sym) {
+				if member.Kind == symbols.SymbolAttributeUsage && member.Decl != nil && !cached.Index.IsLibraryDocument(member.DocName) {
+					item.AttributeDeclarations = append(item.AttributeDeclarations, text(member.DocName, member.Decl.Span()))
+				}
+			}
+		}
 		if decl := usage(original.Origin); decl != nil {
 			item.Reference = decl.IsReference
 			if decl.Direction != ast.DirNone {

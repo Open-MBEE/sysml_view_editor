@@ -1,3 +1,4 @@
+import { attributeLabel } from './attribute-label';
 import { explorationHeaderHeight } from './exploration';
 import { createContext, useContext } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
@@ -13,7 +14,7 @@ export const SelectDiagramSymbol = createContext<(symbol: string) => void>(
 
 export function StructureNode({ data }: NodeProps<StructureNodeType>) {
   const select = useContext(SelectDiagramSymbol);
-  const { item, compound, compact } = data;
+  const { item, compound, compact, behavior, dense } = data;
   return (
     <>
       <div
@@ -40,13 +41,30 @@ export function StructureNode({ data }: NodeProps<StructureNodeType>) {
           )}
         </strong>
       </div>
+      {!!item.attributeDeclarations?.length && (
+        <div className="structure-attributes" aria-label="Declared attributes">
+          {item.attributeDeclarations.map((declaration, index) => (
+            <div
+              key={index}
+              title={declaration}
+              style={{ height: dense ? 32 : 48 }}
+            >
+              {attributeLabel(declaration)}
+            </div>
+          ))}
+        </div>
+      )}
+      {!!item.detail &&
+        ['state', 'action', 'start', 'done'].includes(item.kind) && (
+          <div className="behavior-detail">{item.detail}</div>
+        )}
       {(!compact || !!item.ports?.length) && (
         <div
           className="structure-ports"
           style={{
             height: compound
               ? undefined
-              : `calc(100% - ${compact ? explorationHeaderHeight - 2 : headingHeight}px)`,
+              : `calc(100% - ${compact ? explorationHeaderHeight - 2 : headingHeight}px - ${(item.attributeDeclarations?.length ?? 0) * (dense ? 32 : 48)}px)`,
           }}
         >
           {item.ports?.map((port) => (
@@ -118,14 +136,14 @@ export function StructureNode({ data }: NodeProps<StructureNodeType>) {
       <Handle
         type="target"
         id="node-target"
-        position={Position.Left}
+        position={behavior ? Position.Top : Position.Left}
         isConnectable={false}
         className="structure-node-handle"
       />
       <Handle
         type="source"
         id="node-source"
-        position={Position.Right}
+        position={behavior ? Position.Bottom : Position.Right}
         isConnectable={false}
         className="structure-node-handle"
       />

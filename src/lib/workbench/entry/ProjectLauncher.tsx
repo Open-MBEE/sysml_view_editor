@@ -7,6 +7,7 @@ import { Brand } from './Brand';
 export function ProjectLauncher({
   onHome,
   onExample,
+  onAirWorkshop,
   onNew,
   onOpen,
   onResume,
@@ -18,6 +19,7 @@ export function ProjectLauncher({
 }: {
   onHome: () => void;
   onExample: () => void;
+  onAirWorkshop: () => void;
   onNew: () => void;
   onOpen: () => void;
   onResume: () => void;
@@ -86,7 +88,24 @@ export function ProjectLauncher({
             <span>
               <strong>Load example</strong>
               <span>
-                Explore the Smart air workshop model and its named views.
+                Explore an inspection rover: architecture, mission, operating
+                states and requirements.
+              </span>
+            </span>
+          </Button>
+          <Button
+            variant="outline"
+            className="launcher-choice"
+            aria-label="Load air workshop"
+            disabled={busy}
+            onClick={onAirWorkshop}
+          >
+            <PanelsTopLeft aria-hidden="true" />
+            <span>
+              <strong>Air workshop</strong>
+              <span>
+                Explore the compressor, pneumatics and supporting engineering
+                views.
               </span>
             </span>
           </Button>

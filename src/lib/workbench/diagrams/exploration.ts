@@ -56,7 +56,10 @@ export function layoutExploration(artifact: ViewArtifact) {
     artifact.kind === 'tree' ? overviewGutters(artifact) : undefined;
   function box(item: ArtifactNode): Box {
     const nested = (byParent.get(item.id) ?? []).map(box);
-    const top = explorationHeaderHeight + (item.ports?.length ?? 0) * 30;
+    const top =
+      explorationHeaderHeight +
+      (item.attributeDeclarations?.length ?? 0) * 48 +
+      (item.ports?.length ?? 0) * 30;
     // Structural leaf siblings fit side by side. Ownership overviews keep a
     // narrow declaration hierarchy so package-to-package relationships have room.
     const columns =

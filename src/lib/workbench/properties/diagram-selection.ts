@@ -17,7 +17,8 @@ export function diagramRelationshipSelection(
   if (
     view?.status !== 'complete' ||
     !view.artifact ||
-    (view.artifact.kind !== 'requirement' && !exploration)
+    (!['requirement', 'action', 'state'].includes(view.artifact.kind) &&
+      !exploration)
   )
     return;
   const edge = view.artifact.edges.find(

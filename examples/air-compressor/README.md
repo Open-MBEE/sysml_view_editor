@@ -1,8 +1,8 @@
 # Smart air workshop
 
-This is the built-in project opened by **Load example** in the launcher or **Try an example** on the landing page. Its nine SysML files and 14 named views model the compressor's electrical and pneumatic assemblies, cooling, two installed compressor usages, tools, operator/technician roles, requirements, behaviour and enclosure geometry.
+This built-in project is available through **Load air workshop** in the launcher. The default example is the inspection rover. Its nine SysML files and 14 named views model the compressor's electrical and pneumatic assemblies, cooling, two installed compressor usages, tools, operator/technician roles, requirements, behaviour and enclosure geometry.
 
-Loading the example opens **pneumatics** in Diagram mode: pump, tank, regulator, relief valve and pressure sensor, with 13 displayed ports and four authored connections. **Split** reveals the source; other named views remain available in the sidebar.
+Loading this example opens **overview** in Diagram mode. Choose **pneumatics** for the pump, tank, regulator, relief valve and pressure sensor, with 13 displayed ports and four authored connections. **Split** reveals the source; other named views remain available in the sidebar.
 
 | File                 | Features                                                                                                 |
 | -------------------- | -------------------------------------------------------------------------------------------------------- |
@@ -21,9 +21,10 @@ Loading the example opens **pneumatics** in Diagram mode: pump, tank, regulator,
 - **overview**, **structure**, **installation**, **pneumatics**: structural diagrams. Nested typed assemblies can remain component-level nodes, with deeper links collapsed to those nodes. Conjugated type labels are retained, but payload expansion and effective conjugated directions remain incomplete.
 - **definitions**: part definitions, specialization, typing and composition with generic relationship lines.
 - **requirements**: a GeneralView tree of the specification and applied subjects; dedicated requirement notation and satisfaction/verification trace links are not drawn.
-- **actions**, **maintenance**, **useCases**, **states**, **startupSequence**, **demandSequence**, **faultSequence**, **envelopeGeometry**: evaluated by the pinned engine, with explicit unavailable-renderer messages in this application.
+- **actions**, **maintenance**, **states**: bounded native action/state diagrams with declared order/transitions; no execution.
+- **useCases**, **startupSequence**, **demandSequence**, **faultSequence**, **envelopeGeometry**: evaluated by the pinned engine, with explicit unavailable-renderer messages in this application.
 
-Attributes and constraints remain authored source; the diagram does not draw full attribute compartments or run a solver. Satisfaction and verification declarations are not evidence of a completed test. Conjugated endpoints cannot be used by the bounded graphical connection command. Use the smaller [assembly fixture](../assembly/model.sysml) to exercise that command's explicit same-type endpoint subset.
+Structural diagrams show source declarations for attributes, including inherited type members. Constraints remain source; the app does not run a solver. Satisfaction and verification declarations are not evidence of a completed test. Conjugated endpoints cannot be used by the bounded graphical connection command. Use the smaller [assembly fixture](../assembly/model.sysml) to exercise that command's explicit same-type endpoint subset.
 
 The [catalog](../catalog.json) retains exact engine node/relationship expectations, visual targets and gaps for every view. [Verification](../../docs/verification.md) distinguishes engine results, application behaviour and local test evidence.
 

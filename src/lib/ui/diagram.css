@@ -371,3 +371,87 @@
   border-bottom: 0;
   border-radius: inherit;
 }
+
+.structure-attributes {
+  border-bottom: 1px solid var(--sysml-border);
+  padding: 0 12px;
+}
+.structure-attributes > div {
+  height: 48px;
+  overflow: hidden;
+  padding: 5px 0;
+  font-size: 11px;
+  line-height: 15px;
+  overflow-wrap: anywhere;
+}
+.behavior-node {
+  border-radius: 16px;
+}
+.behavior-node .structure-heading {
+  background: color-mix(in srgb, #d97706 12%, var(--sysml-surface));
+  border-radius: 15px 15px 0 0;
+}
+.behavior-state {
+  border-radius: 24px;
+}
+.behavior-start,
+.behavior-done {
+  border: 3px solid var(--sysml-text);
+  border-radius: 999px;
+}
+.behavior-start .structure-heading,
+.behavior-done .structure-heading {
+  background: color-mix(in srgb, var(--sysml-text) 10%, var(--sysml-surface));
+}
+.behavior-detail {
+  padding: 4px 12px;
+  font-size: 12px;
+}
+
+.behavior-initial,
+.behavior-final,
+.behavior-start,
+.behavior-done {
+  border-radius: 50%;
+  background: var(--sysml-text);
+  border: 3px solid var(--sysml-text);
+}
+.behavior-initial > .structure-heading,
+.behavior-final > .structure-heading,
+.behavior-start > .structure-heading,
+.behavior-done > .structure-heading,
+.behavior-initial > .structure-ports,
+.behavior-final > .structure-ports,
+.behavior-start > .structure-ports,
+.behavior-done > .structure-ports {
+  display: none;
+}
+.behavior-final,
+.behavior-done {
+  box-shadow: inset 0 0 0 4px var(--sysml-surface);
+}
+
+.example-guide {
+  margin: 0;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--sysml-border);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--sysml-muted);
+  background: var(--sysml-surface);
+}
+
+.react-flow__node.structure-node.behavior-node {
+  border-radius: 16px;
+}
+.react-flow__node.structure-node.behavior-state {
+  border-radius: 24px;
+}
+.react-flow__node.structure-node.behavior-initial,
+.react-flow__node.structure-node.behavior-final,
+.react-flow__node.structure-node.behavior-start,
+.react-flow__node.structure-node.behavior-done {
+  border-radius: 50%;
+  background: var(--sysml-text);
+  border: 3px solid var(--sysml-text);
+}

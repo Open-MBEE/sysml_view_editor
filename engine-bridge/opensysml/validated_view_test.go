@@ -284,3 +284,43 @@ func TestStudioGeometryPlacement(t *testing.T) {
 		}
 	}
 }
+
+func TestStudioDeclaredAttributeValues(t *testing.T) {
+	server, err := New("v0.10.0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	call := func(method string, params any) map[string]any {
+		t.Helper()
+		p, _ := json.Marshal(params)
+		raw, err := server.Call(context.Background(), method, p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out map[string]any
+		if err := json.Unmarshal(raw, &out); err != nil {
+			t.Fatal(err)
+		}
+		return out
+	}
+	source := "package P { private import ScalarValues::*; part def Battery { attribute capacityWh : Real default = 480.0; } part def Rover { part left : Battery; part right : Battery; } } package V { private import StandardViewDefinitions::*; view architecture : InterconnectionView { expose P::Rover; } }"
+	parsed := call("ParseSources", map[string]any{"strictConformance": true, "documents": []any{map[string]any{"name": "model.sysml", "content": source}}})
+	result := call("EvaluateView", map[string]any{"modelHash": parsed["modelHash"], "view": "V::architecture"})
+	if result["status"] != "complete" {
+		t.Fatalf("%v", result)
+	}
+	found := 0
+	for _, raw := range result["artifact"].(map[string]any)["nodes"].([]any) {
+		n := raw.(map[string]any)
+		if n["name"] == "left" || n["name"] == "right" {
+			values := n["attributeDeclarations"].([]any)
+			if len(values) != 1 || values[0] != "attribute capacityWh : Real default = 480.0;" {
+				t.Fatalf("%v", n)
+			}
+			found++
+		}
+	}
+	if found != 2 {
+		t.Fatalf("Expected two independently typed usages, found %d", found)
+	}
+}

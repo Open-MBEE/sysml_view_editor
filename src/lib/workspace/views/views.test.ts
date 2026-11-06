@@ -185,3 +185,14 @@ describe('requirements artifact validation', () => {
     expect(() => validateEvaluation(value, 'hash', 'v')).toThrow();
   });
 });
+
+for (const kind of ['action', 'state']) {
+  it(`rejects unresolved ${kind} endpoints rather than dropping a behavior relationship`, () => {
+    const value = response();
+    value.artifact.kind = kind;
+    value.artifact.edges[0]!.to = 'missing';
+    expect(() => validateEvaluation(value, 'hash', 'v')).toThrow(
+      'unresolved connection endpoint',
+    );
+  });
+}

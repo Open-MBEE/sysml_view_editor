@@ -1,9 +1,16 @@
+import type { LayoutRoute } from './RoutedEdge';
 import ELK, { type ElkNode } from 'elkjs/lib/elk.bundled.js';
-import type { Node, Edge } from '@xyflow/react';
+import { MarkerType, type Node, type Edge } from '@xyflow/react';
 import type { ArtifactNode, Point, ViewArtifact } from '$lib/workspace/views';
 
 export type StructureNode = Node<
-  { item: ArtifactNode; compound: boolean; compact?: boolean },
+  {
+    item: ArtifactNode;
+    compound: boolean;
+    compact?: boolean;
+    behavior?: boolean;
+    dense?: boolean;
+  },
   'structure'
 >;
 const padding = 32;
@@ -20,8 +27,11 @@ const layoutOptions = {
 };
 export const headingHeight = 66;
 export const portHeight = 30;
-const contentTop = (item: ArtifactNode) =>
-  headingHeight + (item.ports?.length ?? 0) * portHeight + 20;
+const contentTop = (item: ArtifactNode, dense = false) =>
+  headingHeight +
+  (item.attributeDeclarations?.length ?? 0) * (dense ? 32 : 48) +
+  (item.ports?.length ?? 0) * portHeight +
+  20;
 
 /** Positions crossing the workspace boundary remain absolute version-1 coordinates. */
 export function absolutePositions(
@@ -46,33 +56,150 @@ export async function layoutStructure(
   artifact: ViewArtifact,
   stored: Readonly<Record<string, Point>>,
 ) {
+  const behavior = ['action', 'state'].includes(artifact.kind);
+  const dense = !behavior && artifact.nodes.length >= 10;
+  const cardWidth = dense ? 240 : width;
+  const options = behavior
+    ? {
+        ...layoutOptions,
+        'elk.direction': 'DOWN',
+        'elk.edgeRouting': 'ORTHOGONAL',
+      }
+    : {
+        ...layoutOptions,
+        'elk.edgeRouting': 'ORTHOGONAL',
+        ...(dense
+          ? {
+              'elk.spacing.nodeNode': '40',
+              'elk.layered.spacing.nodeNodeBetweenLayers': '64',
+            }
+          : {}),
+      };
   const children = (id?: string) =>
     artifact.nodes.filter((item) => (item.parent || undefined) === id);
   function graphNode(item: ArtifactNode): ElkNode {
     const nested = children(item.id);
+    const terminal =
+      behavior && ['initial', 'final', 'start', 'done'].includes(item.kind);
     return {
       id: item.id,
-      width,
-      height: contentTop(item),
+      width: terminal ? 36 : cardWidth,
+      height: terminal ? 36 : contentTop(item, dense),
+      ...(behavior
+        ? {
+            ports: [
+              {
+                id: item.id + '::source',
+                width: 0,
+                height: 0,
+                layoutOptions: { 'elk.port.side': 'SOUTH' },
+              },
+              {
+                id: item.id + '::target',
+                width: 0,
+                height: 0,
+                layoutOptions: { 'elk.port.side': 'NORTH' },
+              },
+              ...(item.ports ?? []).map((port) => ({
+                id: port.id,
+                width: 0,
+                height: 0,
+                layoutOptions: {
+                  'elk.port.side': port.direction === 'out' ? 'EAST' : 'WEST',
+                },
+              })),
+            ],
+            layoutOptions: {
+              'elk.portConstraints': 'FIXED_SIDE',
+              ...(terminal
+                ? {
+                    'elk.layered.layering.layerConstraint': [
+                      'initial',
+                      'start',
+                    ].includes(item.kind)
+                      ? 'FIRST'
+                      : 'LAST',
+                  }
+                : {}),
+            },
+          }
+        : {}),
+      ...(!behavior
+        ? {
+            ports: [
+              {
+                id: item.id + '::source',
+                x: cardWidth,
+                y: contentTop(item, dense) / 2,
+                width: 0,
+                height: 0,
+                layoutOptions: { 'elk.port.side': 'EAST' },
+              },
+              {
+                id: item.id + '::target',
+                x: 0,
+                y: contentTop(item, dense) / 2,
+                width: 0,
+                height: 0,
+                layoutOptions: { 'elk.port.side': 'WEST' },
+              },
+              ...(item.ports ?? []).map((port, index) => ({
+                id: port.id,
+                x: port.direction === 'out' ? cardWidth : 0,
+                // Match the rendered border, header, attribute border and row centre.
+                // Leaf rows share the 20px footer minus two 1px borders.
+                // Logical owners are not DOM ancestors of their child nodes.
+                y:
+                  1 +
+                  headingHeight +
+                  (item.attributeDeclarations?.length ?? 0) *
+                    (dense ? 32 : 48) +
+                  (item.attributeDeclarations?.length ? 1 : 0) +
+                  (index + 0.5) *
+                    (portHeight +
+                      (!nested.length ? 18 / item.ports!.length : 0)) +
+                  (index > 0 ? 0.5 : 0),
+                width: 0,
+                height: 0,
+                layoutOptions: {
+                  'elk.port.side': port.direction === 'out' ? 'EAST' : 'WEST',
+                },
+              })),
+            ],
+            layoutOptions: { 'elk.portConstraints': 'FIXED_POS' },
+          }
+        : {}),
       ...(nested.length
         ? {
             children: nested.map(graphNode),
             layoutOptions: {
-              ...layoutOptions,
-              'elk.padding': `[top=${contentTop(item)},left=${padding},bottom=${padding},right=${padding}]`,
+              ...options,
+              'elk.portConstraints': behavior ? 'FIXED_SIDE' : 'FIXED_POS',
+              'elk.padding': `[top=${contentTop(item, dense)},left=${padding},bottom=${padding},right=${padding}]`,
             },
           }
         : {}),
     };
   }
-  const layout = await new ELK().layout({
+  const layout: ElkNode = await new ELK().layout({
     id: 'structure-root',
-    layoutOptions,
+    layoutOptions: options,
     children: children().map(graphNode),
     edges: artifact.edges.map((edge, index) => ({
       id: `edge-${index}`,
-      sources: [edge.from],
-      targets: [edge.to],
+      sources: [edge.fromPort ?? edge.from + '::source'],
+      targets: [edge.toPort ?? edge.to + '::target'],
+      ...((behavior ? edge.label : edge.label || edge.kind)
+        ? {
+            labels: [
+              {
+                text: behavior ? edge.label! : edge.label || edge.kind,
+                width: (edge.label || edge.kind).length * 7 + 16,
+                height: 20,
+              },
+            ],
+          }
+        : {}),
     })),
   });
   const nodes: StructureNode[] = [];
@@ -83,14 +210,16 @@ export async function layoutStructure(
     const parentPosition = parent ? absolute[parent.id]! : { x: 0, y: 0 };
     let position = { x: graph.x ?? 0, y: graph.y ?? 0 };
     const saved = stored[item.id];
-    const min = parent ? { x: padding, y: contentTop(parent.data.item) } : null;
+    const min = parent
+      ? { x: padding, y: contentTop(parent.data.item, dense) }
+      : null;
     const max = parent
       ? {
-          x: Number(parent.style!.width) - padding - (graph.width ?? width),
+          x: Number(parent.style!.width) - padding - (graph.width ?? cardWidth),
           y:
             Number(parent.style!.height) -
             padding -
-            (graph.height ?? contentTop(item)),
+            (graph.height ?? contentTop(item, dense)),
         }
       : null;
     if (saved) {
@@ -114,12 +243,17 @@ export async function layoutStructure(
       id: item.id,
       type: 'structure',
       position,
-      data: { item, compound },
+      data: {
+        item,
+        compound,
+        ...(behavior ? { behavior: true } : {}),
+        ...(dense ? { dense: true } : {}),
+      },
       ariaLabel: `${item.reference ? 'ref ' : ''}${item.direction ? item.direction + ' ' : ''}${item.kind} ${item.name}${item.type ? ' : ' + item.type : ''}`,
-      className: `structure-node ${item.reference ? 'model-reference ' : ''}${item.kind === 'part def' ? 'model-definition' : 'model-usage'}${compound ? ' structure-compound' : ''}`,
+      className: `structure-node ${behavior ? 'behavior-node behavior-' + item.kind.replaceAll(' ', '-') + ' ' : ''}${item.reference ? 'model-reference ' : ''}${item.kind === 'part def' ? 'model-definition' : 'model-usage'}${compound ? ' structure-compound' : ''}`,
       style: {
-        width: graph.width ?? width,
-        height: graph.height ?? contentTop(item),
+        width: graph.width ?? cardWidth,
+        height: graph.height ?? contentTop(item, dense),
       },
       ...(parent && min && max
         ? {
@@ -127,8 +261,8 @@ export async function layoutStructure(
             extent: [
               [min.x, min.y],
               [
-                max.x + (graph.width ?? width),
-                max.y + (graph.height ?? contentTop(item)),
+                max.x + (graph.width ?? cardWidth),
+                max.y + (graph.height ?? contentTop(item, dense)),
               ],
             ] as [[number, number], [number, number]],
           }
@@ -148,11 +282,45 @@ export async function layoutStructure(
     target: edge.to,
     sourceHandle: edge.fromPort ?? 'node-source',
     targetHandle: edge.toPort ?? 'node-target',
-    label: edge.label || edge.kind,
+    label: behavior ? edge.label || undefined : edge.label || edge.kind,
     ariaLabel: `${edge.kind} ${edge.label ?? ''}: ${endpoint(edge.from, edge.fromPort)} to ${endpoint(edge.to, edge.toPort)}`,
-    type: 'smoothstep',
+    type: 'routed',
+    data: { route: layoutRoute(index) },
+    ...(behavior
+      ? {
+          markerEnd: { type: MarkerType.ArrowClosed },
+          style: edge.kind === 'flow' ? { strokeDasharray: '6 4' } : undefined,
+        }
+      : {}),
     zIndex: 1,
   }));
+  function layoutRoute(index: number): LayoutRoute {
+    const routed = layout.edges?.find((edge) => edge.id === `edge-${index}`);
+    const section = routed?.sections?.[0];
+    if (!section || routed?.sections?.length !== 1)
+      throw new Error('Layout omitted an unambiguous relationship route.');
+    const offset = (routed.container && absolute[routed.container]) || {
+      x: 0,
+      y: 0,
+    };
+    const label = routed.labels?.[0];
+    return {
+      ...(routed.container && absolute[routed.container]
+        ? { container: { id: routed.container, position: { ...offset } } }
+        : {}),
+      points: [
+        section.startPoint,
+        ...(section.bendPoints ?? []),
+        section.endPoint,
+      ].map((point) => ({ x: point.x + offset.x, y: point.y + offset.y })),
+      ...(label && label.x !== undefined && label.y !== undefined
+        ? {
+            labelX: offset.x + label.x + (label.width ?? 0) / 2,
+            labelY: offset.y + label.y + (label.height ?? 0) / 2,
+          }
+        : {}),
+    };
+  }
   function endpoint(id: string, portId?: string) {
     const item = artifact.nodes.find((node) => node.id === id)!;
     const names = [item.name];

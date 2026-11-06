@@ -11,7 +11,10 @@ import {
 import type { ProjectBundle } from '../../src/lib/workspace/persistence';
 import { readFile } from 'node:fs/promises';
 import { readEvaluatedView } from '../../src/lib/workspace/views/schema';
-import type { EvaluatedView } from '../../src/lib/workspace/views';
+import type {
+  EvaluatedView,
+  ViewArtifact,
+} from '../../src/lib/workspace/views';
 import { originKey } from '../../src/lib/workspace/editing/evidence';
 
 /** Compare saved geometry by actual per-view semantic occurrence, not n0 IDs. */
@@ -160,10 +163,13 @@ export function namedViewButton(page: Page, id: string) {
 
 export async function waitForStartup(page: Page, { split = true } = {}) {
   await expect(
-    page.getByRole('group', { name: 'part pump : Pump', exact: true }),
+    page.getByRole('group', {
+      name: 'part compressor : CompressorInterface',
+      exact: true,
+    }),
   ).toBeVisible();
   await expect(
-    namedViewButton(page, 'CompressorViews::pneumatics'),
+    namedViewButton(page, 'CompressorViews::overview'),
   ).toHaveAttribute('aria-current', 'page');
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
@@ -189,13 +195,20 @@ export async function startExample(
   options: { split?: boolean } = {},
 ) {
   await waitForLauncher(page);
-  await page.getByRole('button', { name: 'Load example', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Load air workshop', exact: true })
+    .click();
   await waitForStartup(page, options);
 }
 
+/** Most diagram regressions deliberately use the pneumatic fixture after startup. */
 export async function ready(page: Page, options: { split?: boolean } = {}) {
   await page.goto('/app');
   await startExample(page, options);
+  await namedViewButton(page, 'CompressorViews::pneumatics').click();
+  await expect(
+    page.getByRole('group', { name: 'part pump : Pump', exact: true }),
+  ).toBeVisible();
 }
 
 /** Keep focused history/appearance regressions explicit about their small fixture. */
@@ -484,9 +497,12 @@ export async function dragNode(page: Page, node: Locator) {
   await node.scrollIntoViewIfNeeded();
   const box = await node.boundingBox();
   expect(box).not.toBeNull();
-  await page.mouse.move(box!.x + 30, box!.y + 25);
+  // Stay inside a fitted card's header, including small action/state nodes.
+  const x = box!.x + Math.min(30, box!.width / 3);
+  const y = box!.y + Math.min(25, box!.height / 3);
+  await page.mouse.move(x, y);
   await page.mouse.down();
-  await page.mouse.move(box!.x + 110, box!.y + 80, { steps: 8 });
+  await page.mouse.move(x + 80, y + 55, { steps: 8 });
   await page.mouse.up();
 }
 
@@ -659,17 +675,25 @@ export async function explorationScopeFits(page: Page) {
 }
 
 /** Check actual SVG routes against declaration cards/headers in screen coordinates. */
-export async function overviewRoutingGeometry(page: Page) {
-  return page
-    .getByRole('region', { name: 'Diagram', exact: true })
-    .evaluate((region) => {
+export async function overviewRoutingGeometry(
+  page: Page,
+  unlabelled: readonly string[] = [],
+  artifact?: ViewArtifact,
+) {
+  return page.getByRole('region', { name: 'Diagram', exact: true }).evaluate(
+    (region, { unlabelled, topology }) => {
       const cards = [
         ...region.querySelectorAll<HTMLElement>('.react-flow__node'),
       ].map((node) => {
         const element = node.classList.contains('structure-compound')
           ? node.querySelector('.structure-heading')!
           : node;
-        return { id: node.dataset.id!, rect: element.getBoundingClientRect() };
+        return {
+          id: node.dataset.id!,
+          rect: element.getBoundingClientRect(),
+          body: node.getBoundingClientRect(),
+          compound: node.classList.contains('structure-compound'),
+        };
       });
       const viewport = region
         .querySelector('.react-flow')!
@@ -683,13 +707,53 @@ export async function overviewRoutingGeometry(page: Page) {
         const path = edge.querySelector<SVGPathElement>(
           '.react-flow__edge-path',
         )!;
+        // Routed edges emit model-space M/L sections. Check that physical
+        // handle attachment never turns a planned straight segment diagonal.
+        if (edge.classList.contains('react-flow__edge-routed')) {
+          const points = [
+            ...(path.getAttribute('d') ?? '').matchAll(
+              /[ML] ([-+\d.e]+) ([-+\d.e]+)/g,
+            ),
+          ].map((match) => ({ x: Number(match[1]), y: Number(match[2]) }));
+          for (let index = 1; index < points.length; index++)
+            if (
+              Math.min(
+                Math.abs(points[index]!.x - points[index - 1]!.x),
+                Math.abs(points[index]!.y - points[index - 1]!.y),
+              ) > 0.1
+            )
+              hits.push(`${edge.dataset.id} has a non-orthogonal section`);
+        }
+        const relationship =
+          topology?.edges[Number(edge.dataset.id?.split(':')[1])];
+        const contains = (owner: string, id: string): boolean => {
+          for (
+            let current: string | undefined = id;
+            current;
+            current = topology?.nodes.find(
+              (node) => node.id === current,
+            )?.parent
+          )
+            if (current === owner) return true;
+          return false;
+        };
+        const obstacles = cards.map((card) => ({
+          id: card.id,
+          rect:
+            relationship &&
+            card.compound &&
+            !contains(card.id, relationship.from) &&
+            !contains(card.id, relationship.to)
+              ? card.body
+              : card.rect,
+        }));
         const length = path.getTotalLength(),
           matrix = path.getScreenCTM()!;
         for (let distance = 0; distance <= length; distance += 3) {
           const raw = path.getPointAtLength(distance),
             point = new DOMPoint(raw.x, raw.y).matrixTransform(matrix);
           samples++;
-          for (const card of cards) {
+          for (const card of obstacles) {
             const r = card.rect;
             if (
               point.x > r.left + 1 &&
@@ -705,11 +769,15 @@ export async function overviewRoutingGeometry(page: Page) {
         const label = edge
           .querySelector('.react-flow__edge-textbg')
           ?.getBoundingClientRect();
+        if (unlabelled.includes(edge.dataset.id!)) {
+          if (label) hits.push(`${edge.dataset.id} unexpected label`);
+          continue;
+        }
         if (!label) {
           hits.push(`${edge.dataset.id} missing label`);
           continue;
         }
-        for (const { id, rect: r } of cards)
+        for (const { id, rect: r } of obstacles)
           if (
             label.left < r.right &&
             label.right > r.left &&
@@ -735,5 +803,35 @@ export async function overviewRoutingGeometry(page: Page) {
         labels.push(label);
       }
       return { hits: [...new Set(hits)], labelCount: labels.length, samples };
-    });
+    },
+    {
+      unlabelled: [...unlabelled],
+      topology: artifact
+        ? {
+            nodes: artifact.nodes.map((node) => ({
+              id: node.id,
+              parent: node.parent,
+            })),
+            edges: artifact.edges.map((edge) => ({
+              from: edge.from,
+              to: edge.to,
+            })),
+          }
+        : undefined,
+    },
+  );
+}
+
+/** Product-default startup, independent of the retained air-workshop test fixture. */
+export async function waitForRoverStartup(page: Page) {
+  await expect(
+    page.getByRole('combobox', { name: 'Named view', exact: true }),
+  ).toHaveValue('RoverViews::architecture');
+  await expect(
+    page.getByRole('group', { name: 'part battery : Battery', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Download project', exact: true }),
+  ).toBeEnabled();
+  await page.evaluate(() => document.fonts.ready);
 }

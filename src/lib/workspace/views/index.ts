@@ -39,7 +39,10 @@ export function validateEvaluation(
       !Array.isArray(result.artifact.edges))
   )
     throw new Error('View response omitted its artifact.');
-  if (result.artifact?.kind === 'interconnection')
+  if (
+    result.artifact &&
+    ['interconnection', 'action', 'state'].includes(result.artifact.kind)
+  )
     validateStructure(result.artifact);
   if (result.artifact?.kind === 'requirement') validateRequirements(result);
   return result;

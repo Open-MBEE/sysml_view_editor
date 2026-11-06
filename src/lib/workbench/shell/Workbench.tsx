@@ -5,7 +5,13 @@ import {
 } from './WorkbenchPanels';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createBrowserSession } from './session';
-import { exampleProject, exampleView } from './example';
+import {
+  exampleProject,
+  exampleView,
+  airWorkshopProject,
+  airWorkshopView,
+  roverGuide,
+} from './example';
 import type { Workspace, WorkspaceState } from '$lib/workspace/createWorkspace';
 import type { ProjectBundle } from '$lib/workspace/persistence';
 import type { EditProposal, SemanticCommand } from '$lib/workspace/editing';
@@ -232,11 +238,11 @@ export function Workbench({
     setError('');
     setLauncherOpen(false);
   }
-  async function loadExample() {
+  async function loadExample(airWorkshop = false) {
     if (!replaceAllowed()) return;
-    await open(exampleProject, {
+    await open(airWorkshop ? airWorkshopProject : exampleProject, {
       origin: 'Built-in example',
-      preferred: exampleView,
+      preferred: airWorkshop ? airWorkshopView : exampleView,
     });
     setMode('diagram');
   }
@@ -490,7 +496,8 @@ export function Workbench({
       {launcherOpen && active && (
         <ProjectLauncher
           onHome={onHome}
-          onExample={() => void run(loadExample)}
+          onExample={() => void run(() => loadExample())}
+          onAirWorkshop={() => void run(() => loadExample(true))}
           onNew={() => {
             if (replaceAllowed()) {
               setError('');
@@ -664,6 +671,11 @@ export function Workbench({
                   layoutMode={mode}
                   key={(diagramIdentity ?? 'none') + ':' + state.revision}
                   view={displayedView}
+                  guide={
+                    origin === 'Built-in example' && displayedView
+                      ? roverGuide[displayedView.view]
+                      : undefined
+                  }
                   exploration={state.exploration?.request}
                   elements={state.model?.elements ?? []}
                   explorationFocus={explorationFocus}

@@ -1,5 +1,6 @@
 import { useDiagramFit } from './useDiagramFit';
 import { layoutExploration, explorationKindLabel } from './exploration';
+import { RoutedEdge } from './RoutedEdge';
 import { ExplorationEdge } from './ExplorationEdge';
 import type { ExplorationRequest } from '$lib/workspace/exploration';
 import type { ModelElement } from '$lib/workspace/project';
@@ -29,7 +30,7 @@ import { layoutStructure, absolutePositions } from './structure';
 import { StructureNode, SelectDiagramSymbol } from './StructureNode';
 import { RequirementNode } from './RequirementNode';
 import { layoutRequirements } from './requirements';
-const edgeTypes = { exploration: ExplorationEdge };
+const edgeTypes = { exploration: ExplorationEdge, routed: RoutedEdge };
 const nodeTypes = { structure: StructureNode, requirement: RequirementNode };
 function FitAvailableSpace({
   padding,
@@ -82,6 +83,7 @@ import type {
   Point,
 } from '$lib/workspace/views';
 interface Props {
+  guide?: string;
   exploration?: ExplorationRequest;
   elements?: readonly ModelElement[];
   explorationFocus?: 'scope' | 'representation';
@@ -102,6 +104,7 @@ interface Props {
   layoutMode: 'code' | 'split' | 'diagram';
 }
 export function Diagram({
+  guide,
   exploration,
   explorationFocus,
   elements = [],
@@ -142,12 +145,19 @@ export function Diagram({
     view?.status === 'complete' &&
     view.renderStatus === 'available' &&
     view.artifact &&
-    ['tree', 'interconnection', 'definition', 'requirement'].includes(
-      view.artifact.kind,
-    );
+    [
+      'tree',
+      'interconnection',
+      'definition',
+      'requirement',
+      'action',
+      'state',
+    ].includes(view.artifact.kind);
   const fitPadding = exploration
     ? 0.1
-    : ['interconnection', 'requirement'].includes(view?.artifact?.kind ?? '')
+    : ['interconnection', 'requirement', 'action', 'state'].includes(
+          view?.artifact?.kind ?? '',
+        )
       ? 0.1
       : 0.2;
   const [initialPresentation] = useState(presentation);
@@ -192,7 +202,7 @@ export function Diagram({
         ? initialPresentation.positions
         : {};
     if (
-      artifact.kind === 'interconnection' ||
+      ['interconnection', 'action', 'state'].includes(artifact.kind) ||
       artifact.kind === 'requirement'
     ) {
       const layout =
@@ -441,11 +451,15 @@ export function Diagram({
                   ? 'Structure'
                   : view.artifact.kind === 'requirement'
                     ? 'Requirements'
-                    : view.artifact.kind === 'tree'
-                      ? exploration
-                        ? 'Ownership overview'
-                        : 'Overview tree'
-                      : 'Named view'}
+                    : view.artifact.kind === 'action'
+                      ? 'Mission flow'
+                      : view.artifact.kind === 'state'
+                        ? 'Operating states'
+                        : view.artifact.kind === 'tree'
+                          ? exploration
+                            ? 'Ownership overview'
+                            : 'Overview tree'
+                          : 'Named view'}
               </span>
             )}
             <span className="diagram-revision">
@@ -459,7 +473,7 @@ export function Diagram({
             </span>
           </div>
         </div>
-        {!exploration && view?.artifact?.kind !== 'requirement' && (
+        {!exploration && view?.artifact?.kind === 'interconnection' && (
           <div className="diagram-actions">
             <Button
               variant="ghost"
@@ -480,6 +494,7 @@ export function Diagram({
           </div>
         )}
       </header>
+      {guide && <p className="example-guide">{guide}</p>}
       {!view ? (
         <div className="empty">
           <h2>One model. Focused views.</h2>
@@ -530,7 +545,12 @@ export function Diagram({
                 edgeTypes={edgeTypes}
                 onNodesChange={(changes) => {
                   setNodes((current) => applyNodeChanges(changes, current));
-                  if (view?.artifact?.kind === 'requirement' || exploration) {
+                  if (
+                    ['requirement', 'action', 'state'].includes(
+                      view?.artifact?.kind ?? '',
+                    ) ||
+                    exploration
+                  ) {
                     for (const change of changes)
                       if (change.type === 'select' && change.selected)
                         onSelect(change.id);
@@ -552,7 +572,12 @@ export function Diagram({
                 }}
                 onEdgesChange={(changes) => {
                   setEdges((current) => applyEdgeChanges(changes, current));
-                  if (view?.artifact?.kind === 'requirement' || exploration) {
+                  if (
+                    ['requirement', 'action', 'state'].includes(
+                      view?.artifact?.kind ?? '',
+                    ) ||
+                    exploration
+                  ) {
                     for (const change of changes)
                       if (change.type === 'select' && change.selected)
                         onSelect(change.id);
@@ -560,7 +585,12 @@ export function Diagram({
                 }}
                 edgesFocusable={!locked}
                 onEdgeClick={(_event, edge) => {
-                  if (view?.artifact?.kind === 'requirement' || exploration)
+                  if (
+                    ['requirement', 'action', 'state'].includes(
+                      view?.artifact?.kind ?? '',
+                    ) ||
+                    exploration
+                  )
                     onSelect(edge.id);
                 }}
                 fitView
@@ -572,7 +602,13 @@ export function Diagram({
                   maxZoom: 1,
                 }}
                 minZoom={
-                  exploration || view?.artifact?.kind === 'requirement'
+                  exploration ||
+                  [
+                    'requirement',
+                    'action',
+                    'state',
+                    'interconnection',
+                  ].includes(view?.artifact?.kind ?? '')
                     ? 0.1
                     : 0.5
                 }
@@ -582,7 +618,11 @@ export function Diagram({
                 deleteKeyCode={null}
                 onNodeClick={(_event, node) => onSelect(node.id)}
                 onNodeDragStop={(_event, node) => {
-                  if (view?.artifact?.kind !== 'requirement')
+                  if (
+                    !['requirement', 'action', 'state'].includes(
+                      view?.artifact?.kind ?? '',
+                    )
+                  )
                     onMove(
                       absolutePositions(
                         nodes.map((current) =>

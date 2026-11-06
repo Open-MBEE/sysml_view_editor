@@ -1,0 +1,24 @@
+# Inspection rover
+
+The default **Load example** and **Try an example** project. Six source files and five named views describe one indoor inspection rover, rather than unrelated syntax demonstrations. The air workshop remains available through **Load air workshop**.
+
+## Guided tour
+
+1. **architecture** opens first. Follow a 480 Wh battery through distribution to two drive usages, the autonomy controller and an inspection camera. Lidar feeds obstacle perception; images return to the controller, and radio carries mission telemetry. Four explicit assembly containers retain ownership. Attribute compartments show the exact declared values, including inherited type members; they do not evaluate performance.
+2. **mission** follows battery check, patrol, obstacle detection, image capture, reporting, return and recharge. Initial/final nodes and directed succession arrows show the declared order. Four explicit allocations link mission steps to actual controller, camera, radio and left-drive usages. The action diagram shows the sequence; allocation declarations remain available in source. This simple sequence does not branch or execute.
+3. **lifecycle** connects docked, patrolling, inspecting, returning, charging and safeStop. The low-reserve and obstacle paths make the mission's recovery concerns explicit. Transition names are labels, not evaluated guards or live events.
+4. **requirements** traces four quantitative declarations to their exact usage targets: 20% energy reserve, 1.5 m/s maximum drive speed, 0.8 m obstacle clearance and 12 MP image resolution. Satisfaction assertions are modeled claims, not verification results. Only the left drive is explicitly linked to the speed requirement; no right-drive link is inferred.
+5. **definitions** shows reusable component types and actuator/sensor specialization. The two drives in architecture share the same Drive definition but remain distinct usages.
+
+Select any ordinary diagram node and choose **Open source** to inspect its declaration. Download the project to preserve sources and independently arranged view geometry. Model edits remain drafts until **Apply source** succeeds.
+
+## Files and scope
+
+- `system.sysml`: rover composition and ten port connections.
+- `components.sysml`: component definitions, declared values and specialization.
+- `types.sysml`: power, command, sensor, image and telemetry interfaces.
+- `behavior.sysml`: mission successions and operating-state transitions.
+- `requirements.sysml`: quantitative bounds and four explicit satisfaction assertions.
+- `views.sysml`: the five authored browsing selections.
+
+The example is authored here under Apache-2.0. Numeric attributes use scalar names with explicit units in their names/documentation; this is not a dimensional-analysis or simulation model. No physical test results, live state, automatic routing behavior or solver results are claimed. Declared behavior rendering is bounded to the native action/state graphs; sequence, case and mixed views still need independent renderers.

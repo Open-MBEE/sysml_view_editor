@@ -2,17 +2,26 @@ import { readFile } from 'node:fs/promises';
 import {
   test,
   expect,
-  ready,
+  waitForStartup,
+  waitForLauncher,
   observeEvaluations,
   downloadProject,
   namedViewButton,
 } from './support';
 
-test('explicitly loads the complete Smart air workshop in its useful pneumatic view and preserves all nine source files', async ({
+test('explicitly loads the complete Smart air workshop in its workshop overview and preserves all nine source files', async ({
   page,
 }, testInfo) => {
   const evaluations = await observeEvaluations(page);
-  await ready(page, { split: false });
+  await page.goto('/app');
+  await waitForLauncher(page);
+  await page
+    .getByRole('button', { name: 'Load air workshop', exact: true })
+    .click();
+  await expect(
+    page.getByRole('combobox', { name: 'Named view', exact: true }),
+  ).toHaveValue('CompressorViews::overview', { timeout: 3000 });
+  await waitForStartup(page, { split: false });
   await expect(
     page.getByRole('banner').getByText('Smart air workshop', { exact: true }),
   ).toBeVisible();
@@ -23,30 +32,24 @@ test('explicitly loads the complete Smart air workshop in its useful pneumatic v
     page.getByRole('region', { name: 'Source editor', exact: true }),
   ).not.toBeVisible();
   const view = evaluations.findLast(
-    (item) => item.view === 'CompressorViews::pneumatics',
+    (item) => item.view === 'CompressorViews::overview',
   )!;
   expect(view.status).toBe('complete');
   expect(view.artifact?.kind).toBe('interconnection');
   expect(view.artifact!.nodes.map((item) => item.name).sort()).toEqual(
     [
-      'CompressorSystem::PneumaticAssembly',
-      'pump',
-      'tank',
-      'regulator',
-      'relief',
-      'pressureSensor',
+      'CompressorSystem::WorkshopContext',
+      'mains',
+      'compressor',
+      'tool',
+      'serviceConsole',
     ].sort(),
   );
   expect(view.artifact!.nodes.flatMap((item) => item.ports ?? [])).toHaveLength(
-    13,
+    6,
   );
   expect(view.artifact!.edges.map((item) => item.label).sort()).toEqual(
-    [
-      'chargingLine',
-      'regulatedDelivery',
-      'pressureProtection',
-      'pressureSample',
-    ].sort(),
+    ['electricalSupply', 'usableAir'].sort(),
   );
   const navigation = page.getByRole('complementary', {
     name: 'Project navigation',
@@ -98,10 +101,17 @@ test('explicitly loads the complete Smart air workshop in its useful pneumatic v
     );
   }
   await expect(
-    namedViewButton(page, 'CompressorViews::pneumatics'),
+    namedViewButton(page, 'CompressorViews::overview'),
   ).toHaveAttribute('aria-current', 'page');
   expect((await downloadProject(page)).bundle).toEqual(saved.bundle);
-  await testInfo.attach('default-pneumatics-engine', {
+  await namedViewButton(page, 'CompressorViews::pneumatics').click();
+  await expect(
+    page.getByRole('group', { name: 'part pump : Pump', exact: true }),
+  ).toBeVisible();
+  expect((await downloadProject(page)).bundle.documents).toEqual(
+    saved.bundle.documents,
+  );
+  await testInfo.attach('default-overview-engine', {
     body: JSON.stringify(view, null, 2),
     contentType: 'application/json',
   });

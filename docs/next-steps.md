@@ -40,10 +40,12 @@ Publication follows only after one reviewed command preserves repository UUIDs a
 
 ## Follow-on usability and rendering
 
-The next diagram-polish slice is [edge interaction and routing](architecture/structural-views.md#planned-edge-interactions-and-routing): verify controlled selection, accessible endpoint descriptions, readable labels and hit targets before adopting obstacle-aware routes. Existing smoothstep labels and hit areas already provide part of that behavior.
+Named structural and bounded action/state diagrams now retain generated orthogonal routes and labels. Follow-on [edge interaction and routing](architecture/structural-views.md#planned-edge-interactions-and-routing) work includes accessible endpoint descriptions, hit targets and obstacle rerouting after arbitrary individual-node movement. Read-only exploration retains its separate routing geometry.
 
 - Consistent selection and source/canvas reveal, including Explorer-only selection; model-wide search and discoverable language shortcuts.
 - Broader structural notation, effective conjugated directions and new representation families, each backed by actual engine/renderer evidence.
 - Accessibility and large-model performance work based on measured workflows.
 
 Keep arbitrary source reconciliation conservative; general persistent identity, independent layout undo, camera persistence, reconnect/delete/duplicate and behavior editing remain gaps. Use the [authoring contract](architecture/graphical-authoring.md), [identity policy](architecture/identity-reconciliation.md) and [example targets](../examples/README.md) when extending them. Completed assembly milestones and earlier delivery sequences are retained in Git history, not repeated as pending work.
+
+The inspection-rover showcase now has bounded named action/state rendering and effective declared-attribute compartments. Remaining representation work includes case/mixed/sequence/geometry families and richer notation, each requiring independent engine and renderer evidence; execution and behavior editing remain separate work.
