@@ -3,21 +3,18 @@ import {
   test,
   expect,
   waitForStartup,
-  waitForLauncher,
+  startExample,
   observeEvaluations,
   downloadProject,
   namedViewButton,
 } from './support';
 
-test('explicitly loads the complete Smart air workshop in its workshop overview and preserves all nine source files', async ({
+test('imports the complete legacy Smart air workshop fixture in its workshop overview and preserves all nine source files', async ({
   page,
 }, testInfo) => {
   const evaluations = await observeEvaluations(page);
   await page.goto('/app');
-  await waitForLauncher(page);
-  await page
-    .getByRole('button', { name: 'Load air workshop', exact: true })
-    .click();
+  await startExample(page, { split: false });
   await expect(
     page.getByRole('combobox', { name: 'Named view', exact: true }),
   ).toHaveValue('CompressorViews::overview', { timeout: 3000 });

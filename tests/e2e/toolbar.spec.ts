@@ -4,7 +4,7 @@ import {
   test,
   expect,
   ready,
-  waitForLauncher,
+  startExample,
   openWorkshop,
   downloadProject,
   diagramCamera,
@@ -154,10 +154,7 @@ test('keeps wrapped mobile project actions inside the header and above source co
 }) => {
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto('/app');
-  await waitForLauncher(page);
-  await page
-    .getByRole('button', { name: 'Load air workshop', exact: true })
-    .click();
+  await startExample(page, { split: false });
   await expect(
     page.getByRole('combobox', { name: 'Named view', exact: true }),
   ).toHaveValue('CompressorViews::overview');

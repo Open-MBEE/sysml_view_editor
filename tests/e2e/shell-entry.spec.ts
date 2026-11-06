@@ -81,14 +81,22 @@ test('@critical opens the OpenMBEE landing and empty launcher without loading an
   await expect(
     page.getByRole('button', { name: 'Open files or project', exact: true }),
   ).toBeEnabled();
-  await page
-    .getByText('Folder and repository workflows', { exact: true })
-    .click();
   await expect(
-    page.getByText(
-      'Direct folder saving and Flexo project/branch checkout are planned. Use source files or a project bundle to work locally today.',
-      { exact: true },
-    ),
+    page.getByRole('button', { name: 'Load air workshop', exact: true }),
+  ).toHaveCount(0, { timeout: 2000 });
+  const choices = page.getByRole('group', {
+    name: 'Project starting points',
+    exact: true,
+  });
+  await expect(choices.getByRole('button')).toHaveCount(3);
+  for (const name of ['New project', 'Open files or project', 'Load example']) {
+    await page.keyboard.press('Tab');
+    await expect(
+      choices.getByRole('button', { name, exact: true }),
+    ).toBeFocused();
+  }
+  await expect(
+    page.getByRole('heading', { name: 'Save your work', exact: true }),
   ).toBeVisible();
   expect(engineRequests).toEqual([]);
 });

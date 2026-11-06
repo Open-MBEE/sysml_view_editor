@@ -91,7 +91,7 @@ Follow the in-app guide through **architecture → mission → lifecycle → req
 3. Edit source and choose **Apply source**. Invalid drafts retain the applied model and appear in **Issues**.
 4. Choose **Download project** to preserve sources and arranged view geometry.
 
-[Take the rover tour](examples/inspection-rover/README.md). The previous nine-file compressor project remains available through **Load air workshop**; its overview opens first and **pneumatics** provides the detailed assembly.
+[Take the rover tour](examples/inspection-rover/README.md). The launcher offers **New project**, **Open files or project**, and the rover example. The compressor sources remain in the example library for explicit imports and regression coverage.
 
 ### 3. Try graphical authoring
 
@@ -108,13 +108,13 @@ Connection creation currently requires explicit compatible directions and identi
 
 Open all `.sysml` files from one example folder together. Each project has its own named views and recorded visual targets.
 
-| Project                                                                                                                                                                 | Explore                                                                                                                          |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| [Smart air workshop](examples/air-compressor/README.md)                                                                                                                 | A complete nine-file example spanning structure, requirements, behavior and geometry; the retained air-workshop launcher example |
-| [Nested assembly](examples/assembly/)                                                                                                                                   | Nested ownership, repeated usages, inherited ports, a connection and reference notation; the focused authoring fixture           |
-| [Parts](examples/parts/), [ports](examples/ports/) and [packages](examples/packages/)                                                                                   | Shared definitions, usage contexts, conjugation, imports and exposure                                                            |
-| [Requirements](examples/requirements/), [use cases](examples/use-cases/), [actions](examples/actions/), [states](examples/states/) and [sequences](examples/sequences/) | Source constructs and named views, including explicit unavailable-renderer cases                                                 |
-| [Complete example library](examples/README.md)                                                                                                                          | Comments, documentation, filters, empty views and per-view support gaps                                                          |
+| Project                                                                                                                                                                 | Explore                                                                                                                      |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [Smart air workshop](examples/air-compressor/README.md)                                                                                                                 | A complete nine-file example spanning structure, requirements, behavior and geometry; a legacy import and regression fixture |
+| [Nested assembly](examples/assembly/)                                                                                                                                   | Nested ownership, repeated usages, inherited ports, a connection and reference notation; the focused authoring fixture       |
+| [Parts](examples/parts/), [ports](examples/ports/) and [packages](examples/packages/)                                                                                   | Shared definitions, usage contexts, conjugation, imports and exposure                                                        |
+| [Requirements](examples/requirements/), [use cases](examples/use-cases/), [actions](examples/actions/), [states](examples/states/) and [sequences](examples/sequences/) | Source constructs and named views, including explicit unavailable-renderer cases                                             |
+| [Complete example library](examples/README.md)                                                                                                                          | Comments, documentation, filters, empty views and per-view support gaps                                                      |
 
 Engine evaluation, application rendering and intended visual quality are recorded separately. Passing an example does not establish full SysML v2 conformance.
 

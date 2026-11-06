@@ -1,6 +1,6 @@
 # Inspection rover
 
-The default **Load example** and **Try an example** project. Six source files and five named views describe one indoor inspection rover, rather than unrelated syntax demonstrations. The air workshop remains available through **Load air workshop**.
+The default **Load example** and **Try an example** project. Six source files and five named views describe one indoor inspection rover, rather than unrelated syntax demonstrations. This is the only bundled example in the project launcher.
 
 ## Guided tour
 

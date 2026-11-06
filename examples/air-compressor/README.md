@@ -1,6 +1,6 @@
 # Smart air workshop
 
-This built-in project is available through **Load air workshop** in the launcher. The default example is the inspection rover. Its nine SysML files and 14 named views model the compressor's electrical and pneumatic assemblies, cooling, two installed compressor usages, tools, operator/technician roles, requirements, behaviour and enclosure geometry.
+This legacy project is retained for explicit imports and regression tests. Import all nine `.sysml` files together; it is not bundled in the launcher. The built-in example is the inspection rover. Its nine SysML files and 14 named views model the compressor's electrical and pneumatic assemblies, cooling, two installed compressor usages, tools, operator/technician roles, requirements, behaviour and enclosure geometry.
 
 Loading this example opens **overview** in Diagram mode. Choose **pneumatics** for the pump, tank, regulator, relief valve and pressure sensor, with 13 displayed ports and four authored connections. **Split** reveals the source; other named views remain available in the sidebar.
 

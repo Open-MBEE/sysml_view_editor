@@ -5,13 +5,7 @@ import {
 } from './WorkbenchPanels';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createBrowserSession } from './session';
-import {
-  exampleProject,
-  exampleView,
-  airWorkshopProject,
-  airWorkshopView,
-  roverGuide,
-} from './example';
+import { exampleProject, exampleView, roverGuide } from './example';
 import type { Workspace, WorkspaceState } from '$lib/workspace/createWorkspace';
 import type { ProjectBundle } from '$lib/workspace/persistence';
 import type { EditProposal, SemanticCommand } from '$lib/workspace/editing';
@@ -238,11 +232,11 @@ export function Workbench({
     setError('');
     setLauncherOpen(false);
   }
-  async function loadExample(airWorkshop = false) {
+  async function loadExample() {
     if (!replaceAllowed()) return;
-    await open(airWorkshop ? airWorkshopProject : exampleProject, {
+    await open(exampleProject, {
       origin: 'Built-in example',
-      preferred: airWorkshop ? airWorkshopView : exampleView,
+      preferred: exampleView,
     });
     setMode('diagram');
   }
@@ -497,7 +491,6 @@ export function Workbench({
         <ProjectLauncher
           onHome={onHome}
           onExample={() => void run(() => loadExample())}
-          onAirWorkshop={() => void run(() => loadExample(true))}
           onNew={() => {
             if (replaceAllowed()) {
               setError('');

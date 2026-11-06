@@ -169,8 +169,8 @@ export async function waitForStartup(page: Page, { split = true } = {}) {
     }),
   ).toBeVisible();
   await expect(
-    namedViewButton(page, 'CompressorViews::overview'),
-  ).toHaveAttribute('aria-current', 'page');
+    page.getByRole('combobox', { name: 'Named view', exact: true }),
+  ).toHaveValue('CompressorViews::overview');
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
@@ -189,16 +189,52 @@ export async function waitForLauncher(page: Page) {
   ).toBeEnabled();
 }
 
-/** Explicitly choose the example; waiting for a model never creates one. */
+/** Import the legacy compressor fixture explicitly; it is not bundled in the app. */
 export async function startExample(
   page: Page,
   options: { split?: boolean } = {},
 ) {
   await waitForLauncher(page);
+  const documents = await Promise.all(
+    [
+      'system.sysml',
+      'components.sysml',
+      'types.sysml',
+      'behavior.sysml',
+      'requirements.sysml',
+      'use-cases.sysml',
+      'views.sysml',
+      'sequence.sysml',
+      'geometry.sysml',
+    ].map(async (name) => ({
+      name,
+      text: await readFile(
+        new URL(`../../examples/air-compressor/${name}`, import.meta.url),
+        'utf8',
+      ),
+    })),
+  );
+  await page.locator('input[type=file]').setInputFiles({
+    name: 'air-workshop.sysml-project.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(
+      JSON.stringify({
+        format: 'sysmlv2-view-project',
+        version: 1,
+        name: 'Smart air workshop',
+        documents,
+        drafts: documents,
+        presentations: {},
+      }),
+    ),
+  });
+  await waitForStartup(page, { split: false });
   await page
-    .getByRole('button', { name: 'Load air workshop', exact: true })
+    .getByRole('button', {
+      name: options.split === false ? 'Diagram' : 'Split',
+      exact: true,
+    })
     .click();
-  await waitForStartup(page, options);
 }
 
 /** Most diagram regressions deliberately use the pneumatic fixture after startup. */
