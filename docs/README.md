@@ -27,9 +27,12 @@ OpenMBEE View Editor is a sandbox browser workspace for SysML v2 source and name
 | [Identity and layout preservation](architecture/identity-reconciliation.md) | Identity domains, verified edits and conservative invalidation                           |
 | [Project format](architecture/project-format.md)                            | Portable version-1 data and compatibility rules                                          |
 
+- [Read-only requirements data](architecture/requirements-data.md): source-bound tables, matrices, CSV and preservation rules.
+- [OpenSysML 0.12 compatibility](research/opensysml-0.12-compatibility.md): ported overlay seams and real-worker evidence.
+
 ## Planned work and research
 
-- [Model exploration](architecture/model-exploration.md): agreed behavior for browsing models without authored views; not implemented.
+- [Model exploration](architecture/model-exploration.md): bounded read-only browsing without authored views and its remaining opening/persistence work.
 - [Exploration engine investigation](research/automatic-exploration-contract.md): pinned renderer/WASM evidence and the next contract boundary.
 - [Flexo MMS integration](research/openmbee-flexo-mms.md): dated source research and unresolved interchange/concurrency gates; not implemented.
 

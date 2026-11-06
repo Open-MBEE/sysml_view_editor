@@ -1,0 +1,355 @@
+{
+  "edges": [
+    {
+      "from": "n2",
+      "to": "n3",
+      "label": "input",
+      "kind": "reference",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 4,
+        "startCol": 9,
+        "endLine": 4,
+        "endCol": 32
+      }
+    },
+    {
+      "from": "n2",
+      "to": "n4",
+      "label": "output",
+      "kind": "reference",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 5,
+        "startCol": 9,
+        "endLine": 5,
+        "endCol": 34
+      }
+    },
+    {
+      "from": "n2",
+      "to": "n5",
+      "label": "service",
+      "kind": "reference",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 6,
+        "startCol": 9,
+        "endLine": 6,
+        "endCol": 37
+      }
+    },
+    {
+      "from": "n3",
+      "to": "n1",
+      "kind": "typing",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 4,
+        "startCol": 25,
+        "endLine": 4,
+        "endCol": 31
+      }
+    },
+    {
+      "from": "n4",
+      "to": "n1",
+      "kind": "typing",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 5,
+        "startCol": 27,
+        "endLine": 5,
+        "endCol": 33
+      }
+    },
+    {
+      "from": "n5",
+      "to": "n1",
+      "kind": "typing",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 6,
+        "startCol": 30,
+        "endLine": 6,
+        "endCol": 36
+      }
+    },
+    {
+      "from": "n7",
+      "to": "n8",
+      "label": "bay",
+      "kind": "composition",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 11,
+        "startCol": 9,
+        "endLine": 15,
+        "endCol": 10
+      }
+    },
+    {
+      "from": "n7",
+      "to": "n12",
+      "label": "monitor",
+      "kind": "reference",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 16,
+        "startCol": 9,
+        "endLine": 16,
+        "endCol": 35
+      }
+    },
+    {
+      "from": "n8",
+      "to": "n9",
+      "label": "primary",
+      "kind": "composition",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 12,
+        "startCol": 13,
+        "endLine": 12,
+        "endCol": 35
+      }
+    },
+    {
+      "from": "n8",
+      "to": "n10",
+      "label": "standby",
+      "kind": "composition",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 13,
+        "startCol": 13,
+        "endLine": 13,
+        "endCol": 35
+      }
+    },
+    {
+      "from": "n9",
+      "to": "n2",
+      "kind": "typing",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 12,
+        "startCol": 28,
+        "endLine": 12,
+        "endCol": 34
+      }
+    },
+    {
+      "from": "n10",
+      "to": "n2",
+      "kind": "typing",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 13,
+        "startCol": 28,
+        "endLine": 13,
+        "endCol": 34
+      }
+    },
+    {
+      "from": "n12",
+      "to": "n2",
+      "kind": "typing",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 16,
+        "startCol": 28,
+        "endLine": 16,
+        "endCol": 34
+      }
+    }
+  ],
+  "kind": "tree",
+  "nodes": [
+    {
+      "id": "n0",
+      "kind": "package",
+      "name": "Assembly",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 1,
+        "startCol": 1,
+        "endLine": 18,
+        "endCol": 2
+      }
+    },
+    {
+      "id": "n1",
+      "kind": "port def",
+      "name": "Signal",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 2,
+        "startCol": 5,
+        "endLine": 2,
+        "endCol": 21
+      },
+      "parent": "n0"
+    },
+    {
+      "id": "n2",
+      "kind": "part def",
+      "name": "Device",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 3,
+        "startCol": 5,
+        "endLine": 7,
+        "endCol": 6
+      },
+      "parent": "n0"
+    },
+    {
+      "id": "n3",
+      "kind": "port",
+      "name": "input",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 4,
+        "startCol": 9,
+        "endLine": 4,
+        "endCol": 32
+      },
+      "parent": "n2",
+      "type": "Signal"
+    },
+    {
+      "id": "n4",
+      "kind": "port",
+      "name": "output",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 5,
+        "startCol": 9,
+        "endLine": 5,
+        "endCol": 34
+      },
+      "parent": "n2",
+      "type": "Signal"
+    },
+    {
+      "id": "n5",
+      "kind": "port",
+      "name": "service",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 6,
+        "startCol": 9,
+        "endLine": 6,
+        "endCol": 37
+      },
+      "parent": "n2",
+      "type": "Signal"
+    },
+    {
+      "id": "n6",
+      "kind": "action def",
+      "name": "Inspect",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 9,
+        "startCol": 5,
+        "endLine": 9,
+        "endCol": 24
+      },
+      "parent": "n0"
+    },
+    {
+      "id": "n7",
+      "kind": "part def",
+      "name": "Station",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 10,
+        "startCol": 5,
+        "endLine": 17,
+        "endCol": 6
+      },
+      "parent": "n0"
+    },
+    {
+      "id": "n8",
+      "kind": "part",
+      "name": "bay",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 11,
+        "startCol": 9,
+        "endLine": 15,
+        "endCol": 10
+      },
+      "parent": "n7"
+    },
+    {
+      "id": "n9",
+      "kind": "part",
+      "name": "primary",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 12,
+        "startCol": 13,
+        "endLine": 12,
+        "endCol": 35
+      },
+      "parent": "n8",
+      "type": "Device"
+    },
+    {
+      "id": "n10",
+      "kind": "part",
+      "name": "standby",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 13,
+        "startCol": 13,
+        "endLine": 13,
+        "endCol": 35
+      },
+      "parent": "n8",
+      "type": "Device"
+    },
+    {
+      "id": "n11",
+      "kind": "connection",
+      "name": "handoff",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 14,
+        "startCol": 13,
+        "endLine": 14,
+        "endCol": 72
+      },
+      "parent": "n8"
+    },
+    {
+      "id": "n12",
+      "kind": "part",
+      "name": "monitor",
+      "origin": {
+        "file": "assembly.sysml",
+        "startLine": 16,
+        "startCol": 9,
+        "endLine": 16,
+        "endCol": 35
+      },
+      "parent": "n7",
+      "type": "Device"
+    }
+  ],
+  "shown": [
+    "parameter-symbols",
+    "port-symbols",
+    "compartments",
+    "edge-labels",
+    "keywords",
+    "multiplicities",
+    "typings",
+    "qualifiers"
+  ],
+  "stated": "Read-only exploration"
+}

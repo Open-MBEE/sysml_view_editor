@@ -1,7 +1,9 @@
+import { noViews, assemblyExploration, documents } from './exploration-support';
 import {
   test,
   expect,
   ready,
+  waitForRoverStartup,
   importAssembly,
   showAssemblyDiagram,
   modelTreeItem,
@@ -10,6 +12,7 @@ import {
   fillSource,
   copySourceSelection,
   observeEvaluations,
+  overviewRoutingGeometry,
 } from './support';
 import {
   importRequirementsTraceability,
@@ -21,7 +24,12 @@ import {
 
 for (const theme of ['light', 'dark']) {
   test(`workbench and appearance dialog in ${theme}`, async ({ page }) => {
-    await ready(page, { split: false });
+    const evaluations = await observeEvaluations(page);
+    await page.goto('/app');
+    await page
+      .getByRole('button', { name: 'Load example', exact: true })
+      .click();
+    await waitForRoverStartup(page);
     const trigger = page.getByRole('button', {
       name: 'Appearance',
       exact: true,
@@ -34,6 +42,15 @@ for (const theme of ['light', 'dark']) {
     await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
     await dialog.getByRole('button', { name: 'Done', exact: true }).click();
     await expect(dialog).not.toBeVisible();
+    const architecture = evaluations.findLast(
+      (result) => result.view === 'RoverViews::architecture',
+    )!;
+    await expect
+      .poll(
+        async () =>
+          (await overviewRoutingGeometry(page, [], architecture.artifact)).hits,
+      )
+      .toEqual([]);
     await expect(page).toHaveScreenshot(`workbench-${theme}.png`);
     await trigger.click();
     await dialog.getByText('Element base colors', { exact: true }).click();
@@ -373,8 +390,11 @@ for (const theme of ['light', 'dark']) {
           exact: true,
         }),
       ).toBeChecked();
+      // Fractional dialog bounds can include an outer pixel of the diagram.
+      // Isolate this dialog capture; full-page tests cover the actual diagram.
       await expect(dialog).toHaveScreenshot(
         `local-recovery-${theme}${narrow ? '-narrow' : ''}.png`,
+        { stylePath: 'tests/e2e/recovery-dialog.css' },
       );
       await page.keyboard.press('Escape');
       await expect(dialog).not.toBeVisible();
@@ -617,5 +637,360 @@ for (const theme of ['light', 'dark']) {
       await page.mouse.move(0, 0);
       await expect(page).toHaveScreenshot(`requirements-${theme}-${width}.png`);
     });
+  }
+}
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [1440, 768]) {
+    test(`read-only model exploration in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await noViews(page);
+      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      const before = (await downloadProject(page)).bundle;
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      await expect(appearance).not.toBeVisible();
+      await expect(
+        page.getByRole('button', { name: 'Appearance', exact: true }),
+      ).toBeFocused();
+      if (width === 768) {
+        await page
+          .getByRole('button', { name: 'Collapse Explorer', exact: true })
+          .click();
+        await expect(
+          page.getByRole('button', { name: 'Show Explorer', exact: true }),
+        ).toBeFocused();
+      }
+      const scope = page.getByRole('combobox', {
+        name: 'Exploration scope',
+        exact: true,
+      });
+      const representation = page.getByRole('combobox', {
+        name: 'Exploration representation',
+        exact: true,
+      });
+      await scope.focus();
+      await expect(scope).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(representation).toBeFocused();
+      await page.evaluate(() => document.fonts.ready);
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `exploration-overview-${theme}-${width}.png`,
+      );
+      await scope.selectOption('P::System');
+      await expect(scope).toBeEnabled();
+      await representation.selectOption('interconnection');
+      await expect(
+        page.getByRole('group', {
+          name: 'part primary : Q::Motor',
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(representation).toBeEnabled();
+      await scope.focus();
+      await expect(scope).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(representation).toBeFocused();
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `exploration-structure-${theme}-${width}.png`,
+      );
+      expect((await downloadProject(page)).bundle).toEqual(before);
+    });
+  }
+}
+
+for (const theme of ['light', 'dark'])
+  for (const width of [1440, 768]) {
+    test(`assembly exploration routing in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await assemblyExploration(page);
+      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const dialog = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+      await expect(
+        page.getByRole('button', { name: 'Appearance', exact: true }),
+      ).toBeFocused();
+      if (width === 768) {
+        await page
+          .getByRole('button', { name: 'Collapse Explorer', exact: true })
+          .click();
+        await expect(
+          page.getByRole('button', { name: 'Show Explorer', exact: true }),
+        ).toBeFocused();
+      }
+      await page.getByRole('button', { name: 'Fit view', exact: true }).click();
+      await expect
+        .poll(async () => {
+          const g = await overviewRoutingGeometry(page);
+          return { hits: g.hits, count: g.labelCount };
+        })
+        .toEqual({ hits: [], count: 13 });
+      await page.evaluate(() => document.fonts.ready);
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `assembly-exploration-overview-${theme}-${width}.png`,
+      );
+      const scope = page.getByRole('combobox', {
+        name: 'Exploration scope',
+        exact: true,
+      });
+      await scope.selectOption('Assembly::Station');
+      await expect(scope).toBeEnabled();
+      const representation = page.getByRole('combobox', {
+        name: 'Exploration representation',
+        exact: true,
+      });
+      await representation.selectOption('interconnection');
+      await expect(representation).toBeEnabled();
+      await expect(
+        page.getByRole('group', { name: 'part primary : Device', exact: true }),
+      ).toBeVisible();
+      await page.getByRole('button', { name: 'Fit view', exact: true }).click();
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `assembly-exploration-structure-${theme}-${width}.png`,
+      );
+    });
+  }
+
+for (const theme of ['light', 'dark'])
+  for (const width of [1440, 768]) {
+    test(`initial exploration retry in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await ready(page, { split: false });
+      let requests = 0;
+      await page.route('**/vendor/opensysml/sysml-wasm.wasm', async (route) => {
+        requests++;
+        if (requests === 2)
+          await route.fulfill({
+            status: 503,
+            body: 'Controlled initial exploration failure',
+          });
+        else await route.continue();
+      });
+      await page.locator('input[type=file]').setInputFiles(
+        documents.map((file) => ({
+          name: file.name,
+          mimeType: 'text/plain',
+          buffer: Buffer.from(file.text),
+        })),
+      );
+      await expect(
+        page.getByText('OpenSysML browser assets are unavailable.', {
+          exact: true,
+        }),
+      ).toBeVisible();
+      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const dialog = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+      await expect(
+        page.getByRole('button', { name: 'Appearance', exact: true }),
+      ).toBeFocused();
+      if (width === 768)
+        await page
+          .getByRole('button', { name: 'Collapse Explorer', exact: true })
+          .click();
+      await page
+        .getByRole('button', { name: 'Explore model', exact: true })
+        .focus();
+      await page.evaluate(() => document.fonts.ready);
+      await page.mouse.move(0, 0);
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('tooltip')).not.toBeVisible();
+      const retry = page.getByRole('button', {
+        name: 'Explore model',
+        exact: true,
+      });
+      await retry.focus();
+      await expect(retry).toBeFocused();
+      await expect(page).toHaveScreenshot(
+        `initial-exploration-retry-${theme}-${width}.png`,
+      );
+    });
+  }
+
+for (const theme of ['light', 'dark']) {
+  test(`default rover architecture at narrow width in ${theme}`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 768, height: 900 });
+    const evaluations = await observeEvaluations(page);
+    await page.goto('/app');
+    await page
+      .getByRole('button', { name: 'Load example', exact: true })
+      .click();
+    await waitForRoverStartup(page);
+    await page.getByRole('button', { name: 'Appearance', exact: true }).click();
+    const dialog = page.getByRole('dialog', {
+      name: 'Appearance',
+      exact: true,
+    });
+    await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+    await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+    await expect(
+      page.getByRole('button', { name: 'Appearance', exact: true }),
+    ).toBeFocused();
+    await page
+      .getByRole('button', { name: 'Collapse Explorer', exact: true })
+      .click();
+    await expect(
+      page.getByRole('button', { name: 'Show Explorer', exact: true }),
+    ).toBeFocused();
+    await page.mouse.move(0, 0);
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('tooltip')).not.toBeVisible();
+    await page
+      .getByRole('combobox', { name: 'Named view', exact: true })
+      .focus();
+    await page.getByRole('button', { name: 'Fit view', exact: true }).click();
+    await page.evaluate(() => document.fonts.ready);
+    await page.mouse.move(0, 0);
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('tooltip')).not.toBeVisible();
+    const architecture = evaluations.findLast(
+      (result) => result.view === 'RoverViews::architecture',
+    )!;
+    await expect
+      .poll(
+        async () =>
+          (await overviewRoutingGeometry(page, [], architecture.artifact)).hits,
+      )
+      .toEqual([]);
+    await expect(page).toHaveScreenshot(
+      `default-rover-architecture-${theme}-768.png`,
+    );
+  });
+}
+
+for (const theme of ['light', 'dark'])
+  for (const width of [1440, 768]) {
+    test(`rover guided behavior and traceability in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto('/app');
+      await page
+        .getByRole('button', { name: 'Load example', exact: true })
+        .click();
+      await waitForRoverStartup(page);
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const dialog = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+      await expect(
+        page.getByRole('button', { name: 'Appearance', exact: true }),
+      ).toBeFocused();
+      if (width === 768)
+        await page
+          .getByRole('button', { name: 'Collapse Explorer', exact: true })
+          .click();
+      const selector = page.getByRole('combobox', {
+        name: 'Named view',
+        exact: true,
+      });
+      for (const view of ['mission', 'lifecycle', 'requirements']) {
+        await selector.selectOption('RoverViews::' + view);
+        await expect(selector).toBeEnabled();
+        await page
+          .getByRole('button', { name: 'Fit view', exact: true })
+          .click();
+        await page.mouse.move(0, 0);
+        await page.keyboard.press('Escape');
+        await expect(page.getByRole('tooltip')).not.toBeVisible();
+        await selector.focus();
+        if (view !== 'requirements') {
+          const unlabelled =
+            view === 'mission'
+              ? Array.from({ length: 8 }, (_, index) => `edge:${index}`)
+              : ['edge:0'];
+          await expect
+            .poll(
+              async () =>
+                (await overviewRoutingGeometry(page, unlabelled)).hits,
+            )
+            .toEqual([]);
+        }
+        await page.evaluate(() => document.fonts.ready);
+        await expect(page).toHaveScreenshot(
+          `rover-${view}-${theme}-${width}.png`,
+        );
+      }
+    });
+  }
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [1440, 768]) {
+    for (const representation of [
+      'Requirements table',
+      'Traceability matrix',
+    ]) {
+      test(`${representation} ${theme} ${width}`, async ({ page }) => {
+        await ready(page);
+        await importRequirementsTraceability(page);
+        await expect(
+          page.getByRole('button', { name: 'Download project', exact: true }),
+        ).toBeEnabled();
+        await page
+          .getByRole('button', { name: 'Appearance', exact: true })
+          .click();
+        const dialog = page.getByRole('dialog', {
+          name: 'Appearance',
+          exact: true,
+        });
+        await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+        await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+        await page.setViewportSize({ width, height: 900 });
+        await page
+          .getByRole('button', { name: representation, exact: true })
+          .click();
+        const panel = page.getByRole('region', {
+          name: representation,
+          exact: true,
+        });
+        await expect(panel.getByRole('table')).toBeVisible();
+        await expect(
+          panel.getByRole('button', { name: 'Export CSV', exact: true }),
+        ).toBeEnabled();
+        await expect(page).toHaveScreenshot(
+          `${representation === 'Requirements table' ? 'requirements-table' : 'traceability-matrix'}-${theme}-${width}.png`,
+        );
+      });
+    }
   }
 }

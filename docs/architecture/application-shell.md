@@ -5,10 +5,10 @@ Current implementation, updated 2026-11-01. The application uses the shared Geis
 ## Entry and opening
 
 - `/` presents the product, documentation/feedback/license links, **Open app** and **Try an example**.
-- `/app` starts an empty launcher with **Load example**, **New project**, **Open files or project** and **Local recovery**. An existing live session adds **Resume project**.
+- `/app` starts an empty launcher with **New project**, **Open files or project**, the inspection-rover **Load example** choice and **Local recovery**. An existing live session adds **Resume project**.
 - `/app/?example=1` requests the example once and is canonicalized to `/app` before opening; reload does not repeat the example action. Static hosting must serve the SPA fallback for `/app` while preserving asset paths.
 
-No model loads implicitly. The built-in example opens its pneumatic named view in Diagram mode. New projects open source and remain modified until downloaded. Imports are copies; Download exports a portable bundle. Recovery is a separate browser copy, not a disk save.
+No model loads implicitly. The default inspection-rover example opens its architecture named view in Diagram mode and provides a five-view guide. Compressor sources are not bundled in the app; regression tests import them explicitly. New projects open source with a temporary project overview and remain modified until downloaded. Imports without named views also open an overview; imports with named views retain their existing selection. Imports are copies; Download exports a portable bundle. Recovery is a separate browser copy, not a disk save.
 
 Applied source is validated before replacing the project. Replacing dirty work requires confirmation. Cancelled or failed replacement retains current source, drafts, model, history and compatible presentations. Failed operations remain visible and can be retried.
 
@@ -20,7 +20,7 @@ One appearance provider owns preferences across all surfaces. Dialogs close when
 
 ## Workbench grouping
 
-The app bar groups product/home navigation, Projects, project name/origin and persistence/settings actions. Source transaction history, apply/discard and Code/Split/Diagram controls use the measured toolbar layout. Sidebar toggles belong to their tools. The diagram header selects an actual **Named view**, displays its supported representation and applied/draft status, and keeps authoring actions nearby. Source-file selection does not replace the diagram's named view.
+The app bar groups product/home navigation, Projects, project name/origin and persistence/settings actions. Source transaction history, apply/discard and Code/Split/Diagram controls use the measured toolbar layout. Sidebar toggles belong to their tools. The diagram header selects an actual **Named view** or **Explore model**. Exploration has separate scope and representation controls, uses applied source, and disables graphical authoring/movement. Named views retain their supported representation, applied/draft status and authoring actions. Source-file selection does not replace the diagram scope.
 
 See [layout contracts](workbench-layout.md), [source/recovery policies](source-assistance-recovery.md) and [project format](project-format.md). [Testing](../testing.md) and [verification](../verification.md) own checks and observed results.
 

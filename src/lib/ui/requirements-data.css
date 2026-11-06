@@ -1,0 +1,116 @@
+.model-data-surface {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.model-data-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--sysml-border);
+  flex-wrap: wrap;
+}
+.model-data-diagram {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.requirements-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  flex: 1;
+}
+.requirements-panel p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--sysml-muted);
+}
+.requirements-tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 8px;
+}
+.requirements-tools label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+.requirements-scroll {
+  overflow: auto;
+  min-height: 0;
+  border: 1px solid var(--sysml-border);
+}
+.requirements-panel table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 12px;
+}
+.requirements-panel th,
+.requirements-panel td {
+  padding: 10px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--sysml-border);
+  border-right: 1px solid var(--sysml-border);
+  min-width: 130px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.requirements-panel thead th {
+  position: sticky;
+  top: 0;
+  background: var(--sysml-surface);
+  z-index: 1;
+}
+.requirements-panel th:first-child {
+  min-width: 280px;
+}
+.requirements-panel table[data-mode='table'] :is(th, td):nth-child(3) {
+  min-width: 90px;
+}
+.requirements-panel table[data-mode='table'] :is(th, td):nth-child(4) {
+  min-width: 320px;
+}
+.requirements-panel table[data-mode='table'] :is(th, td):nth-child(n + 5),
+.requirements-panel table[data-mode='matrix'] th:not(:first-child) {
+  min-width: 220px;
+}
+.requirements-panel table button {
+  text-align: left;
+  color: var(--sysml-accent);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.source-query-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 4px;
+}
+.source-references {
+  max-height: 180px;
+  overflow: auto;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--sysml-border);
+  font-size: 12px;
+}
+.source-references ul {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0;
+}
+.source-references li button {
+  text-decoration: underline;
+  cursor: pointer;
+  color: var(--sysml-accent);
+}

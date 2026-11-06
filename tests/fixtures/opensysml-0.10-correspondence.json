@@ -1,0 +1,4320 @@
+{
+  "engine": "OpenSysML 0.10.0",
+  "commit": "08ef397841767b829e492bbecf6d723483b4421e",
+  "samples": {
+    "assembly": {
+      "documents": [
+        {
+          "name": "model.sysml",
+          "text": "package Assembly {\n    port def Signal;\n    part def Device {\n        in port input : Signal;\n        out port output : Signal;\n        inout port service : Signal;\n    }\n    // Outside the supported graphical authoring subset; retain in source.\n    action def Inspect;\n    part def Station {\n        part bay {\n            part primary : Device;\n            part standby : Device;\n            connection handoff connect primary.output to standby.input;\n        }\n        ref part monitor : Device;\n    }\n}\n"
+        },
+        {
+          "name": "views.sysml",
+          "text": "package AssemblyViews {\n    private import StandardViewDefinitions::*;\n    view structure : InterconnectionView { expose Assembly::Station; }\n    view devices : InterconnectionView {\n        expose Assembly::Station::bay;\n        expose Assembly::Inspect;\n    }\n}\n"
+        }
+      ],
+      "views": [
+        {
+          "view": "AssemblyViews::structure",
+          "modelHash": "013d929f6dc1095cba642cfad3cdc9bd7d52e03884ee3d01b9aefcb1ae5fc741",
+          "kind": "interconnection",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "model.sysml@274:230",
+                "qualifiedName": "Assembly::Station",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 274,
+                  "length": 230,
+                  "nameOffset": 283,
+                  "nameLength": 7
+                }
+              },
+              "context": ["model.sysml@274:230"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "model.sysml@301:162",
+                "qualifiedName": "Assembly::Station::bay",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 301,
+                  "length": 162,
+                  "nameOffset": 306,
+                  "nameLength": 3
+                }
+              },
+              "context": ["model.sysml@274:230", "model.sysml@301:162"]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "model.sysml@324:22",
+                "qualifiedName": "Assembly::Station::bay::primary",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 324,
+                  "length": 22,
+                  "nameOffset": 329,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "model.sysml@274:230",
+                "model.sysml@301:162",
+                "model.sysml@324:22"
+              ]
+            },
+            {
+              "symbol": "n2.0",
+              "subject": {
+                "id": "model.sysml@70:23",
+                "qualifiedName": "Assembly::Device::input",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 70,
+                  "length": 23,
+                  "nameOffset": 78,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "model.sysml@274:230",
+                "model.sysml@301:162",
+                "model.sysml@324:22",
+                "model.sysml@70:23"
+              ]
+            },
+            {
+              "symbol": "n2.1",
+              "subject": {
+                "id": "model.sysml@102:25",
+                "qualifiedName": "Assembly::Device::output",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 102,
+                  "length": 25,
+                  "nameOffset": 111,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "model.sysml@274:230",
+                "model.sysml@301:162",
+                "model.sysml@324:22",
+                "model.sysml@102:25"
+              ]
+            },
+            {
+              "symbol": "n2.2",
+              "subject": {
+                "id": "model.sysml@136:28",
+                "qualifiedName": "Assembly::Device::service",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 136,
+                  "length": 28,
+                  "nameOffset": 147,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "model.sysml@274:230",
+                "model.sysml@301:162",
+                "model.sysml@324:22",
+                "model.sysml@136:28"
+              ]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "model.sysml@359:22",
+                "qualifiedName": "Assembly::Station::bay::standby",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 359,
+                  "length": 22,
+                  "nameOffset": 364,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "model.sysml@274:230",
+                "model.sysml@301:162",
+                "model.sysml@359:22"
+              ]
+            },
+            {
+              "symbol": "n3.0",
+              "subject": {
+                "id": "model.sysml@70:23",
+                "qualifiedName": "Assembly::Device::input",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 70,
+                  "length": 23,
+                  "nameOffset": 78,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "model.sysml@274:230",
+                "model.sysml@301:162",
+                "model.sysml@359:22",
+                "model.sysml@70:23"
+              ]
+            },
+            {
+              "symbol": "n3.1",
+              "subject": {
+                "id": "model.sysml@102:25",
+                "qualifiedName": "Assembly::Device::output",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 102,
+                  "length": 25,
+                  "nameOffset": 111,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "model.sysml@274:230",
+                "model.sysml@301:162",
+                "model.sysml@359:22",
+                "model.sysml@102:25"
+              ]
+            },
+            {
+              "symbol": "n3.2",
+              "subject": {
+                "id": "model.sysml@136:28",
+                "qualifiedName": "Assembly::Device::service",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 136,
+                  "length": 28,
+                  "nameOffset": 147,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "model.sysml@274:230",
+                "model.sysml@301:162",
+                "model.sysml@359:22",
+                "model.sysml@136:28"
+              ]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "model.sysml@472:26",
+                "qualifiedName": "Assembly::Station::monitor",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 472,
+                  "length": 26,
+                  "nameOffset": 481,
+                  "nameLength": 7
+                }
+              },
+              "context": ["model.sysml@274:230", "model.sysml@472:26"]
+            },
+            {
+              "symbol": "n4.0",
+              "subject": {
+                "id": "model.sysml@70:23",
+                "qualifiedName": "Assembly::Device::input",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 70,
+                  "length": 23,
+                  "nameOffset": 78,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "model.sysml@274:230",
+                "model.sysml@472:26",
+                "model.sysml@70:23"
+              ]
+            },
+            {
+              "symbol": "n4.1",
+              "subject": {
+                "id": "model.sysml@102:25",
+                "qualifiedName": "Assembly::Device::output",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 102,
+                  "length": 25,
+                  "nameOffset": 111,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "model.sysml@274:230",
+                "model.sysml@472:26",
+                "model.sysml@102:25"
+              ]
+            },
+            {
+              "symbol": "n4.2",
+              "subject": {
+                "id": "model.sysml@136:28",
+                "qualifiedName": "Assembly::Device::service",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 136,
+                  "length": 28,
+                  "nameOffset": 147,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "model.sysml@274:230",
+                "model.sysml@472:26",
+                "model.sysml@136:28"
+              ]
+            }
+          ],
+          "edges": [
+            {
+              "from": "n2",
+              "to": "n3",
+              "fromPort": "n2.1",
+              "toPort": "n3.0",
+              "label": "handoff",
+              "kind": "connection"
+            }
+          ]
+        },
+        {
+          "view": "AssemblyViews::devices",
+          "modelHash": "013d929f6dc1095cba642cfad3cdc9bd7d52e03884ee3d01b9aefcb1ae5fc741",
+          "kind": "interconnection",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "model.sysml@301:162",
+                "qualifiedName": "Assembly::Station::bay",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 301,
+                  "length": 162,
+                  "nameOffset": 306,
+                  "nameLength": 3
+                }
+              },
+              "context": ["model.sysml@301:162"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "model.sysml@324:22",
+                "qualifiedName": "Assembly::Station::bay::primary",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 324,
+                  "length": 22,
+                  "nameOffset": 329,
+                  "nameLength": 7
+                }
+              },
+              "context": ["model.sysml@301:162", "model.sysml@324:22"]
+            },
+            {
+              "symbol": "n1.0",
+              "subject": {
+                "id": "model.sysml@70:23",
+                "qualifiedName": "Assembly::Device::input",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 70,
+                  "length": 23,
+                  "nameOffset": 78,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "model.sysml@301:162",
+                "model.sysml@324:22",
+                "model.sysml@70:23"
+              ]
+            },
+            {
+              "symbol": "n1.1",
+              "subject": {
+                "id": "model.sysml@102:25",
+                "qualifiedName": "Assembly::Device::output",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 102,
+                  "length": 25,
+                  "nameOffset": 111,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "model.sysml@301:162",
+                "model.sysml@324:22",
+                "model.sysml@102:25"
+              ]
+            },
+            {
+              "symbol": "n1.2",
+              "subject": {
+                "id": "model.sysml@136:28",
+                "qualifiedName": "Assembly::Device::service",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 136,
+                  "length": 28,
+                  "nameOffset": 147,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "model.sysml@301:162",
+                "model.sysml@324:22",
+                "model.sysml@136:28"
+              ]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "model.sysml@359:22",
+                "qualifiedName": "Assembly::Station::bay::standby",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 359,
+                  "length": 22,
+                  "nameOffset": 364,
+                  "nameLength": 7
+                }
+              },
+              "context": ["model.sysml@301:162", "model.sysml@359:22"]
+            },
+            {
+              "symbol": "n2.0",
+              "subject": {
+                "id": "model.sysml@70:23",
+                "qualifiedName": "Assembly::Device::input",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 70,
+                  "length": 23,
+                  "nameOffset": 78,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "model.sysml@301:162",
+                "model.sysml@359:22",
+                "model.sysml@70:23"
+              ]
+            },
+            {
+              "symbol": "n2.1",
+              "subject": {
+                "id": "model.sysml@102:25",
+                "qualifiedName": "Assembly::Device::output",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 102,
+                  "length": 25,
+                  "nameOffset": 111,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "model.sysml@301:162",
+                "model.sysml@359:22",
+                "model.sysml@102:25"
+              ]
+            },
+            {
+              "symbol": "n2.2",
+              "subject": {
+                "id": "model.sysml@136:28",
+                "qualifiedName": "Assembly::Device::service",
+                "origin": {
+                  "file": "model.sysml",
+                  "offset": 136,
+                  "length": 28,
+                  "nameOffset": 147,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "model.sysml@301:162",
+                "model.sysml@359:22",
+                "model.sysml@136:28"
+              ]
+            }
+          ],
+          "edges": [
+            {
+              "from": "n1",
+              "to": "n2",
+              "fromPort": "n1.1",
+              "toPort": "n2.0",
+              "label": "handoff",
+              "kind": "connection"
+            }
+          ]
+        }
+      ]
+    },
+    "requirements-traceability": {
+      "documents": [
+        {
+          "name": "requirements.sysml",
+          "text": "package TraceRequirements {\n    private import TraceSystem::*;\n    requirement def <'REQ-CAP'> MinimumCapacity {\n        doc /* The storage tank shall provide at least ten units of usable\n               capacity. This declared requirement and its satisfaction links\n               are model content, not evidence that a test has passed. */\n        subject tank : Tank;\n        require constraint { tank.capacity >= 10.0 }\n    }\n    alias CapacityRule for MinimumCapacity;\n    requirement <'REQ-LEFT'> leftSpecification {\n        doc /* Capacity requirements for the left installation. */\n        subject installation : Tank;\n        requirement <'REQ-LEFT-CAP'> leftCapacity : CapacityRule {\n            subject tank = TraceSystem::LeftPlant::tank;\n        }\n    }\n    requirement <'REQ-RIGHT'> rightSpecification {\n        doc /* Capacity requirements for the right installation. */\n        subject installation : Tank;\n        requirement <'REQ-RIGHT-CAP'> rightCapacity : CapacityRule {\n            subject tank = TraceSystem::RightPlant::tank;\n        }\n    }\n    requirement <'REQ-UNLINKED'> unlinkedCapacity : MinimumCapacity {\n        subject tank = TraceSystem::spare;\n    }\n    requirement <'REQ-EXCLUDED'> excludedCapacity : MinimumCapacity {\n        subject tank = TraceSystem::spare;\n    }\n    assert not satisfy excludedCapacity by TraceSystem::spare;\n    satisfy leftSpecification.leftCapacity by TraceSystem::LeftPlant::tank;\n    satisfy rightSpecification.rightCapacity by TraceSystem::RightPlant::tank;\n}\n"
+        },
+        {
+          "name": "system.sysml",
+          "text": "package TraceSystem {\n    part def Tank {\n        attribute capacity : ScalarValues::Real;\n    }\n    package LeftPlant {\n        part tank : Tank {\n            attribute :>> capacity = 20.0;\n        }\n    }\n    package RightPlant {\n        part tank : Tank {\n            attribute :>> capacity = 30.0;\n        }\n    }\n    part spare : Tank {\n        attribute :>> capacity = 40.0;\n    }\n}\n"
+        },
+        {
+          "name": "views.sysml",
+          "text": "package TraceViews {\n    private import StandardViewDefinitions::*;\n    view requirements : GeneralView {\n        filter @SysML::RequirementDefinition or @SysML::RequirementUsage;\n        expose TraceRequirements::MinimumCapacity;\n        expose TraceRequirements::leftSpecification;\n        expose TraceRequirements::rightSpecification;\n        expose TraceRequirements::unlinkedCapacity;\n        expose TraceRequirements::excludedCapacity;\n        expose TraceRequirements::leftSpecification::leftCapacity;\n        expose TraceRequirements::rightSpecification::rightCapacity;\n    }\n    view overview : GeneralView {\n        expose TraceRequirements;\n        expose TraceSystem;\n    }\n}\n"
+        }
+      ],
+      "views": [
+        {
+          "view": "TraceViews::requirements",
+          "modelHash": "a7a42d1e6521e4ed859929716561c3e04452b77fa0aa332e1c233d2b4e8d895f",
+          "kind": "requirement",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "requirements.sysml@67:360",
+                "qualifiedName": "TraceRequirements::MinimumCapacity",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 67,
+                  "length": 360,
+                  "nameOffset": 95,
+                  "nameLength": 15
+                }
+              },
+              "context": ["requirements.sysml@67:360"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "requirements.sysml@476:288",
+                "qualifiedName": "TraceRequirements::leftSpecification",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 476,
+                  "length": 288,
+                  "nameOffset": 501,
+                  "nameLength": 17
+                }
+              },
+              "context": ["requirements.sysml@476:288"]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "requirements.sysml@769:294",
+                "qualifiedName": "TraceRequirements::rightSpecification",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 769,
+                  "length": 294,
+                  "nameOffset": 795,
+                  "nameLength": 18
+                }
+              },
+              "context": ["requirements.sysml@769:294"]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "requirements.sysml@1068:114",
+                "qualifiedName": "TraceRequirements::unlinkedCapacity",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1068,
+                  "length": 114,
+                  "nameOffset": 1097,
+                  "nameLength": 16
+                }
+              },
+              "context": ["requirements.sysml@1068:114"]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "requirements.sysml@1187:114",
+                "qualifiedName": "TraceRequirements::excludedCapacity",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1187,
+                  "length": 114,
+                  "nameOffset": 1216,
+                  "nameLength": 16
+                }
+              },
+              "context": ["requirements.sysml@1187:114"]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "requirements.sysml@633:125",
+                "qualifiedName": "TraceRequirements::leftSpecification::leftCapacity",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 633,
+                  "length": 125,
+                  "nameOffset": 662,
+                  "nameLength": 12
+                }
+              },
+              "context": ["requirements.sysml@633:125"]
+            },
+            {
+              "symbol": "n6",
+              "subject": {
+                "id": "requirements.sysml@929:128",
+                "qualifiedName": "TraceRequirements::rightSpecification::rightCapacity",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 929,
+                  "length": 128,
+                  "nameOffset": 959,
+                  "nameLength": 13
+                }
+              },
+              "context": ["requirements.sysml@929:128"]
+            },
+            {
+              "symbol": "n7",
+              "subject": {
+                "id": "system.sysml@322:64",
+                "qualifiedName": "TraceSystem::spare",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 322,
+                  "length": 64,
+                  "nameOffset": 327,
+                  "nameLength": 5
+                }
+              },
+              "context": ["system.sysml@322:64"]
+            },
+            {
+              "symbol": "n8",
+              "subject": {
+                "id": "system.sysml@129:71",
+                "qualifiedName": "TraceSystem::LeftPlant::tank",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 129,
+                  "length": 71,
+                  "nameOffset": 134,
+                  "nameLength": 4
+                }
+              },
+              "context": ["system.sysml@129:71"]
+            },
+            {
+              "symbol": "n9",
+              "subject": {
+                "id": "system.sysml@240:71",
+                "qualifiedName": "TraceSystem::RightPlant::tank",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 240,
+                  "length": 71,
+                  "nameOffset": 245,
+                  "nameLength": 4
+                }
+              },
+              "context": ["system.sysml@240:71"]
+            }
+          ]
+        },
+        {
+          "view": "TraceViews::overview",
+          "modelHash": "a7a42d1e6521e4ed859929716561c3e04452b77fa0aa332e1c233d2b4e8d895f",
+          "kind": "tree",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "requirements.sysml@0:1521",
+                "qualifiedName": "TraceRequirements",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 0,
+                  "length": 1521,
+                  "nameOffset": 8,
+                  "nameLength": 17
+                }
+              },
+              "context": ["requirements.sysml@0:1521"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "requirements.sysml@67:360",
+                "qualifiedName": "TraceRequirements::MinimumCapacity",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 67,
+                  "length": 360,
+                  "nameOffset": 95,
+                  "nameLength": 15
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@67:360"
+              ]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "requirements.sysml@348:20",
+                "qualifiedName": "TraceRequirements::MinimumCapacity::tank",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 348,
+                  "length": 20,
+                  "nameOffset": 356,
+                  "nameLength": 4
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@67:360",
+                "requirements.sysml@348:20"
+              ]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "requirements.sysml@377:44",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 377,
+                  "length": 44,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@67:360",
+                "requirements.sysml@377:44"
+              ]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "requirements.sysml@476:288",
+                "qualifiedName": "TraceRequirements::leftSpecification",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 476,
+                  "length": 288,
+                  "nameOffset": 501,
+                  "nameLength": 17
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@476:288"
+              ]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "requirements.sysml@596:28",
+                "qualifiedName": "TraceRequirements::leftSpecification::installation",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 596,
+                  "length": 28,
+                  "nameOffset": 604,
+                  "nameLength": 12
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@476:288",
+                "requirements.sysml@596:28"
+              ]
+            },
+            {
+              "symbol": "n6",
+              "subject": {
+                "id": "requirements.sysml@633:125",
+                "qualifiedName": "TraceRequirements::leftSpecification::leftCapacity",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 633,
+                  "length": 125,
+                  "nameOffset": 662,
+                  "nameLength": 12
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@476:288",
+                "requirements.sysml@633:125"
+              ]
+            },
+            {
+              "symbol": "n7",
+              "subject": {
+                "id": "requirements.sysml@704:44",
+                "qualifiedName": "TraceRequirements::leftSpecification::leftCapacity::tank",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 704,
+                  "length": 44,
+                  "nameOffset": 712,
+                  "nameLength": 4
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@476:288",
+                "requirements.sysml@633:125",
+                "requirements.sysml@704:44"
+              ]
+            },
+            {
+              "symbol": "n8",
+              "subject": {
+                "id": "requirements.sysml@769:294",
+                "qualifiedName": "TraceRequirements::rightSpecification",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 769,
+                  "length": 294,
+                  "nameOffset": 795,
+                  "nameLength": 18
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@769:294"
+              ]
+            },
+            {
+              "symbol": "n9",
+              "subject": {
+                "id": "requirements.sysml@892:28",
+                "qualifiedName": "TraceRequirements::rightSpecification::installation",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 892,
+                  "length": 28,
+                  "nameOffset": 900,
+                  "nameLength": 12
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@769:294",
+                "requirements.sysml@892:28"
+              ]
+            },
+            {
+              "symbol": "n10",
+              "subject": {
+                "id": "requirements.sysml@929:128",
+                "qualifiedName": "TraceRequirements::rightSpecification::rightCapacity",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 929,
+                  "length": 128,
+                  "nameOffset": 959,
+                  "nameLength": 13
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@769:294",
+                "requirements.sysml@929:128"
+              ]
+            },
+            {
+              "symbol": "n11",
+              "subject": {
+                "id": "requirements.sysml@1002:45",
+                "qualifiedName": "TraceRequirements::rightSpecification::rightCapacity::tank",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1002,
+                  "length": 45,
+                  "nameOffset": 1010,
+                  "nameLength": 4
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@769:294",
+                "requirements.sysml@929:128",
+                "requirements.sysml@1002:45"
+              ]
+            },
+            {
+              "symbol": "n12",
+              "subject": {
+                "id": "requirements.sysml@1068:114",
+                "qualifiedName": "TraceRequirements::unlinkedCapacity",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1068,
+                  "length": 114,
+                  "nameOffset": 1097,
+                  "nameLength": 16
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@1068:114"
+              ]
+            },
+            {
+              "symbol": "n13",
+              "subject": {
+                "id": "requirements.sysml@1142:34",
+                "qualifiedName": "TraceRequirements::unlinkedCapacity::tank",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1142,
+                  "length": 34,
+                  "nameOffset": 1150,
+                  "nameLength": 4
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@1068:114",
+                "requirements.sysml@1142:34"
+              ]
+            },
+            {
+              "symbol": "n14",
+              "subject": {
+                "id": "requirements.sysml@1187:114",
+                "qualifiedName": "TraceRequirements::excludedCapacity",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1187,
+                  "length": 114,
+                  "nameOffset": 1216,
+                  "nameLength": 16
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@1187:114"
+              ]
+            },
+            {
+              "symbol": "n15",
+              "subject": {
+                "id": "requirements.sysml@1261:34",
+                "qualifiedName": "TraceRequirements::excludedCapacity::tank",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1261,
+                  "length": 34,
+                  "nameOffset": 1269,
+                  "nameLength": 4
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@1187:114",
+                "requirements.sysml@1261:34"
+              ]
+            },
+            {
+              "symbol": "n16",
+              "subject": {
+                "id": "requirements.sysml@1306:58",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1306,
+                  "length": 58,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@1306:58"
+              ]
+            },
+            {
+              "symbol": "n17",
+              "subject": {
+                "id": "requirements.sysml@1369:71",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1369,
+                  "length": 71,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@1369:71"
+              ]
+            },
+            {
+              "symbol": "n18",
+              "subject": {
+                "id": "requirements.sysml@1445:74",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1445,
+                  "length": 74,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": [
+                "requirements.sysml@0:1521",
+                "requirements.sysml@1445:74"
+              ]
+            },
+            {
+              "symbol": "n19",
+              "subject": {
+                "id": "system.sysml@0:388",
+                "qualifiedName": "TraceSystem",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 0,
+                  "length": 388,
+                  "nameOffset": 8,
+                  "nameLength": 11
+                }
+              },
+              "context": ["system.sysml@0:388"]
+            },
+            {
+              "symbol": "n20",
+              "subject": {
+                "id": "system.sysml@26:70",
+                "qualifiedName": "TraceSystem::Tank",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 26,
+                  "length": 70,
+                  "nameOffset": 35,
+                  "nameLength": 4
+                }
+              },
+              "context": ["system.sysml@0:388", "system.sysml@26:70"]
+            },
+            {
+              "symbol": "n21",
+              "subject": {
+                "id": "system.sysml@50:40",
+                "qualifiedName": "TraceSystem::Tank::capacity",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 50,
+                  "length": 40,
+                  "nameOffset": 60,
+                  "nameLength": 8
+                }
+              },
+              "context": [
+                "system.sysml@0:388",
+                "system.sysml@26:70",
+                "system.sysml@50:40"
+              ]
+            },
+            {
+              "symbol": "n22",
+              "subject": {
+                "id": "system.sysml@101:105",
+                "qualifiedName": "TraceSystem::LeftPlant",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 101,
+                  "length": 105,
+                  "nameOffset": 109,
+                  "nameLength": 9
+                }
+              },
+              "context": ["system.sysml@0:388", "system.sysml@101:105"]
+            },
+            {
+              "symbol": "n23",
+              "subject": {
+                "id": "system.sysml@129:71",
+                "qualifiedName": "TraceSystem::LeftPlant::tank",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 129,
+                  "length": 71,
+                  "nameOffset": 134,
+                  "nameLength": 4
+                }
+              },
+              "context": [
+                "system.sysml@0:388",
+                "system.sysml@101:105",
+                "system.sysml@129:71"
+              ]
+            },
+            {
+              "symbol": "n24",
+              "subject": {
+                "id": "system.sysml@160:30",
+                "qualifiedName": "TraceSystem::LeftPlant::tank::capacity",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 160,
+                  "length": 30,
+                  "nameOffset": 174,
+                  "nameLength": 8
+                }
+              },
+              "context": [
+                "system.sysml@0:388",
+                "system.sysml@101:105",
+                "system.sysml@129:71",
+                "system.sysml@160:30"
+              ]
+            },
+            {
+              "symbol": "n25",
+              "subject": {
+                "id": "system.sysml@211:106",
+                "qualifiedName": "TraceSystem::RightPlant",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 211,
+                  "length": 106,
+                  "nameOffset": 219,
+                  "nameLength": 10
+                }
+              },
+              "context": ["system.sysml@0:388", "system.sysml@211:106"]
+            },
+            {
+              "symbol": "n26",
+              "subject": {
+                "id": "system.sysml@240:71",
+                "qualifiedName": "TraceSystem::RightPlant::tank",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 240,
+                  "length": 71,
+                  "nameOffset": 245,
+                  "nameLength": 4
+                }
+              },
+              "context": [
+                "system.sysml@0:388",
+                "system.sysml@211:106",
+                "system.sysml@240:71"
+              ]
+            },
+            {
+              "symbol": "n27",
+              "subject": {
+                "id": "system.sysml@271:30",
+                "qualifiedName": "TraceSystem::RightPlant::tank::capacity",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 271,
+                  "length": 30,
+                  "nameOffset": 285,
+                  "nameLength": 8
+                }
+              },
+              "context": [
+                "system.sysml@0:388",
+                "system.sysml@211:106",
+                "system.sysml@240:71",
+                "system.sysml@271:30"
+              ]
+            },
+            {
+              "symbol": "n28",
+              "subject": {
+                "id": "system.sysml@322:64",
+                "qualifiedName": "TraceSystem::spare",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 322,
+                  "length": 64,
+                  "nameOffset": 327,
+                  "nameLength": 5
+                }
+              },
+              "context": ["system.sysml@0:388", "system.sysml@322:64"]
+            },
+            {
+              "symbol": "n29",
+              "subject": {
+                "id": "system.sysml@350:30",
+                "qualifiedName": "TraceSystem::spare::capacity",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 350,
+                  "length": 30,
+                  "nameOffset": 364,
+                  "nameLength": 8
+                }
+              },
+              "context": [
+                "system.sysml@0:388",
+                "system.sysml@322:64",
+                "system.sysml@350:30"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "inspection-rover": {
+      "documents": [
+        {
+          "name": "behavior.sysml",
+          "text": "package RoverBehavior {\n    action def InspectRoute {\n        doc /* Declared mission order; this diagram does not execute the rover. */\n        first start;\n        action checkBattery;\n        action patrol;\n        action detectObstacle;\n        action captureInspection;\n        action transmitReport;\n        action returnToDock;\n        action recharge;\n        done;\n        succession first start then checkBattery;\n        succession first checkBattery then patrol;\n        succession first patrol then detectObstacle;\n        succession first detectObstacle then captureInspection;\n        succession first captureInspection then transmitReport;\n        succession first transmitReport then returnToDock;\n        succession first returnToDock then recharge;\n        succession first recharge then done;\n        allocation perceptionResponsibility allocate detectObstacle to RoverSystem::rover.autonomy.controller;\n        allocation imagingResponsibility allocate captureInspection to RoverSystem::rover.inspection.camera;\n        allocation reportingResponsibility allocate transmitReport to RoverSystem::rover.inspection.radio;\n        allocation tractionResponsibility allocate patrol to RoverSystem::rover.mobility.leftDrive;\n    }\n    state def OperatingMode {\n        entry; then docked;\n        state docked;\n        state patrolling;\n        state inspecting;\n        state returning;\n        state charging;\n        state safeStop;\n        transition dispatch first docked then patrolling;\n        transition targetFound first patrolling then inspecting;\n        transition inspectionComplete first inspecting then patrolling;\n        transition lowReserve first patrolling then returning;\n        transition dockReached first returning then charging;\n        transition chargeComplete first charging then docked;\n        transition obstacleDetected first patrolling then safeStop;\n        transition pathClear first safeStop then patrolling;\n    }\n}\n"
+        },
+        {
+          "name": "components.sysml",
+          "text": "package RoverComponents {\n    private import ScalarValues::*;\n    private import RoverTypes::*;\n    part def Battery {\n        doc /* Rechargeable battery. Capacity and reserve are design targets. */\n        attribute capacityWh : Real default = 480.0;\n        attribute reservePercent : Real default = 20.0;\n        out port supply : PowerPort;\n    }\n    part def Distribution {\n        in port input : PowerPort;\n        out port drive : PowerPort;\n        out port compute : PowerPort;\n        out port payload : PowerPort;\n    }\n    part def Actuator;\n    part def Sensor;\n    part def Drive :> Actuator {\n        attribute maximumSpeedMps : Real default = 1.5;\n        in port power : PowerPort;\n        in port command : CommandPort;\n    }\n    part def Controller {\n        attribute obstacleStopDistanceM : Real default = 0.8;\n        in port power : PowerPort;\n        in port perception : SensorPort;\n        in port images : ImagePort;\n        out port drive : CommandPort;\n        out port status : TelemetryPort;\n    }\n    part def Lidar :> Sensor {\n        attribute rangeM : Real default = 12.0;\n        out port scan : SensorPort;\n    }\n    part def Camera :> Sensor {\n        attribute resolutionMP : Real default = 12.0;\n        in port power : PowerPort;\n        out port image : ImagePort;\n    }\n    part def Radio {\n        attribute rangeM : Real default = 300.0;\n        in port telemetry : TelemetryPort;\n    }\n}\n"
+        },
+        {
+          "name": "requirements.sysml",
+          "text": "package RoverRequirements {\n    private import ScalarValues::*;\n    private import RoverComponents::*;\n    requirement def <'RVR-001'> EnergyReserve {\n        doc /* Keep at least 20 percent battery reserve for the return journey. */\n        subject battery : Battery;\n        require constraint { battery.reservePercent >= 20.0 }\n    }\n    requirement def <'RVR-002'> SafeSpeed {\n        doc /* Each drive shall limit nominal indoor speed to 1.5 m/s. */\n        subject drive : Drive;\n        require constraint { drive.maximumSpeedMps <= 1.5 }\n    }\n    requirement def <'RVR-003'> ObstacleClearance {\n        doc /* Stop at least 0.8 m before a detected obstacle. */\n        subject controller : Controller;\n        require constraint { controller.obstacleStopDistanceM >= 0.8 }\n    }\n    requirement def <'RVR-004'> InspectionQuality {\n        doc /* Capture inspection images at a resolution of at least 12 MP. */\n        subject camera : Camera;\n        require constraint { camera.resolutionMP >= 12.0 }\n    }\n    requirement <'RVR-RESERVE'> reserve : EnergyReserve {\n        doc /* Keep at least 20 percent battery reserve for the return journey. */\n        subject battery = RoverSystem::rover.energy.battery;\n    }\n    requirement <'RVR-SPEED'> speed : SafeSpeed {\n        doc /* Limit the left drive nominal indoor speed to 1.5 m/s. */\n        subject drive = RoverSystem::rover.mobility.leftDrive;\n    }\n    requirement <'RVR-CLEAR'> clearance : ObstacleClearance {\n        doc /* Stop at least 0.8 m before a detected obstacle. */\n        subject controller = RoverSystem::rover.autonomy.controller;\n    }\n    requirement <'RVR-IMAGE'> imaging : InspectionQuality {\n        doc /* Capture inspection images at a resolution of at least 12 MP. */\n        subject camera = RoverSystem::rover.inspection.camera;\n    }\n    assert satisfy reserve by RoverSystem::rover.energy.battery;\n    assert satisfy speed by RoverSystem::rover.mobility.leftDrive;\n    assert satisfy clearance by RoverSystem::rover.autonomy.controller;\n    assert satisfy imaging by RoverSystem::rover.inspection.camera;\n}\n"
+        },
+        {
+          "name": "system.sysml",
+          "text": "package RoverSystem {\n    private import RoverComponents::*;\n    part def InspectionRover {\n        doc /* A slow indoor inspection rover. Explore architecture, mission,\n               operating states and declared requirement traceability. */\n        part energy {\n            part battery : Battery;\n            part distribution : Distribution;\n            connection batterySupply connect battery.supply to distribution.input;\n        }\n        part mobility {\n            part leftDrive : Drive;\n            part rightDrive : Drive;\n        }\n        part autonomy {\n            part controller : Controller;\n            part lidar : Lidar;\n            connection obstacleScan connect lidar.scan to controller.perception;\n        }\n        part inspection {\n            part camera : Camera;\n            part radio : Radio;\n        }\n        connection leftPower connect energy.distribution.drive to mobility.leftDrive.power;\n        connection rightPower connect energy.distribution.drive to mobility.rightDrive.power;\n        connection computePower connect energy.distribution.compute to autonomy.controller.power;\n        connection cameraPower connect energy.distribution.payload to inspection.camera.power;\n        connection leftCommand connect autonomy.controller.drive to mobility.leftDrive.command;\n        connection rightCommand connect autonomy.controller.drive to mobility.rightDrive.command;\n        connection inspectionImages connect inspection.camera.image to autonomy.controller.images;\n        connection missionTelemetry connect autonomy.controller.status to inspection.radio.telemetry;\n    }\n    part rover : InspectionRover;\n}\n"
+        },
+        {
+          "name": "types.sysml",
+          "text": "package RoverTypes {\n    item def ElectricalPower;\n    item def DriveCommand;\n    item def SensorFrame;\n    item def InspectionImage;\n    item def Telemetry;\n    port def PowerPort { out item power : ElectricalPower; }\n    port def CommandPort { out item command : DriveCommand; }\n    port def SensorPort { out item scanData : SensorFrame; }\n    port def ImagePort { out item image : InspectionImage; }\n    port def TelemetryPort { out item report : Telemetry; }\n}\n"
+        },
+        {
+          "name": "views.sysml",
+          "text": "package RoverViews {\n    private import StandardViewDefinitions::*;\n    view architecture : InterconnectionView { expose RoverSystem::InspectionRover; }\n    view definitions : GeneralView {\n        filter @SysML::PartDefinition or @SysML::PartUsage;\n        expose RoverComponents::**;\n    }\n    view mission : ActionFlowView { expose RoverBehavior::InspectRoute; }\n    view lifecycle : StateTransitionView { expose RoverBehavior::OperatingMode; }\n    view requirements : GeneralView {\n        filter @SysML::RequirementDefinition or @SysML::RequirementUsage;\n        expose RoverRequirements::reserve;\n        expose RoverRequirements::speed;\n        expose RoverRequirements::clearance;\n        expose RoverRequirements::imaging;\n    }\n}\n"
+        }
+      ],
+      "views": [
+        {
+          "view": "RoverViews::architecture",
+          "modelHash": "4da913c9d93b57864af4f4b555c3ed5669f390fd623e9a6bafa0c9943411401a",
+          "kind": "interconnection",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "system.sysml@65:1553",
+                "qualifiedName": "RoverSystem::InspectionRover",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 65,
+                  "length": 1553,
+                  "nameOffset": 74,
+                  "nameLength": 15
+                }
+              },
+              "context": ["system.sysml@65:1553"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "system.sysml@252:188",
+                "qualifiedName": "RoverSystem::InspectionRover::energy",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 252,
+                  "length": 188,
+                  "nameOffset": 257,
+                  "nameLength": 6
+                }
+              },
+              "context": ["system.sysml@65:1553", "system.sysml@252:188"]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "system.sysml@278:23",
+                "qualifiedName": "RoverSystem::InspectionRover::energy::battery",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 278,
+                  "length": 23,
+                  "nameOffset": 283,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@252:188",
+                "system.sysml@278:23"
+              ]
+            },
+            {
+              "symbol": "n2.0",
+              "subject": {
+                "id": "components.sysml@317:28",
+                "qualifiedName": "RoverComponents::Battery::supply",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 317,
+                  "length": 28,
+                  "nameOffset": 326,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@252:188",
+                "system.sysml@278:23",
+                "components.sysml@317:28"
+              ]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "system.sysml@314:33",
+                "qualifiedName": "RoverSystem::InspectionRover::energy::distribution",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 314,
+                  "length": 33,
+                  "nameOffset": 319,
+                  "nameLength": 12
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@252:188",
+                "system.sysml@314:33"
+              ]
+            },
+            {
+              "symbol": "n3.0",
+              "subject": {
+                "id": "components.sysml@388:26",
+                "qualifiedName": "RoverComponents::Distribution::input",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 388,
+                  "length": 26,
+                  "nameOffset": 396,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@252:188",
+                "system.sysml@314:33",
+                "components.sysml@388:26"
+              ]
+            },
+            {
+              "symbol": "n3.1",
+              "subject": {
+                "id": "components.sysml@423:27",
+                "qualifiedName": "RoverComponents::Distribution::drive",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 423,
+                  "length": 27,
+                  "nameOffset": 432,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@252:188",
+                "system.sysml@314:33",
+                "components.sysml@423:27"
+              ]
+            },
+            {
+              "symbol": "n3.2",
+              "subject": {
+                "id": "components.sysml@459:29",
+                "qualifiedName": "RoverComponents::Distribution::compute",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 459,
+                  "length": 29,
+                  "nameOffset": 468,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@252:188",
+                "system.sysml@314:33",
+                "components.sysml@459:29"
+              ]
+            },
+            {
+              "symbol": "n3.3",
+              "subject": {
+                "id": "components.sysml@497:29",
+                "qualifiedName": "RoverComponents::Distribution::payload",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 497,
+                  "length": 29,
+                  "nameOffset": 506,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@252:188",
+                "system.sysml@314:33",
+                "components.sysml@497:29"
+              ]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "system.sysml@449:98",
+                "qualifiedName": "RoverSystem::InspectionRover::mobility",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 449,
+                  "length": 98,
+                  "nameOffset": 454,
+                  "nameLength": 8
+                }
+              },
+              "context": ["system.sysml@65:1553", "system.sysml@449:98"]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "system.sysml@477:23",
+                "qualifiedName": "RoverSystem::InspectionRover::mobility::leftDrive",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 477,
+                  "length": 23,
+                  "nameOffset": 482,
+                  "nameLength": 9
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@449:98",
+                "system.sysml@477:23"
+              ]
+            },
+            {
+              "symbol": "n5.0",
+              "subject": {
+                "id": "components.sysml@674:26",
+                "qualifiedName": "RoverComponents::Drive::power",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 674,
+                  "length": 26,
+                  "nameOffset": 682,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@449:98",
+                "system.sysml@477:23",
+                "components.sysml@674:26"
+              ]
+            },
+            {
+              "symbol": "n5.1",
+              "subject": {
+                "id": "components.sysml@709:30",
+                "qualifiedName": "RoverComponents::Drive::command",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 709,
+                  "length": 30,
+                  "nameOffset": 717,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@449:98",
+                "system.sysml@477:23",
+                "components.sysml@709:30"
+              ]
+            },
+            {
+              "symbol": "n6",
+              "subject": {
+                "id": "system.sysml@513:24",
+                "qualifiedName": "RoverSystem::InspectionRover::mobility::rightDrive",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 513,
+                  "length": 24,
+                  "nameOffset": 518,
+                  "nameLength": 10
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@449:98",
+                "system.sysml@513:24"
+              ]
+            },
+            {
+              "symbol": "n6.0",
+              "subject": {
+                "id": "components.sysml@674:26",
+                "qualifiedName": "RoverComponents::Drive::power",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 674,
+                  "length": 26,
+                  "nameOffset": 682,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@449:98",
+                "system.sysml@513:24",
+                "components.sysml@674:26"
+              ]
+            },
+            {
+              "symbol": "n6.1",
+              "subject": {
+                "id": "components.sysml@709:30",
+                "qualifiedName": "RoverComponents::Drive::command",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 709,
+                  "length": 30,
+                  "nameOffset": 717,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@449:98",
+                "system.sysml@513:24",
+                "components.sysml@709:30"
+              ]
+            },
+            {
+              "symbol": "n7",
+              "subject": {
+                "id": "system.sysml@556:180",
+                "qualifiedName": "RoverSystem::InspectionRover::autonomy",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 556,
+                  "length": 180,
+                  "nameOffset": 561,
+                  "nameLength": 8
+                }
+              },
+              "context": ["system.sysml@65:1553", "system.sysml@556:180"]
+            },
+            {
+              "symbol": "n8",
+              "subject": {
+                "id": "system.sysml@584:29",
+                "qualifiedName": "RoverSystem::InspectionRover::autonomy::controller",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 584,
+                  "length": 29,
+                  "nameOffset": 589,
+                  "nameLength": 10
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@556:180",
+                "system.sysml@584:29"
+              ]
+            },
+            {
+              "symbol": "n8.0",
+              "subject": {
+                "id": "components.sysml@842:26",
+                "qualifiedName": "RoverComponents::Controller::power",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 842,
+                  "length": 26,
+                  "nameOffset": 850,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@556:180",
+                "system.sysml@584:29",
+                "components.sysml@842:26"
+              ]
+            },
+            {
+              "symbol": "n8.1",
+              "subject": {
+                "id": "components.sysml@877:32",
+                "qualifiedName": "RoverComponents::Controller::perception",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 877,
+                  "length": 32,
+                  "nameOffset": 885,
+                  "nameLength": 10
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@556:180",
+                "system.sysml@584:29",
+                "components.sysml@877:32"
+              ]
+            },
+            {
+              "symbol": "n8.2",
+              "subject": {
+                "id": "components.sysml@918:27",
+                "qualifiedName": "RoverComponents::Controller::images",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 918,
+                  "length": 27,
+                  "nameOffset": 926,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@556:180",
+                "system.sysml@584:29",
+                "components.sysml@918:27"
+              ]
+            },
+            {
+              "symbol": "n8.3",
+              "subject": {
+                "id": "components.sysml@954:29",
+                "qualifiedName": "RoverComponents::Controller::drive",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 954,
+                  "length": 29,
+                  "nameOffset": 963,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@556:180",
+                "system.sysml@584:29",
+                "components.sysml@954:29"
+              ]
+            },
+            {
+              "symbol": "n8.4",
+              "subject": {
+                "id": "components.sysml@992:32",
+                "qualifiedName": "RoverComponents::Controller::status",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 992,
+                  "length": 32,
+                  "nameOffset": 1001,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@556:180",
+                "system.sysml@584:29",
+                "components.sysml@992:32"
+              ]
+            },
+            {
+              "symbol": "n9",
+              "subject": {
+                "id": "system.sysml@626:19",
+                "qualifiedName": "RoverSystem::InspectionRover::autonomy::lidar",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 626,
+                  "length": 19,
+                  "nameOffset": 631,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@556:180",
+                "system.sysml@626:19"
+              ]
+            },
+            {
+              "symbol": "n9.0",
+              "subject": {
+                "id": "components.sysml@1118:27",
+                "qualifiedName": "RoverComponents::Lidar::scan",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1118,
+                  "length": 27,
+                  "nameOffset": 1127,
+                  "nameLength": 4
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@556:180",
+                "system.sysml@626:19",
+                "components.sysml@1118:27"
+              ]
+            },
+            {
+              "symbol": "n10",
+              "subject": {
+                "id": "system.sysml@745:93",
+                "qualifiedName": "RoverSystem::InspectionRover::inspection",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 745,
+                  "length": 93,
+                  "nameOffset": 750,
+                  "nameLength": 10
+                }
+              },
+              "context": ["system.sysml@65:1553", "system.sysml@745:93"]
+            },
+            {
+              "symbol": "n11",
+              "subject": {
+                "id": "system.sysml@775:21",
+                "qualifiedName": "RoverSystem::InspectionRover::inspection::camera",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 775,
+                  "length": 21,
+                  "nameOffset": 780,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@745:93",
+                "system.sysml@775:21"
+              ]
+            },
+            {
+              "symbol": "n11.0",
+              "subject": {
+                "id": "components.sysml@1246:26",
+                "qualifiedName": "RoverComponents::Camera::power",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1246,
+                  "length": 26,
+                  "nameOffset": 1254,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@745:93",
+                "system.sysml@775:21",
+                "components.sysml@1246:26"
+              ]
+            },
+            {
+              "symbol": "n11.1",
+              "subject": {
+                "id": "components.sysml@1281:27",
+                "qualifiedName": "RoverComponents::Camera::image",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1281,
+                  "length": 27,
+                  "nameOffset": 1290,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@745:93",
+                "system.sysml@775:21",
+                "components.sysml@1281:27"
+              ]
+            },
+            {
+              "symbol": "n12",
+              "subject": {
+                "id": "system.sysml@809:19",
+                "qualifiedName": "RoverSystem::InspectionRover::inspection::radio",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 809,
+                  "length": 19,
+                  "nameOffset": 814,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@745:93",
+                "system.sysml@809:19"
+              ]
+            },
+            {
+              "symbol": "n12.0",
+              "subject": {
+                "id": "components.sysml@1393:34",
+                "qualifiedName": "RoverComponents::Radio::telemetry",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1393,
+                  "length": 34,
+                  "nameOffset": 1401,
+                  "nameLength": 9
+                }
+              },
+              "context": [
+                "system.sysml@65:1553",
+                "system.sysml@745:93",
+                "system.sysml@809:19",
+                "components.sysml@1393:34"
+              ]
+            }
+          ],
+          "edges": [
+            {
+              "from": "n2",
+              "to": "n3",
+              "fromPort": "n2.0",
+              "toPort": "n3.0",
+              "label": "batterySupply",
+              "kind": "connection"
+            },
+            {
+              "from": "n9",
+              "to": "n8",
+              "fromPort": "n9.0",
+              "toPort": "n8.1",
+              "label": "obstacleScan",
+              "kind": "connection"
+            },
+            {
+              "from": "n3",
+              "to": "n5",
+              "fromPort": "n3.1",
+              "toPort": "n5.0",
+              "label": "leftPower",
+              "kind": "connection"
+            },
+            {
+              "from": "n3",
+              "to": "n6",
+              "fromPort": "n3.1",
+              "toPort": "n6.0",
+              "label": "rightPower",
+              "kind": "connection"
+            },
+            {
+              "from": "n3",
+              "to": "n8",
+              "fromPort": "n3.2",
+              "toPort": "n8.0",
+              "label": "computePower",
+              "kind": "connection"
+            },
+            {
+              "from": "n3",
+              "to": "n11",
+              "fromPort": "n3.3",
+              "toPort": "n11.0",
+              "label": "cameraPower",
+              "kind": "connection"
+            },
+            {
+              "from": "n8",
+              "to": "n5",
+              "fromPort": "n8.3",
+              "toPort": "n5.1",
+              "label": "leftCommand",
+              "kind": "connection"
+            },
+            {
+              "from": "n8",
+              "to": "n6",
+              "fromPort": "n8.3",
+              "toPort": "n6.1",
+              "label": "rightCommand",
+              "kind": "connection"
+            },
+            {
+              "from": "n11",
+              "to": "n8",
+              "fromPort": "n11.1",
+              "toPort": "n8.2",
+              "label": "inspectionImages",
+              "kind": "connection"
+            },
+            {
+              "from": "n8",
+              "to": "n12",
+              "fromPort": "n8.4",
+              "toPort": "n12.0",
+              "label": "missionTelemetry",
+              "kind": "connection"
+            }
+          ]
+        },
+        {
+          "view": "RoverViews::mission",
+          "modelHash": "4da913c9d93b57864af4f4b555c3ed5669f390fd623e9a6bafa0c9943411401a",
+          "kind": "action",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "behavior.sysml@28:1217",
+                "qualifiedName": "RoverBehavior::InspectRoute",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 28,
+                  "length": 1217,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@28:1217"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "behavior.sysml@145:12",
+                "qualifiedName": "RoverBehavior::InspectRoute::start",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 145,
+                  "length": 12,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@28:1217", "behavior.sysml@145:12"]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "behavior.sysml@166:20",
+                "qualifiedName": "RoverBehavior::InspectRoute::checkBattery",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 166,
+                  "length": 20,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@28:1217", "behavior.sysml@166:20"]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "behavior.sysml@195:14",
+                "qualifiedName": "RoverBehavior::InspectRoute::patrol",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 195,
+                  "length": 14,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@28:1217", "behavior.sysml@195:14"]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "behavior.sysml@218:22",
+                "qualifiedName": "RoverBehavior::InspectRoute::detectObstacle",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 218,
+                  "length": 22,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@28:1217", "behavior.sysml@218:22"]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "behavior.sysml@249:25",
+                "qualifiedName": "RoverBehavior::InspectRoute::captureInspection",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 249,
+                  "length": 25,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@28:1217", "behavior.sysml@249:25"]
+            },
+            {
+              "symbol": "n6",
+              "subject": {
+                "id": "behavior.sysml@283:22",
+                "qualifiedName": "RoverBehavior::InspectRoute::transmitReport",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 283,
+                  "length": 22,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@28:1217", "behavior.sysml@283:22"]
+            },
+            {
+              "symbol": "n7",
+              "subject": {
+                "id": "behavior.sysml@314:20",
+                "qualifiedName": "RoverBehavior::InspectRoute::returnToDock",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 314,
+                  "length": 20,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@28:1217", "behavior.sysml@314:20"]
+            },
+            {
+              "symbol": "n8",
+              "subject": {
+                "id": "behavior.sysml@343:16",
+                "qualifiedName": "RoverBehavior::InspectRoute::recharge",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 343,
+                  "length": 16,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@28:1217", "behavior.sysml@343:16"]
+            },
+            {
+              "symbol": "n9",
+              "subject": {
+                "id": "behavior.sysml@368:5",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 368,
+                  "length": 5,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@28:1217", "behavior.sysml@368:5"]
+            }
+          ]
+        },
+        {
+          "view": "RoverViews::lifecycle",
+          "modelHash": "4da913c9d93b57864af4f4b555c3ed5669f390fd623e9a6bafa0c9943411401a",
+          "kind": "state",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "behavior.sysml@1250:717",
+                "qualifiedName": "RoverBehavior::OperatingMode",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1250,
+                  "length": 717,
+                  "nameOffset": 1260,
+                  "nameLength": 13
+                }
+              },
+              "context": ["behavior.sysml@1250:717"]
+            },
+            {
+              "symbol": "n7",
+              "subject": {
+                "id": ""
+              },
+              "context": ["behavior.sysml@1250:717"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "behavior.sysml@1312:13",
+                "qualifiedName": "RoverBehavior::OperatingMode::docked",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1312,
+                  "length": 13,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@1250:717", "behavior.sysml@1312:13"]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "behavior.sysml@1334:17",
+                "qualifiedName": "RoverBehavior::OperatingMode::patrolling",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1334,
+                  "length": 17,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@1250:717", "behavior.sysml@1334:17"]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "behavior.sysml@1360:17",
+                "qualifiedName": "RoverBehavior::OperatingMode::inspecting",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1360,
+                  "length": 17,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@1250:717", "behavior.sysml@1360:17"]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "behavior.sysml@1386:16",
+                "qualifiedName": "RoverBehavior::OperatingMode::returning",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1386,
+                  "length": 16,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@1250:717", "behavior.sysml@1386:16"]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "behavior.sysml@1411:15",
+                "qualifiedName": "RoverBehavior::OperatingMode::charging",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1411,
+                  "length": 15,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@1250:717", "behavior.sysml@1411:15"]
+            },
+            {
+              "symbol": "n6",
+              "subject": {
+                "id": "behavior.sysml@1435:15",
+                "qualifiedName": "RoverBehavior::OperatingMode::safeStop",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1435,
+                  "length": 15,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@1250:717", "behavior.sysml@1435:15"]
+            }
+          ]
+        },
+        {
+          "view": "RoverViews::requirements",
+          "modelHash": "4da913c9d93b57864af4f4b555c3ed5669f390fd623e9a6bafa0c9943411401a",
+          "kind": "requirement",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "requirements.sysml@1021:203",
+                "qualifiedName": "RoverRequirements::reserve",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1021,
+                  "length": 203,
+                  "nameOffset": 1049,
+                  "nameLength": 7
+                }
+              },
+              "context": ["requirements.sysml@1021:203"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "requirements.sysml@1229:186",
+                "qualifiedName": "RoverRequirements::speed",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1229,
+                  "length": 186,
+                  "nameOffset": 1255,
+                  "nameLength": 5
+                }
+              },
+              "context": ["requirements.sysml@1229:186"]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "requirements.sysml@1420:198",
+                "qualifiedName": "RoverRequirements::clearance",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1420,
+                  "length": 198,
+                  "nameOffset": 1446,
+                  "nameLength": 9
+                }
+              },
+              "context": ["requirements.sysml@1420:198"]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "requirements.sysml@1623:203",
+                "qualifiedName": "RoverRequirements::imaging",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1623,
+                  "length": 203,
+                  "nameOffset": 1649,
+                  "nameLength": 7
+                }
+              },
+              "context": ["requirements.sysml@1623:203"]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "system.sysml@278:23",
+                "qualifiedName": "RoverSystem::InspectionRover::energy::battery",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 278,
+                  "length": 23,
+                  "nameOffset": 283,
+                  "nameLength": 7
+                }
+              },
+              "context": ["system.sysml@278:23"]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "system.sysml@477:23",
+                "qualifiedName": "RoverSystem::InspectionRover::mobility::leftDrive",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 477,
+                  "length": 23,
+                  "nameOffset": 482,
+                  "nameLength": 9
+                }
+              },
+              "context": ["system.sysml@477:23"]
+            },
+            {
+              "symbol": "n6",
+              "subject": {
+                "id": "system.sysml@584:29",
+                "qualifiedName": "RoverSystem::InspectionRover::autonomy::controller",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 584,
+                  "length": 29,
+                  "nameOffset": 589,
+                  "nameLength": 10
+                }
+              },
+              "context": ["system.sysml@584:29"]
+            },
+            {
+              "symbol": "n7",
+              "subject": {
+                "id": "system.sysml@775:21",
+                "qualifiedName": "RoverSystem::InspectionRover::inspection::camera",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 775,
+                  "length": 21,
+                  "nameOffset": 780,
+                  "nameLength": 6
+                }
+              },
+              "context": ["system.sysml@775:21"]
+            }
+          ]
+        }
+      ]
+    },
+    "air-compressor": {
+      "documents": [
+        {
+          "name": "behavior.sysml",
+          "text": "package CompressorBehavior {\n    private import CompressorTypes::*;\n    private import CompressorComponents::*;\n    action def SensePressure { out item reading : PressureReading; }\n    action def SenseTemperature { out item reading : TemperatureReading; }\n    action def ControlMotor {\n        in item reading : PressureReading;\n        in item temperature : TemperatureReading;\n        out item command : MotorCommand;\n    }\n    action def GenerateTorque { in item command : MotorCommand; }\n    action def PumpAir { in item inlet : Air; out item outlet : Air; }\n    action def CoolAir { in item inlet : Air; out item outlet : Air; }\n    action def StoreAir { in item inlet : Air; out item outlet : Air; }\n    action def DeliverAir { in item inlet : Air; }\n    action def CompressAir {\n        doc /* Normal supply scenario. Successions state order; item flows state\n               transfers. Allocations are declared responsibilities, not execution. */\n        ref part controller : Controller;\n        ref part motor : Motor;\n        ref part pumpUnit : Pump;\n        ref part cooler : CoolingAssembly;\n        ref part tank : Tank;\n        ref part regulator : CheckValve;\n        action sense : SensePressure;\n        action temperature : SenseTemperature;\n        action control : ControlMotor;\n        action torque : GenerateTorque;\n        action pump : PumpAir;\n        action cool : CoolAir;\n        action store : StoreAir;\n        action deliver : DeliverAir;\n        allocation sensing allocate sense to controller;\n        allocation thermalSensing allocate temperature to controller;\n        allocation regulation allocate control to controller;\n        allocation turning allocate torque to motor;\n        allocation compression allocate pump to pumpUnit;\n        allocation cooling allocate cool to cooler;\n        allocation storage allocate store to tank;\n        allocation delivery allocate deliver to regulator;\n        first start then sense;\n        first sense then temperature;\n        first temperature then control;\n        first control then torque;\n        first torque then pump;\n        first pump then cool;\n        first cool then store;\n        first store then deliver;\n        first deliver then done;\n        flow from sense.reading to control.reading;\n        flow from temperature.reading to control.temperature;\n        flow from control.command to torque.command;\n        flow from pump.outlet to cool.inlet;\n        flow from cool.outlet to store.inlet;\n        flow from store.outlet to deliver.inlet;\n    }\n    action def IsolatePower;\n    action def ReleasePressure;\n    action def InspectEquipment;\n    action def ReplaceFilter;\n    action def RestoreService;\n    action def ServiceCompressor {\n        doc /* Maintenance follows isolation and depressurization. No completion\n               or safety verification result is claimed by this activity. */\n        ref part technician : Technician;\n        ref part controller : Controller;\n        ref part relief : ReliefValve;\n        action isolate : IsolatePower;\n        action depressurize : ReleasePressure;\n        action inspect : InspectEquipment;\n        action replaceFilter : ReplaceFilter;\n        action restore : RestoreService;\n        allocation isolation allocate isolate to controller;\n        allocation venting allocate depressurize to relief;\n        allocation inspection allocate inspect to technician;\n        allocation replacement allocate replaceFilter to technician;\n        allocation restoration allocate restore to controller;\n        first start then isolate;\n        first isolate then depressurize;\n        first depressurize then inspect;\n        first inspect then replaceFilter;\n        first replaceFilter then restore;\n        first restore then done;\n    }\n    item def StartRequest;\n    item def StartupChecked;\n    item def TankCharged;\n    item def ToolDemand;\n    item def PressureLow;\n    item def TemperatureHigh;\n    item def TemperatureNormal;\n    item def FaultDetected;\n    item def ResetRequested;\n    item def StopRequest;\n    item def ServiceRequested;\n    item def ServiceComplete;\n    state def OperatingMode {\n        entry; then stopped;\n        state stopped;\n        state starting;\n        state charging;\n        state ready;\n        state supplying;\n        state cooling;\n        state fault;\n        state maintenance;\n        transition startCharging first stopped accept StartRequest then starting;\n        transition startupComplete first starting accept StartupChecked then charging;\n        transition chargingComplete first charging accept TankCharged then ready;\n        transition supply first ready accept ToolDemand then supplying;\n        transition recharge first supplying accept PressureLow then charging;\n        transition coolDown first charging accept TemperatureHigh then cooling;\n        transition cooled first cooling accept TemperatureNormal then ready;\n        transition detectFault first charging accept FaultDetected then fault;\n        transition coolingFault first cooling accept FaultDetected then fault;\n        transition reset first fault accept ResetRequested then stopped;\n        transition stop first ready accept StopRequest then stopped;\n        transition stopSupply first supplying accept StopRequest then stopped;\n        transition beginService first stopped accept ServiceRequested then maintenance;\n        transition endService first maintenance accept ServiceComplete then stopped;\n    }\n}\n"
+        },
+        {
+          "name": "components.sysml",
+          "text": "package CompressorComponents {\n    private import ScalarValues::*;\n    private import CompressorTypes::*;\n    part def PowerSupply {\n        attribute ratedPower : Real default = 2200.0;\n        out port supply : PowerOutlet;\n    }\n    part def Controller {\n        attribute shutdownDuration : Real default = 0.25;\n        in port pressure : ~PressureOutlet;\n        in port temperature : ~TemperatureOutlet;\n        in port service : ~CommandOutlet;\n        out port command : CommandOutlet;\n        out port fanCommand : CommandOutlet;\n        out port alarm : AlarmOutlet;\n    }\n    part def Motor {\n        attribute ratedPower : Real default = 1500.0;\n        in port power : ~PowerOutlet;\n        in port command : ~CommandOutlet;\n    }\n    part def Pump {\n        in port inlet : ~AirOutlet;\n        out port outlet : AirOutlet;\n        out port temperature : TemperatureOutlet;\n    }\n    part def Tank {\n        attribute volume : Real default = 0.05;\n        attribute pressure : Real default = 0.0;\n        in port inlet : ~AirOutlet;\n        out port delivery : AirOutlet;\n        out port relief : AirOutlet;\n        out port pressureReading : PressureOutlet;\n    }\n    part def Sensor {\n        attribute accuracy : Real default = 0.01;\n    }\n    part def PressureSensor :> Sensor {\n        in port sample : ~PressureOutlet;\n        out port reading : PressureOutlet;\n    }\n    part def TemperatureSensor :> Sensor {\n        attribute temperature : Real default = 293.15;\n        in port sample : ~TemperatureOutlet;\n        out port reading : TemperatureOutlet;\n    }\n    part def Valve {\n        in port inlet : ~AirOutlet;\n        out port outlet : AirOutlet;\n    }\n    part def CheckValve :> Valve {\n        attribute deliveryPressure : Real default = 600000.0;\n    }\n    part def ReliefValve :> Valve {\n        attribute openingPressure : Real default = 800000.0;\n    }\n    part def CoolingFan {\n        attribute ratedPower : Real default = 120.0;\n        in port command : ~CommandOutlet;\n    }\n    part def CoolingAssembly {\n        part fan : CoolingFan;\n        part temperature : TemperatureSensor;\n    }\n    part def ServiceConsole {\n        out port request : CommandOutlet;\n        in port alarm : ~AlarmOutlet;\n    }\n    part def CompressorInterface {\n        doc /* Black-box interface used in the workshop context.\n               Compressor specializes this definition with internal assemblies. */\n        in port power : ~PowerOutlet;\n        out port air : AirOutlet;\n    }\n    part def Operator;\n    part def Technician;\n    part def AirTool { in port inlet : ~AirOutlet; }\n}\n"
+        },
+        {
+          "name": "geometry.sysml",
+          "text": "package CompressorGeometry {\n    doc /* Envelope dimensions and placement. The preview centers the Box on its coordinate-frame origin. */\n    attribute workshopDatum : ISQ::CartesianSpatial3dCoordinateFrame {\n        :>> mRefs = (SI::m, SI::m, SI::m);\n    }\n    item enclosure : ShapeItems::Box {\n        :>> length = 120 [SI::cm];\n        :>> width = 80 [SI::cm];\n        :>> height = 90 [SI::cm];\n        attribute coordinateFrame : ISQ::CartesianSpatial3dCoordinateFrame {\n            :>> mRefs = (SI::m, SI::m, SI::m);\n            :>> transformation : MeasurementReferences::CoordinateFramePlacement {\n                :>> source = workshopDatum;\n                :>> origin = (1.5, 0.0, 0.45) [workshopDatum];\n                :>> basisDirections = ((0.0, 1.0, 0.0) [workshopDatum],\n                                      (-1.0, 0.0, 0.0) [workshopDatum],\n                                      (0.0, 0.0, 1.0) [workshopDatum]);\n            }\n        }\n    }\n}\n"
+        },
+        {
+          "name": "requirements.sysml",
+          "text": "package CompressorRequirements {\n    private import ScalarValues::*;\n    private import CompressorComponents::*;\n    private import CompressorSystem::*;\n    requirement def <'COMP-001'> SafePressure {\n        doc /* Tank pressure shall not exceed 800000 Pa. */\n        subject tank : Tank;\n        attribute maximum : Real default = 800000.0;\n        require constraint pressureBound { tank.pressure <= maximum }\n    }\n    requirement def <'COMP-002'> StorageCapacity {\n        doc /* The tank shall provide at least 0.05 cubic metres of storage. */\n        subject tank : Tank;\n        attribute minimum : Real default = 0.05;\n        require constraint capacityBound { tank.volume >= minimum }\n    }\n    requirement def <'COMP-003'> ThermalLimit {\n        doc /* Normal operation shall remain below 353.15 K (80 degrees Celsius). */\n        subject sensor : TemperatureSensor;\n        attribute maximum : Real default = 353.15;\n        require constraint thermalBound { sensor.temperature <= maximum }\n    }\n    requirement def <'COMP-004'> SafeShutdown {\n        doc /* The controller shall stop the motor within 1 s of detecting a fault. */\n        subject controller : Controller;\n        attribute maximum : Real default = 1.0;\n        require constraint shutdownBound { controller.shutdownDuration <= maximum }\n    }\n    requirement def <'COMP-005'> DeliveryPressure {\n        doc /* The regulated delivery setting shall be at least 600000 Pa. */\n        subject regulator : CheckValve;\n        attribute minimum : Real default = 600000.0;\n        require constraint deliveryBound { regulator.deliveryPressure >= minimum }\n    }\n    requirement def <'COMP-006'> PressureProtection {\n        doc /* The mechanical relief valve shall open at or below 800000 Pa. */\n        subject valve : ReliefValve;\n        attribute maximum : Real default = 800000.0;\n        require constraint reliefBound { valve.openingPressure <= maximum }\n    }\n    requirement workshopSpecification {\n        doc /* Bounds and declared trace links. Satisfaction assertions and\n               verification cases are model declarations, not test evidence. */\n        subject compressor : Compressor;\n        requirement pressure : SafePressure { subject tank = compressor.pneumatic.tank; }\n        requirement capacity : StorageCapacity { subject tank = compressor.pneumatic.tank; }\n        requirement temperature : ThermalLimit { subject sensor = compressor.cooling.temperature; }\n        requirement shutdown : SafeShutdown { subject controller = compressor.electrical.controller; }\n        requirement delivery : DeliveryPressure { subject regulator = compressor.pneumatic.regulator; }\n        requirement relief : PressureProtection { subject valve = compressor.pneumatic.relief; }\n    }\n    assert satisfy workshopSpecification.pressure by CompressorSystem::workshop.compressor.pneumatic.tank;\n    assert satisfy workshopSpecification.capacity by CompressorSystem::workshop.compressor.pneumatic.tank;\n    assert satisfy workshopSpecification.temperature by CompressorSystem::workshop.compressor.cooling.temperature;\n    assert satisfy workshopSpecification.shutdown by CompressorSystem::workshop.compressor.electrical.controller;\n    assert satisfy workshopSpecification.delivery by CompressorSystem::workshop.compressor.pneumatic.regulator;\n    assert satisfy workshopSpecification.relief by CompressorSystem::workshop.compressor.pneumatic.relief;\n    verification def CheckPressure {\n        subject compressor : Compressor;\n        objective pressureCheck { verify workshopSpecification.pressure; }\n    }\n    verification def CheckShutdown {\n        subject compressor : Compressor;\n        objective shutdownCheck { verify workshopSpecification.shutdown; }\n    }\n    verification pressureTest : CheckPressure { subject compressor = CompressorSystem::workshop.compressor; }\n    verification shutdownTest : CheckShutdown { subject compressor = CompressorSystem::workshop.compressor; }\n}\n"
+        },
+        {
+          "name": "sequence.sysml",
+          "text": "package CompressorSequence {\n    item def AirDelivery;\n    item def AirDemand;\n    item def FaultNotice;\n    item def PowerCommand;\n    item def PressureReading;\n    item def ReadyNotice;\n    item def ResetCommand;\n    item def SensorQuery;\n    item def StartCommand;\n    item def StopCommand;\n    item def TemperatureReading;\n\n    occurrence def Startup {\n        part operator {\n            event occurrence startSent;\n            then event occurrence readyReceived;\n        }\n        part controller {\n            event occurrence startReceived;\n            then event occurrence checkSent;\n            then event occurrence temperatureReceived;\n            then event occurrence energizeSent;\n            then event occurrence feedbackReceived;\n            then event occurrence readySent;\n        }\n        part sensor {\n            event occurrence checkReceived;\n            then event occurrence temperatureSent;\n        }\n        part motor {\n            event occurrence energizeReceived;\n            then event occurrence driveSent;\n        }\n        part pump {\n            event occurrence driveReceived;\n            then event occurrence feedbackSent;\n        }\n        message start of StartCommand from operator.startSent to controller.startReceived;\n        message check of SensorQuery from controller.checkSent to sensor.checkReceived;\n        message temperature of TemperatureReading from sensor.temperatureSent to controller.temperatureReceived;\n        message energize of PowerCommand from controller.energizeSent to motor.energizeReceived;\n        message drive of PowerCommand from motor.driveSent to pump.driveReceived;\n        message feedback of PressureReading from pump.feedbackSent to controller.feedbackReceived;\n        message ready of ReadyNotice from controller.readySent to operator.readyReceived;\n    }\n\n    occurrence def ToolDemand {\n        part tool {\n            event occurrence requestSent;\n            then event occurrence deliverReceived;\n        }\n        part tank {\n            event occurrence requestReceived;\n            then event occurrence deliverSent;\n            then event occurrence pressureSent;\n            then event occurrence refillReceived;\n        }\n        part controller {\n            event occurrence pressureReceived;\n            then event occurrence rechargeSent;\n        }\n        part motor {\n            event occurrence rechargeReceived;\n            then event occurrence driveSent;\n        }\n        part pump {\n            event occurrence driveReceived;\n            then event occurrence refillSent;\n        }\n        message request of AirDemand from tool.requestSent to tank.requestReceived;\n        message deliver of AirDelivery from tank.deliverSent to tool.deliverReceived;\n        message pressure of PressureReading from tank.pressureSent to controller.pressureReceived;\n        message recharge of PowerCommand from controller.rechargeSent to motor.rechargeReceived;\n        message drive of PowerCommand from motor.driveSent to pump.driveReceived;\n        message refill of AirDelivery from pump.refillSent to tank.refillReceived;\n    }\n\n    occurrence def OverheatShutdown {\n        part sensor {\n            event occurrence overheatSent;\n        }\n        part controller {\n            event occurrence overheatReceived;\n            then event occurrence stopMotorSent;\n            then event occurrence coolSent;\n            then event occurrence alarmSent;\n            then event occurrence acknowledgeReceived;\n            then event occurrence resetSent;\n        }\n        part motor {\n            event occurrence stopMotorReceived;\n            then event occurrence resetReceived;\n        }\n        part fan {\n            event occurrence coolReceived;\n        }\n        part operator {\n            event occurrence alarmReceived;\n            then event occurrence acknowledgeSent;\n        }\n        message overheat of TemperatureReading from sensor.overheatSent to controller.overheatReceived;\n        message stopMotor of StopCommand from controller.stopMotorSent to motor.stopMotorReceived;\n        message cool of PowerCommand from controller.coolSent to fan.coolReceived;\n        message alarm of FaultNotice from controller.alarmSent to operator.alarmReceived;\n        message acknowledge of ResetCommand from operator.acknowledgeSent to controller.acknowledgeReceived;\n        message reset of StopCommand from controller.resetSent to motor.resetReceived;\n    }\n}\n"
+        },
+        {
+          "name": "system.sysml",
+          "text": "package CompressorSystem {\n    private import ScalarValues::*;\n    private import CompressorTypes::*;\n    private import CompressorComponents::*;\n    private import CompressorBehavior::*;\n    part def Compressor :> CompressorInterface {\n        doc /* Smart compressor: electrical control, air storage and cooling.\n               These are authored connections and constraints, not a simulation. */\n        part electrical : ElectricalAssembly;\n        part pneumatic : PneumaticAssembly;\n        part cooling : CoolingAssembly;\n        part serviceConsole : ServiceConsole;\n        connection pressureFeedback connect pneumatic.pressureSensor.reading\n            to electrical.controller.pressure;\n        connection temperatureSample connect pneumatic.pump.temperature\n            to cooling.temperature.sample;\n        connection temperatureFeedback connect cooling.temperature.reading\n            to electrical.controller.temperature;\n        connection fanControl connect electrical.controller.fanCommand to cooling.fan.command;\n        connection maintenanceRequest connect serviceConsole.request to electrical.controller.service;\n        connection faultAlarm connect electrical.controller.alarm to serviceConsole.alarm;\n        constraint powerBudget {\n            electrical.motor.ratedPower + cooling.fan.ratedPower <= electrical.supply.ratedPower\n        }\n        action startup : CompressAir;\n        action service : ServiceCompressor;\n        state operatingMode : OperatingMode;\n    }\n    part def ElectricalAssembly {\n        part supply : PowerSupply;\n        part controller : Controller;\n        part motor : Motor;\n        connection motorPower connect supply.supply to motor.power;\n        connection motorControl connect controller.command to motor.command;\n    }\n    part def PneumaticAssembly {\n        part pump : Pump;\n        part tank : Tank;\n        part regulator : CheckValve;\n        part relief : ReliefValve;\n        part pressureSensor : PressureSensor;\n        connection chargingLine connect pump.outlet to tank.inlet;\n        connection regulatedDelivery connect tank.delivery to regulator.inlet;\n        connection pressureProtection connect tank.relief to relief.inlet;\n        connection pressureSample connect tank.pressureReading to pressureSensor.sample;\n    }\n    part def Workshop {\n        part compressor : Compressor;\n        part spareCompressor : Compressor;\n        part tool : AirTool;\n        part blowGun : AirTool;\n        part operator : Operator;\n        part technician : Technician;\n        connection deliveryLine connect compressor.pneumatic.regulator.outlet to tool.inlet;\n        connection spareDelivery connect spareCompressor.pneumatic.regulator.outlet to blowGun.inlet;\n    }\n    part def WorkshopContext {\n        doc /* A black-box system context. The two compressor roles share the\n               interface specialized by the detailed Compressor definition. */\n        part mains : PowerSupply;\n        part compressor : CompressorInterface;\n        part tool : AirTool;\n        part serviceConsole : ServiceConsole;\n        connection electricalSupply connect mains.supply to compressor.power;\n        connection usableAir connect compressor.air to tool.inlet;\n    }\n    part workshop : Workshop;\n}\n"
+        },
+        {
+          "name": "types.sysml",
+          "text": "package CompressorTypes {\n    doc /* Showcase quantities use documented SI units: pressure in Pa,\n           volume in cubic metres, power in W, time in seconds, and temperature in kelvin. */\n    item def Air;\n    item def ElectricalPower;\n    item def PressureReading;\n    item def MotorCommand;\n    item def TemperatureReading;\n    item def Alarm;\n    port def AirOutlet { out item air : Air; }\n    port def PowerOutlet { out item electricity : ElectricalPower; }\n    port def PressureOutlet { out item reading : PressureReading; }\n    port def TemperatureOutlet { out item reading : TemperatureReading; }\n    port def AlarmOutlet { out item alarm : Alarm; }\n    port def CommandOutlet { out item command : MotorCommand; }\n}\n"
+        },
+        {
+          "name": "use-cases.sysml",
+          "text": "package CompressorUseCases {\n    private import CompressorComponents::*;\n    private import CompressorSystem::*;\n    use case def ChargeTank {\n        subject compressor : Compressor;\n        actor operator : Operator;\n        objective { doc /* Build a usable supply of compressed air. */ }\n    }\n    use case def SupplyAir {\n        subject compressor : Compressor;\n        actor operator : Operator;\n        objective { doc /* Supply regulated compressed air to workshop tools. */ }\n    }\n    use case def ProtectEquipment {\n        subject compressor : Compressor;\n        actor operator : Operator;\n        objective { doc /* Stop the motor, cool the equipment and notify the operator on overheating. */ }\n    }\n    use case def RecoverFromFault {\n        subject compressor : Compressor;\n        actor operator : Operator;\n        objective { doc /* Acknowledge the fault and return to a stopped state before restarting. */ }\n    }\n    use case def MaintainEquipment {\n        subject compressor : Compressor;\n        actor technician : Technician;\n        objective { doc /* Isolate, depressurize, inspect and service the compressor. */ }\n    }\n    use case operateWorkshop {\n        subject compressor : Compressor;\n        actor operator : Operator;\n        actor technician : Technician;\n        objective { doc /* Keep workshop tools supplied with air while protecting equipment and enabling maintenance. */ }\n        include use case charge : ChargeTank {\n            subject compressor;\n            actor operator = operateWorkshop::operator;\n        }\n        include use case supply : SupplyAir {\n            subject compressor;\n            actor operator = operateWorkshop::operator;\n        }\n        include use case protect : ProtectEquipment {\n            subject compressor;\n            actor operator = operateWorkshop::operator;\n        }\n        include use case recover : RecoverFromFault {\n            subject compressor;\n            actor operator = operateWorkshop::operator;\n        }\n        include use case service : MaintainEquipment {\n            subject compressor;\n            actor technician = operateWorkshop::technician;\n        }\n    }\n}\n"
+        },
+        {
+          "name": "views.sysml",
+          "text": "package CompressorViews {\n    private import StandardViewDefinitions::*;\n    view def Structure :> InterconnectionView;\n    view def Definitions :> GeneralView {\n        filter @SysML::PartDefinition or @SysML::PartUsage;\n    }\n    view def Requirements :> GeneralView;\n    view def Actions :> ActionFlowView;\n    view def UseCases :> GeneralView;\n    view def Sequence :> SequenceView;\n    view def Geometry :> GeometryView;\n    view def States :> StateTransitionView;\n    view overview : Structure { expose CompressorSystem::WorkshopContext; }\n    view structure : Structure { expose CompressorSystem::Compressor; }\n    view installation : Structure { expose CompressorSystem::Workshop; }\n    view pneumatics : Structure { expose CompressorSystem::PneumaticAssembly; }\n    view definitions : Definitions { expose CompressorComponents::**; }\n    view requirements : Requirements { expose CompressorRequirements::workshopSpecification; }\n    view actions : Actions { expose CompressorBehavior::CompressAir; }\n    view maintenance : Actions { expose CompressorBehavior::ServiceCompressor; }\n    view useCases : UseCases {\n        expose CompressorUseCases::operateWorkshop;\n        render OpenSysMLRenderings::asCaseDiagram;\n    }\n    view states : States { expose CompressorBehavior::OperatingMode; }\n    view startupSequence : Sequence { expose CompressorSequence::Startup; }\n    view demandSequence : Sequence { expose CompressorSequence::ToolDemand; }\n    view faultSequence : Sequence { expose CompressorSequence::OverheatShutdown; }\n    view envelopeGeometry : Geometry { expose CompressorGeometry::enclosure; }\n}\n"
+        }
+      ],
+      "views": [
+        {
+          "view": "CompressorViews::overview",
+          "modelHash": "f1c690da8fa143ca4304546dfbee51dc8483f8a01d1b29599445c6f731e5ef2e",
+          "kind": "interconnection",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "system.sysml@2749:490",
+                "qualifiedName": "CompressorSystem::WorkshopContext",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 2749,
+                  "length": 490,
+                  "nameOffset": 2758,
+                  "nameLength": 15
+                }
+              },
+              "context": ["system.sysml@2749:490"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "system.sysml@2941:25",
+                "qualifiedName": "CompressorSystem::WorkshopContext::mains",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 2941,
+                  "length": 25,
+                  "nameOffset": 2946,
+                  "nameLength": 5
+                }
+              },
+              "context": ["system.sysml@2749:490", "system.sysml@2941:25"]
+            },
+            {
+              "symbol": "n1.0",
+              "subject": {
+                "id": "components.sysml@195:30",
+                "qualifiedName": "CompressorComponents::PowerSupply::supply",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 195,
+                  "length": 30,
+                  "nameOffset": 204,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "system.sysml@2749:490",
+                "system.sysml@2941:25",
+                "components.sysml@195:30"
+              ]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "system.sysml@2975:38",
+                "qualifiedName": "CompressorSystem::WorkshopContext::compressor",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 2975,
+                  "length": 38,
+                  "nameOffset": 2980,
+                  "nameLength": 10
+                }
+              },
+              "context": ["system.sysml@2749:490", "system.sysml@2975:38"]
+            },
+            {
+              "symbol": "n2.0",
+              "subject": {
+                "id": "components.sysml@2437:29",
+                "qualifiedName": "CompressorComponents::CompressorInterface::power",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2437,
+                  "length": 29,
+                  "nameOffset": 2445,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@2749:490",
+                "system.sysml@2975:38",
+                "components.sysml@2437:29"
+              ]
+            },
+            {
+              "symbol": "n2.1",
+              "subject": {
+                "id": "components.sysml@2475:25",
+                "qualifiedName": "CompressorComponents::CompressorInterface::air",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2475,
+                  "length": 25,
+                  "nameOffset": 2484,
+                  "nameLength": 3
+                }
+              },
+              "context": [
+                "system.sysml@2749:490",
+                "system.sysml@2975:38",
+                "components.sysml@2475:25"
+              ]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "system.sysml@3022:20",
+                "qualifiedName": "CompressorSystem::WorkshopContext::tool",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 3022,
+                  "length": 20,
+                  "nameOffset": 3027,
+                  "nameLength": 4
+                }
+              },
+              "context": ["system.sysml@2749:490", "system.sysml@3022:20"]
+            },
+            {
+              "symbol": "n3.0",
+              "subject": {
+                "id": "components.sysml@2578:27",
+                "qualifiedName": "CompressorComponents::AirTool::inlet",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2578,
+                  "length": 27,
+                  "nameOffset": 2586,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@2749:490",
+                "system.sysml@3022:20",
+                "components.sysml@2578:27"
+              ]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "system.sysml@3051:37",
+                "qualifiedName": "CompressorSystem::WorkshopContext::serviceConsole",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 3051,
+                  "length": 37,
+                  "nameOffset": 3056,
+                  "nameLength": 14
+                }
+              },
+              "context": ["system.sysml@2749:490", "system.sysml@3051:37"]
+            },
+            {
+              "symbol": "n4.0",
+              "subject": {
+                "id": "components.sysml@2168:33",
+                "qualifiedName": "CompressorComponents::ServiceConsole::request",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2168,
+                  "length": 33,
+                  "nameOffset": 2177,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "system.sysml@2749:490",
+                "system.sysml@3051:37",
+                "components.sysml@2168:33"
+              ]
+            },
+            {
+              "symbol": "n4.1",
+              "subject": {
+                "id": "components.sysml@2210:29",
+                "qualifiedName": "CompressorComponents::ServiceConsole::alarm",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2210,
+                  "length": 29,
+                  "nameOffset": 2218,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@2749:490",
+                "system.sysml@3051:37",
+                "components.sysml@2210:29"
+              ]
+            }
+          ],
+          "edges": [
+            {
+              "from": "n1",
+              "to": "n2",
+              "fromPort": "n1.0",
+              "toPort": "n2.0",
+              "label": "electricalSupply",
+              "kind": "connection"
+            },
+            {
+              "from": "n2",
+              "to": "n3",
+              "fromPort": "n2.1",
+              "toPort": "n3.0",
+              "label": "usableAir",
+              "kind": "connection"
+            }
+          ]
+        },
+        {
+          "view": "CompressorViews::structure",
+          "modelHash": "f1c690da8fa143ca4304546dfbee51dc8483f8a01d1b29599445c6f731e5ef2e",
+          "kind": "interconnection",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "system.sysml@192:1308",
+                "qualifiedName": "CompressorSystem::Compressor",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 192,
+                  "length": 1308,
+                  "nameOffset": 201,
+                  "nameLength": 10
+                }
+              },
+              "context": ["system.sysml@192:1308"]
+            },
+            {
+              "symbol": "n0.0",
+              "subject": {
+                "id": "components.sysml@2437:29",
+                "qualifiedName": "CompressorComponents::CompressorInterface::power",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2437,
+                  "length": 29,
+                  "nameOffset": 2445,
+                  "nameLength": 5
+                }
+              },
+              "context": ["system.sysml@192:1308", "components.sysml@2437:29"]
+            },
+            {
+              "symbol": "n0.1",
+              "subject": {
+                "id": "components.sysml@2475:25",
+                "qualifiedName": "CompressorComponents::CompressorInterface::air",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2475,
+                  "length": 25,
+                  "nameOffset": 2484,
+                  "nameLength": 3
+                }
+              },
+              "context": ["system.sysml@192:1308", "components.sysml@2475:25"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "system.sysml@407:37",
+                "qualifiedName": "CompressorSystem::Compressor::electrical",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 407,
+                  "length": 37,
+                  "nameOffset": 412,
+                  "nameLength": 10
+                }
+              },
+              "context": ["system.sysml@192:1308", "system.sysml@407:37"]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "system.sysml@453:35",
+                "qualifiedName": "CompressorSystem::Compressor::pneumatic",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 453,
+                  "length": 35,
+                  "nameOffset": 458,
+                  "nameLength": 9
+                }
+              },
+              "context": ["system.sysml@192:1308", "system.sysml@453:35"]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "system.sysml@497:31",
+                "qualifiedName": "CompressorSystem::Compressor::cooling",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 497,
+                  "length": 31,
+                  "nameOffset": 502,
+                  "nameLength": 7
+                }
+              },
+              "context": ["system.sysml@192:1308", "system.sysml@497:31"]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "system.sysml@537:37",
+                "qualifiedName": "CompressorSystem::Compressor::serviceConsole",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 537,
+                  "length": 37,
+                  "nameOffset": 542,
+                  "nameLength": 14
+                }
+              },
+              "context": ["system.sysml@192:1308", "system.sysml@537:37"]
+            },
+            {
+              "symbol": "n4.0",
+              "subject": {
+                "id": "components.sysml@2168:33",
+                "qualifiedName": "CompressorComponents::ServiceConsole::request",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2168,
+                  "length": 33,
+                  "nameOffset": 2177,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "system.sysml@192:1308",
+                "system.sysml@537:37",
+                "components.sysml@2168:33"
+              ]
+            },
+            {
+              "symbol": "n4.1",
+              "subject": {
+                "id": "components.sysml@2210:29",
+                "qualifiedName": "CompressorComponents::ServiceConsole::alarm",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2210,
+                  "length": 29,
+                  "nameOffset": 2218,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@192:1308",
+                "system.sysml@537:37",
+                "components.sysml@2210:29"
+              ]
+            }
+          ],
+          "edges": [
+            {
+              "from": "n2",
+              "to": "n1",
+              "label": "pressureFeedback",
+              "kind": "connection"
+            },
+            {
+              "from": "n2",
+              "to": "n3",
+              "label": "temperatureSample",
+              "kind": "connection"
+            },
+            {
+              "from": "n3",
+              "to": "n1",
+              "label": "temperatureFeedback",
+              "kind": "connection"
+            },
+            {
+              "from": "n1",
+              "to": "n3",
+              "label": "fanControl",
+              "kind": "connection"
+            },
+            {
+              "from": "n4",
+              "to": "n1",
+              "fromPort": "n4.0",
+              "label": "maintenanceRequest",
+              "kind": "connection"
+            },
+            {
+              "from": "n1",
+              "to": "n4",
+              "toPort": "n4.1",
+              "label": "faultAlarm",
+              "kind": "connection"
+            }
+          ]
+        },
+        {
+          "view": "CompressorViews::installation",
+          "modelHash": "f1c690da8fa143ca4304546dfbee51dc8483f8a01d1b29599445c6f731e5ef2e",
+          "kind": "interconnection",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "system.sysml@2310:434",
+                "qualifiedName": "CompressorSystem::Workshop",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 2310,
+                  "length": 434,
+                  "nameOffset": 2319,
+                  "nameLength": 8
+                }
+              },
+              "context": ["system.sysml@2310:434"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "system.sysml@2338:29",
+                "qualifiedName": "CompressorSystem::Workshop::compressor",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 2338,
+                  "length": 29,
+                  "nameOffset": 2343,
+                  "nameLength": 10
+                }
+              },
+              "context": ["system.sysml@2310:434", "system.sysml@2338:29"]
+            },
+            {
+              "symbol": "n1.0",
+              "subject": {
+                "id": "components.sysml@2437:29",
+                "qualifiedName": "CompressorComponents::CompressorInterface::power",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2437,
+                  "length": 29,
+                  "nameOffset": 2445,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@2310:434",
+                "system.sysml@2338:29",
+                "components.sysml@2437:29"
+              ]
+            },
+            {
+              "symbol": "n1.1",
+              "subject": {
+                "id": "components.sysml@2475:25",
+                "qualifiedName": "CompressorComponents::CompressorInterface::air",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2475,
+                  "length": 25,
+                  "nameOffset": 2484,
+                  "nameLength": 3
+                }
+              },
+              "context": [
+                "system.sysml@2310:434",
+                "system.sysml@2338:29",
+                "components.sysml@2475:25"
+              ]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "system.sysml@2376:34",
+                "qualifiedName": "CompressorSystem::Workshop::spareCompressor",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 2376,
+                  "length": 34,
+                  "nameOffset": 2381,
+                  "nameLength": 15
+                }
+              },
+              "context": ["system.sysml@2310:434", "system.sysml@2376:34"]
+            },
+            {
+              "symbol": "n2.0",
+              "subject": {
+                "id": "components.sysml@2437:29",
+                "qualifiedName": "CompressorComponents::CompressorInterface::power",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2437,
+                  "length": 29,
+                  "nameOffset": 2445,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@2310:434",
+                "system.sysml@2376:34",
+                "components.sysml@2437:29"
+              ]
+            },
+            {
+              "symbol": "n2.1",
+              "subject": {
+                "id": "components.sysml@2475:25",
+                "qualifiedName": "CompressorComponents::CompressorInterface::air",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2475,
+                  "length": 25,
+                  "nameOffset": 2484,
+                  "nameLength": 3
+                }
+              },
+              "context": [
+                "system.sysml@2310:434",
+                "system.sysml@2376:34",
+                "components.sysml@2475:25"
+              ]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "system.sysml@2419:20",
+                "qualifiedName": "CompressorSystem::Workshop::tool",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 2419,
+                  "length": 20,
+                  "nameOffset": 2424,
+                  "nameLength": 4
+                }
+              },
+              "context": ["system.sysml@2310:434", "system.sysml@2419:20"]
+            },
+            {
+              "symbol": "n3.0",
+              "subject": {
+                "id": "components.sysml@2578:27",
+                "qualifiedName": "CompressorComponents::AirTool::inlet",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2578,
+                  "length": 27,
+                  "nameOffset": 2586,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@2310:434",
+                "system.sysml@2419:20",
+                "components.sysml@2578:27"
+              ]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "system.sysml@2448:23",
+                "qualifiedName": "CompressorSystem::Workshop::blowGun",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 2448,
+                  "length": 23,
+                  "nameOffset": 2453,
+                  "nameLength": 7
+                }
+              },
+              "context": ["system.sysml@2310:434", "system.sysml@2448:23"]
+            },
+            {
+              "symbol": "n4.0",
+              "subject": {
+                "id": "components.sysml@2578:27",
+                "qualifiedName": "CompressorComponents::AirTool::inlet",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 2578,
+                  "length": 27,
+                  "nameOffset": 2586,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@2310:434",
+                "system.sysml@2448:23",
+                "components.sysml@2578:27"
+              ]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "system.sysml@2480:25",
+                "qualifiedName": "CompressorSystem::Workshop::operator",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 2480,
+                  "length": 25,
+                  "nameOffset": 2485,
+                  "nameLength": 8
+                }
+              },
+              "context": ["system.sysml@2310:434", "system.sysml@2480:25"]
+            },
+            {
+              "symbol": "n6",
+              "subject": {
+                "id": "system.sysml@2514:29",
+                "qualifiedName": "CompressorSystem::Workshop::technician",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 2514,
+                  "length": 29,
+                  "nameOffset": 2519,
+                  "nameLength": 10
+                }
+              },
+              "context": ["system.sysml@2310:434", "system.sysml@2514:29"]
+            }
+          ],
+          "edges": [
+            {
+              "from": "n1",
+              "to": "n3",
+              "toPort": "n3.0",
+              "label": "deliveryLine",
+              "kind": "connection"
+            },
+            {
+              "from": "n2",
+              "to": "n4",
+              "toPort": "n4.0",
+              "label": "spareDelivery",
+              "kind": "connection"
+            }
+          ]
+        },
+        {
+          "view": "CompressorViews::pneumatics",
+          "modelHash": "f1c690da8fa143ca4304546dfbee51dc8483f8a01d1b29599445c6f731e5ef2e",
+          "kind": "interconnection",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "system.sysml@1791:514",
+                "qualifiedName": "CompressorSystem::PneumaticAssembly",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 1791,
+                  "length": 514,
+                  "nameOffset": 1800,
+                  "nameLength": 17
+                }
+              },
+              "context": ["system.sysml@1791:514"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "system.sysml@1828:17",
+                "qualifiedName": "CompressorSystem::PneumaticAssembly::pump",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 1828,
+                  "length": 17,
+                  "nameOffset": 1833,
+                  "nameLength": 4
+                }
+              },
+              "context": ["system.sysml@1791:514", "system.sysml@1828:17"]
+            },
+            {
+              "symbol": "n1.0",
+              "subject": {
+                "id": "components.sysml@772:27",
+                "qualifiedName": "CompressorComponents::Pump::inlet",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 772,
+                  "length": 27,
+                  "nameOffset": 780,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1828:17",
+                "components.sysml@772:27"
+              ]
+            },
+            {
+              "symbol": "n1.1",
+              "subject": {
+                "id": "components.sysml@808:28",
+                "qualifiedName": "CompressorComponents::Pump::outlet",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 808,
+                  "length": 28,
+                  "nameOffset": 817,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1828:17",
+                "components.sysml@808:28"
+              ]
+            },
+            {
+              "symbol": "n1.2",
+              "subject": {
+                "id": "components.sysml@845:41",
+                "qualifiedName": "CompressorComponents::Pump::temperature",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 845,
+                  "length": 41,
+                  "nameOffset": 854,
+                  "nameLength": 11
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1828:17",
+                "components.sysml@845:41"
+              ]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "system.sysml@1854:17",
+                "qualifiedName": "CompressorSystem::PneumaticAssembly::tank",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 1854,
+                  "length": 17,
+                  "nameOffset": 1859,
+                  "nameLength": 4
+                }
+              },
+              "context": ["system.sysml@1791:514", "system.sysml@1854:17"]
+            },
+            {
+              "symbol": "n2.0",
+              "subject": {
+                "id": "components.sysml@1018:27",
+                "qualifiedName": "CompressorComponents::Tank::inlet",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1018,
+                  "length": 27,
+                  "nameOffset": 1026,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1854:17",
+                "components.sysml@1018:27"
+              ]
+            },
+            {
+              "symbol": "n2.1",
+              "subject": {
+                "id": "components.sysml@1054:30",
+                "qualifiedName": "CompressorComponents::Tank::delivery",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1054,
+                  "length": 30,
+                  "nameOffset": 1063,
+                  "nameLength": 8
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1854:17",
+                "components.sysml@1054:30"
+              ]
+            },
+            {
+              "symbol": "n2.2",
+              "subject": {
+                "id": "components.sysml@1093:28",
+                "qualifiedName": "CompressorComponents::Tank::relief",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1093,
+                  "length": 28,
+                  "nameOffset": 1102,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1854:17",
+                "components.sysml@1093:28"
+              ]
+            },
+            {
+              "symbol": "n2.3",
+              "subject": {
+                "id": "components.sysml@1130:42",
+                "qualifiedName": "CompressorComponents::Tank::pressureReading",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1130,
+                  "length": 42,
+                  "nameOffset": 1139,
+                  "nameLength": 15
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1854:17",
+                "components.sysml@1130:42"
+              ]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "system.sysml@1880:28",
+                "qualifiedName": "CompressorSystem::PneumaticAssembly::regulator",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 1880,
+                  "length": 28,
+                  "nameOffset": 1885,
+                  "nameLength": 9
+                }
+              },
+              "context": ["system.sysml@1791:514", "system.sysml@1880:28"]
+            },
+            {
+              "symbol": "n3.0",
+              "subject": {
+                "id": "components.sysml@1612:27",
+                "qualifiedName": "CompressorComponents::Valve::inlet",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1612,
+                  "length": 27,
+                  "nameOffset": 1620,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1880:28",
+                "components.sysml@1612:27"
+              ]
+            },
+            {
+              "symbol": "n3.1",
+              "subject": {
+                "id": "components.sysml@1648:28",
+                "qualifiedName": "CompressorComponents::Valve::outlet",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1648,
+                  "length": 28,
+                  "nameOffset": 1657,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1880:28",
+                "components.sysml@1648:28"
+              ]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "system.sysml@1917:26",
+                "qualifiedName": "CompressorSystem::PneumaticAssembly::relief",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 1917,
+                  "length": 26,
+                  "nameOffset": 1922,
+                  "nameLength": 6
+                }
+              },
+              "context": ["system.sysml@1791:514", "system.sysml@1917:26"]
+            },
+            {
+              "symbol": "n4.0",
+              "subject": {
+                "id": "components.sysml@1612:27",
+                "qualifiedName": "CompressorComponents::Valve::inlet",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1612,
+                  "length": 27,
+                  "nameOffset": 1620,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1917:26",
+                "components.sysml@1612:27"
+              ]
+            },
+            {
+              "symbol": "n4.1",
+              "subject": {
+                "id": "components.sysml@1648:28",
+                "qualifiedName": "CompressorComponents::Valve::outlet",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1648,
+                  "length": 28,
+                  "nameOffset": 1657,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1917:26",
+                "components.sysml@1648:28"
+              ]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "system.sysml@1952:37",
+                "qualifiedName": "CompressorSystem::PneumaticAssembly::pressureSensor",
+                "origin": {
+                  "file": "system.sysml",
+                  "offset": 1952,
+                  "length": 37,
+                  "nameOffset": 1957,
+                  "nameLength": 14
+                }
+              },
+              "context": ["system.sysml@1791:514", "system.sysml@1952:37"]
+            },
+            {
+              "symbol": "n5.0",
+              "subject": {
+                "id": "components.sysml@1305:33",
+                "qualifiedName": "CompressorComponents::PressureSensor::sample",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1305,
+                  "length": 33,
+                  "nameOffset": 1313,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1952:37",
+                "components.sysml@1305:33"
+              ]
+            },
+            {
+              "symbol": "n5.1",
+              "subject": {
+                "id": "components.sysml@1347:34",
+                "qualifiedName": "CompressorComponents::PressureSensor::reading",
+                "origin": {
+                  "file": "components.sysml",
+                  "offset": 1347,
+                  "length": 34,
+                  "nameOffset": 1356,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "system.sysml@1791:514",
+                "system.sysml@1952:37",
+                "components.sysml@1347:34"
+              ]
+            }
+          ],
+          "edges": [
+            {
+              "from": "n1",
+              "to": "n2",
+              "fromPort": "n1.1",
+              "toPort": "n2.0",
+              "label": "chargingLine",
+              "kind": "connection"
+            },
+            {
+              "from": "n2",
+              "to": "n3",
+              "fromPort": "n2.1",
+              "toPort": "n3.0",
+              "label": "regulatedDelivery",
+              "kind": "connection"
+            },
+            {
+              "from": "n2",
+              "to": "n4",
+              "fromPort": "n2.2",
+              "toPort": "n4.0",
+              "label": "pressureProtection",
+              "kind": "connection"
+            },
+            {
+              "from": "n2",
+              "to": "n5",
+              "fromPort": "n2.3",
+              "toPort": "n5.0",
+              "label": "pressureSample",
+              "kind": "connection"
+            }
+          ]
+        },
+        {
+          "view": "CompressorViews::requirements",
+          "modelHash": "f1c690da8fa143ca4304546dfbee51dc8483f8a01d1b29599445c6f731e5ef2e",
+          "kind": "tree",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "requirements.sysml@1946:825",
+                "qualifiedName": "CompressorRequirements::workshopSpecification",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 1946,
+                  "length": 825,
+                  "nameOffset": 1958,
+                  "nameLength": 21
+                }
+              },
+              "context": ["requirements.sysml@1946:825"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "requirements.sysml@2146:32",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::compressor",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2146,
+                  "length": 32,
+                  "nameOffset": 2154,
+                  "nameLength": 10
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2146:32"
+              ]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "requirements.sysml@2187:81",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::pressure",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2187,
+                  "length": 81,
+                  "nameOffset": 2199,
+                  "nameLength": 8
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2187:81"
+              ]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "requirements.sysml@2225:41",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::pressure::tank",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2225,
+                  "length": 41,
+                  "nameOffset": 2233,
+                  "nameLength": 4
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2187:81",
+                "requirements.sysml@2225:41"
+              ]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "requirements.sysml@2277:84",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::capacity",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2277,
+                  "length": 84,
+                  "nameOffset": 2289,
+                  "nameLength": 8
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2277:84"
+              ]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "requirements.sysml@2318:41",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::capacity::tank",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2318,
+                  "length": 41,
+                  "nameOffset": 2326,
+                  "nameLength": 4
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2277:84",
+                "requirements.sysml@2318:41"
+              ]
+            },
+            {
+              "symbol": "n6",
+              "subject": {
+                "id": "requirements.sysml@2370:91",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::temperature",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2370,
+                  "length": 91,
+                  "nameOffset": 2382,
+                  "nameLength": 11
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2370:91"
+              ]
+            },
+            {
+              "symbol": "n7",
+              "subject": {
+                "id": "requirements.sysml@2411:48",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::temperature::sensor",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2411,
+                  "length": 48,
+                  "nameOffset": 2419,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2370:91",
+                "requirements.sysml@2411:48"
+              ]
+            },
+            {
+              "symbol": "n8",
+              "subject": {
+                "id": "requirements.sysml@2470:94",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::shutdown",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2470,
+                  "length": 94,
+                  "nameOffset": 2482,
+                  "nameLength": 8
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2470:94"
+              ]
+            },
+            {
+              "symbol": "n9",
+              "subject": {
+                "id": "requirements.sysml@2508:54",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::shutdown::controller",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2508,
+                  "length": 54,
+                  "nameOffset": 2516,
+                  "nameLength": 10
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2470:94",
+                "requirements.sysml@2508:54"
+              ]
+            },
+            {
+              "symbol": "n10",
+              "subject": {
+                "id": "requirements.sysml@2573:95",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::delivery",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2573,
+                  "length": 95,
+                  "nameOffset": 2585,
+                  "nameLength": 8
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2573:95"
+              ]
+            },
+            {
+              "symbol": "n11",
+              "subject": {
+                "id": "requirements.sysml@2615:51",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::delivery::regulator",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2615,
+                  "length": 51,
+                  "nameOffset": 2623,
+                  "nameLength": 9
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2573:95",
+                "requirements.sysml@2615:51"
+              ]
+            },
+            {
+              "symbol": "n12",
+              "subject": {
+                "id": "requirements.sysml@2677:88",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::relief",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2677,
+                  "length": 88,
+                  "nameOffset": 2689,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2677:88"
+              ]
+            },
+            {
+              "symbol": "n13",
+              "subject": {
+                "id": "requirements.sysml@2719:44",
+                "qualifiedName": "CompressorRequirements::workshopSpecification::relief::valve",
+                "origin": {
+                  "file": "requirements.sysml",
+                  "offset": 2719,
+                  "length": 44,
+                  "nameOffset": 2727,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "requirements.sysml@1946:825",
+                "requirements.sysml@2677:88",
+                "requirements.sysml@2719:44"
+              ]
+            }
+          ]
+        },
+        {
+          "view": "CompressorViews::actions",
+          "modelHash": "f1c690da8fa143ca4304546dfbee51dc8483f8a01d1b29599445c6f731e5ef2e",
+          "kind": "action",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "behavior.sysml@761:1790",
+                "qualifiedName": "CompressorBehavior::CompressAir",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 761,
+                  "length": 1790,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@761:1790"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "behavior.sysml@1184:29",
+                "qualifiedName": "CompressorBehavior::CompressAir::sense",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1184,
+                  "length": 29,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@761:1790", "behavior.sysml@1184:29"]
+            },
+            {
+              "symbol": "n1.0",
+              "subject": {
+                "id": "behavior.sysml@143:35",
+                "qualifiedName": "CompressorBehavior::SensePressure::reading",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 143,
+                  "length": 35,
+                  "nameOffset": 152,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1184:29",
+                "behavior.sysml@143:35"
+              ]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "behavior.sysml@1222:38",
+                "qualifiedName": "CompressorBehavior::CompressAir::temperature",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1222,
+                  "length": 38,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@761:1790", "behavior.sysml@1222:38"]
+            },
+            {
+              "symbol": "n2.0",
+              "subject": {
+                "id": "behavior.sysml@215:38",
+                "qualifiedName": "CompressorBehavior::SenseTemperature::reading",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 215,
+                  "length": 38,
+                  "nameOffset": 224,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1222:38",
+                "behavior.sysml@215:38"
+              ]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "behavior.sysml@1269:30",
+                "qualifiedName": "CompressorBehavior::CompressAir::control",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1269,
+                  "length": 30,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@761:1790", "behavior.sysml@1269:30"]
+            },
+            {
+              "symbol": "n3.0",
+              "subject": {
+                "id": "behavior.sysml@294:34",
+                "qualifiedName": "CompressorBehavior::ControlMotor::reading",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 294,
+                  "length": 34,
+                  "nameOffset": 302,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1269:30",
+                "behavior.sysml@294:34"
+              ]
+            },
+            {
+              "symbol": "n3.1",
+              "subject": {
+                "id": "behavior.sysml@337:41",
+                "qualifiedName": "CompressorBehavior::ControlMotor::temperature",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 337,
+                  "length": 41,
+                  "nameOffset": 345,
+                  "nameLength": 11
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1269:30",
+                "behavior.sysml@337:41"
+              ]
+            },
+            {
+              "symbol": "n3.2",
+              "subject": {
+                "id": "behavior.sysml@387:32",
+                "qualifiedName": "CompressorBehavior::ControlMotor::command",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 387,
+                  "length": 32,
+                  "nameOffset": 396,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1269:30",
+                "behavior.sysml@387:32"
+              ]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "behavior.sysml@1308:31",
+                "qualifiedName": "CompressorBehavior::CompressAir::torque",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1308,
+                  "length": 31,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@761:1790", "behavior.sysml@1308:31"]
+            },
+            {
+              "symbol": "n4.0",
+              "subject": {
+                "id": "behavior.sysml@458:31",
+                "qualifiedName": "CompressorBehavior::GenerateTorque::command",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 458,
+                  "length": 31,
+                  "nameOffset": 466,
+                  "nameLength": 7
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1308:31",
+                "behavior.sysml@458:31"
+              ]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "behavior.sysml@1348:22",
+                "qualifiedName": "CompressorBehavior::CompressAir::pump",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1348,
+                  "length": 22,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@761:1790", "behavior.sysml@1348:22"]
+            },
+            {
+              "symbol": "n5.0",
+              "subject": {
+                "id": "behavior.sysml@517:20",
+                "qualifiedName": "CompressorBehavior::PumpAir::inlet",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 517,
+                  "length": 20,
+                  "nameOffset": 525,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1348:22",
+                "behavior.sysml@517:20"
+              ]
+            },
+            {
+              "symbol": "n5.1",
+              "subject": {
+                "id": "behavior.sysml@538:22",
+                "qualifiedName": "CompressorBehavior::PumpAir::outlet",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 538,
+                  "length": 22,
+                  "nameOffset": 547,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1348:22",
+                "behavior.sysml@538:22"
+              ]
+            },
+            {
+              "symbol": "n6",
+              "subject": {
+                "id": "behavior.sysml@1379:22",
+                "qualifiedName": "CompressorBehavior::CompressAir::cool",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1379,
+                  "length": 22,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@761:1790", "behavior.sysml@1379:22"]
+            },
+            {
+              "symbol": "n6.0",
+              "subject": {
+                "id": "behavior.sysml@588:20",
+                "qualifiedName": "CompressorBehavior::CoolAir::inlet",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 588,
+                  "length": 20,
+                  "nameOffset": 596,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1379:22",
+                "behavior.sysml@588:20"
+              ]
+            },
+            {
+              "symbol": "n6.1",
+              "subject": {
+                "id": "behavior.sysml@609:22",
+                "qualifiedName": "CompressorBehavior::CoolAir::outlet",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 609,
+                  "length": 22,
+                  "nameOffset": 618,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1379:22",
+                "behavior.sysml@609:22"
+              ]
+            },
+            {
+              "symbol": "n7",
+              "subject": {
+                "id": "behavior.sysml@1410:24",
+                "qualifiedName": "CompressorBehavior::CompressAir::store",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1410,
+                  "length": 24,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@761:1790", "behavior.sysml@1410:24"]
+            },
+            {
+              "symbol": "n7.0",
+              "subject": {
+                "id": "behavior.sysml@660:20",
+                "qualifiedName": "CompressorBehavior::StoreAir::inlet",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 660,
+                  "length": 20,
+                  "nameOffset": 668,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1410:24",
+                "behavior.sysml@660:20"
+              ]
+            },
+            {
+              "symbol": "n7.1",
+              "subject": {
+                "id": "behavior.sysml@681:22",
+                "qualifiedName": "CompressorBehavior::StoreAir::outlet",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 681,
+                  "length": 22,
+                  "nameOffset": 690,
+                  "nameLength": 6
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1410:24",
+                "behavior.sysml@681:22"
+              ]
+            },
+            {
+              "symbol": "n8",
+              "subject": {
+                "id": "behavior.sysml@1443:28",
+                "qualifiedName": "CompressorBehavior::CompressAir::deliver",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1443,
+                  "length": 28,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@761:1790", "behavior.sysml@1443:28"]
+            },
+            {
+              "symbol": "n8.0",
+              "subject": {
+                "id": "behavior.sysml@734:20",
+                "qualifiedName": "CompressorBehavior::DeliverAir::inlet",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 734,
+                  "length": 20,
+                  "nameOffset": 742,
+                  "nameLength": 5
+                }
+              },
+              "context": [
+                "behavior.sysml@761:1790",
+                "behavior.sysml@1443:28",
+                "behavior.sysml@734:20"
+              ]
+            },
+            {
+              "symbol": "n9",
+              "subject": {
+                "id": "behavior.sysml@1948:5",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 1948,
+                  "length": 5,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@761:1790", "behavior.sysml@1948:5"]
+            },
+            {
+              "symbol": "n10",
+              "subject": {
+                "id": "behavior.sysml@2233:4",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 2233,
+                  "length": 4,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@761:1790", "behavior.sysml@2233:4"]
+            }
+          ]
+        },
+        {
+          "view": "CompressorViews::maintenance",
+          "modelHash": "f1c690da8fa143ca4304546dfbee51dc8483f8a01d1b29599445c6f731e5ef2e",
+          "kind": "action",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "behavior.sysml@2711:1081",
+                "qualifiedName": "CompressorBehavior::ServiceCompressor",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 2711,
+                  "length": 1081,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@2711:1081"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "behavior.sysml@3031:30",
+                "qualifiedName": "CompressorBehavior::ServiceCompressor::isolate",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 3031,
+                  "length": 30,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@2711:1081", "behavior.sysml@3031:30"]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "behavior.sysml@3070:38",
+                "qualifiedName": "CompressorBehavior::ServiceCompressor::depressurize",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 3070,
+                  "length": 38,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@2711:1081", "behavior.sysml@3070:38"]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "behavior.sysml@3117:34",
+                "qualifiedName": "CompressorBehavior::ServiceCompressor::inspect",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 3117,
+                  "length": 34,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@2711:1081", "behavior.sysml@3117:34"]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "behavior.sysml@3160:37",
+                "qualifiedName": "CompressorBehavior::ServiceCompressor::replaceFilter",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 3160,
+                  "length": 37,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@2711:1081", "behavior.sysml@3160:37"]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "behavior.sysml@3206:32",
+                "qualifiedName": "CompressorBehavior::ServiceCompressor::restore",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 3206,
+                  "length": 32,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@2711:1081", "behavior.sysml@3206:32"]
+            },
+            {
+              "symbol": "n6",
+              "subject": {
+                "id": "behavior.sysml@3568:5",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 3568,
+                  "length": 5,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@2711:1081", "behavior.sysml@3568:5"]
+            },
+            {
+              "symbol": "n7",
+              "subject": {
+                "id": "behavior.sysml@3781:4",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 3781,
+                  "length": 4,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@2711:1081", "behavior.sysml@3781:4"]
+            }
+          ]
+        },
+        {
+          "view": "CompressorViews::states",
+          "modelHash": "f1c690da8fa143ca4304546dfbee51dc8483f8a01d1b29599445c6f731e5ef2e",
+          "kind": "state",
+          "correspondence": [
+            {
+              "symbol": "n0",
+              "subject": {
+                "id": "behavior.sysml@4136:1358",
+                "qualifiedName": "CompressorBehavior::OperatingMode",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 4136,
+                  "length": 1358,
+                  "nameOffset": 4146,
+                  "nameLength": 13
+                }
+              },
+              "context": ["behavior.sysml@4136:1358"]
+            },
+            {
+              "symbol": "n9",
+              "subject": {
+                "id": ""
+              },
+              "context": ["behavior.sysml@4136:1358"]
+            },
+            {
+              "symbol": "n1",
+              "subject": {
+                "id": "behavior.sysml@4199:14",
+                "qualifiedName": "CompressorBehavior::OperatingMode::stopped",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 4199,
+                  "length": 14,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@4136:1358", "behavior.sysml@4199:14"]
+            },
+            {
+              "symbol": "n2",
+              "subject": {
+                "id": "behavior.sysml@4222:15",
+                "qualifiedName": "CompressorBehavior::OperatingMode::starting",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 4222,
+                  "length": 15,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@4136:1358", "behavior.sysml@4222:15"]
+            },
+            {
+              "symbol": "n3",
+              "subject": {
+                "id": "behavior.sysml@4246:15",
+                "qualifiedName": "CompressorBehavior::OperatingMode::charging",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 4246,
+                  "length": 15,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@4136:1358", "behavior.sysml@4246:15"]
+            },
+            {
+              "symbol": "n4",
+              "subject": {
+                "id": "behavior.sysml@4270:12",
+                "qualifiedName": "CompressorBehavior::OperatingMode::ready",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 4270,
+                  "length": 12,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@4136:1358", "behavior.sysml@4270:12"]
+            },
+            {
+              "symbol": "n5",
+              "subject": {
+                "id": "behavior.sysml@4291:16",
+                "qualifiedName": "CompressorBehavior::OperatingMode::supplying",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 4291,
+                  "length": 16,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@4136:1358", "behavior.sysml@4291:16"]
+            },
+            {
+              "symbol": "n6",
+              "subject": {
+                "id": "behavior.sysml@4316:14",
+                "qualifiedName": "CompressorBehavior::OperatingMode::cooling",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 4316,
+                  "length": 14,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@4136:1358", "behavior.sysml@4316:14"]
+            },
+            {
+              "symbol": "n7",
+              "subject": {
+                "id": "behavior.sysml@4339:12",
+                "qualifiedName": "CompressorBehavior::OperatingMode::fault",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 4339,
+                  "length": 12,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@4136:1358", "behavior.sysml@4339:12"]
+            },
+            {
+              "symbol": "n8",
+              "subject": {
+                "id": "behavior.sysml@4360:18",
+                "qualifiedName": "CompressorBehavior::OperatingMode::maintenance",
+                "origin": {
+                  "file": "behavior.sysml",
+                  "offset": 4360,
+                  "length": 18,
+                  "nameOffset": 0,
+                  "nameLength": 0
+                }
+              },
+              "context": ["behavior.sysml@4136:1358", "behavior.sysml@4360:18"]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

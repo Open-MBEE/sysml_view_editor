@@ -2,13 +2,15 @@
 
 Recorded 2026-11-01. This is a bounded investigation for the [exploration plan](../architecture/model-exploration.md), not an implemented application capability. No engine pins, production dependencies, worker protocols or project formats changed during this investigation.
 
+Implementation update, 2026-11-05: the separate validated `Explore` bridge and workspace contract now implement the bounded seam described here. See [current scope](../architecture/model-exploration.md#current-bounded-slice). The investigation and probe results below describe the earlier boundary.
+
 ## Finding
 
 The pinned OpenSysML renderer already has a source-preserving `RenderExposed` entry point for rendering selected model elements without a view declaration. It is the preferred initial seam for a validated read-only exploration adapter because it uses the same parser, origins and rendering machinery as named views. It is not currently exposed through the application's combined WASM/worker contract.
 
 The actual Toolkit WASM also produces a whole-project graph without view declarations. That establishes an alternative projection capability, but its UUID graph identities and source locations do not satisfy the existing OpenSysML correspondence contract automatically. Switching renderers would require a separately verified identity join.
 
-## What the application exposes today
+## Application boundary at investigation time
 
 - `SemanticEngine` in `src/lib/workspace/editing/index.ts` exposes `parse` and `evaluate(documents, modelHash, view, signal)`.
 - `src/lib/engines/workers/schema.ts` allows only parse/evaluate semantic operations. The adapter in `src/lib/engines/opensysml/index.ts` validates an evaluation against the requested model hash and named-view identity.

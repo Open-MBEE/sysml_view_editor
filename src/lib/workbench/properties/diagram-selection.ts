@@ -12,8 +12,14 @@ export interface DiagramRelationshipSelection {
 export function diagramRelationshipSelection(
   view: EvaluatedView | null,
   symbol: string | undefined,
+  exploration = false,
 ): DiagramRelationshipSelection | undefined {
-  if (view?.status !== 'complete' || view.artifact?.kind !== 'requirement')
+  if (
+    view?.status !== 'complete' ||
+    !view.artifact ||
+    (!['requirement', 'action', 'state'].includes(view.artifact.kind) &&
+      !exploration)
+  )
     return;
   const edge = view.artifact.edges.find(
     (_item, index) => symbol === `edge:${index}`,

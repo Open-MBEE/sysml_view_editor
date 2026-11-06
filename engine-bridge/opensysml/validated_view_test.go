@@ -9,7 +9,7 @@ import (
 )
 
 func TestStudioStructuralAssembly(t *testing.T) {
-	server, err := New("v0.10.0")
+	server, err := New("v0.12.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,7 +102,7 @@ func TestStudioStructuralAssembly(t *testing.T) {
 }
 
 func TestStudioEvaluatedView(t *testing.T) {
-	server, err := New("v0.10.0")
+	server, err := New("v0.12.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -169,7 +169,7 @@ func TestStudioEvaluatedView(t *testing.T) {
 }
 
 func TestStudioGeometryDimensions(t *testing.T) {
-	server, err := New("v0.10.0")
+	server, err := New("v0.12.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -220,7 +220,7 @@ func TestStudioGeometryDimensions(t *testing.T) {
 }
 
 func TestStudioGeometryPlacement(t *testing.T) {
-	server, err := New("v0.10.0")
+	server, err := New("v0.12.0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -282,5 +282,93 @@ func TestStudioGeometryPlacement(t *testing.T) {
 		if rejected["renderStatus"] == "available" {
 			t.Fatalf("Invalid placement was rendered: %v", rejected)
 		}
+	}
+}
+
+func TestStudioDeclaredAttributeValues(t *testing.T) {
+	server, err := New("v0.12.0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	call := func(method string, params any) map[string]any {
+		t.Helper()
+		p, _ := json.Marshal(params)
+		raw, err := server.Call(context.Background(), method, p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out map[string]any
+		if err := json.Unmarshal(raw, &out); err != nil {
+			t.Fatal(err)
+		}
+		return out
+	}
+	source := "package P { private import ScalarValues::*; part def Battery { attribute capacityWh : Real default = 480.0; } part def Rover { part left : Battery; part right : Battery; } } package V { private import StandardViewDefinitions::*; view architecture : InterconnectionView { expose P::Rover; } }"
+	parsed := call("ParseSources", map[string]any{"strictConformance": true, "documents": []any{map[string]any{"name": "model.sysml", "content": source}}})
+	result := call("EvaluateView", map[string]any{"modelHash": parsed["modelHash"], "view": "V::architecture"})
+	if result["status"] != "complete" {
+		t.Fatalf("%v", result)
+	}
+	found := 0
+	for _, raw := range result["artifact"].(map[string]any)["nodes"].([]any) {
+		n := raw.(map[string]any)
+		if n["name"] == "left" || n["name"] == "right" {
+			values := n["attributeDeclarations"].([]any)
+			if len(values) != 1 || values[0] != "attribute capacityWh : Real default = 480.0;" {
+				t.Fatalf("%v", n)
+			}
+			found++
+		}
+	}
+	if found != 2 {
+		t.Fatalf("Expected two independently typed usages, found %d", found)
+	}
+}
+
+func TestStudioRetainsDeclaredBoundaryConnections(t *testing.T) {
+	server, err := New("v0.12.0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	call := func(method string, params any) map[string]any {
+		t.Helper()
+		body, _ := json.Marshal(params)
+		raw, err := server.Call(context.Background(), method, body)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out map[string]any
+		if err := json.Unmarshal(raw, &out); err != nil {
+			t.Fatal(err)
+		}
+		return out
+	}
+	parsed := call("ParseSources", map[string]any{"strictConformance": true, "documents": []any{map[string]any{"name": "model.sysml", "content": `package P {
+ port def Signal;
+ part def Sender { out port p : Signal; }
+ part def Receiver { in port p : Signal; }
+ part def Subsystem {
+  part sender : Sender; part receiver : Receiver;
+  connection internal connect sender.p to receiver.p;
+ }
+ part def System {
+  part a : Subsystem; part b : Subsystem;
+  connection bridge connect a.sender.p to b.receiver.p;
+ }
+ view v : StandardViewDefinitions::InterconnectionView { expose System; }
+}`}}})
+	result := call("EvaluateView", map[string]any{"modelHash": parsed["modelHash"], "view": "P::v"})
+	if result["status"] != "complete" || result["renderStatus"] != "available" {
+		t.Fatalf("%v", result)
+	}
+	artifact := result["artifact"].(map[string]any)
+	nodes := artifact["nodes"].([]any)
+	edges := artifact["edges"].([]any)
+	if len(nodes) != 3 || len(edges) != 1 {
+		t.Fatalf("Inherited internals leaked or declared connection lost: %v", artifact)
+	}
+	edge := edges[0].(map[string]any)
+	if edge["from"] != "n1" || edge["to"] != "n2" || edge["fromPort"] != nil || edge["toPort"] != nil || edge["label"] != "bridge" {
+		t.Fatalf("Incorrect retained usage boundaries: %v", edge)
 	}
 }

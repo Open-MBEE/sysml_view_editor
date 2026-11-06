@@ -1,4 +1,5 @@
-import { useEffectEvent, useLayoutEffect, useRef } from 'react';
+import { Button } from '$lib/ui/primitives/button';
+import { useEffectEvent, useLayoutEffect, useRef, useState } from 'react';
 import { basicSetup } from 'codemirror';
 import { Compartment, EditorState } from '@codemirror/state';
 import { EditorView } from '@codemirror/view';
@@ -10,7 +11,7 @@ import {
 import { tags } from '@lezer/highlight';
 import type { SourceDocument } from '$lib/workspace/project';
 import { createSourceAssistance, type LanguageReply } from './assistance';
-import type { LanguageQuery } from '$lib/workspace/language';
+import type { LanguageQuery, LanguageResult } from '$lib/workspace/language';
 import { sysmlLanguage } from './sysml-language';
 import { applyEditorChanges, editorOffset } from './source-text';
 
@@ -34,7 +35,7 @@ export function SourceEditor({
 }: {
   file: SourceDocument;
   disabled?: boolean;
-  selection?: { start: number; end: number };
+  selection?: { start: number; end: number; focus?: boolean };
   onChange: (value: string) => void;
   onLanguage?: (
     query: LanguageQuery,
@@ -44,6 +45,10 @@ export function SourceEditor({
   onLanguageMessage?: (message: string) => void;
   languageContext?: unknown;
 }) {
+  const [references, setReferences] = useState<{
+    result: Extract<LanguageResult, { kind: 'references' }>;
+    isCurrent: () => boolean;
+  }>();
   const host = useRef<HTMLDivElement>(null);
   const editor = useRef<{
     view: EditorView;
@@ -76,6 +81,7 @@ export function SourceEditor({
       query,
       navigate,
       notify,
+      references: (result, isCurrent) => setReferences({ result, isCurrent }),
     });
     assistance.current = language;
     const state = (document: SourceDocument) =>
@@ -112,6 +118,7 @@ export function SourceEditor({
   }, []);
   useLayoutEffect(() => {
     assistance.current?.clear();
+    setReferences(undefined);
   }, [languageContext, file.name, file.text, disabled]);
   useLayoutEffect(() => {
     const current = editor.current!;
@@ -147,20 +154,78 @@ export function SourceEditor({
       },
       scrollIntoView: true,
     });
-    view.focus();
+    if (selection.focus !== false) view.focus();
   }, [selection, file.name]);
   return (
     <section className="editor-pane" aria-label="Source editor">
       <header className="pane-heading">
         <strong title={file.name}>{file.name}</strong>
-        <span>SysML v2</span>
+        <div className="source-query-actions">
+          <Button
+            size="xs"
+            variant="ghost"
+            disabled={disabled}
+            onClick={() => void assistance.current?.references()}
+          >
+            Find references
+          </Button>
+          <Button
+            size="xs"
+            variant="ghost"
+            disabled={disabled}
+            onClick={() => void assistance.current?.format()}
+          >
+            Format source
+          </Button>
+        </div>
       </header>
       <p id="source-help" className="sr-only">
         Find and replace with Control+F or Command+F. Tab leaves the editor.
         Request completion with Control+Space. Press F1 for symbol information
-        or F12 for its definition. Escape dismisses symbol information. Editing
-        undo affects this draft; toolbar Undo source restores applied revisions.
+        or F12 for its definition; Shift+F12 finds references. Escape dismisses
+        symbol information. Editing undo affects this draft; toolbar Undo source
+        restores applied revisions.
       </p>
+      {references && (
+        <section className="source-references" aria-label="References">
+          <div>
+            <strong>{references.result.targets.length} references</strong>{' '}
+            <Button
+              size="xs"
+              variant="ghost"
+              onClick={() => {
+                setReferences(undefined);
+                editor.current?.view.focus();
+              }}
+            >
+              Close references
+            </Button>
+          </div>
+          {references.result.omitted > 0 && (
+            <p>
+              {references.result.omitted} references outside this project are
+              unavailable.
+            </p>
+          )}
+          <ul>
+            {references.result.targets.map((target, i) => (
+              <li key={i}>
+                <button
+                  onClick={() => {
+                    if (references.isCurrent()) navigate(target);
+                    else {
+                      setReferences(undefined);
+                      notify('Source changed; find references again.');
+                    }
+                  }}
+                >
+                  {target.file} · line {target.line}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       <div className="source-editor" ref={host} />
     </section>
   );

@@ -5,12 +5,14 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const commit = '08ef397841767b829e492bbecf6d723483b4421e';
+const commit = '760c4d1fc8edfa4e214423099065c0a7c1b24e2d';
 const archiveHash =
-  '896650da511eab806177f6f2a5d60f7ef57b44dfe617b2844a978f9adadb6d9d';
+  '49939c5f4c3008cdcf79d39a976719f67aab9d38bb38b246832eb1fdd90de08e';
 const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const overlays = [
   'evaluate_view.go',
+  'exploration.go',
+  'exploration_test.go',
   'validated_view.go',
   'validated_view_test.go',
   'geometry_pose.go',
@@ -34,7 +36,7 @@ const patchHash = digest(
   ),
 );
 const destination = resolve(root, 'static/vendor/opensysml');
-const cache = resolve(root, 'sandbox/opensysml-build');
+const cache = resolve(root, 'sandbox/opensysml-012');
 try {
   const stamp = JSON.parse(
     await readFile(resolve(destination, 'provenance.json'), 'utf8'),
@@ -97,6 +99,14 @@ for (const [name, folder] of [
       name.endsWith('_test.go') ? 'studio_view_test.go' : 'studio_view.go',
     ),
   );
+for (const [name, folder] of [
+  ['exploration.go', 'engine'],
+  ['exploration_test.go', 'combined'],
+])
+  await cp(
+    resolve(root, 'engine-bridge/opensysml', name),
+    resolve(source, 'internal/frontend', folder, 'studio_' + name),
+  );
 await cp(
   resolve(root, 'engine-bridge/opensysml/requirements_view.go'),
   resolve(source, 'internal/frontend/engine/studio_requirements_view.go'),
@@ -134,6 +144,11 @@ async function replace(file, before, after) {
 await replace(
   'internal/frontend/engine/engine.go',
   'case "RenderView":',
+  'case "Explore":\n var req JExploreRequest\n if err := decode(params, &req); err != nil { return nil, err }\n return e.explore(&req)\n case "RenderView":',
+);
+await replace(
+  'internal/frontend/engine/engine.go',
+  'case "RenderView":',
   'case "EvaluateRelationships":\n var req JRenderViewRequest\n if err := decode(params, &req); err != nil { return nil, err }\n return e.studioRelationships(&req)\n case "RenderView":',
 );
 await replace(
@@ -144,12 +159,12 @@ await replace(
 await replace(
   'internal/frontend/combined/combined.go',
   'case "GetServerInfo":',
-  'case "EvaluateRelationships":\n return s.evaluateRelationships(ctx,params)\n case "EvaluateView":\n return s.evaluateView(ctx,params)\n case "GetServerInfo":',
+  'case "Explore":\n return s.explore(ctx,params)\n case "EvaluateRelationships":\n return s.evaluateRelationships(ctx,params)\n case "EvaluateView":\n return s.evaluateView(ctx,params)\n case "GetServerInfo":',
 );
 await replace(
   'internal/frontend/combined/combined.go',
   'var capabilities = []string{',
-  'var capabilities = []string{\n "studio_evaluate_view_v1",\n "studio_relationships_v1",',
+  'var capabilities = []string{\n "studio_exploration_v1",\n "studio_evaluate_view_v1",\n "studio_relationships_v1",',
 );
 let go = process.env.SYSML_GO;
 if (!go) {
@@ -161,19 +176,19 @@ if (!go) {
 }
 if (!go) {
   if (process.platform !== 'linux' || process.arch !== 'x64')
-    throw new Error('Set SYSML_GO to a local Go 1.25.11 binary.');
-  const toolArchive = resolve(cache, 'go1.25.11.linux-amd64.tar.gz');
+    throw new Error('Set SYSML_GO to a local Go 1.27.3 binary.');
+  const toolArchive = resolve(cache, 'go1.27.3.linux-amd64.tar.gz');
   await download(
-    'https://go.dev/dl/go1.25.11.linux-amd64.tar.gz',
+    'https://go.dev/dl/go1.27.3.linux-amd64.tar.gz',
     toolArchive,
-    '34f14304e856893f4ba30c2cacfe93906e9de7915c5f6aaaf3a81cdccd7ba30b',
+    '65efbc80fdc1fa2cd2631cad5b481777a68e8725f34e89f50fc6ac714e379b40',
   );
   execFileSync('tar', ['-xzf', toolArchive, '-C', cache]);
   go = resolve(cache, 'go/bin/go');
 }
 const toolchain = execFileSync(go, ['version'], { encoding: 'utf8' }).trim();
-if (!toolchain.startsWith('go version go1.25.11 '))
-  throw new Error('The native view bridge requires Go 1.25.11.');
+if (!toolchain.startsWith('go version go1.27.3 '))
+  throw new Error('The native view bridge requires Go 1.27.3.');
 await mkdir(destination, { recursive: true });
 const env = {
   ...process.env,
@@ -195,7 +210,7 @@ execFileSync(
     '-buildvcs=false',
     '-trimpath',
     '-ldflags',
-    `-X main.Version=v0.10.0 -X main.Commit=${commit}`,
+    `-X main.Version=v0.12.0 -X main.Commit=${commit}`,
     '-o',
     resolve(destination, 'sysml-wasm.wasm'),
     './cmd/sysml-wasm',
@@ -224,6 +239,7 @@ await writeFile(
       patchHash,
       toolchain,
       bridge: 'studio_evaluate_view_v1',
+      exploration: 'studio_exploration_v1',
       builderHash: digest(await readFile(fileURLToPath(import.meta.url))),
       binaryHash: digest(
         await readFile(resolve(destination, 'sysml-wasm.wasm')),

@@ -1,3 +1,4 @@
+import type { RequirementsEngine, RequirementsResult } from './requirements';
 import { describe, it, expect, vi } from 'vitest';
 import { createWorkspace } from './createWorkspace';
 import type { SemanticEngine, TransformationEngine } from './editing';
@@ -28,7 +29,7 @@ function model(name = 'A'): ModelSnapshot {
     diagnostics: [],
   };
 }
-function setup() {
+function setup(requirements?: RequirementsEngine) {
   const semantic: SemanticEngine = {
     parse: vi.fn<SemanticEngine['parse']>(async (documents) =>
       documents[0]?.text === 'broken'
@@ -72,7 +73,7 @@ function setup() {
     }),
   };
   return {
-    workspace: createWorkspace({ semantic, transformations }),
+    workspace: createWorkspace({ semantic, transformations, requirements }),
     semantic,
     transformations,
   };
@@ -408,5 +409,48 @@ describe('views and project persistence', () => {
     const old = workspace.serialize();
     workspace.updateDraft('model.sysml', 'changed');
     expect(() => workspace.markSaved(old)).toThrow('no longer matches');
+  });
+});
+
+describe('requirements inspection lifetime', () => {
+  const empty: RequirementsResult = {
+    schemaVersion: 1,
+    modelHash: 'model-A',
+    status: 'complete',
+    diagnostics: [],
+    requirements: [],
+    relationships: [],
+  };
+  it('rejects a late reply after replacement without changing the replacement', async () => {
+    let resolve!: (result: RequirementsResult) => void;
+    const { workspace } = setup({
+      requirements: () =>
+        new Promise((r) => {
+          resolve = r;
+        }),
+    });
+    await workspace.open(project());
+    const pending = workspace.requirements();
+    await workspace.open({ ...project(), name: 'Replacement' });
+    const before = workspace.serialize();
+    resolve(empty);
+    await expect(pending).rejects.toThrow('stale');
+    expect(workspace.serialize()).toBe(before);
+  });
+  it('inspects applied sources while retaining invalid drafts and rejects cancelled replies', async () => {
+    const query = vi.fn<RequirementsEngine['requirements']>(async () => empty);
+    const { workspace } = setup({ requirements: query });
+    await workspace.open(project());
+    workspace.updateDraft('model.sysml', 'broken');
+    const before = workspace.serialize();
+    expect(await workspace.requirements()).toEqual(empty);
+    expect(query.mock.calls[0]![0]).toEqual(project().documents);
+    expect(workspace.serialize()).toBe(before);
+    const controller = new AbortController();
+    controller.abort();
+    await expect(workspace.requirements(controller.signal)).rejects.toThrow(
+      'stale',
+    );
+    expect(workspace.serialize()).toBe(before);
   });
 });

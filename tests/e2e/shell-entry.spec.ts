@@ -4,7 +4,7 @@ import {
   test,
   expect,
   waitForLauncher,
-  waitForStartup,
+  waitForRoverStartup,
   openWorkshop,
   downloadProject,
   fillSource,
@@ -81,14 +81,22 @@ test('@critical opens the OpenMBEE landing and empty launcher without loading an
   await expect(
     page.getByRole('button', { name: 'Open files or project', exact: true }),
   ).toBeEnabled();
-  await page
-    .getByText('Folder and repository workflows', { exact: true })
-    .click();
   await expect(
-    page.getByText(
-      'Direct folder saving and Flexo project/branch checkout are planned. Use source files or a project bundle to work locally today.',
-      { exact: true },
-    ),
+    page.getByRole('button', { name: 'Load air workshop', exact: true }),
+  ).toHaveCount(0, { timeout: 2000 });
+  const choices = page.getByRole('group', {
+    name: 'Project starting points',
+    exact: true,
+  });
+  await expect(choices.getByRole('button')).toHaveCount(3);
+  for (const name of ['New project', 'Open files or project', 'Load example']) {
+    await page.keyboard.press('Tab');
+    await expect(
+      choices.getByRole('button', { name, exact: true }),
+    ).toBeFocused();
+  }
+  await expect(
+    page.getByRole('heading', { name: 'Save your work', exact: true }),
   ).toBeVisible();
   expect(engineRequests).toEqual([]);
 });
@@ -98,11 +106,11 @@ test('@critical landing and direct example links open the real model once and re
 }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Try an example', exact: true }).click();
-  await waitForStartup(page, { split: false });
+  await waitForRoverStartup(page);
   await expect(page).toHaveURL(/\/app$/);
   const bundle = (await downloadProject(page)).bundle;
-  expect(bundle.name).toBe('Smart air workshop');
-  expect(bundle.documents).toHaveLength(9);
+  expect(bundle.name).toBe('Inspection rover');
+  expect(bundle.documents).toHaveLength(6);
   expect(bundle.drafts).toEqual(bundle.documents);
   await page.reload();
   await waitForLauncher(page);
@@ -115,7 +123,7 @@ test('@critical landing and direct example links open the real model once and re
   // A directly opened example URL uses the same real vendor assets and consumes
   // its one-shot instruction, including when the incoming route has a slash.
   await page.goto('/app/?example=1');
-  await waitForStartup(page, { split: false });
+  await waitForRoverStartup(page);
   await expect(page).toHaveURL(/\/app$/);
   expect((await downloadProject(page)).bundle.documents).toEqual(
     bundle.documents,
@@ -561,7 +569,7 @@ test('a newer example opening supersedes a held real engine request without publ
       .click();
     await expect.poll(() => requests).toBeGreaterThan(1);
     release();
-    await waitForStartup(page, { split: false });
+    await waitForRoverStartup(page);
     await expect(
       page.getByRole('button', { name: /^(Show|Hide) Issues$/ }),
     ).toHaveText('Issues (0)');
@@ -570,13 +578,13 @@ test('a newer example opening supersedes a held real engine request without publ
     ).not.toBeVisible();
     await expect(page.getByRole('alert')).not.toBeVisible();
     const bundle = (await downloadProject(page)).bundle;
-    expect(bundle.name).toBe('Smart air workshop');
-    expect(bundle.documents).toHaveLength(9);
+    expect(bundle.name).toBe('Inspection rover');
+    expect(bundle.documents).toHaveLength(6);
     for (const document of bundle.documents) {
       expect(document.text).toBe(
         await readFile(
           new URL(
-            '../../examples/air-compressor/' + document.name,
+            '../../examples/inspection-rover/' + document.name,
             import.meta.url,
           ),
           'utf8',

@@ -23,6 +23,10 @@ export interface AssistanceOptions {
   query: (query: LanguageQuery, signal: AbortSignal) => Promise<LanguageReply>;
   navigate: (target: { file: string; from: number; to: number }) => void;
   notify: (message: string) => void;
+  references?: (
+    result: Extract<LanguageResult, { kind: 'references' }>,
+    isCurrent: () => boolean,
+  ) => void;
 }
 const info = StateEffect.define<Tooltip | null>();
 const information = StateField.define<Tooltip | null>({
@@ -140,6 +144,47 @@ export function createSourceAssistance(options: AssistanceOptions) {
     if (reply.result.target) options.navigate(reply.result.target);
     else options.notify(reply.result.message);
   }
+  async function references() {
+    const current = options.current();
+    if (!current) return;
+    const pos = current.view.state.selection.main.head;
+    const reply = await request('references', pos);
+    if (
+      reply?.result.kind === 'references' &&
+      reply.snapshot.view.state.selection.main.head === pos
+    )
+      options.references?.(reply.result, reply.isCurrent);
+  }
+  async function format() {
+    const current = options.current();
+    if (!current) return;
+    const reply = await request(
+      'formatting',
+      current.view.state.selection.main.head,
+    );
+    if (!reply || reply.result.kind !== 'formatting' || !reply.isCurrent())
+      return;
+    const text = reply.result.text.replace(/\r\n?/g, '\n');
+    if (text === reply.snapshot.view.state.doc.toString()) {
+      options.notify('Source is already formatted.');
+      return;
+    }
+    reply.snapshot.view.dispatch({
+      changes: {
+        from: 0,
+        to: reply.snapshot.view.state.doc.length,
+        insert: text,
+      },
+      selection: {
+        anchor: Math.min(
+          reply.snapshot.view.state.selection.main.head,
+          text.length,
+        ),
+      },
+      userEvent: 'input.format',
+    });
+    options.notify('Formatted draft. Apply source to validate and accept it.');
+  }
   const autocomplete = async (context: {
     state: EditorState;
     pos: number;
@@ -213,6 +258,13 @@ export function createSourceAssistance(options: AssistanceOptions) {
         },
       },
       {
+        key: 'Shift-F12',
+        run: () => {
+          void references();
+          return true;
+        },
+      },
+      {
         key: 'Escape',
         run: (view) => {
           if (!view.state.field(information)) return false;
@@ -231,5 +283,7 @@ export function createSourceAssistance(options: AssistanceOptions) {
     },
     information: symbolInfo,
     definition,
+    references,
+    format,
   };
 }

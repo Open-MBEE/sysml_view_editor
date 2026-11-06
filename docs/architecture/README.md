@@ -34,7 +34,7 @@ The [identity investigation](identity-reconciliation.md) compares real worker ou
 
 ## Views
 
-The [agreed exploration direction](model-exploration.md) separates temporary scope/representation browsing from authored named views. It is planned; the current implementation described below requires a named view. The [domain glossary](../../CONTEXT.md) defines these terms.
+The [agreed exploration direction](model-exploration.md) separates temporary scope/representation browsing from authored named views. The bounded read-only slice supports project/package overviews and explicit part subjects without a named view; automatic system-root selection and browsing-context persistence remain planned. The [domain glossary](../../CONTEXT.md) defines these terms.
 
 Named views are actual SysML usages. Open existing views without authoring another declaration. New view takes a subject, representation and name; package ownership is advanced configuration. Definitions, exposure and filters remain source content. The canvas is a derived artifact and does not serialize the model.
 

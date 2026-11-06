@@ -39,10 +39,10 @@ OpenMBEE View Editor brings source editing, named model views and reviewed graph
 **Source owns model semantics. Presentation owns geometry.** Renaming a part or connecting ports produces a reviewed source transaction; moving a symbol changes its position. The application runs locally in browser workers and requires no application backend.
 
 <p align="center">
-  <img src="tests/e2e/visual.spec.ts-snapshots/workbench-light-visual-linux.png" width="1200" alt="The editor showing the Smart air workshop pneumatic assembly, with files and named views on the left and an Inspector on the right" />
+  <img src="tests/e2e/visual.spec.ts-snapshots/workbench-light-visual-linux.png" width="1200" alt="The editor showing the Inspection rover architecture, with files and named views on the left and an Inspector on the right" />
 </p>
 
-<p align="center"><em>Smart air workshop: a pneumatic assembly with typed ports and authored connections.</em></p>
+<p align="center"><em>Inspection rover: connected assemblies, declared component values and typed interfaces.</em></p>
 
 ## Features
 
@@ -59,7 +59,7 @@ OpenMBEE View Editor brings source editing, named model views and reviewed graph
 - **Arrange your workspace.** Resize or collapse Explorer, Inspector, source/diagram panes and Issues using dividers, keyboard controls or panel options.
 - **Choose your appearance.** Use Light, Dark or Follow system, six diagram palettes and custom muted element colors. Theme and panel preferences stay in the browser.
 
-Structural and native requirement workflows have real-engine browser coverage; behavior, use-case, state, sequence and geometry renderers remain unavailable. See [capabilities and limits](docs/capabilities.md) and [local verification](docs/verification.md) for the implemented scope.
+Structural, native requirement and bounded action/state workflows have real-engine browser coverage. Use-case, mixed, sequence and geometry renderers remain unavailable; behavior diagrams do not execute or simulate models. See [capabilities and limits](docs/capabilities.md) and [local verification](docs/verification.md) for the implemented scope.
 
 In the source editor, use **Ctrl+F** / **Cmd+F** for find/replace and **Ctrl+Z** / **Cmd+Z** for draft editing undo; **Ctrl+Y** / **Cmd+Shift+Z** redo draft edits. **Tab** moves focus out of the editor. Toolbar **Undo source** / **Redo source** operate on accepted model revisions. Highlighting is lexical; the pinned engines still validate source when you apply it. Use **Ctrl+Space** for engine-backed completion, **F1** for symbol information and **F12** for project-file definitions; pointing at a symbol also requests hover information. Queries use the complete current draft source set. Unsupported completion edits and stale replies are rejected. Formatting and inline diagnostics remain future work.
 
@@ -74,7 +74,7 @@ npm ci
 npm run dev -- --host 127.0.0.1
 ```
 
-Open the URL printed by Vite. The first dev/build verifies and prepares checksum-pinned browser engines. It needs network access, `tar` and disk space for the Go build cache. Linux x64 can download the pinned Go 1.25.11 toolchain into ignored `sandbox/`; on other platforms, set `SYSML_GO` to that Go version's binary. Later runs verify and reuse prepared assets. See [engine preparation](engine-bridge/README.md).
+Open the URL printed by Vite. The first dev/build verifies and prepares checksum-pinned browser engines. It needs network access, `tar` and disk space for the Go build cache. Linux x64 can download the pinned Go 1.27.3 toolchain into ignored `sandbox/`; on other platforms, set `SYSML_GO` to that Go version's binary. Later runs verify and reuse prepared assets. See [engine preparation](engine-bridge/README.md).
 
 Vite excludes generated `sandbox/` contents and prepared `static/vendor/` binaries from development watching; app sources remain watched. If an older dev process reported `ENOSPC` from those directories, restart it with the current configuration.
 
@@ -82,16 +82,16 @@ Vite excludes generated `sandbox/` contents and prepared `static/vendor/` binari
 
 The landing page offers **Open app** and **Try an example**. `/app` opens a project launcher with **New project**, **Open files or project**, **Load example** and **Local recovery**. No model loads implicitly. New projects stay marked modified until downloaded.
 
-Choose **Load example** to open **Smart air workshop** in Diagram mode. Its nine source files and fourteen named views cover reusable definitions, specialization, attributes, constraints, requirements, actions, states, use cases, sequences and geometry.
+Choose **Load example** to open the **Inspection rover** in Diagram mode. Six source files describe four connected assemblies, declared component values, an inspection mission, operating states and quantitative requirements.
 
-The starting **pneumatics** view shows the pump, tank, regulator, relief valve and pressure sensor, with thirteen ports and four connections:
+Follow the in-app guide through **architecture → mission → lifecycle → requirements → definitions**. The opening diagram includes a 480 Wh battery, two distinct drives, lidar, controller, camera and radio. Declared values, successions and satisfaction links are model content; the app does not execute or simulate them.
 
-1. Select another named view in Explorer or the diagram’s **Named view** selector to explore its contents.
-2. Choose **Split** to see source beside the diagram; selecting a source file keeps the active view open.
-3. Edit source and choose **Apply source**. Invalid drafts retain the previous applied model and appear in **Issues**.
-4. Choose **Download project** to save your work before closing or reloading.
+1. Select another named view in Explorer or the diagram’s **Named view** selector.
+2. Choose **Split** to see source; selecting a file keeps the active diagram open.
+3. Edit source and choose **Apply source**. Invalid drafts retain the applied model and appear in **Issues**.
+4. Choose **Download project** to preserve sources and arranged view geometry.
 
-Six example views have partial structural/definition/tree rendering. The other eight evaluate through the engine and display an explicit unavailable-renderer message. The [model guide](examples/air-compressor/README.md) lists each view's current support.
+[Take the rover tour](examples/inspection-rover/README.md). The launcher offers **New project**, **Open files or project**, and the rover example. The compressor sources remain in the example library for explicit imports and regression coverage.
 
 ### 3. Try graphical authoring
 
@@ -104,17 +104,23 @@ Use **Open** to select both SysML files from [`examples/assembly/`](examples/ass
 
 Connection creation currently requires explicit compatible directions and identical resolved port types. Conjugated and ambiguous endpoint paths are unavailable for graphical creation. [Authoring workflow and supported subset](docs/architecture/graphical-authoring.md).
 
+### 4. Inspect requirements and source
+
+Choose **Requirements table** above the diagram to browse applied requirement identifiers, documentation and declared links; search or sort the rows and export CSV. **Traceability matrix** shows satisfaction or verification declarations against linked elements, including explicitly negated links. These are read-only views, not executed verification results. Click a requirement or link to reveal its source; apply or discard a changed draft in that file first.
+
+In the source pane, **Find references** (also Shift+F12) lists project reference locations. **Format source** formats the current draft with Toolkit. Formatting supports local editor undo; **Apply source** validates and accepts it into source history. Failed or stale queries retain your work.
+
 ## Examples
 
 Open all `.sysml` files from one example folder together. Each project has its own named views and recorded visual targets.
 
-| Project                                                                                                                                                                 | Explore                                                                                                                |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| [Smart air workshop](examples/air-compressor/README.md)                                                                                                                 | A complete nine-file example spanning structure, requirements, behavior and geometry; the built-in launcher example    |
-| [Nested assembly](examples/assembly/)                                                                                                                                   | Nested ownership, repeated usages, inherited ports, a connection and reference notation; the focused authoring fixture |
-| [Parts](examples/parts/), [ports](examples/ports/) and [packages](examples/packages/)                                                                                   | Shared definitions, usage contexts, conjugation, imports and exposure                                                  |
-| [Requirements](examples/requirements/), [use cases](examples/use-cases/), [actions](examples/actions/), [states](examples/states/) and [sequences](examples/sequences/) | Source constructs and named views, including explicit unavailable-renderer cases                                       |
-| [Complete example library](examples/README.md)                                                                                                                          | Comments, documentation, filters, empty views and per-view support gaps                                                |
+| Project                                                                                                                                                                 | Explore                                                                                                                      |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| [Smart air workshop](examples/air-compressor/README.md)                                                                                                                 | A complete nine-file example spanning structure, requirements, behavior and geometry; a legacy import and regression fixture |
+| [Nested assembly](examples/assembly/)                                                                                                                                   | Nested ownership, repeated usages, inherited ports, a connection and reference notation; the focused authoring fixture       |
+| [Parts](examples/parts/), [ports](examples/ports/) and [packages](examples/packages/)                                                                                   | Shared definitions, usage contexts, conjugation, imports and exposure                                                        |
+| [Requirements](examples/requirements/), [use cases](examples/use-cases/), [actions](examples/actions/), [states](examples/states/) and [sequences](examples/sequences/) | Source constructs and named views, including explicit unavailable-renderer cases                                             |
+| [Complete example library](examples/README.md)                                                                                                                          | Comments, documentation, filters, empty views and per-view support gaps                                                      |
 
 Engine evaluation, application rendering and intended visual quality are recorded separately. Passing an example does not establish full SysML v2 conformance.
 
@@ -137,7 +143,7 @@ React Flow draws the interactive diagrams and ELK supplies automatic layout. The
 
 Use **Projects** to return to the launcher and **Resume project** to continue. The live workbench stays mounted while you browse the launcher or landing page, retaining source drafts, accepted history, selection and diagram state. A full reload starts at the launcher; existing browser recovery is offered explicitly. Landing and app share one appearance preference controller.
 
-Folder write-back, Flexo project/branch checkout and automatic diagrams for models without named views remain planned. Opening source imports copies; it does not connect to a folder or remote branch.
+Models without named views open a temporary project overview. Choose **Explore model** in the diagram’s view selector to browse project/package scopes or an explicit part definition/usage, with separate scope and representation controls and a full qualified scope caption. Overview boxes show package/ownership hierarchy; parallel declarations have separate relationship labels. Exploration uses applied source, preserves drafts and saved named-view positions, and does not persist its scope or allow graphical edits. Typed usages do not automatically expand their type’s internals. Folder write-back and Flexo project/branch checkout remain planned. Opening source imports copies; it does not connect to a folder or remote branch.
 
 **Download project** saves one `.sysml-project.json`; **Open** accepts that bundle or multiple `.sysml` files. Downloads do not write back to the imported folder. **Local recovery** keeps one recovery copy in this browser using IndexedDB, including applied source, unapplied drafts, diagram positions and the active file/view. On reload, choose **Restore recovery** or **Discard recovery** before new work can replace that copy. The dialog can disable local saving or retry storage failures. Browser storage can be cleared; retain downloaded projects as portable backups. Restored work remains modified until downloaded. With saving enabled, returning to a clean project clears this session’s older recovery; a competing tab cannot silently overwrite a newer copy.
 
@@ -178,7 +184,7 @@ npm run test:e2e                    # fresh build, real engines and visual compa
 npm run preview -- --host 127.0.0.1
 ```
 
-PR CI runs all fast checks plus thirteen critical browser workflows, adding visual comparisons for code changes. Full browser coverage runs weekly, manually and for release/main/hotfix PRs and pushes. Run `npm run test:e2e -- --project=functional --grep @critical` to reproduce the smaller browser gate; `npm run test:e2e` still runs everything. See [CI coverage](docs/testing.md#ci-coverage) for selection and deferred coverage.
+PR CI runs all fast checks plus fourteen critical browser workflows, adding visual comparisons for code changes. Full browser coverage runs weekly, manually and for release/main/hotfix PRs and pushes. Run `npm run test:e2e -- --project=functional --grep @critical` to reproduce the smaller browser gate; `npm run test:e2e` still runs everything. See [CI coverage](docs/testing.md#ci-coverage) for selection and deferred coverage.
 
 Functional checks can use installed Chrome with `PLAYWRIGHT_BROWSER_CHANNEL=chrome npm run test:e2e -- --project=functional`. Visual comparisons always use bundled Chromium and reviewed platform-specific baselines. The browser suite starts its own fresh production server; port **4175** must be free. See [browser testing and baseline review](docs/testing.md).
 

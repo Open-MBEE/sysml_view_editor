@@ -1,4 +1,8 @@
 import {
+  readExplorationResult,
+  type ExplorationResult,
+} from '../../src/lib/workspace/exploration';
+import {
   test as base,
   expect as baseExpect,
   type Locator,
@@ -7,7 +11,10 @@ import {
 import type { ProjectBundle } from '../../src/lib/workspace/persistence';
 import { readFile } from 'node:fs/promises';
 import { readEvaluatedView } from '../../src/lib/workspace/views/schema';
-import type { EvaluatedView } from '../../src/lib/workspace/views';
+import type {
+  EvaluatedView,
+  ViewArtifact,
+} from '../../src/lib/workspace/views';
 import { originKey } from '../../src/lib/workspace/editing/evidence';
 
 /** Compare saved geometry by actual per-view semantic occurrence, not n0 IDs. */
@@ -156,11 +163,14 @@ export function namedViewButton(page: Page, id: string) {
 
 export async function waitForStartup(page: Page, { split = true } = {}) {
   await expect(
-    page.getByRole('group', { name: 'part pump : Pump', exact: true }),
+    page.getByRole('group', {
+      name: 'part compressor : CompressorInterface',
+      exact: true,
+    }),
   ).toBeVisible();
   await expect(
-    namedViewButton(page, 'CompressorViews::pneumatics'),
-  ).toHaveAttribute('aria-current', 'page');
+    page.getByRole('combobox', { name: 'Named view', exact: true }),
+  ).toHaveValue('CompressorViews::overview');
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
@@ -179,19 +189,62 @@ export async function waitForLauncher(page: Page) {
   ).toBeEnabled();
 }
 
-/** Explicitly choose the example; waiting for a model never creates one. */
+/** Import the legacy compressor fixture explicitly; it is not bundled in the app. */
 export async function startExample(
   page: Page,
   options: { split?: boolean } = {},
 ) {
   await waitForLauncher(page);
-  await page.getByRole('button', { name: 'Load example', exact: true }).click();
-  await waitForStartup(page, options);
+  const documents = await Promise.all(
+    [
+      'system.sysml',
+      'components.sysml',
+      'types.sysml',
+      'behavior.sysml',
+      'requirements.sysml',
+      'use-cases.sysml',
+      'views.sysml',
+      'sequence.sysml',
+      'geometry.sysml',
+    ].map(async (name) => ({
+      name,
+      text: await readFile(
+        new URL(`../../examples/air-compressor/${name}`, import.meta.url),
+        'utf8',
+      ),
+    })),
+  );
+  await page.locator('input[type=file]').setInputFiles({
+    name: 'air-workshop.sysml-project.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(
+      JSON.stringify({
+        format: 'sysmlv2-view-project',
+        version: 1,
+        name: 'Smart air workshop',
+        documents,
+        drafts: documents,
+        presentations: {},
+      }),
+    ),
+  });
+  await waitForStartup(page, { split: false });
+  await page
+    .getByRole('button', {
+      name: options.split === false ? 'Diagram' : 'Split',
+      exact: true,
+    })
+    .click();
 }
 
+/** Most diagram regressions deliberately use the pneumatic fixture after startup. */
 export async function ready(page: Page, options: { split?: boolean } = {}) {
   await page.goto('/app');
   await startExample(page, options);
+  await namedViewButton(page, 'CompressorViews::pneumatics').click();
+  await expect(
+    page.getByRole('group', { name: 'part pump : Pump', exact: true }),
+  ).toBeVisible();
 }
 
 /** Keep focused history/appearance regressions explicit about their small fixture. */
@@ -289,6 +342,41 @@ export async function observeEvaluations(page: Page) {
     };
   });
   return evaluations;
+}
+
+/** Observe actual exploration envelopes; authored view evaluation stays separate. */
+export async function observeExplorations(page: Page) {
+  const results: ExplorationResult[] = [];
+  await page.exposeFunction('__recordExploration', (value: unknown) =>
+    results.push(readExplorationResult(value)),
+  );
+  await page.addInitScript(() => {
+    const host = window as typeof window & {
+      __recordExploration(value: unknown): Promise<void>;
+    };
+    const NativeWorker = window.Worker;
+    window.Worker = class extends NativeWorker {
+      constructor(url: string | URL, options?: WorkerOptions) {
+        super(url, options);
+        this.addEventListener('message', (event: MessageEvent<unknown>) => {
+          const reply = event.data as {
+            value?: {
+              schemaVersion?: unknown;
+              request?: unknown;
+              view?: unknown;
+            };
+          };
+          if (
+            reply?.value?.schemaVersion === 1 &&
+            reply.value.request &&
+            reply.value.view === undefined
+          )
+            void host.__recordExploration(reply.value);
+        });
+      }
+    };
+  });
+  return results;
 }
 
 export function diagramSymbol(page: Page, id: string) {
@@ -443,11 +531,52 @@ export async function diagramState(page: Page) {
 
 export async function dragNode(page: Page, node: Locator) {
   await node.scrollIntoViewIfNeeded();
-  const box = await node.boundingBox();
-  expect(box).not.toBeNull();
-  await page.mouse.move(box!.x + 30, box!.y + 25);
+  // Mode changes fit the camera after ResizeObserver and animation frames.
+  // Wait for observable heading/viewport geometry, then perform one gesture.
+  const { x, y } = await node.evaluate(
+    (element) =>
+      new Promise<{ x: number; y: number }>((resolve, reject) => {
+        let previous = '',
+          stable = 0;
+        const timer = setTimeout(
+          () => reject(new Error('Diagram drag geometry did not settle.')),
+          5000,
+        );
+        const sample = () => {
+          const heading =
+            element.querySelector('.structure-heading, .requirement-heading') ??
+            element;
+          const box = heading.getBoundingClientRect();
+          const viewport = element.closest('.react-flow__viewport');
+          const key = JSON.stringify([
+            box.x,
+            box.y,
+            box.width,
+            box.height,
+            viewport && getComputedStyle(viewport).transform,
+          ]);
+          stable = key === previous ? stable + 1 : 0;
+          previous = key;
+          const x = box.x + Math.min(30, box.width / 3),
+            y = box.y + box.height / 2;
+          const hit = document.elementFromPoint(x, y);
+          if (
+            stable >= 3 &&
+            box.width > 0 &&
+            box.height > 0 &&
+            hit &&
+            element.contains(hit)
+          ) {
+            clearTimeout(timer);
+            resolve({ x, y });
+          } else requestAnimationFrame(sample);
+        };
+        requestAnimationFrame(sample);
+      }),
+  );
+  await page.mouse.move(x, y);
   await page.mouse.down();
-  await page.mouse.move(box!.x + 110, box!.y + 80, { steps: 8 });
+  await page.mouse.move(x + 80, y + 55, { steps: 8 });
   await page.mouse.up();
 }
 
@@ -571,4 +700,212 @@ export async function railEdgeOffset(
   return side === 'left'
     ? button.x - main.x
     : main.x + main.width - button.x - button.width;
+}
+
+/** Renderer-only geometry reads stay here; callers select exact native symbols. */
+export async function explorationNodeBoxes(
+  page: Page,
+  symbols: readonly string[],
+) {
+  return Promise.all(
+    symbols.map(async (symbol) => {
+      const box = await diagramSymbol(page, symbol).boundingBox();
+      if (!box) throw new Error(`Missing exploration symbol ${symbol}`);
+      return box;
+    }),
+  );
+}
+export async function explorationEdgeLabelBoxes(
+  page: Page,
+  symbols: readonly string[],
+) {
+  return Promise.all(
+    symbols.map(async (symbol) => {
+      const label = page
+        .getByRole('region', { name: 'Diagram', exact: true })
+        .locator(
+          `.react-flow__edge[data-id=${JSON.stringify(symbol)}] .react-flow__edge-text`,
+        );
+      const box = await label.boundingBox();
+      if (!box)
+        throw new Error(`Missing exploration relationship label ${symbol}`);
+      return box;
+    }),
+  );
+}
+export async function explorationScopeFits(page: Page) {
+  return page
+    .getByRole('group', { name: 'Current exploration scope', exact: true })
+    .evaluate((element) => {
+      const bounds = element.getBoundingClientRect();
+      const strong = element.querySelector('strong')!;
+      const text = strong.getBoundingClientRect();
+      return (
+        strong.scrollWidth <= strong.clientWidth &&
+        text.left >= bounds.left - 1 &&
+        text.right <= bounds.right + 1
+      );
+    });
+}
+
+/** Check actual SVG routes against declaration cards/headers in screen coordinates. */
+export async function overviewRoutingGeometry(
+  page: Page,
+  unlabelled: readonly string[] = [],
+  artifact?: ViewArtifact,
+) {
+  return page.getByRole('region', { name: 'Diagram', exact: true }).evaluate(
+    (region, { unlabelled, topology }) => {
+      const cards = [
+        ...region.querySelectorAll<HTMLElement>('.react-flow__node'),
+      ].map((node) => {
+        const element = node.classList.contains('structure-compound')
+          ? node.querySelector('.structure-heading')!
+          : node;
+        return {
+          id: node.dataset.id!,
+          rect: element.getBoundingClientRect(),
+          body: node.getBoundingClientRect(),
+          compound: node.classList.contains('structure-compound'),
+        };
+      });
+      const viewport = region
+        .querySelector('.react-flow')!
+        .getBoundingClientRect();
+      const hits: string[] = [],
+        labels: DOMRect[] = [];
+      let samples = 0;
+      for (const edge of region.querySelectorAll<SVGGElement>(
+        '.react-flow__edge',
+      )) {
+        const path = edge.querySelector<SVGPathElement>(
+          '.react-flow__edge-path',
+        )!;
+        // Routed edges emit model-space M/L sections. Check that physical
+        // handle attachment never turns a planned straight segment diagonal.
+        if (edge.classList.contains('react-flow__edge-routed')) {
+          const points = [
+            ...(path.getAttribute('d') ?? '').matchAll(
+              /[ML] ([-+\d.e]+) ([-+\d.e]+)/g,
+            ),
+          ].map((match) => ({ x: Number(match[1]), y: Number(match[2]) }));
+          for (let index = 1; index < points.length; index++)
+            if (
+              Math.min(
+                Math.abs(points[index]!.x - points[index - 1]!.x),
+                Math.abs(points[index]!.y - points[index - 1]!.y),
+              ) > 0.1
+            )
+              hits.push(`${edge.dataset.id} has a non-orthogonal section`);
+        }
+        const relationship =
+          topology?.edges[Number(edge.dataset.id?.split(':')[1])];
+        const contains = (owner: string, id: string): boolean => {
+          for (
+            let current: string | undefined = id;
+            current;
+            current = topology?.nodes.find(
+              (node) => node.id === current,
+            )?.parent
+          )
+            if (current === owner) return true;
+          return false;
+        };
+        const obstacles = cards.map((card) => ({
+          id: card.id,
+          rect:
+            relationship &&
+            card.compound &&
+            !contains(card.id, relationship.from) &&
+            !contains(card.id, relationship.to)
+              ? card.body
+              : card.rect,
+        }));
+        const length = path.getTotalLength(),
+          matrix = path.getScreenCTM()!;
+        for (let distance = 0; distance <= length; distance += 3) {
+          const raw = path.getPointAtLength(distance),
+            point = new DOMPoint(raw.x, raw.y).matrixTransform(matrix);
+          samples++;
+          for (const card of obstacles) {
+            const r = card.rect;
+            if (
+              point.x > r.left + 1 &&
+              point.x < r.right - 1 &&
+              point.y > r.top + 1 &&
+              point.y < r.bottom - 1
+            ) {
+              hits.push(`${edge.dataset.id} crosses ${card.id}`);
+              break;
+            }
+          }
+        }
+        const label = edge
+          .querySelector('.react-flow__edge-textbg')
+          ?.getBoundingClientRect();
+        if (unlabelled.includes(edge.dataset.id!)) {
+          if (label) hits.push(`${edge.dataset.id} unexpected label`);
+          continue;
+        }
+        if (!label) {
+          hits.push(`${edge.dataset.id} missing label`);
+          continue;
+        }
+        for (const { id, rect: r } of obstacles)
+          if (
+            label.left < r.right &&
+            label.right > r.left &&
+            label.top < r.bottom &&
+            label.bottom > r.top
+          )
+            hits.push(`${edge.dataset.id} label covers ${id}`);
+        for (const r of labels)
+          if (
+            label.left < r.right &&
+            label.right > r.left &&
+            label.top < r.bottom &&
+            label.bottom > r.top
+          )
+            hits.push(`${edge.dataset.id} labels overlap`);
+        if (
+          label.left < viewport.left ||
+          label.right > viewport.right ||
+          label.top < viewport.top ||
+          label.bottom > viewport.bottom
+        )
+          hits.push(`${edge.dataset.id} label outside viewport`);
+        labels.push(label);
+      }
+      return { hits: [...new Set(hits)], labelCount: labels.length, samples };
+    },
+    {
+      unlabelled: [...unlabelled],
+      topology: artifact
+        ? {
+            nodes: artifact.nodes.map((node) => ({
+              id: node.id,
+              parent: node.parent,
+            })),
+            edges: artifact.edges.map((edge) => ({
+              from: edge.from,
+              to: edge.to,
+            })),
+          }
+        : undefined,
+    },
+  );
+}
+
+/** Product-default startup, independent of the retained air-workshop test fixture. */
+export async function waitForRoverStartup(page: Page) {
+  await expect(
+    page.getByRole('combobox', { name: 'Named view', exact: true }),
+  ).toHaveValue('RoverViews::architecture');
+  await expect(
+    page.getByRole('group', { name: 'part battery : Battery', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Download project', exact: true }),
+  ).toBeEnabled();
+  await page.evaluate(() => document.fonts.ready);
 }

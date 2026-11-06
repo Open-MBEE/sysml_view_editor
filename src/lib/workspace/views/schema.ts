@@ -29,6 +29,7 @@ export const ArtifactNodeSchema = Type.Object({
   kind: Type.String(),
   type: Type.Optional(Type.String()),
   detail: Type.Optional(Type.String()),
+  attributeDeclarations: Type.Optional(Type.Array(Type.String())),
   shortName: Type.Optional(Type.String()),
   documentation: Type.Optional(Type.Array(Type.String())),
   exposure: Type.Optional(

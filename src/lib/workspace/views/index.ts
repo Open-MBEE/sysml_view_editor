@@ -39,7 +39,10 @@ export function validateEvaluation(
       !Array.isArray(result.artifact.edges))
   )
     throw new Error('View response omitted its artifact.');
-  if (result.artifact?.kind === 'interconnection')
+  if (
+    result.artifact &&
+    ['interconnection', 'action', 'state'].includes(result.artifact.kind)
+  )
     validateStructure(result.artifact);
   if (result.artifact?.kind === 'requirement') validateRequirements(result);
   return result;
@@ -48,7 +51,7 @@ export function validateEvaluation(
 export type ViewArtifact = NonNullable<EvaluatedView['artifact']>;
 export type ArtifactNode = ViewArtifact['nodes'][number];
 
-function validateStructure(artifact: ViewArtifact) {
+export function validateStructure(artifact: ViewArtifact) {
   const nodes = new Map(artifact.nodes.map((node) => [node.id, node]));
   const symbols = new Set(nodes.keys());
   if (nodes.size !== artifact.nodes.length)

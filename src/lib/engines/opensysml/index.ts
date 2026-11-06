@@ -1,9 +1,52 @@
+import {
+  validateRequirementsResult,
+  type RequirementsEngine,
+} from '$lib/workspace/requirements';
+import {
+  validateExploration,
+  type ExplorationEngine,
+} from '$lib/workspace/exploration';
 import type { SemanticEngine } from '$lib/workspace/editing';
 import { readModelSnapshot } from '$lib/workspace/project';
 import { validateEvaluation } from '$lib/workspace/views';
 import { requestWorker } from '../workers/request';
-export function createSemanticEngine(base: string): SemanticEngine {
+export function createSemanticEngine(
+  base: string,
+): SemanticEngine & ExplorationEngine & RequirementsEngine {
   return {
+    requirements(documents, modelHash, signal) {
+      return requestWorker(
+        new Worker(new URL('./semantic.worker.ts', import.meta.url), {
+          type: 'module',
+        }),
+        {
+          protocolVersion: 1,
+          operation: 'requirements',
+          documents,
+          modelHash,
+          base,
+        },
+        (value) => validateRequirementsResult(value, modelHash, documents),
+        signal,
+      );
+    },
+    explore(documents, modelHash, request, signal) {
+      return requestWorker(
+        new Worker(new URL('./semantic.worker.ts', import.meta.url), {
+          type: 'module',
+        }),
+        {
+          protocolVersion: 1,
+          operation: 'explore',
+          documents,
+          modelHash,
+          request,
+          base,
+        },
+        (value) => validateExploration(value, modelHash, request, documents),
+        signal,
+      );
+    },
     parse(documents, signal) {
       return requestWorker(
         new Worker(new URL('./semantic.worker.ts', import.meta.url), {

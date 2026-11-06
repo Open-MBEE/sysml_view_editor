@@ -77,8 +77,7 @@
   font-weight: 650;
 }
 .landing-guide p,
-.launcher-storage p,
-.launcher-planned p {
+.launcher-storage p {
   color: var(--sysml-muted);
   font-size: 13px;
   line-height: 1.8;
@@ -179,15 +178,6 @@
   border-top: 1px solid var(--sysml-border);
   padding-top: 28px;
   max-width: 680px;
-}
-.launcher-planned {
-  color: var(--sysml-muted);
-  font-size: 12px;
-  max-width: 680px;
-}
-.launcher-planned summary {
-  padding: 8px 0;
-  text-underline-offset: 4px;
 }
 .entry-error {
   border-left: 3px solid var(--sysml-error);

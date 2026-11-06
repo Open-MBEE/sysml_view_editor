@@ -256,3 +256,104 @@ test('retains exact drafts and applied geometry after a Toolkit library asset fa
   await expect(source).toHaveSource(draft.replaceAll('\r\n', '\n'));
   expect((await downloadProject(page)).bundle).toEqual(failed);
 });
+
+test('finds real cross-file references and navigates exact ranges without editing source', async ({
+  page,
+}) => {
+  const before = await languageProject(page);
+  await page.getByRole('button', { name: 'model.sysml', exact: true }).click();
+  const source = page.getByRole('textbox', {
+    name: 'SysML source',
+    exact: true,
+  });
+  await selectWord(page, source, 'Motor');
+  await source.press('ArrowLeft');
+  await page
+    .getByRole('button', { name: 'Find references', exact: true })
+    .click();
+  const panel = page.getByRole('region', { name: 'References', exact: true });
+  await expect(panel).toContainText('references');
+  const target = panel.getByRole('button', { name: /^views.sysml · line / });
+  await expect(target).toHaveCount(1);
+  await panel
+    .getByRole('button', { name: 'Close references', exact: true })
+    .click();
+  await expect(source).toBeFocused();
+  await source.press('Shift+F12');
+  await expect(target).toHaveCount(1);
+  await target.click();
+  await expect.poll(() => copySourceSelection(source)).toBe('Motor');
+  await expect(source).toHaveSource(
+    before.documents
+      .find((d) => d.name === 'views.sysml')!
+      .text.replaceAll('\r\n', '\n'),
+  );
+  expect((await downloadProject(page)).bundle).toEqual(before);
+});
+
+test('formats a draft with real Toolkit, supports local undo and accepted source undo/redo, and retains work on failure', async ({
+  page,
+}) => {
+  const before = await languageProject(page);
+  await page.getByRole('button', { name: 'model.sysml', exact: true }).click();
+  const source = page.getByRole('textbox', {
+    name: 'SysML source',
+    exact: true,
+  });
+  const original = before.documents.find((d) => d.name === 'model.sysml')!.text;
+  const draft = original.replace(/    /g, ' ');
+  await fillSource(source, draft);
+  await page
+    .getByRole('button', { name: 'Format source', exact: true })
+    .click();
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Formatted draft.' }),
+  ).toBeVisible();
+  const formatted = (await downloadProject(page)).bundle;
+  expect(formatted.documents).toEqual(before.documents);
+  expect(formatted.drafts).not.toEqual(before.drafts);
+  expect(formatted.presentations).toEqual(before.presentations);
+  expect(
+    formatted.drafts.find((d) => d.name === 'model.sysml')!.text,
+  ).toContain('\r\n');
+  await source.press('ControlOrMeta+z');
+  await expect(source).toHaveSource(draft.replaceAll('\r\n', '\n'));
+  await page
+    .getByRole('button', { name: 'Format source', exact: true })
+    .click();
+  await expect(
+    page.getByRole('status').filter({ hasText: 'Formatted draft.' }),
+  ).toBeVisible();
+  await expect
+    .poll(async () => (await downloadProject(page)).bundle.drafts)
+    .toEqual(formatted.drafts);
+  await page.getByRole('button', { name: 'Apply source', exact: true }).click();
+  await expect(page.getByText('Source applied', { exact: true })).toBeVisible();
+  expect((await downloadProject(page)).bundle.documents).toEqual(
+    formatted.drafts,
+  );
+  await page.getByRole('button', { name: 'Undo source', exact: true }).click();
+  await expect(source).toHaveSource(original.replaceAll('\r\n', '\n'));
+  await page.getByRole('button', { name: 'Redo source', exact: true }).click();
+  await expect(source).toHaveSource(
+    formatted.drafts
+      .find((d) => d.name === 'model.sysml')!
+      .text.replaceAll('\r\n', '\n'),
+  );
+  const saved = (await downloadProject(page)).bundle;
+  const asset = '**/vendor/sysml-toolkit/sysmlv2_bg.wasm';
+  let failed = 0;
+  await page.route(asset, (r) => {
+    failed++;
+    return r.abort('failed');
+  });
+  await page
+    .getByRole('button', { name: 'Format source', exact: true })
+    .click();
+  await expect.poll(() => failed).toBeGreaterThan(0);
+  await expect(
+    page.getByRole('status').filter({ hasText: /failed|fetch/i }),
+  ).toBeVisible();
+  expect((await downloadProject(page)).bundle).toEqual(saved);
+  await page.unroute(asset);
+});

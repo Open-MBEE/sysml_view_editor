@@ -22,12 +22,13 @@
             "CommentExample::ServiceLoop",
             "pump"
           ],
-          "edgeKinds": ["composition"],
+          "edgeKinds": ["composition", "typing"],
           "targets": [
             "Keep line and block comments intact in source.",
             "Show documentation and semantic comment callouts anchored to the correct element.",
             "Preserve Unicode punctuation and text through download/reopen.",
-            "Fit qualified names inside their symbols at a readable scale."
+            "Fit qualified names inside their symbols at a readable scale.",
+            "Retain resolved typing and distinguish declared ownership, references and specialization kinds."
           ],
           "gaps": [
             "Documentation and semantic comment callouts are not drawn or transported as note bodies/anchors by the current bridge.",
@@ -72,10 +73,11 @@
             "Installation",
             "controller"
           ],
-          "edgeKinds": ["composition", "composition"],
+          "edgeKinds": ["composition", "typing", "composition", "typing"],
           "targets": [
             "Show nested package/type ownership without merging similarly named elements.",
-            "Preserve resolution of Controller and Sensor across private imports."
+            "Preserve resolution of Controller and Sensor across private imports.",
+            "Retain resolved typing and distinguish declared ownership, references and specialization kinds."
           ],
           "gaps": [
             "The outline is a flat tree; package containers and import arrows require the package renderer."
@@ -380,18 +382,27 @@
             "typing",
             "typing",
             "typing",
-            "specialization",
-            "specialization",
-            "specialization",
+            "subsetting",
+            "subsetting",
+            "subsetting",
             "composition",
-            "specialization",
+            "reference",
             "composition",
-            "specialization",
-            "specialization"
+            "typing",
+            "reference",
+            "redefinition",
+            "composition",
+            "typing",
+            "reference",
+            "redefinition",
+            "typing",
+            "reference",
+            "redefinition"
           ],
           "targets": [
             "Retain the same source model as an independent generic overview.",
-            "Keep requirement-view and overview positions separate through save and reopen."
+            "Keep requirement-view and overview positions separate through save and reopen.",
+            "Retain resolved typing and distinguish declared ownership, references and specialization kinds."
           ],
           "gaps": [
             "This GeneralView produces a generic flat tree rather than dedicated requirement notation."
@@ -409,7 +420,7 @@
         {
           "id": "WorkflowViews::process",
           "engineKind": "action",
-          "app": "unavailable",
+          "app": "partial",
           "nodeNames": [
             "Workflow::Process",
             "start",
@@ -425,7 +436,7 @@
             "Do not imply that rendering the workflow executes it."
           ],
           "gaps": [
-            "The engine emits an action artifact; the application has no action-flow renderer."
+            "Declared behavior is rendered without execution, simulation or live token/state animation."
           ],
           "notices": []
         }
@@ -440,7 +451,7 @@
         {
           "id": "LifecycleViews::states",
           "engineKind": "state",
-          "app": "unavailable",
+          "app": "partial",
           "nodeNames": [
             "Lifecycle::StationStates",
             "",
@@ -456,7 +467,7 @@
             "Show startWork and finishWork transition endpoints clearly."
           ],
           "gaps": [
-            "The engine emits a state artifact; the application has no state-transition renderer."
+            "Declared behavior is rendered without execution, simulation or live token/state animation."
           ],
           "notices": []
         }
@@ -539,10 +550,11 @@
             "primary",
             "standby"
           ],
-          "edgeKinds": ["composition", "composition"],
+          "edgeKinds": ["composition", "composition", "typing", "typing"],
           "targets": [
             "Show both Motor usages and their shared definition.",
-            "Keep the active view stable when changing source files."
+            "Keep the active view stable when changing source files.",
+            "Retain resolved typing and distinguish declared ownership, references and specialization kinds."
           ],
           "gaps": [],
           "notices": []
@@ -812,7 +824,7 @@
         {
           "id": "CompressorViews::actions",
           "engineKind": "action",
-          "app": "unavailable",
+          "app": "partial",
           "nodeNames": [
             "CompressorBehavior::CompressAir",
             "sense",
@@ -847,14 +859,14 @@
             "Show normal air supply steps, performer allocations and authored control/item-flow ordering."
           ],
           "gaps": [
-            "The engine emits an action artifact; this application has no action renderer."
+            "Declared behavior is rendered without execution, simulation or live token/state animation."
           ],
           "notices": []
         },
         {
           "id": "CompressorViews::maintenance",
           "engineKind": "action",
-          "app": "unavailable",
+          "app": "partial",
           "nodeNames": [
             "CompressorBehavior::ServiceCompressor",
             "isolate",
@@ -877,7 +889,7 @@
             "Show isolation and depressurization before inspection, filter replacement and restoration."
           ],
           "gaps": [
-            "The engine emits an action artifact; this application has no action renderer."
+            "Declared behavior is rendered without execution, simulation or live token/state animation."
           ],
           "notices": []
         },
@@ -949,7 +961,7 @@
         {
           "id": "CompressorViews::states",
           "engineKind": "state",
-          "app": "unavailable",
+          "app": "partial",
           "nodeNames": [
             "CompressorBehavior::OperatingMode",
             "",
@@ -983,7 +995,7 @@
             "Show operating states and event-triggered transitions without implying execution."
           ],
           "gaps": [
-            "The engine emits a state artifact; this application has no state renderer."
+            "Declared behavior is rendered without execution, simulation or live token/state animation."
           ],
           "notices": []
         },
@@ -1044,6 +1056,183 @@
           "notices": [
             "Dimensions and coordinate-frame poses evaluated in metres. Boxes are centered on their frame origins. Solids are inspected separately; meshes and void subtraction are unsupported."
           ]
+        }
+      ]
+    },
+    {
+      "id": "inspection-rover",
+      "title": "Inspection rover",
+      "topics": [
+        "nested-parts",
+        "directed-ports",
+        "connections",
+        "attributes",
+        "specialization",
+        "requirements",
+        "actions",
+        "states"
+      ],
+      "files": [
+        "system.sysml",
+        "components.sysml",
+        "types.sysml",
+        "behavior.sysml",
+        "requirements.sysml",
+        "views.sysml"
+      ],
+      "views": [
+        {
+          "id": "RoverViews::architecture",
+          "engineKind": "interconnection",
+          "app": "partial",
+          "nodeNames": [
+            "RoverSystem::InspectionRover",
+            "energy",
+            "battery",
+            "distribution",
+            "mobility",
+            "leftDrive",
+            "rightDrive",
+            "autonomy",
+            "controller",
+            "lidar",
+            "inspection",
+            "camera",
+            "radio"
+          ],
+          "edgeKinds": [
+            "connection",
+            "connection",
+            "connection",
+            "connection",
+            "connection",
+            "connection",
+            "connection",
+            "connection",
+            "connection",
+            "connection"
+          ],
+          "targets": [
+            "Show the four nested assemblies, shared drive types, declared component values and exact port connections."
+          ],
+          "gaps": [
+            "Values are source declarations, not evaluated or simulated results. Effective conjugated directions and execution remain outside scope."
+          ],
+          "notices": []
+        },
+        {
+          "id": "RoverViews::definitions",
+          "engineKind": "definition",
+          "app": "partial",
+          "nodeNames": [
+            "RoverComponents::Battery",
+            "RoverComponents::Distribution",
+            "RoverComponents::Actuator",
+            "RoverComponents::Sensor",
+            "RoverComponents::Drive",
+            "RoverComponents::Controller",
+            "RoverComponents::Lidar",
+            "RoverComponents::Camera",
+            "RoverComponents::Radio"
+          ],
+          "edgeKinds": ["specialization", "specialization", "specialization"],
+          "targets": [
+            "Show reusable part definitions and explicit actuator/sensor specialization."
+          ],
+          "gaps": [
+            "Generic definition graph notation; no full attribute compartments in this view."
+          ],
+          "notices": []
+        },
+        {
+          "id": "RoverViews::mission",
+          "engineKind": "action",
+          "app": "partial",
+          "nodeNames": [
+            "RoverBehavior::InspectRoute",
+            "start",
+            "checkBattery",
+            "patrol",
+            "detectObstacle",
+            "captureInspection",
+            "transmitReport",
+            "returnToDock",
+            "recharge",
+            "done"
+          ],
+          "edgeKinds": [
+            "succession",
+            "succession",
+            "succession",
+            "succession",
+            "succession",
+            "succession",
+            "succession",
+            "succession"
+          ],
+          "targets": [
+            "Show the ordered inspection mission from battery check through patrol, capture, reporting and recharge."
+          ],
+          "gaps": [
+            "Declared behavior is rendered without execution, simulation or live token/state animation."
+          ],
+          "notices": []
+        },
+        {
+          "id": "RoverViews::lifecycle",
+          "engineKind": "state",
+          "app": "partial",
+          "nodeNames": [
+            "RoverBehavior::OperatingMode",
+            "",
+            "docked",
+            "patrolling",
+            "inspecting",
+            "returning",
+            "charging",
+            "safeStop"
+          ],
+          "edgeKinds": [
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition",
+            "transition"
+          ],
+          "targets": [
+            "Show operating states, initial state, safe stop and return-to-charge transitions."
+          ],
+          "gaps": [
+            "Declared behavior is rendered without execution, simulation or live token/state animation."
+          ],
+          "notices": []
+        },
+        {
+          "id": "RoverViews::requirements",
+          "engineKind": "requirement",
+          "app": "partial",
+          "nodeNames": [
+            "RoverRequirements::reserve",
+            "RoverRequirements::speed",
+            "RoverRequirements::clearance",
+            "RoverRequirements::imaging",
+            "RoverSystem::InspectionRover::energy::battery",
+            "RoverSystem::InspectionRover::mobility::leftDrive",
+            "RoverSystem::InspectionRover::autonomy::controller",
+            "RoverSystem::InspectionRover::inspection::camera"
+          ],
+          "edgeKinds": ["satisfy", "satisfy", "satisfy", "satisfy"],
+          "targets": [
+            "Show four quantified requirements and their exact declared satisfaction targets."
+          ],
+          "gaps": [
+            "Satisfaction is declared traceability, not evidence that a test passed."
+          ],
+          "notices": []
         }
       ]
     }

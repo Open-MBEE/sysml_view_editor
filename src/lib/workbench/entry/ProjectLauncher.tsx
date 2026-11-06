@@ -47,8 +47,7 @@ export function ProjectLauncher({
               Open a project
             </h1>
             <p>
-              Choose a starting point. Your model stays in this browser until
-              you download it.
+              Create a model, open your files, or explore the inspection rover.
             </p>
           </div>
           {projectName && (
@@ -74,22 +73,11 @@ export function ProjectLauncher({
             Opening project…
           </p>
         )}
-        <div className="launcher-options">
-          <Button
-            variant="outline"
-            className="launcher-choice"
-            aria-label="Load example"
-            disabled={busy}
-            onClick={onExample}
-          >
-            <PanelsTopLeft aria-hidden="true" />
-            <span>
-              <strong>Load example</strong>
-              <span>
-                Explore the Smart air workshop model and its named views.
-              </span>
-            </span>
-          </Button>
+        <div
+          className="launcher-options"
+          role="group"
+          aria-label="Project starting points"
+        >
           <Button
             variant="outline"
             className="launcher-choice"
@@ -100,7 +88,7 @@ export function ProjectLauncher({
             <FilePlus2 aria-hidden="true" />
             <span>
               <strong>New project</strong>
-              <span>Start a SysML source project and build your model.</span>
+              <span>Start with an empty SysML model.</span>
             </span>
           </Button>
           <Button
@@ -113,27 +101,34 @@ export function ProjectLauncher({
             <FolderOpen aria-hidden="true" />
             <span>
               <strong>Open files or project</strong>
+              <span>Import SysML files or a downloaded project.</span>
+            </span>
+          </Button>
+          <Button
+            variant="outline"
+            className="launcher-choice"
+            aria-label="Load example"
+            disabled={busy}
+            onClick={onExample}
+          >
+            <PanelsTopLeft aria-hidden="true" />
+            <span>
+              <strong>Load example</strong>
               <span>
-                Import SysML source files or a downloaded project bundle.
+                Inspection rover: structure, mission, operating states and
+                requirements.
               </span>
             </span>
           </Button>
         </div>
         <div className="launcher-storage">
-          <h2>Local work, explicit saves</h2>
+          <h2>Save your work</h2>
           <p>
-            Opening imports a copy. Download project keeps source, drafts and
-            diagram positions together. Local recovery is a separate browser
-            copy.
+            Imported files stay unchanged. Download your project to save source,
+            drafts and diagram positions. Local recovery keeps a separate copy
+            in this browser.
           </p>
         </div>
-        <details className="launcher-planned">
-          <summary>Folder and repository workflows</summary>
-          <p>
-            Direct folder saving and Flexo project/branch checkout are planned.
-            Use source files or a project bundle to work locally today.
-          </p>
-        </details>
       </main>
       <footer className="entry-footer">
         <span>OpenMBEE View Editor</span>

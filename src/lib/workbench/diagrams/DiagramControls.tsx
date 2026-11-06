@@ -1,4 +1,5 @@
-import { Panel, useReactFlow, useStore } from '@xyflow/react';
+import { useDiagramFit } from './useDiagramFit';
+import { Panel, useReactFlow, useStore, type Rect } from '@xyflow/react';
 import {
   ZoomIn,
   ZoomOut,
@@ -12,12 +13,15 @@ export function DiagramControls({
   locked,
   onLock,
   padding,
+  bounds,
 }: {
   locked: boolean;
   onLock: (locked: boolean) => void;
   padding: number;
+  bounds?: Rect;
 }) {
-  const { zoomIn, zoomOut, fitView } = useReactFlow();
+  const { zoomIn, zoomOut } = useReactFlow();
+  const fit = useDiagramFit(padding, bounds);
   const zoom = useStore((state) => state.transform[2]);
   const minZoom = useStore((state) => state.minZoom);
   const maxZoom = useStore((state) => state.maxZoom);
@@ -46,7 +50,7 @@ export function DiagramControls({
         size="icon-xs"
         label="Fit view"
         icon={Scan}
-        onClick={() => void fitView({ padding, maxZoom: 1 })}
+        onClick={() => void fit()}
       />
       <IconButton
         size="icon-xs"

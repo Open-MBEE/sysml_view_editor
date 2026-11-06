@@ -126,6 +126,12 @@ self.onmessage = async (event: MessageEvent<unknown>) => {
     const raw = send('textDocument/' + query.kind, {
       textDocument: { uri: sourceURI(query.file) },
       position,
+      ...(query.kind === 'references'
+        ? { context: { includeDeclaration: false } }
+        : {}),
+      ...(query.kind === 'formatting'
+        ? { options: { tabSize: 4, insertSpaces: true } }
+        : {}),
     });
     self.postMessage({ value: normalizeLanguage(sources, query, raw) });
   } catch (error) {
