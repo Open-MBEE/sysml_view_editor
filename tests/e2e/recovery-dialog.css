@@ -1,0 +1,4 @@
+/* Preserve layout while excluding unrelated canvas pixels from dialog crops. */
+.react-flow {
+  visibility: hidden;
+}

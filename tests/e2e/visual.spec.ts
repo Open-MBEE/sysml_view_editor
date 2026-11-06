@@ -390,8 +390,11 @@ for (const theme of ['light', 'dark']) {
           exact: true,
         }),
       ).toBeChecked();
+      // Fractional dialog bounds can include an outer pixel of the diagram.
+      // Isolate this dialog capture; full-page tests cover the actual diagram.
       await expect(dialog).toHaveScreenshot(
         `local-recovery-${theme}${narrow ? '-narrow' : ''}.png`,
+        { stylePath: 'tests/e2e/recovery-dialog.css' },
       );
       await page.keyboard.press('Escape');
       await expect(dialog).not.toBeVisible();

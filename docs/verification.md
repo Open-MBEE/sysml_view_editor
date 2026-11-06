@@ -1,5 +1,11 @@
 # Verification record
 
+## Recovery dialog capture isolation
+
+Recorded 2026-11-06 after publishing rover commit `04f6d41`. Hosted run [42165758615](https://github.com/Open-MBEE/sysml_view_editor/actions/runs/42165758615) passed code checks, audit and all 15 critical browser workflows in both attempts. Both attempts passed 68/69 visual comparisons; the remaining light recovery-dialog crop differed at pixel `(399, 295)`, its last row. The original baseline retained a dark pixel at the crop edge, consistent with the underlying diagram leaking into an enclosing pixel-rounded screenshot. The focused local reproduction also failed at exactly that pixel (`sandbox/recovery-pixel-repro.log`); captured trace and diff evidence distinguish it from a dialog-content or semantic failure.
+
+This scoped dialog comparison now applies `tests/e2e/recovery-dialog.css` only during capture, hiding the unrelated React Flow background while preserving layout. Full-page diagram comparisons remain unchanged. The first isolated run passed three cases and retained the expected failure against the old background-bearing baseline (`sandbox/recovery-pixel-isolated.log`). Only the affected light baseline is regenerated for the intentionally isolated capture. No screenshot tolerance, semantic assertion, application styling or production code changes. The changed baseline was visually inspected. Normal comparisons then passed all four theme/width cases in 23.3 seconds (`sandbox/recovery-pixel-final.log`), including keyboard focus return. `npm run check` passed again with 154 Vitest tests and ten Node checks (`sandbox/recovery-pixel-check.log`). The final hosted run remains separate from these local results.
+
 ## Compact rover presentation
 
 Recorded 2026-11-06. Named structural graphs with at least ten nodes now use narrower cards, tighter gaps and 32-unit attribute rows. Simple scalar defaults display without declaration syntax or redundant fractional zeros; complex declarations retain exact spelling, and all rows retain exact declarations in their titles. Source and engine attribute payloads are unchanged.
