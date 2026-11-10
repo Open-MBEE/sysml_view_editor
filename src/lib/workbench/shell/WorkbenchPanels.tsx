@@ -434,7 +434,9 @@ function SideHeader({ id }: { id: Side }) {
   const layout = usePanels();
   return (
     <header className="panel-header">
-      <h2>{titles[id]}</h2>
+      <h2 data-tour-explorer={id === 'explorer' ? '' : undefined}>
+        {titles[id]}
+      </h2>
       <div className="panel-header-actions">
         <Popover>
           <PopoverTrigger asChild>

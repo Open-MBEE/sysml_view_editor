@@ -4,6 +4,7 @@ import { Button } from '$lib/ui/primitives/button';
 import { AppearanceSettings } from '$lib/ui/AppearanceSettings';
 import type { WorkspaceState } from '$lib/workspace/createWorkspace';
 import { Brand } from '../entry/Brand';
+import { EditorTour } from './EditorTour';
 
 export function ProjectHeader({
   state,
@@ -48,6 +49,7 @@ export function ProjectHeader({
         <small className="project-origin">{origin}</small>
       </div>
       <nav aria-label="Project actions">
+        <EditorTour />
         <AppearanceSettings active={active} />
         {recovery}
         <Button
@@ -70,6 +72,7 @@ export function ProjectHeader({
         </Button>
         <Button
           variant="default"
+          data-tour-download
           disabled={!state.project || state.busy}
           onClick={onDownload}
         >

@@ -8,7 +8,7 @@ import {
 } from './WorkbenchPanels';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createBrowserSession } from './session';
-import { exampleProject, exampleView, roverGuide } from './example';
+import { exampleProject, exampleView } from './example';
 import type { Workspace, WorkspaceState } from '$lib/workspace/createWorkspace';
 import type { ProjectBundle } from '$lib/workspace/persistence';
 import type { EditProposal, SemanticCommand } from '$lib/workspace/editing';
@@ -745,11 +745,6 @@ export function Workbench({
                       layoutMode={mode}
                       key={(diagramIdentity ?? 'none') + ':' + state.revision}
                       view={displayedView}
-                      guide={
-                        origin === 'Built-in example' && displayedView
-                          ? roverGuide[displayedView.view]
-                          : undefined
-                      }
                       exploration={state.exploration?.request}
                       elements={state.model?.elements ?? []}
                       explorationFocus={explorationFocus}

@@ -431,16 +431,6 @@
   box-shadow: inset 0 0 0 4px var(--sysml-surface);
 }
 
-.example-guide {
-  margin: 0;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--sysml-border);
-  font-size: 12px;
-  line-height: 1.6;
-  color: var(--sysml-muted);
-  background: var(--sysml-surface);
-}
-
 .react-flow__node.structure-node.behavior-node {
   border-radius: 16px;
 }
@@ -454,4 +444,28 @@
   border-radius: 50%;
   background: var(--sysml-text);
   border: 3px solid var(--sysml-text);
+}
+
+.tour-highlight {
+  outline: 3px solid var(--sysml-accent);
+  outline-offset: 2px;
+}
+.editor-tour {
+  display: grid;
+  gap: 10px;
+}
+.editor-tour h2 {
+  font-weight: 600;
+}
+.editor-tour p {
+  margin: 0;
+  font-size: 13px;
+}
+.editor-tour-progress {
+  color: var(--sysml-muted);
+}
+.editor-tour-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
 }
