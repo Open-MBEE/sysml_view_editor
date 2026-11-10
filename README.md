@@ -84,7 +84,7 @@ The landing page offers **Open app** and **Try an example**. `/app` opens a proj
 
 Choose **Load example** to open the **Inspection rover** in Diagram mode. Six source files describe four connected assemblies, declared component values, an inspection mission, operating states and quantitative requirements.
 
-Follow the in-app guide through **architecture → mission → lifecycle → requirements → definitions**. The opening diagram includes a 480 Wh battery, two distinct drives, lidar, controller, camera and radio. Declared values, successions and satisfaction links are model content; the app does not execute or simulate them.
+Explore the named views **architecture → mission → lifecycle → requirements → definitions**. Choose **Guide** in the project header for a tour of the editor controls. The opening diagram includes a 480 Wh battery, two distinct drives, lidar, controller, camera and radio. Declared values, successions and satisfaction links are model content; the app does not execute or simulate them.
 
 1. Select another named view in Explorer or the diagram’s **Named view** selector.
 2. Choose **Split** to see source; selecting a file keeps the active diagram open.

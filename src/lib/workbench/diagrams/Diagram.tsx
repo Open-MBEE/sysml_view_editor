@@ -83,7 +83,6 @@ import type {
   Point,
 } from '$lib/workspace/views';
 interface Props {
-  guide?: string;
   exploration?: ExplorationRequest;
   elements?: readonly ModelElement[];
   explorationFocus?: 'scope' | 'representation';
@@ -104,7 +103,6 @@ interface Props {
   layoutMode: 'code' | 'split' | 'diagram';
 }
 export function Diagram({
-  guide,
   exploration,
   explorationFocus,
   elements = [],
@@ -494,7 +492,6 @@ export function Diagram({
           </div>
         )}
       </header>
-      {guide && <p className="example-guide">{guide}</p>}
       {!view ? (
         <div className="empty">
           <h2>One model. Focused views.</h2>

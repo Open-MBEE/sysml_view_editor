@@ -22,16 +22,3 @@ export const exampleProject: ProjectBundle = {
   drafts: roverDocuments,
   presentations: {},
 };
-
-export const roverGuide: Record<string, string> = {
-  'RoverViews::architecture':
-    '1 · Meet the rover. Follow battery power into mobility, autonomy and inspection. Component values are authored design declarations. Next: mission.',
-  'RoverViews::mission':
-    '2 · Follow an inspection mission: check reserve, patrol, detect, capture, report, return and recharge. This is declared order, not a running simulation. Next: lifecycle.',
-  'RoverViews::lifecycle':
-    '3 · Explore normal operation and the safe-stop path. Low reserve sends the rover home; charging returns it to docked. Next: requirements.',
-  'RoverViews::requirements':
-    '4 · Trace reserve, speed, clearance and image quality to the exact rover parts. Satisfaction is declared, not test evidence. Next: definitions.',
-  'RoverViews::definitions':
-    '5 · Compare reusable components. Two drives share one type; Drive specializes Actuator, and Lidar and Camera specialize Sensor.',
-};

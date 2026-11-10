@@ -994,3 +994,24 @@ for (const theme of ['light', 'dark']) {
     }
   }
 }
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [1440, 768]) {
+    test(`editor guide in ${theme} at ${width}`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await ready(page);
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', { name: 'Appearance' });
+      await appearance.getByLabel('Theme').selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      await page.getByRole('button', { name: 'Guide to the editor' }).click();
+      const guide = page.getByRole('dialog', { name: 'Editor guide' });
+      await expect(guide).toContainText('Find your files and views');
+      await expect(page).toHaveScreenshot(`editor-guide-${theme}-${width}.png`);
+    });
+  }
+}

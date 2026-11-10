@@ -1,5 +1,23 @@
 # Verification record
 
+## Editor guide review
+
+Recorded 2026-11-10. The guide now explains how to reveal collapsed Explorer and model representation controls hidden by Code layout. Each step supplies the dialog's accessible description and a polite, atomic live region. Removing the custom close-focus override lets outside clicks keep focus on the chosen control; Escape, Close and Done still return focus to Guide. These changes do not switch layout or modify project data.
+
+`npm run check` passed formatting, architecture, TypeScript, 160 Vitest tests and ten Node checks (`sandbox/guide-review-check.log`). `npm run test:e2e -- --project=functional editor-tour.spec.ts` passed all four real-engine browser scenarios after a fresh production build (`sandbox/guide-review-functional.log`): draft/project preservation and keyboard return, all five steps at 390px, hidden-control hints with unchanged layout and restart, and outside-click focus. Before the fix, the accessible-description and hidden-control assertions failed against the original implementation (`sandbox/guide-review-before.log`); the existing phone scenario passed.
+
+`npm run test:e2e -- --project=visual` completed with 80 passes and one screenshot mismatch (`sandbox/guide-review-visual.log`). All four editor-guide comparisons passed without updating baselines. The failed `requirement hierarchy and declared satisfaction in light at 768` comparison differed by 1,907 pixels, confined to diagram text/edges; its original trace, actual and diff are preserved in `sandbox/guide-review-requirements-failure/`. An isolated fresh-build rerun of that exact scenario passed without code or baseline changes (`sandbox/guide-review-requirements-recheck.log`). This is an intermittent visual mismatch with unresolved cause, not an entirely green full-suite run. The complete functional suite was not rerun.
+
+The guide was inspected manually in light/dark themes at desktop and phone widths. Automated accessibility assertions check the exposed description/live-region attributes, not actual screen-reader announcements; manual assistive-technology verification and Firefox/WebKit remain unperformed. These are local results, not hosted CI.
+
+## Optional editor guide
+
+Recorded 2026-11-10. The rover-specific inline view descriptions were removed. An optional five-step Guide in the project header introduces Explorer, layout, applying source, model representations and downloading for any open project. It uses the existing popover primitives; there are no new dependencies or project format changes.
+
+`npm run check` passed formatting, architecture, TypeScript, 160 Vitest tests and ten Node checks (`sandbox/editor-tour-check-final.log`). Fresh builds passed through Playwright. The initial five-case functional run covered the guide and real-engine rover workflows (`sandbox/editor-tour-functional.log`); two final guide cases passed with an unapplied draft, keyboard dismissal/focus return, and all popup bounds at 390px with Explorer collapsed (`sandbox/editor-tour-draft.log`). The guide regression failed against the retained previous build because its Guide button was absent (`sandbox/editor-tour-before.log`). An initial phone test failed in fixture setup at a hidden Explorer view; after starting the project before resizing, it exposed an animation-timing measurement, corrected with a retrying bounds assertion (`sandbox/editor-tour-final.log`, `sandbox/editor-tour-final2.log`).
+
+The visual suite generated 81 baselines (`sandbox/editor-tour-visual-all.log`). The changed header, removal of rover notes and guide captures were inspected in both themes and widths via `sandbox/editor-tour-review/`; initial desktop guide placement was clipped and was corrected before the final review. Normal comparison then passed all 81 without updates (`sandbox/editor-tour-visual-final.log`, output `sandbox/playwright/editor-tour-visual-final`). These are local Chromium results, not hosted CI or a complete accessibility audit.
+
 ## OpenSysML 0.12 and requirements/source assistance
 
 Recorded 2026-11-06. OpenSysML is now pinned to 0.12.0 with the local overlays ported, verified source/toolchain checksums and retained provenance. SysML Toolkit remains at 0.10.10. Requirements table/matrix inspection is read-only; references navigate project source and formatting creates an undoable draft requiring explicit Apply. No production dependencies or saved-format changes.
