@@ -39,6 +39,14 @@ Changing the two imports to public imports would not make this explicit exposure
 
 The basis is [SysML 2.0 Part 1](https://www.omg.org/spec/SysML/2.0/Language/PDF), §8.3.26.2–4 (Expose and NamespaceExpose), together with [KerML 1.0](https://www.omg.org/spec/KerML/1.0/PDF), §8.3.2.4.5–6 (Namespace and NamespaceImport). These rules do not prescribe exact renderer node counts, guarantee large-view readability or establish complete editor conformance.
 
+## Inherited structural occurrences
+
+Authored interconnection views retain the native renderer’s effective structural members, including inherited parts under typed usages. Each occurrence binds the source declaration to its complete usage context: `Sat::c` under `sat1` and under `sat2` share a declaration but have different canvas identities. Native traversal still determines recursion and depth bounds. Attributes remain source-backed compartments; synthetic subjects and unsupported constraints remain excluded. Connector selection still requires the existing owner/exposure policy, so retaining inherited nodes does not automatically expose a type’s internal connections.
+
+Temporary exploration and tree views retain their existing declaration-ownership scope. This change is specific to authored interconnection views. The bridge reserves the previous projection’s node and port IDs before assigning IDs to newly visible occurrences. This preserves compatible positions in unchanged version-1 projects without introducing a general persistent identity guarantee across source edits. The artifact remains parent-first even when reserved IDs are not numerically ordered. When a partial saved presentation puts an old child in a new child’s automatic slot, the projection keeps restored subtrees anchored and places automatic inherited siblings into free slots inside the canonical owner bounds. The native inherited flag is validated in the artifact contract; ordinary authored-node placement remains unchanged. Those bounds and drag extents remain unchanged because version 1 saves positions alone. If the saved geometry leaves no fitting slot, the editor keeps the saved positions and warns that automatic positions overlap; move saved nodes to make room. This does not provide general manual overlap prevention.
+
+Keyboard Enter/Space selection now updates Properties for structural nodes as well as the other diagram families. Source reveal remains disabled while a draft is unapplied.
+
 ## Geometry and interaction
 
 The structural projection lives under `workbench/diagrams/`; the workspace remains independent of React Flow and ELK. ELK calculates compound bounds from the engine's parent graph. Definitions/usages retain textual kind labels; references additionally have a `ref` label and dashed border. Typed inherited ports are selectable buttons with direction text and type labels, with handles on the appropriate boundary. The connector line itself does not assert a flow direction.

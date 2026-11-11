@@ -245,13 +245,13 @@ Current gaps: Conjugated port type labels are retained; effective payload direct
 
 - Show electrical, pneumatic, cooling and service assemblies with authored cross-subsystem connections.
 
-Current gaps: Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded. Nested typed assemblies remain component-level nodes; deeper connection endpoints are shown at those nodes rather than expanded internal ports.
+Current gaps: Conjugated port type labels are retained; effective payload directions and evaluated attribute values are not expanded.
 
 **CompressorViews::installation** — engine artifact: `interconnection`; app: **partial**.
 
 - Keep two installed compressor usages, tools and human roles distinct.
 
-Current gaps: Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded. Nested typed assemblies remain component-level nodes; deeper connection endpoints are shown at those nodes rather than expanded internal ports.
+Current gaps: Conjugated port type labels are retained; effective payload directions and evaluated attribute values are not expanded.
 
 **CompressorViews::pneumatics** — engine artifact: `interconnection`; app: **partial**.
 

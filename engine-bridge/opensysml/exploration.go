@@ -85,7 +85,7 @@ func (e *Engine) explore(req *JExploreRequest) ([]byte, error) {
 		out.Diagnostics = append(out.Diagnostics, err.Error())
 		return marshalExploration(out, req.Request)
 	}
-	raw, err := cached.normalizedRendering(out, selected, rendering)
+	raw, err := cached.normalizedRendering(out, selected, rendering, false)
 	if err != nil {
 		return nil, err
 	}

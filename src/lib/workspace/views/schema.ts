@@ -38,6 +38,7 @@ export const ArtifactNodeSchema = Type.Object({
   parent: Type.Optional(Type.String()),
   ports: Type.Optional(Type.Array(ArtifactPortSchema)),
   reference: Type.Optional(Type.Boolean()),
+  inherited: Type.Optional(Type.Boolean()),
   direction: Type.Optional(DirectionSchema),
   x: Type.Optional(Type.Number()),
   y: Type.Optional(Type.Number()),

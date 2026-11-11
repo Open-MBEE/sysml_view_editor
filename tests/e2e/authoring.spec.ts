@@ -11,6 +11,7 @@ import {
   semanticPositions,
   diagramSymbol,
   expectRenderedPositions,
+  diagramState,
 } from './support';
 
 test('@critical creates a typed part and connects its actual inherited usage ports through reviewed source transactions', async ({
@@ -196,6 +197,10 @@ test('@critical creates a typed part and connects its actual inherited usage por
     ).toHaveSource(text);
   }
   const saved = await downloadProject(page);
+  await testInfo.attach('authored-portable-project', {
+    body: saved.buffer,
+    contentType: 'application/json',
+  });
   await page.reload();
   await startExample(page);
   await page.locator('input[type=file]').setInputFiles({
@@ -208,6 +213,19 @@ test('@critical creates a typed part and connects its actual inherited usage por
   ).toHaveSource(connected.documents[0]!.text);
   for (const view of ['structure', 'devices']) {
     await openView(page, view);
+    await testInfo.attach(`reopened-${view}`, {
+      body: JSON.stringify(
+        {
+          evaluation: evaluations.findLast(
+            (item) => item.view === 'AssemblyViews::' + view,
+          ),
+          rendered: await diagramState(page),
+        },
+        null,
+        2,
+      ),
+      contentType: 'application/json',
+    });
     await expectRenderedPositions(page, saved.bundle, 'AssemblyViews::' + view);
   }
   const reopened = (await downloadProject(page)).bundle;

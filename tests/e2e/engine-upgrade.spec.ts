@@ -64,6 +64,24 @@ test('retains 0.10 declaration-to-position identities across structural, require
     await import('../../src/lib/engines/workers/schema');
   type Correspondence =
     import('../../src/lib/workspace/views').EvaluatedView['correspondence'];
+  // #18 intentionally adds inherited descendants and resolves declared edges
+  // to their actual ports. Retain every original identity in the old fixture;
+  // assert the reviewed additions separately instead of replacing that fixture.
+  const inherited = JSON.parse(
+    await readFile(
+      new URL(
+        '../fixtures/inherited-members-compressor-correspondence.json',
+        import.meta.url,
+      ),
+      'utf8',
+    ),
+  ) as Record<
+    string,
+    {
+      correspondence: Correspondence;
+      edges: Record<string, unknown>[];
+    }
+  >;
   const fixture = JSON.parse(
     await readFile(
       new URL(
@@ -148,10 +166,18 @@ test('retains 0.10 declaration-to-position identities across structural, require
       );
       expect(result.status, view.view).toBe('complete');
       expect(result.artifact?.kind, view.view).toBe(view.kind);
+      const current = result.correspondence.filter(
+        (c) => !c.symbol.startsWith('edge:'),
+      );
+      const legacySymbols = new Set(view.correspondence.map((c) => c.symbol));
       expect(
-        result.correspondence.filter((c) => !c.symbol.startsWith('edge:')),
+        current.filter((c) => legacySymbols.has(c.symbol)),
         view.view,
       ).toEqual(view.correspondence);
+      expect(
+        current.filter((c) => !legacySymbols.has(c.symbol)),
+        view.view + ' inherited additions',
+      ).toEqual(inherited[view.view]?.correspondence ?? []);
       if (view.edges) {
         const pick = (edge: Record<string, unknown>) =>
           Object.fromEntries(
@@ -168,7 +194,7 @@ test('retains 0.10 declaration-to-position identities across structural, require
         expect(
           sort(result.artifact!.edges.map((edge) => pick({ ...edge }))),
           view.view + ' declared endpoints',
-        ).toEqual(sort(view.edges.map(pick)));
+        ).toEqual(sort((inherited[view.view]?.edges ?? view.edges).map(pick)));
       }
     }
   }

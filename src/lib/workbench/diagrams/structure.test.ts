@@ -145,3 +145,178 @@ it('still rejects positions meaningfully beyond an owner boundary', async () => 
   expect(restored.notice).toContain('outside the current owner');
   expect(absolutePositions(restored.nodes).left).not.toEqual(saved.left);
 });
+
+it('places newly visible children clear of unchanged saved siblings', async () => {
+  const original: ViewArtifact = {
+    kind: 'interconnection',
+    nodes: [
+      { id: 'root', name: 'usage', kind: 'part' },
+      { id: 'a', name: 'a', kind: 'part', parent: 'root' },
+      { id: 'b', name: 'b', kind: 'part', parent: 'root' },
+    ],
+    edges: [],
+  };
+  const saved = absolutePositions((await layoutStructure(original, {})).nodes);
+  const expanded: ViewArtifact = {
+    ...original,
+    nodes: [
+      original.nodes[0]!,
+      { id: 'c', name: 'c', kind: 'part', parent: 'root', inherited: true },
+      ...original.nodes.slice(1),
+    ],
+  };
+  const result = await layoutStructure(expanded, saved);
+  const positions = absolutePositions(result.nodes);
+  for (const [id, position] of Object.entries(saved))
+    expect(positions[id]).toEqual(position);
+  const added = result.nodes.find((node) => node.id === 'c')!;
+  const root = result.nodes.find((node) => node.id === 'root')!;
+  for (const id of ['a', 'b']) {
+    const sibling = result.nodes.find((node) => node.id === id)!;
+    expect(
+      added.position.x + Number(added.style!.width) <= sibling.position.x ||
+        sibling.position.x + Number(sibling.style!.width) <= added.position.x ||
+        added.position.y + Number(added.style!.height) <= sibling.position.y ||
+        sibling.position.y + Number(sibling.style!.height) <= added.position.y,
+    ).toBe(true);
+  }
+  expect(added.position.y + Number(added.style!.height)).toBeLessThan(
+    Number(root.style!.height),
+  );
+});
+
+it('anchors an unsaved ancestor of a restored child while placing an automatic sibling', async () => {
+  const nested: ViewArtifact = {
+    kind: 'interconnection',
+    nodes: [
+      { id: 'root', name: 'root', kind: 'part' },
+      { id: 'branch', name: 'branch', kind: 'part', parent: 'root' },
+      { id: 'leaf', name: 'leaf', kind: 'part', parent: 'branch' },
+      { id: 'saved', name: 'saved', kind: 'part', parent: 'root' },
+      { id: 'new', name: 'new', kind: 'part', parent: 'root', inherited: true },
+    ],
+    edges: [],
+  };
+  const automatic = await layoutStructure(nested, {});
+  const original = absolutePositions(automatic.nodes);
+  const stored = { leaf: original.leaf!, saved: original.new! };
+  const result = await layoutStructure(nested, stored);
+  const actual = absolutePositions(result.nodes);
+  expect(actual.leaf).toEqual(stored.leaf);
+  expect(actual.saved).toEqual(stored.saved);
+  expect(actual.branch).toEqual(original.branch);
+  const root = result.nodes.find((node) => node.id === 'root')!;
+  const added = result.nodes.find((node) => node.id === 'new')!;
+  const occupied = result.nodes.find((node) => node.id === 'saved')!;
+  expect(
+    added.position.y + Number(added.style!.height) <= occupied.position.y ||
+      occupied.position.y + Number(occupied.style!.height) <=
+        added.position.y ||
+      added.position.x + Number(added.style!.width) <= occupied.position.x ||
+      occupied.position.x + Number(occupied.style!.width) <= added.position.x,
+  ).toBe(true);
+  expect(added.position.y + Number(added.style!.height)).toBeLessThan(
+    Number(root.style!.height),
+  );
+  expect(added.extent).toEqual([
+    [32, 86],
+    [Number(root.style!.width) - 32, Number(root.style!.height) - 32],
+  ]);
+});
+
+it('reuses a vacant slot within unchanged owner bounds and drag extents', async () => {
+  const simple: ViewArtifact = {
+    kind: 'interconnection',
+    nodes: [
+      { id: 'root', name: 'root', kind: 'part' },
+      { id: 'saved', name: 'saved', kind: 'part', parent: 'root' },
+      { id: 'new', name: 'new', kind: 'part', parent: 'root', inherited: true },
+    ],
+    edges: [],
+  };
+  const automatic = await layoutStructure(simple, {});
+  const original = absolutePositions(automatic.nodes);
+  const result = await layoutStructure(simple, { saved: original.new! });
+  const actual = absolutePositions(result.nodes);
+  expect(actual.saved).toEqual(original.new);
+  const root = result.nodes.find((node) => node.id === 'root')!;
+  const added = result.nodes.find((node) => node.id === 'new')!;
+  expect(root.style).toEqual(automatic.nodes[0]!.style);
+  expect(added.position.y).toBeLessThan(
+    result.nodes.find((node) => node.id === 'saved')!.position.y,
+  );
+  expect(added.position.y + Number(added.style!.height)).toBeLessThan(
+    Number(root.style!.height),
+  );
+  expect(added.extent).toEqual([
+    [32, 86],
+    [Number(root.style!.width) - 32, Number(root.style!.height) - 32],
+  ]);
+});
+
+it('reopens every position published by partial restoration without discarding geometry', async () => {
+  const simple: ViewArtifact = {
+    kind: 'interconnection',
+    nodes: [
+      { id: 'root', name: 'root', kind: 'part' },
+      { id: 'saved', name: 'saved', kind: 'part', parent: 'root' },
+      { id: 'new', name: 'new', kind: 'part', parent: 'root', inherited: true },
+    ],
+    edges: [],
+  };
+  const automatic = await layoutStructure(simple, {});
+  const original = absolutePositions(automatic.nodes);
+  const first = await layoutStructure(simple, { saved: original.new! });
+  const published = absolutePositions(first.nodes);
+  const reopened = await layoutStructure(simple, published);
+  expect(absolutePositions(reopened.nodes)).toEqual(published);
+  expect(reopened.notice).not.toContain('outside the current owner');
+});
+
+it('warns when fixed saved geometry leaves no bounded slot instead of publishing larger drag bounds', async () => {
+  const simple: ViewArtifact = {
+    kind: 'interconnection',
+    nodes: [
+      { id: 'root', name: 'root', kind: 'part' },
+      { id: 'saved', name: 'saved', kind: 'part', parent: 'root' },
+      { id: 'new', name: 'new', kind: 'part', parent: 'root', inherited: true },
+    ],
+    edges: [],
+  };
+  const automatic = await layoutStructure(simple, {});
+  const original = absolutePositions(automatic.nodes);
+  const owner = automatic.nodes[0]!;
+  const child = automatic.nodes.find((node) => node.id === 'saved')!;
+  const middle = {
+    x: original.saved!.x,
+    y:
+      original.root!.y +
+      86 +
+      (Number(owner.style!.height) - 86 - 32 - Number(child.style!.height)) / 2,
+  };
+  const result = await layoutStructure(simple, { saved: middle });
+  expect(absolutePositions(result.nodes).saved).toEqual(middle);
+  expect(result.nodes[0]!.style).toEqual(owner.style);
+  expect(result.notice).toContain('automatic positions overlap saved nodes');
+  const published = absolutePositions(result.nodes);
+  expect(
+    absolutePositions((await layoutStructure(simple, published)).nodes),
+  ).toEqual(published);
+});
+
+it('keeps native placement of newly authored owned nodes outside inherited-member restoration', async () => {
+  const owned: ViewArtifact = {
+    kind: 'interconnection',
+    nodes: [
+      { id: 'root', name: 'root', kind: 'part' },
+      { id: 'saved', name: 'saved', kind: 'part', parent: 'root' },
+      { id: 'new', name: 'new', kind: 'part', parent: 'root' },
+    ],
+    edges: [],
+  };
+  const automatic = await layoutStructure(owned, {});
+  const original = absolutePositions(automatic.nodes);
+  const result = await layoutStructure(owned, { saved: original.new! });
+  expect(absolutePositions(result.nodes).new).toEqual(original.new);
+  expect(result.notice).toBe('');
+});

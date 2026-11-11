@@ -1,0 +1,2450 @@
+{
+  "CompressorViews::structure": {
+    "correspondence": [
+      {
+        "symbol": "n5",
+        "subject": {
+          "id": "system.sysml@1543:26",
+          "qualifiedName": "CompressorSystem::ElectricalAssembly::supply",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1543,
+            "length": 26,
+            "nameOffset": 1548,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1543:26"
+        ]
+      },
+      {
+        "symbol": "n5.0",
+        "subject": {
+          "id": "components.sysml@195:30",
+          "qualifiedName": "CompressorComponents::PowerSupply::supply",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 195,
+            "length": 30,
+            "nameOffset": 204,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1543:26",
+          "components.sysml@195:30"
+        ]
+      },
+      {
+        "symbol": "n6",
+        "subject": {
+          "id": "system.sysml@1578:29",
+          "qualifiedName": "CompressorSystem::ElectricalAssembly::controller",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1578,
+            "length": 29,
+            "nameOffset": 1583,
+            "nameLength": 10
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1578:29"
+        ]
+      },
+      {
+        "symbol": "n6.0",
+        "subject": {
+          "id": "components.sysml@324:35",
+          "qualifiedName": "CompressorComponents::Controller::pressure",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 324,
+            "length": 35,
+            "nameOffset": 332,
+            "nameLength": 8
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@324:35"
+        ]
+      },
+      {
+        "symbol": "n6.1",
+        "subject": {
+          "id": "components.sysml@368:41",
+          "qualifiedName": "CompressorComponents::Controller::temperature",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 368,
+            "length": 41,
+            "nameOffset": 376,
+            "nameLength": 11
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@368:41"
+        ]
+      },
+      {
+        "symbol": "n6.2",
+        "subject": {
+          "id": "components.sysml@418:33",
+          "qualifiedName": "CompressorComponents::Controller::service",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 418,
+            "length": 33,
+            "nameOffset": 426,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@418:33"
+        ]
+      },
+      {
+        "symbol": "n6.3",
+        "subject": {
+          "id": "components.sysml@460:33",
+          "qualifiedName": "CompressorComponents::Controller::command",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 460,
+            "length": 33,
+            "nameOffset": 469,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@460:33"
+        ]
+      },
+      {
+        "symbol": "n6.4",
+        "subject": {
+          "id": "components.sysml@502:36",
+          "qualifiedName": "CompressorComponents::Controller::fanCommand",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 502,
+            "length": 36,
+            "nameOffset": 511,
+            "nameLength": 10
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@502:36"
+        ]
+      },
+      {
+        "symbol": "n6.5",
+        "subject": {
+          "id": "components.sysml@547:29",
+          "qualifiedName": "CompressorComponents::Controller::alarm",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 547,
+            "length": 29,
+            "nameOffset": 556,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@547:29"
+        ]
+      },
+      {
+        "symbol": "n7",
+        "subject": {
+          "id": "system.sysml@1616:19",
+          "qualifiedName": "CompressorSystem::ElectricalAssembly::motor",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1616,
+            "length": 19,
+            "nameOffset": 1621,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1616:19"
+        ]
+      },
+      {
+        "symbol": "n7.0",
+        "subject": {
+          "id": "components.sysml@666:29",
+          "qualifiedName": "CompressorComponents::Motor::power",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 666,
+            "length": 29,
+            "nameOffset": 674,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1616:19",
+          "components.sysml@666:29"
+        ]
+      },
+      {
+        "symbol": "n7.1",
+        "subject": {
+          "id": "components.sysml@704:33",
+          "qualifiedName": "CompressorComponents::Motor::command",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 704,
+            "length": 33,
+            "nameOffset": 712,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@407:37",
+          "system.sysml@1616:19",
+          "components.sysml@704:33"
+        ]
+      },
+      {
+        "symbol": "n8",
+        "subject": {
+          "id": "system.sysml@1828:17",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::pump",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1828,
+            "length": 17,
+            "nameOffset": 1833,
+            "nameLength": 4
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1828:17"
+        ]
+      },
+      {
+        "symbol": "n8.0",
+        "subject": {
+          "id": "components.sysml@772:27",
+          "qualifiedName": "CompressorComponents::Pump::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 772,
+            "length": 27,
+            "nameOffset": 780,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1828:17",
+          "components.sysml@772:27"
+        ]
+      },
+      {
+        "symbol": "n8.1",
+        "subject": {
+          "id": "components.sysml@808:28",
+          "qualifiedName": "CompressorComponents::Pump::outlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 808,
+            "length": 28,
+            "nameOffset": 817,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1828:17",
+          "components.sysml@808:28"
+        ]
+      },
+      {
+        "symbol": "n8.2",
+        "subject": {
+          "id": "components.sysml@845:41",
+          "qualifiedName": "CompressorComponents::Pump::temperature",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 845,
+            "length": 41,
+            "nameOffset": 854,
+            "nameLength": 11
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1828:17",
+          "components.sysml@845:41"
+        ]
+      },
+      {
+        "symbol": "n9",
+        "subject": {
+          "id": "system.sysml@1854:17",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::tank",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1854,
+            "length": 17,
+            "nameOffset": 1859,
+            "nameLength": 4
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1854:17"
+        ]
+      },
+      {
+        "symbol": "n9.0",
+        "subject": {
+          "id": "components.sysml@1018:27",
+          "qualifiedName": "CompressorComponents::Tank::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1018,
+            "length": 27,
+            "nameOffset": 1026,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1018:27"
+        ]
+      },
+      {
+        "symbol": "n9.1",
+        "subject": {
+          "id": "components.sysml@1054:30",
+          "qualifiedName": "CompressorComponents::Tank::delivery",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1054,
+            "length": 30,
+            "nameOffset": 1063,
+            "nameLength": 8
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1054:30"
+        ]
+      },
+      {
+        "symbol": "n9.2",
+        "subject": {
+          "id": "components.sysml@1093:28",
+          "qualifiedName": "CompressorComponents::Tank::relief",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1093,
+            "length": 28,
+            "nameOffset": 1102,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1093:28"
+        ]
+      },
+      {
+        "symbol": "n9.3",
+        "subject": {
+          "id": "components.sysml@1130:42",
+          "qualifiedName": "CompressorComponents::Tank::pressureReading",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1130,
+            "length": 42,
+            "nameOffset": 1139,
+            "nameLength": 15
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1130:42"
+        ]
+      },
+      {
+        "symbol": "n10",
+        "subject": {
+          "id": "system.sysml@1880:28",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::regulator",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1880,
+            "length": 28,
+            "nameOffset": 1885,
+            "nameLength": 9
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1880:28"
+        ]
+      },
+      {
+        "symbol": "n10.0",
+        "subject": {
+          "id": "components.sysml@1612:27",
+          "qualifiedName": "CompressorComponents::Valve::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1612,
+            "length": 27,
+            "nameOffset": 1620,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1880:28",
+          "components.sysml@1612:27"
+        ]
+      },
+      {
+        "symbol": "n10.1",
+        "subject": {
+          "id": "components.sysml@1648:28",
+          "qualifiedName": "CompressorComponents::Valve::outlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1648,
+            "length": 28,
+            "nameOffset": 1657,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1880:28",
+          "components.sysml@1648:28"
+        ]
+      },
+      {
+        "symbol": "n11",
+        "subject": {
+          "id": "system.sysml@1917:26",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::relief",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1917,
+            "length": 26,
+            "nameOffset": 1922,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1917:26"
+        ]
+      },
+      {
+        "symbol": "n11.0",
+        "subject": {
+          "id": "components.sysml@1612:27",
+          "qualifiedName": "CompressorComponents::Valve::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1612,
+            "length": 27,
+            "nameOffset": 1620,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1917:26",
+          "components.sysml@1612:27"
+        ]
+      },
+      {
+        "symbol": "n11.1",
+        "subject": {
+          "id": "components.sysml@1648:28",
+          "qualifiedName": "CompressorComponents::Valve::outlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1648,
+            "length": 28,
+            "nameOffset": 1657,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1917:26",
+          "components.sysml@1648:28"
+        ]
+      },
+      {
+        "symbol": "n12",
+        "subject": {
+          "id": "system.sysml@1952:37",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::pressureSensor",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1952,
+            "length": 37,
+            "nameOffset": 1957,
+            "nameLength": 14
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1952:37"
+        ]
+      },
+      {
+        "symbol": "n12.0",
+        "subject": {
+          "id": "components.sysml@1305:33",
+          "qualifiedName": "CompressorComponents::PressureSensor::sample",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1305,
+            "length": 33,
+            "nameOffset": 1313,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1952:37",
+          "components.sysml@1305:33"
+        ]
+      },
+      {
+        "symbol": "n12.1",
+        "subject": {
+          "id": "components.sysml@1347:34",
+          "qualifiedName": "CompressorComponents::PressureSensor::reading",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1347,
+            "length": 34,
+            "nameOffset": 1356,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@453:35",
+          "system.sysml@1952:37",
+          "components.sysml@1347:34"
+        ]
+      },
+      {
+        "symbol": "n13",
+        "subject": {
+          "id": "components.sysml@2055:22",
+          "qualifiedName": "CompressorComponents::CoolingAssembly::fan",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 2055,
+            "length": 22,
+            "nameOffset": 2060,
+            "nameLength": 3
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@497:31",
+          "components.sysml@2055:22"
+        ]
+      },
+      {
+        "symbol": "n13.0",
+        "subject": {
+          "id": "components.sysml@1976:33",
+          "qualifiedName": "CompressorComponents::CoolingFan::command",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1976,
+            "length": 33,
+            "nameOffset": 1984,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@497:31",
+          "components.sysml@2055:22",
+          "components.sysml@1976:33"
+        ]
+      },
+      {
+        "symbol": "n14",
+        "subject": {
+          "id": "components.sysml@2086:37",
+          "qualifiedName": "CompressorComponents::CoolingAssembly::temperature",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 2086,
+            "length": 37,
+            "nameOffset": 2091,
+            "nameLength": 11
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@497:31",
+          "components.sysml@2086:37"
+        ]
+      },
+      {
+        "symbol": "n14.0",
+        "subject": {
+          "id": "components.sysml@1494:36",
+          "qualifiedName": "CompressorComponents::TemperatureSensor::sample",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1494,
+            "length": 36,
+            "nameOffset": 1502,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@497:31",
+          "components.sysml@2086:37",
+          "components.sysml@1494:36"
+        ]
+      },
+      {
+        "symbol": "n14.1",
+        "subject": {
+          "id": "components.sysml@1539:37",
+          "qualifiedName": "CompressorComponents::TemperatureSensor::reading",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1539,
+            "length": 37,
+            "nameOffset": 1548,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@192:1308",
+          "system.sysml@497:31",
+          "components.sysml@2086:37",
+          "components.sysml@1539:37"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": "n12",
+        "to": "n6",
+        "fromPort": "n12.1",
+        "toPort": "n6.0",
+        "kind": "connection",
+        "label": "pressureFeedback"
+      },
+      {
+        "from": "n8",
+        "to": "n14",
+        "fromPort": "n8.2",
+        "toPort": "n14.0",
+        "kind": "connection",
+        "label": "temperatureSample"
+      },
+      {
+        "from": "n14",
+        "to": "n6",
+        "fromPort": "n14.1",
+        "toPort": "n6.1",
+        "kind": "connection",
+        "label": "temperatureFeedback"
+      },
+      {
+        "from": "n6",
+        "to": "n13",
+        "fromPort": "n6.4",
+        "toPort": "n13.0",
+        "kind": "connection",
+        "label": "fanControl"
+      },
+      {
+        "from": "n4",
+        "to": "n6",
+        "fromPort": "n4.0",
+        "toPort": "n6.2",
+        "kind": "connection",
+        "label": "maintenanceRequest"
+      },
+      {
+        "from": "n6",
+        "to": "n4",
+        "fromPort": "n6.5",
+        "toPort": "n4.1",
+        "kind": "connection",
+        "label": "faultAlarm"
+      }
+    ]
+  },
+  "CompressorViews::installation": {
+    "correspondence": [
+      {
+        "symbol": "n7",
+        "subject": {
+          "id": "system.sysml@407:37",
+          "qualifiedName": "CompressorSystem::Compressor::electrical",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 407,
+            "length": 37,
+            "nameOffset": 412,
+            "nameLength": 10
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37"
+        ]
+      },
+      {
+        "symbol": "n8",
+        "subject": {
+          "id": "system.sysml@1543:26",
+          "qualifiedName": "CompressorSystem::ElectricalAssembly::supply",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1543,
+            "length": 26,
+            "nameOffset": 1548,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1543:26"
+        ]
+      },
+      {
+        "symbol": "n8.0",
+        "subject": {
+          "id": "components.sysml@195:30",
+          "qualifiedName": "CompressorComponents::PowerSupply::supply",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 195,
+            "length": 30,
+            "nameOffset": 204,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1543:26",
+          "components.sysml@195:30"
+        ]
+      },
+      {
+        "symbol": "n9",
+        "subject": {
+          "id": "system.sysml@1578:29",
+          "qualifiedName": "CompressorSystem::ElectricalAssembly::controller",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1578,
+            "length": 29,
+            "nameOffset": 1583,
+            "nameLength": 10
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1578:29"
+        ]
+      },
+      {
+        "symbol": "n9.0",
+        "subject": {
+          "id": "components.sysml@324:35",
+          "qualifiedName": "CompressorComponents::Controller::pressure",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 324,
+            "length": 35,
+            "nameOffset": 332,
+            "nameLength": 8
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@324:35"
+        ]
+      },
+      {
+        "symbol": "n9.1",
+        "subject": {
+          "id": "components.sysml@368:41",
+          "qualifiedName": "CompressorComponents::Controller::temperature",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 368,
+            "length": 41,
+            "nameOffset": 376,
+            "nameLength": 11
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@368:41"
+        ]
+      },
+      {
+        "symbol": "n9.2",
+        "subject": {
+          "id": "components.sysml@418:33",
+          "qualifiedName": "CompressorComponents::Controller::service",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 418,
+            "length": 33,
+            "nameOffset": 426,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@418:33"
+        ]
+      },
+      {
+        "symbol": "n9.3",
+        "subject": {
+          "id": "components.sysml@460:33",
+          "qualifiedName": "CompressorComponents::Controller::command",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 460,
+            "length": 33,
+            "nameOffset": 469,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@460:33"
+        ]
+      },
+      {
+        "symbol": "n9.4",
+        "subject": {
+          "id": "components.sysml@502:36",
+          "qualifiedName": "CompressorComponents::Controller::fanCommand",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 502,
+            "length": 36,
+            "nameOffset": 511,
+            "nameLength": 10
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@502:36"
+        ]
+      },
+      {
+        "symbol": "n9.5",
+        "subject": {
+          "id": "components.sysml@547:29",
+          "qualifiedName": "CompressorComponents::Controller::alarm",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 547,
+            "length": 29,
+            "nameOffset": 556,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@547:29"
+        ]
+      },
+      {
+        "symbol": "n10",
+        "subject": {
+          "id": "system.sysml@1616:19",
+          "qualifiedName": "CompressorSystem::ElectricalAssembly::motor",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1616,
+            "length": 19,
+            "nameOffset": 1621,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1616:19"
+        ]
+      },
+      {
+        "symbol": "n10.0",
+        "subject": {
+          "id": "components.sysml@666:29",
+          "qualifiedName": "CompressorComponents::Motor::power",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 666,
+            "length": 29,
+            "nameOffset": 674,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1616:19",
+          "components.sysml@666:29"
+        ]
+      },
+      {
+        "symbol": "n10.1",
+        "subject": {
+          "id": "components.sysml@704:33",
+          "qualifiedName": "CompressorComponents::Motor::command",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 704,
+            "length": 33,
+            "nameOffset": 712,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@407:37",
+          "system.sysml@1616:19",
+          "components.sysml@704:33"
+        ]
+      },
+      {
+        "symbol": "n11",
+        "subject": {
+          "id": "system.sysml@453:35",
+          "qualifiedName": "CompressorSystem::Compressor::pneumatic",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 453,
+            "length": 35,
+            "nameOffset": 458,
+            "nameLength": 9
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35"
+        ]
+      },
+      {
+        "symbol": "n12",
+        "subject": {
+          "id": "system.sysml@1828:17",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::pump",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1828,
+            "length": 17,
+            "nameOffset": 1833,
+            "nameLength": 4
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1828:17"
+        ]
+      },
+      {
+        "symbol": "n12.0",
+        "subject": {
+          "id": "components.sysml@772:27",
+          "qualifiedName": "CompressorComponents::Pump::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 772,
+            "length": 27,
+            "nameOffset": 780,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1828:17",
+          "components.sysml@772:27"
+        ]
+      },
+      {
+        "symbol": "n12.1",
+        "subject": {
+          "id": "components.sysml@808:28",
+          "qualifiedName": "CompressorComponents::Pump::outlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 808,
+            "length": 28,
+            "nameOffset": 817,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1828:17",
+          "components.sysml@808:28"
+        ]
+      },
+      {
+        "symbol": "n12.2",
+        "subject": {
+          "id": "components.sysml@845:41",
+          "qualifiedName": "CompressorComponents::Pump::temperature",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 845,
+            "length": 41,
+            "nameOffset": 854,
+            "nameLength": 11
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1828:17",
+          "components.sysml@845:41"
+        ]
+      },
+      {
+        "symbol": "n13",
+        "subject": {
+          "id": "system.sysml@1854:17",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::tank",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1854,
+            "length": 17,
+            "nameOffset": 1859,
+            "nameLength": 4
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1854:17"
+        ]
+      },
+      {
+        "symbol": "n13.0",
+        "subject": {
+          "id": "components.sysml@1018:27",
+          "qualifiedName": "CompressorComponents::Tank::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1018,
+            "length": 27,
+            "nameOffset": 1026,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1018:27"
+        ]
+      },
+      {
+        "symbol": "n13.1",
+        "subject": {
+          "id": "components.sysml@1054:30",
+          "qualifiedName": "CompressorComponents::Tank::delivery",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1054,
+            "length": 30,
+            "nameOffset": 1063,
+            "nameLength": 8
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1054:30"
+        ]
+      },
+      {
+        "symbol": "n13.2",
+        "subject": {
+          "id": "components.sysml@1093:28",
+          "qualifiedName": "CompressorComponents::Tank::relief",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1093,
+            "length": 28,
+            "nameOffset": 1102,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1093:28"
+        ]
+      },
+      {
+        "symbol": "n13.3",
+        "subject": {
+          "id": "components.sysml@1130:42",
+          "qualifiedName": "CompressorComponents::Tank::pressureReading",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1130,
+            "length": 42,
+            "nameOffset": 1139,
+            "nameLength": 15
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1130:42"
+        ]
+      },
+      {
+        "symbol": "n14",
+        "subject": {
+          "id": "system.sysml@1880:28",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::regulator",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1880,
+            "length": 28,
+            "nameOffset": 1885,
+            "nameLength": 9
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1880:28"
+        ]
+      },
+      {
+        "symbol": "n14.0",
+        "subject": {
+          "id": "components.sysml@1612:27",
+          "qualifiedName": "CompressorComponents::Valve::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1612,
+            "length": 27,
+            "nameOffset": 1620,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1880:28",
+          "components.sysml@1612:27"
+        ]
+      },
+      {
+        "symbol": "n14.1",
+        "subject": {
+          "id": "components.sysml@1648:28",
+          "qualifiedName": "CompressorComponents::Valve::outlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1648,
+            "length": 28,
+            "nameOffset": 1657,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1880:28",
+          "components.sysml@1648:28"
+        ]
+      },
+      {
+        "symbol": "n15",
+        "subject": {
+          "id": "system.sysml@1917:26",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::relief",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1917,
+            "length": 26,
+            "nameOffset": 1922,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1917:26"
+        ]
+      },
+      {
+        "symbol": "n15.0",
+        "subject": {
+          "id": "components.sysml@1612:27",
+          "qualifiedName": "CompressorComponents::Valve::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1612,
+            "length": 27,
+            "nameOffset": 1620,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1917:26",
+          "components.sysml@1612:27"
+        ]
+      },
+      {
+        "symbol": "n15.1",
+        "subject": {
+          "id": "components.sysml@1648:28",
+          "qualifiedName": "CompressorComponents::Valve::outlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1648,
+            "length": 28,
+            "nameOffset": 1657,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1917:26",
+          "components.sysml@1648:28"
+        ]
+      },
+      {
+        "symbol": "n16",
+        "subject": {
+          "id": "system.sysml@1952:37",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::pressureSensor",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1952,
+            "length": 37,
+            "nameOffset": 1957,
+            "nameLength": 14
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1952:37"
+        ]
+      },
+      {
+        "symbol": "n16.0",
+        "subject": {
+          "id": "components.sysml@1305:33",
+          "qualifiedName": "CompressorComponents::PressureSensor::sample",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1305,
+            "length": 33,
+            "nameOffset": 1313,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1952:37",
+          "components.sysml@1305:33"
+        ]
+      },
+      {
+        "symbol": "n16.1",
+        "subject": {
+          "id": "components.sysml@1347:34",
+          "qualifiedName": "CompressorComponents::PressureSensor::reading",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1347,
+            "length": 34,
+            "nameOffset": 1356,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@453:35",
+          "system.sysml@1952:37",
+          "components.sysml@1347:34"
+        ]
+      },
+      {
+        "symbol": "n17",
+        "subject": {
+          "id": "system.sysml@497:31",
+          "qualifiedName": "CompressorSystem::Compressor::cooling",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 497,
+            "length": 31,
+            "nameOffset": 502,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@497:31"
+        ]
+      },
+      {
+        "symbol": "n18",
+        "subject": {
+          "id": "components.sysml@2055:22",
+          "qualifiedName": "CompressorComponents::CoolingAssembly::fan",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 2055,
+            "length": 22,
+            "nameOffset": 2060,
+            "nameLength": 3
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@497:31",
+          "components.sysml@2055:22"
+        ]
+      },
+      {
+        "symbol": "n18.0",
+        "subject": {
+          "id": "components.sysml@1976:33",
+          "qualifiedName": "CompressorComponents::CoolingFan::command",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1976,
+            "length": 33,
+            "nameOffset": 1984,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@497:31",
+          "components.sysml@2055:22",
+          "components.sysml@1976:33"
+        ]
+      },
+      {
+        "symbol": "n19",
+        "subject": {
+          "id": "components.sysml@2086:37",
+          "qualifiedName": "CompressorComponents::CoolingAssembly::temperature",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 2086,
+            "length": 37,
+            "nameOffset": 2091,
+            "nameLength": 11
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@497:31",
+          "components.sysml@2086:37"
+        ]
+      },
+      {
+        "symbol": "n19.0",
+        "subject": {
+          "id": "components.sysml@1494:36",
+          "qualifiedName": "CompressorComponents::TemperatureSensor::sample",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1494,
+            "length": 36,
+            "nameOffset": 1502,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@497:31",
+          "components.sysml@2086:37",
+          "components.sysml@1494:36"
+        ]
+      },
+      {
+        "symbol": "n19.1",
+        "subject": {
+          "id": "components.sysml@1539:37",
+          "qualifiedName": "CompressorComponents::TemperatureSensor::reading",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1539,
+            "length": 37,
+            "nameOffset": 1548,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@497:31",
+          "components.sysml@2086:37",
+          "components.sysml@1539:37"
+        ]
+      },
+      {
+        "symbol": "n20",
+        "subject": {
+          "id": "system.sysml@537:37",
+          "qualifiedName": "CompressorSystem::Compressor::serviceConsole",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 537,
+            "length": 37,
+            "nameOffset": 542,
+            "nameLength": 14
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@537:37"
+        ]
+      },
+      {
+        "symbol": "n20.0",
+        "subject": {
+          "id": "components.sysml@2168:33",
+          "qualifiedName": "CompressorComponents::ServiceConsole::request",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 2168,
+            "length": 33,
+            "nameOffset": 2177,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@537:37",
+          "components.sysml@2168:33"
+        ]
+      },
+      {
+        "symbol": "n20.1",
+        "subject": {
+          "id": "components.sysml@2210:29",
+          "qualifiedName": "CompressorComponents::ServiceConsole::alarm",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 2210,
+            "length": 29,
+            "nameOffset": 2218,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2338:29",
+          "system.sysml@537:37",
+          "components.sysml@2210:29"
+        ]
+      },
+      {
+        "symbol": "n21",
+        "subject": {
+          "id": "system.sysml@407:37",
+          "qualifiedName": "CompressorSystem::Compressor::electrical",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 407,
+            "length": 37,
+            "nameOffset": 412,
+            "nameLength": 10
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37"
+        ]
+      },
+      {
+        "symbol": "n22",
+        "subject": {
+          "id": "system.sysml@1543:26",
+          "qualifiedName": "CompressorSystem::ElectricalAssembly::supply",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1543,
+            "length": 26,
+            "nameOffset": 1548,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1543:26"
+        ]
+      },
+      {
+        "symbol": "n22.0",
+        "subject": {
+          "id": "components.sysml@195:30",
+          "qualifiedName": "CompressorComponents::PowerSupply::supply",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 195,
+            "length": 30,
+            "nameOffset": 204,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1543:26",
+          "components.sysml@195:30"
+        ]
+      },
+      {
+        "symbol": "n23",
+        "subject": {
+          "id": "system.sysml@1578:29",
+          "qualifiedName": "CompressorSystem::ElectricalAssembly::controller",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1578,
+            "length": 29,
+            "nameOffset": 1583,
+            "nameLength": 10
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1578:29"
+        ]
+      },
+      {
+        "symbol": "n23.0",
+        "subject": {
+          "id": "components.sysml@324:35",
+          "qualifiedName": "CompressorComponents::Controller::pressure",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 324,
+            "length": 35,
+            "nameOffset": 332,
+            "nameLength": 8
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@324:35"
+        ]
+      },
+      {
+        "symbol": "n23.1",
+        "subject": {
+          "id": "components.sysml@368:41",
+          "qualifiedName": "CompressorComponents::Controller::temperature",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 368,
+            "length": 41,
+            "nameOffset": 376,
+            "nameLength": 11
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@368:41"
+        ]
+      },
+      {
+        "symbol": "n23.2",
+        "subject": {
+          "id": "components.sysml@418:33",
+          "qualifiedName": "CompressorComponents::Controller::service",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 418,
+            "length": 33,
+            "nameOffset": 426,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@418:33"
+        ]
+      },
+      {
+        "symbol": "n23.3",
+        "subject": {
+          "id": "components.sysml@460:33",
+          "qualifiedName": "CompressorComponents::Controller::command",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 460,
+            "length": 33,
+            "nameOffset": 469,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@460:33"
+        ]
+      },
+      {
+        "symbol": "n23.4",
+        "subject": {
+          "id": "components.sysml@502:36",
+          "qualifiedName": "CompressorComponents::Controller::fanCommand",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 502,
+            "length": 36,
+            "nameOffset": 511,
+            "nameLength": 10
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@502:36"
+        ]
+      },
+      {
+        "symbol": "n23.5",
+        "subject": {
+          "id": "components.sysml@547:29",
+          "qualifiedName": "CompressorComponents::Controller::alarm",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 547,
+            "length": 29,
+            "nameOffset": 556,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1578:29",
+          "components.sysml@547:29"
+        ]
+      },
+      {
+        "symbol": "n24",
+        "subject": {
+          "id": "system.sysml@1616:19",
+          "qualifiedName": "CompressorSystem::ElectricalAssembly::motor",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1616,
+            "length": 19,
+            "nameOffset": 1621,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1616:19"
+        ]
+      },
+      {
+        "symbol": "n24.0",
+        "subject": {
+          "id": "components.sysml@666:29",
+          "qualifiedName": "CompressorComponents::Motor::power",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 666,
+            "length": 29,
+            "nameOffset": 674,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1616:19",
+          "components.sysml@666:29"
+        ]
+      },
+      {
+        "symbol": "n24.1",
+        "subject": {
+          "id": "components.sysml@704:33",
+          "qualifiedName": "CompressorComponents::Motor::command",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 704,
+            "length": 33,
+            "nameOffset": 712,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@407:37",
+          "system.sysml@1616:19",
+          "components.sysml@704:33"
+        ]
+      },
+      {
+        "symbol": "n25",
+        "subject": {
+          "id": "system.sysml@453:35",
+          "qualifiedName": "CompressorSystem::Compressor::pneumatic",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 453,
+            "length": 35,
+            "nameOffset": 458,
+            "nameLength": 9
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35"
+        ]
+      },
+      {
+        "symbol": "n26",
+        "subject": {
+          "id": "system.sysml@1828:17",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::pump",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1828,
+            "length": 17,
+            "nameOffset": 1833,
+            "nameLength": 4
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1828:17"
+        ]
+      },
+      {
+        "symbol": "n26.0",
+        "subject": {
+          "id": "components.sysml@772:27",
+          "qualifiedName": "CompressorComponents::Pump::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 772,
+            "length": 27,
+            "nameOffset": 780,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1828:17",
+          "components.sysml@772:27"
+        ]
+      },
+      {
+        "symbol": "n26.1",
+        "subject": {
+          "id": "components.sysml@808:28",
+          "qualifiedName": "CompressorComponents::Pump::outlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 808,
+            "length": 28,
+            "nameOffset": 817,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1828:17",
+          "components.sysml@808:28"
+        ]
+      },
+      {
+        "symbol": "n26.2",
+        "subject": {
+          "id": "components.sysml@845:41",
+          "qualifiedName": "CompressorComponents::Pump::temperature",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 845,
+            "length": 41,
+            "nameOffset": 854,
+            "nameLength": 11
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1828:17",
+          "components.sysml@845:41"
+        ]
+      },
+      {
+        "symbol": "n27",
+        "subject": {
+          "id": "system.sysml@1854:17",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::tank",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1854,
+            "length": 17,
+            "nameOffset": 1859,
+            "nameLength": 4
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1854:17"
+        ]
+      },
+      {
+        "symbol": "n27.0",
+        "subject": {
+          "id": "components.sysml@1018:27",
+          "qualifiedName": "CompressorComponents::Tank::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1018,
+            "length": 27,
+            "nameOffset": 1026,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1018:27"
+        ]
+      },
+      {
+        "symbol": "n27.1",
+        "subject": {
+          "id": "components.sysml@1054:30",
+          "qualifiedName": "CompressorComponents::Tank::delivery",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1054,
+            "length": 30,
+            "nameOffset": 1063,
+            "nameLength": 8
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1054:30"
+        ]
+      },
+      {
+        "symbol": "n27.2",
+        "subject": {
+          "id": "components.sysml@1093:28",
+          "qualifiedName": "CompressorComponents::Tank::relief",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1093,
+            "length": 28,
+            "nameOffset": 1102,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1093:28"
+        ]
+      },
+      {
+        "symbol": "n27.3",
+        "subject": {
+          "id": "components.sysml@1130:42",
+          "qualifiedName": "CompressorComponents::Tank::pressureReading",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1130,
+            "length": 42,
+            "nameOffset": 1139,
+            "nameLength": 15
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1854:17",
+          "components.sysml@1130:42"
+        ]
+      },
+      {
+        "symbol": "n28",
+        "subject": {
+          "id": "system.sysml@1880:28",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::regulator",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1880,
+            "length": 28,
+            "nameOffset": 1885,
+            "nameLength": 9
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1880:28"
+        ]
+      },
+      {
+        "symbol": "n28.0",
+        "subject": {
+          "id": "components.sysml@1612:27",
+          "qualifiedName": "CompressorComponents::Valve::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1612,
+            "length": 27,
+            "nameOffset": 1620,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1880:28",
+          "components.sysml@1612:27"
+        ]
+      },
+      {
+        "symbol": "n28.1",
+        "subject": {
+          "id": "components.sysml@1648:28",
+          "qualifiedName": "CompressorComponents::Valve::outlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1648,
+            "length": 28,
+            "nameOffset": 1657,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1880:28",
+          "components.sysml@1648:28"
+        ]
+      },
+      {
+        "symbol": "n29",
+        "subject": {
+          "id": "system.sysml@1917:26",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::relief",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1917,
+            "length": 26,
+            "nameOffset": 1922,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1917:26"
+        ]
+      },
+      {
+        "symbol": "n29.0",
+        "subject": {
+          "id": "components.sysml@1612:27",
+          "qualifiedName": "CompressorComponents::Valve::inlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1612,
+            "length": 27,
+            "nameOffset": 1620,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1917:26",
+          "components.sysml@1612:27"
+        ]
+      },
+      {
+        "symbol": "n29.1",
+        "subject": {
+          "id": "components.sysml@1648:28",
+          "qualifiedName": "CompressorComponents::Valve::outlet",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1648,
+            "length": 28,
+            "nameOffset": 1657,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1917:26",
+          "components.sysml@1648:28"
+        ]
+      },
+      {
+        "symbol": "n30",
+        "subject": {
+          "id": "system.sysml@1952:37",
+          "qualifiedName": "CompressorSystem::PneumaticAssembly::pressureSensor",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 1952,
+            "length": 37,
+            "nameOffset": 1957,
+            "nameLength": 14
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1952:37"
+        ]
+      },
+      {
+        "symbol": "n30.0",
+        "subject": {
+          "id": "components.sysml@1305:33",
+          "qualifiedName": "CompressorComponents::PressureSensor::sample",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1305,
+            "length": 33,
+            "nameOffset": 1313,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1952:37",
+          "components.sysml@1305:33"
+        ]
+      },
+      {
+        "symbol": "n30.1",
+        "subject": {
+          "id": "components.sysml@1347:34",
+          "qualifiedName": "CompressorComponents::PressureSensor::reading",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1347,
+            "length": 34,
+            "nameOffset": 1356,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@453:35",
+          "system.sysml@1952:37",
+          "components.sysml@1347:34"
+        ]
+      },
+      {
+        "symbol": "n31",
+        "subject": {
+          "id": "system.sysml@497:31",
+          "qualifiedName": "CompressorSystem::Compressor::cooling",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 497,
+            "length": 31,
+            "nameOffset": 502,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@497:31"
+        ]
+      },
+      {
+        "symbol": "n32",
+        "subject": {
+          "id": "components.sysml@2055:22",
+          "qualifiedName": "CompressorComponents::CoolingAssembly::fan",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 2055,
+            "length": 22,
+            "nameOffset": 2060,
+            "nameLength": 3
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@497:31",
+          "components.sysml@2055:22"
+        ]
+      },
+      {
+        "symbol": "n32.0",
+        "subject": {
+          "id": "components.sysml@1976:33",
+          "qualifiedName": "CompressorComponents::CoolingFan::command",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1976,
+            "length": 33,
+            "nameOffset": 1984,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@497:31",
+          "components.sysml@2055:22",
+          "components.sysml@1976:33"
+        ]
+      },
+      {
+        "symbol": "n33",
+        "subject": {
+          "id": "components.sysml@2086:37",
+          "qualifiedName": "CompressorComponents::CoolingAssembly::temperature",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 2086,
+            "length": 37,
+            "nameOffset": 2091,
+            "nameLength": 11
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@497:31",
+          "components.sysml@2086:37"
+        ]
+      },
+      {
+        "symbol": "n33.0",
+        "subject": {
+          "id": "components.sysml@1494:36",
+          "qualifiedName": "CompressorComponents::TemperatureSensor::sample",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1494,
+            "length": 36,
+            "nameOffset": 1502,
+            "nameLength": 6
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@497:31",
+          "components.sysml@2086:37",
+          "components.sysml@1494:36"
+        ]
+      },
+      {
+        "symbol": "n33.1",
+        "subject": {
+          "id": "components.sysml@1539:37",
+          "qualifiedName": "CompressorComponents::TemperatureSensor::reading",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 1539,
+            "length": 37,
+            "nameOffset": 1548,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@497:31",
+          "components.sysml@2086:37",
+          "components.sysml@1539:37"
+        ]
+      },
+      {
+        "symbol": "n34",
+        "subject": {
+          "id": "system.sysml@537:37",
+          "qualifiedName": "CompressorSystem::Compressor::serviceConsole",
+          "origin": {
+            "file": "system.sysml",
+            "offset": 537,
+            "length": 37,
+            "nameOffset": 542,
+            "nameLength": 14
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@537:37"
+        ]
+      },
+      {
+        "symbol": "n34.0",
+        "subject": {
+          "id": "components.sysml@2168:33",
+          "qualifiedName": "CompressorComponents::ServiceConsole::request",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 2168,
+            "length": 33,
+            "nameOffset": 2177,
+            "nameLength": 7
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@537:37",
+          "components.sysml@2168:33"
+        ]
+      },
+      {
+        "symbol": "n34.1",
+        "subject": {
+          "id": "components.sysml@2210:29",
+          "qualifiedName": "CompressorComponents::ServiceConsole::alarm",
+          "origin": {
+            "file": "components.sysml",
+            "offset": 2210,
+            "length": 29,
+            "nameOffset": 2218,
+            "nameLength": 5
+          }
+        },
+        "context": [
+          "system.sysml@2310:434",
+          "system.sysml@2376:34",
+          "system.sysml@537:37",
+          "components.sysml@2210:29"
+        ]
+      }
+    ],
+    "edges": [
+      {
+        "from": "n14",
+        "to": "n3",
+        "fromPort": "n14.1",
+        "toPort": "n3.0",
+        "kind": "connection",
+        "label": "deliveryLine"
+      },
+      {
+        "from": "n28",
+        "to": "n4",
+        "fromPort": "n28.1",
+        "toPort": "n4.0",
+        "kind": "connection",
+        "label": "spareDelivery"
+      }
+    ]
+  }
+}

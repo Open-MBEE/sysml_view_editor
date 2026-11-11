@@ -1,0 +1,41 @@
+{
+  "format": "sysmlv2-view-project",
+  "version": 1,
+  "name": "Inherited usage compatibility",
+  "documents": [
+    {
+      "name": "model.sysml",
+      "text": "package Demo {\n  part def Wheel;\n  part def SmallWheel :> Wheel;\n  part def Sat { part a : Wheel; part b : Wheel; part c : Wheel; }\n  part sat1 : Sat { part :>> a : SmallWheel; part :>> b : SmallWheel; }\n  part sat2 : Sat;\n}\npackage Views {\n  view both : StandardViewDefinitions::InterconnectionView { expose Demo::sat1; expose Demo::sat2; }\n  view definition : StandardViewDefinitions::InterconnectionView { expose Demo::Sat; }\n}\n"
+    }
+  ],
+  "drafts": [
+    {
+      "name": "model.sysml",
+      "text": "package Demo {\n  part def Wheel;\n  part def SmallWheel :> Wheel;\n  part def Sat { part a : Wheel; part b : Wheel; part c : Wheel; }\n  part sat1 : Sat { part :>> a : SmallWheel; part :>> b : SmallWheel; }\n  part sat2 : Sat;\n}\npackage Views {\n  view both : StandardViewDefinitions::InterconnectionView { expose Demo::sat1; expose Demo::sat2; }\n  view definition : StandardViewDefinitions::InterconnectionView { expose Demo::Sat; }\n}\n"
+    }
+  ],
+  "presentations": {
+    "Views::both": {
+      "sourceHash": "03dd0bc8fbcd49def59153eddeb4f0576797535bac04a20666863c5c110d22ef",
+      "modelHash": "f2d4e8f1c17badbe742c4558ed311c2ff99ccf727f628e92726c8de318deb48b",
+      "positions": {
+        "n0": {
+          "x": 12,
+          "y": 12
+        },
+        "n1": {
+          "x": 44,
+          "y": 98
+        },
+        "n2": {
+          "x": 44,
+          "y": 264
+        },
+        "n3": {
+          "x": 134.40963855421688,
+          "y": 576.9847138554217
+        }
+      }
+    }
+  }
+}
