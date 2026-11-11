@@ -1,5 +1,9 @@
 import { RequirementsPanel } from '../requirements/RequirementsPanel';
-import type { RequirementSubject } from '$lib/workspace/requirements';
+import { inspectionSource } from '../properties/inspection-source';
+import type {
+  RequirementsResult,
+  RequirementSubject,
+} from '$lib/workspace/requirements';
 import { Button } from '$lib/ui/primitives/button';
 import {
   WorkbenchLayout,
@@ -12,7 +16,11 @@ import { exampleProject, exampleView } from './example';
 import type { Workspace, WorkspaceState } from '$lib/workspace/createWorkspace';
 import type { ProjectBundle } from '$lib/workspace/persistence';
 import type { EditProposal, SemanticCommand } from '$lib/workspace/editing';
-import type { ModelElement, Diagnostic } from '$lib/workspace/project';
+import type {
+  ModelElement,
+  Diagnostic,
+  SourceLocation,
+} from '$lib/workspace/project';
 import { Explorer } from '../explorer/Explorer';
 import { SourceEditor } from '../source/SourceEditor';
 import { Diagram } from '../diagrams/Diagram';
@@ -84,8 +92,18 @@ export function Workbench({
     [file, setFile] = useState(exampleProject.documents[0]!.name),
     [selected, setSelected] = useState(''),
     [treeSelectionRequest, setTreeSelectionRequest] = useState(0),
+    [inspectionRequest, setInspectionRequest] = useState(0),
     [error, setError] = useState(''),
     [message, setMessage] = useState('Choose a project to begin.');
+  const [inspectionTarget, setInspectionTarget] = useState<{
+    modelHash: string;
+    origin?: SourceLocation;
+  }>();
+  const [requirementSelection, setRequirementSelection] = useState<{
+    modelHash: string;
+    subject: RequirementSubject;
+    row?: RequirementsResult['requirements'][number];
+  }>();
   const [symbolSelection, setSymbolSelection] = useState<{
     view: string;
     modelHash: string;
@@ -123,6 +141,8 @@ export function Workbench({
       dirty: restored.dirty || restored.unapplied,
     });
     setSelected('');
+    setInspectionTarget(undefined);
+    setRequirementSelection(undefined);
     setSymbolSelection(undefined);
     setFile(entry.activeFile ?? entry.project.drafts[0]!.name);
     setFocusRange(undefined);
@@ -135,6 +155,22 @@ export function Workbench({
     await run(() => refreshView(session, entry.activeView ?? undefined));
   }
   const element = state.model?.elements.find((item) => item.id === selected);
+  const inspectedSubject =
+    requirementSelection &&
+    requirementSelection.modelHash === state.model?.modelHash &&
+    (requirementSelection.subject.qualifiedName ?? '') === selected
+      ? requirementSelection
+      : undefined;
+  const inspectedRequirement = inspectedSubject?.row;
+  const inspectionRange =
+    inspectionTarget?.modelHash === state.model?.modelHash
+      ? inspectionSource(
+          inspectionTarget?.origin,
+          state.project?.documents ?? [],
+          state.project?.drafts ?? [],
+        )
+      : undefined;
+
   // Adapt only for shared rendering/selection; workspace state and saved views stay distinct.
   const displayedView = useMemo(
     () =>
@@ -271,6 +307,8 @@ export function Workbench({
     await session.open(project, { unsaved: options.unsaved });
     setDataMode('diagram');
     setSelected('');
+    setInspectionTarget(undefined);
+    setRequirementSelection(undefined);
     setSymbolSelection(undefined);
     setFile(project.drafts[0]!.name);
     setFocusRange(undefined);
@@ -402,6 +440,7 @@ export function Workbench({
     if (command.kind === 'createView') setDataMode('diagram');
   }
   function selectSymbol(symbol: string) {
+    setRequirementSelection(undefined);
     const correspondence = displayedView?.correspondence.find(
       (item) => item.symbol === symbol,
     );
@@ -417,33 +456,63 @@ export function Workbench({
       setSelected(correspondence.subject.qualifiedName);
       setTreeSelectionRequest((request) => request + 1);
     }
-    const origin = correspondence?.subject.origin;
+    setInspectionTarget({
+      modelHash: state.model?.modelHash ?? '',
+      origin:
+        displayedView?.modelHash === state.model?.modelHash
+          ? correspondence?.subject.origin
+          : undefined,
+    });
     setFocusRange(undefined);
-    if (origin && state.project) {
-      const document = state.project.documents.find(
-        (item) => item.name === origin.file,
-      );
-      if (document) {
-        const bytes = new TextEncoder().encode(document.text),
-          decoder = new TextDecoder('utf-8', { fatal: true });
-        try {
-          setFocusRange({
-            file: document.name,
-            focus: false,
-            start: decoder.decode(bytes.slice(0, origin.offset)).length,
-            end: decoder.decode(bytes.slice(0, origin.offset + origin.length))
-              .length,
-          });
-        } catch {
-          setFocusRange(undefined);
-        }
-      }
-    }
+    if (correspondence) setInspectionRequest((request) => request + 1);
   }
   function selectElement(item: ModelElement) {
+    setRequirementSelection(undefined);
     setSelected(item.id);
-    setSymbolSelection(undefined);
+    const occurrences =
+      displayedView?.correspondence.filter(
+        (entry) =>
+          entry.subject.qualifiedName === item.id &&
+          displayedView.artifact?.nodes.some(
+            (node) =>
+              node.id === entry.symbol ||
+              node.ports?.some((port) => port.id === entry.symbol),
+          ),
+      ) ?? [];
+    const occurrence = occurrences.length === 1 ? occurrences[0] : undefined;
+    setSymbolSelection(
+      occurrence &&
+        displayedView &&
+        displayedView.modelHash === state.model?.modelHash
+        ? {
+            view: diagramIdentity ?? '',
+            modelHash: displayedView.modelHash,
+            symbol: occurrence.symbol,
+          }
+        : undefined,
+    );
+    const origins =
+      displayedView?.correspondence
+        .filter((entry) => entry.subject.qualifiedName === item.id)
+        .map((entry) => entry.subject.origin) ?? [];
+    const origin = origins[0];
+    const unique =
+      origin &&
+      origins.every(
+        (other) =>
+          other?.file === origin.file &&
+          other.offset === origin.offset &&
+          other.length === origin.length,
+      );
+    setInspectionTarget({
+      modelHash: state.model?.modelHash ?? '',
+      origin:
+        unique && displayedView?.modelHash === state.model?.modelHash
+          ? origin
+          : undefined,
+    });
     setFocusRange(undefined);
+    setInspectionRequest((request) => request + 1);
   }
   function navigateIssue(issue: Diagnostic) {
     const current = workspace().snapshot();
@@ -466,35 +535,38 @@ export function Workbench({
     if (mode === 'diagram') setMode('split');
     setFocusRange(location.target);
   }
-  function revealRequirement(subject: RequirementSubject) {
-    const origin = subject.origin;
-    const project = workspace().snapshot().project;
-    const applied = project?.documents.find((d) => d.name === origin?.file);
-    const draft = project?.drafts.find((d) => d.name === origin?.file);
-    if (!origin || !applied || applied.text !== draft?.text) {
+  function inspectRequirement(
+    subject: RequirementSubject,
+    modelHash: string,
+    row?: RequirementsResult['requirements'][number],
+  ) {
+    const current = workspace().snapshot();
+    if (current.model?.modelHash !== modelHash) {
       setMessage(
-        'Apply or discard this file’s draft before revealing its applied source.',
+        'This selection belongs to an earlier model. Select a current row to inspect it.',
       );
       return;
     }
-    const bytes = new TextEncoder().encode(applied.text),
-      decoder = new TextDecoder('utf-8', { fatal: true });
     setSelected(subject.qualifiedName ?? '');
     setSymbolSelection(undefined);
-    setFile(applied.name);
-    setMode('split');
-    setFocusRange({
-      file: applied.name,
-      start: decoder.decode(bytes.slice(0, origin.offset)).length,
-      end: decoder.decode(bytes.slice(0, origin.offset + origin.length)).length,
+    setRequirementSelection({
+      modelHash: current.model?.modelHash ?? '',
+      subject,
+      row,
     });
+    setInspectionTarget({
+      modelHash: current.model?.modelHash ?? '',
+      origin: subject.origin,
+    });
+    setFocusRange(undefined);
+    setInspectionRequest((request) => request + 1);
   }
   function revealSource() {
-    if (focusRange) {
-      setFile(focusRange.file);
+    if (inspectionRange) {
+      setFile(inspectionRange.file);
       setMode('split');
       // Repeat the reveal even when the same file and layout are already open.
-      setFocusRange({ ...focusRange, focus: true });
+      setFocusRange({ ...inspectionRange, focus: true });
     } else
       setMessage(
         'Select this element in a diagram to reveal its recorded source range.',
@@ -622,6 +694,7 @@ export function Workbench({
             ref={workspaceSurface}
           >
             <WorkbenchPanels
+              inspectionRequest={inspectionRequest}
               explorer={
                 <Explorer
                   state={state}
@@ -724,7 +797,7 @@ export function Workbench({
                       workspace={readySession}
                       state={state}
                       mode={dataMode}
-                      onReveal={revealRequirement}
+                      onInspect={inspectRequirement}
                     />
                   )}
                   <div
@@ -734,6 +807,7 @@ export function Workbench({
                     }
                   >
                     <Diagram
+                      selectedSymbol={selectedCorrespondence?.symbol}
                       views={
                         state.model?.elements.filter(
                           (item) => item.kind === 'viewUsage',
@@ -772,8 +846,13 @@ export function Workbench({
                   element={element}
                   artifactNode={selectedArtifactNode}
                   relationship={relationshipSelection}
-                  sourceAvailable={!!focusRange}
+                  requirement={inspectedRequirement}
+                  subject={
+                    inspectedSubject?.subject ?? selectedCorrespondence?.subject
+                  }
+                  sourceAvailable={!!inspectionRange}
                   readOnlyDiagram={
+                    !!inspectedSubject ||
                     !!state.exploration ||
                     state.view?.artifact?.kind === 'requirement'
                   }
@@ -782,6 +861,26 @@ export function Workbench({
                   onRename={(name) => void run(() => reviewRename(name))}
                   onCreateView={newView}
                   onSource={revealSource}
+                  onValueSource={(origin) => {
+                    const current = workspace().snapshot();
+                    const target =
+                      displayedView?.modelHash === current.model?.modelHash
+                        ? inspectionSource(
+                            origin,
+                            current.project?.documents ?? [],
+                            current.project?.drafts ?? [],
+                          )
+                        : undefined;
+                    if (!target) {
+                      setMessage(
+                        'Apply or discard the changed source before opening this recorded value.',
+                      );
+                      return;
+                    }
+                    setFile(target.file);
+                    setMode('split');
+                    setFocusRange({ ...target, focus: true });
+                  }}
                   onCreatePart={newPart}
                   onConnectPorts={newConnection}
                 />

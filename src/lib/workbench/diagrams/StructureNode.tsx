@@ -1,3 +1,7 @@
+import {
+  sourceAttributeLabel,
+  sourceAttributeCount,
+} from './source-attributes';
 import { attributeLabel } from './attribute-label';
 import { explorationHeaderHeight } from './exploration';
 import { createContext, useContext } from 'react';
@@ -41,17 +45,39 @@ export function StructureNode({ data }: NodeProps<StructureNodeType>) {
           )}
         </strong>
       </div>
-      {!!item.attributeDeclarations?.length && (
+      {sourceAttributeCount(item) > 0 && (
         <div className="structure-attributes" aria-label="Declared attributes">
-          {item.attributeDeclarations.map((declaration, index) => (
+          {item.sourceAttribute && (
             <div
-              key={index}
-              title={declaration}
+              title={sourceAttributeLabel(item.sourceAttribute)}
               style={{ height: dense ? 32 : 48 }}
             >
-              {attributeLabel(declaration)}
+              {sourceAttributeLabel(item.sourceAttribute)}
             </div>
-          ))}
+          )}
+          {item.sourceAttributes
+            ? item.sourceAttributes.map((row) => (
+                <div
+                  key={row.subject.id}
+                  title={
+                    row.value.status === 'unsupported'
+                      ? row.value.reason
+                      : sourceAttributeLabel(row)
+                  }
+                  style={{ height: dense ? 32 : 48 }}
+                >
+                  {sourceAttributeLabel(row)}
+                </div>
+              ))
+            : item.attributeDeclarations?.map((declaration, index) => (
+                <div
+                  key={index}
+                  title={declaration}
+                  style={{ height: dense ? 32 : 48 }}
+                >
+                  {attributeLabel(declaration)}
+                </div>
+              ))}
         </div>
       )}
       {!!item.detail &&
@@ -64,7 +90,7 @@ export function StructureNode({ data }: NodeProps<StructureNodeType>) {
           style={{
             height: compound
               ? undefined
-              : `calc(100% - ${compact ? explorationHeaderHeight - 2 : headingHeight}px - ${(item.attributeDeclarations?.length ?? 0) * (dense ? 32 : 48)}px)`,
+              : `calc(100% - ${compact ? explorationHeaderHeight - 2 : headingHeight}px - ${sourceAttributeCount(item) * (dense ? 32 : 48)}px)`,
           }}
         >
           {item.ports?.map((port) => (

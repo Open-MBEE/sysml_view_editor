@@ -65,10 +65,21 @@ test('@critical opens the inspection rover with inherited declared values and ex
     'attribute reservePercent : Real default = 20.0;',
   ]);
   await expect(
-    diagramSymbol(page, battery.id).getByText('capacityWh: Real = 480', {
-      exact: true,
-    }),
+    diagramSymbol(page, battery.id).getByText(
+      'capacityWh : Real default = 480.0',
+      {
+        exact: true,
+      },
+    ),
   ).toBeVisible();
+  expect(
+    battery.sourceAttributes?.find((row) => row.name === 'capacityWh')?.value,
+  ).toMatchObject({
+    status: 'available',
+    expression: '480.0',
+    isDefault: true,
+  });
+  await page.getByRole('button', { name: 'Fit view', exact: true }).click();
   await expect
     .poll(
       async () =>
@@ -121,7 +132,15 @@ test('@critical opens the inspection rover with inherited declared values and ex
     ).not.toBeVisible();
     const first = results.findLast((v) => v.view === 'RoverViews::' + view)!
       .artifact!.nodes[0]!;
-    await expect(diagramSymbol(page, first.id)).toContainText(first.name);
+    if (first.sourceAttributes?.length) {
+      await expect(
+        diagramSymbol(page, first.id).getByTitle(
+          first.name + (first.type ? ' : ' + first.type : ''),
+          { exact: true },
+        ),
+      ).toBeVisible();
+    } else
+      await expect(diagramSymbol(page, first.id)).toContainText(first.name);
   }
   const requirements = results.findLast(
     (v) => v.view === 'RoverViews::requirements',

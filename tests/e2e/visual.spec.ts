@@ -45,6 +45,9 @@ for (const theme of ['light', 'dark']) {
     await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
     await dialog.getByRole('button', { name: 'Done', exact: true }).click();
     await expect(dialog).not.toBeVisible();
+    // Routing completeness is checked in the overview; readable entry can
+    // intentionally show only the first group of a larger diagram.
+    await page.getByRole('button', { name: 'Fit view', exact: true }).click();
     const architecture = evaluations.findLast(
       (result) => result.view === 'RoverViews::architecture',
     )!;
@@ -547,6 +550,9 @@ for (const theme of ['light', 'dark']) {
       });
       await tank.getByText('tank', { exact: true }).click();
       await expect(tank).toHaveClass(/selected/);
+      await page
+        .getByRole('button', { name: 'Read at 100%', exact: true })
+        .click();
       await page.mouse.move(0, 0);
       await expect(
         page.getByRole('region', { name: 'Diagram', exact: true }),
@@ -1176,3 +1182,61 @@ for (const theme of ['light', 'dark']) {
     });
   }
 }
+
+for (const theme of ['light', 'dark'])
+  for (const width of [1440, 800]) {
+    test(`source value inspection in ${theme} at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 1000 });
+      const evaluations = await observeEvaluations(page);
+      const buffer = await readFile(
+        new URL('../fixtures/source-values.sysml', import.meta.url),
+      );
+      await page.goto('/app');
+      await page.locator('input[type=file]').setInputFiles({
+        name: 'values.sysml',
+        mimeType: 'text/plain',
+        buffer,
+      });
+      await expect(
+        page.getByRole('combobox', { name: 'Named view', exact: true }),
+      ).toBeEnabled();
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      const view = evaluations.findLast(
+        (view) => view.view === 'ReadingViews::configurations',
+      )!;
+      const binding = view.correspondence.find(
+        (entry) =>
+          entry.subject.qualifiedName === 'Reading::small::evidence' &&
+          view.artifact!.nodes.some((node) => node.id === entry.symbol),
+      )!;
+      const node = diagramSymbol(page, binding.symbol);
+      await node.focus();
+      await node.press('Enter');
+      await page
+        .getByRole('button', { name: 'Read at 100%', exact: true })
+        .click();
+      const details = page.getByRole('region', {
+        name: 'Declared source values',
+        exact: true,
+      });
+      await expect(details.locator('pre')).toHaveText(
+        '"records/α-evidence.json"',
+      );
+      await expect(details).toContainText('Reading::small::evidence');
+      await expect(page).toHaveScreenshot(
+        `source-values-${theme}-${width}.png`,
+      );
+    });
+  }
