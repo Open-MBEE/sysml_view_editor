@@ -106,10 +106,10 @@ func (e *Engine) evaluateView(req *JRenderViewRequest) ([]byte, error) {
 		sort.Strings(out.Diagnostics)
 		return marshal(out)
 	}
-	return cached.normalizedRendering(out, selected, rendering)
+	return cached.normalizedRendering(out, selected, rendering, true)
 }
 
-func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*symbols.Symbol, rendering *view.Rendering) ([]byte, error) {
+func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*symbols.Symbol, rendering *view.Rendering, authored bool) ([]byte, error) {
 	var err error
 	byOrigin := map[string]string{}
 	declarations := map[string]*symbols.Symbol{}
@@ -161,9 +161,10 @@ func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*sy
 		shown[element] = true
 	}
 	data := rendering.DataWith(view.Options{Ports: view.PortsFull, Show: shown})
-	// The supported tree/structural projection retains explicit declaration
-	// ownership. 0.12 additionally expands inherited usages; selected roots
-	// remain native, while their implicit inherited children stay out of scope.
+	legacyIDs := map[string]string{}
+	// Exploration and trees retain declaration ownership. Authored structural
+	// views retain native effective structural occurrences; inherited attributes
+	// remain source-backed compartments. Native traversal supplies the bounds.
 	if data.Kind == view.KindTree || data.Kind == view.KindInterconnection {
 		kept := map[string]bool{}
 		redirect := map[string]string{}
@@ -185,7 +186,16 @@ func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*sy
 				}
 				unsupportedConstraint = data.Kind == view.KindInterconnection && (sym.Kind == symbols.SymbolConstraintDef || sym.Kind == symbols.SymbolConstraintUsage)
 			}
-			if node.Inherited || syntheticSubject || unsupportedConstraint || (node.Parent != "" && !kept[node.Parent]) {
+			inheritedOutOfScope := node.Inherited
+			if authored && data.Kind == view.KindInterconnection {
+				if sym := declarations[originKey(node.Origin)]; sym != nil {
+					inheritedOutOfScope = node.Inherited && (sym.Kind == symbols.SymbolAttributeUsage || sym.Kind == symbols.SymbolAttributeDef)
+				}
+			}
+			if !node.Inherited && !syntheticSubject && !unsupportedConstraint && (node.Parent == "" || legacyIDs[node.Parent] != "") {
+				legacyIDs[node.ID] = fmt.Sprintf("n%d", len(legacyIDs))
+			}
+			if inheritedOutOfScope || syntheticSubject || unsupportedConstraint || (node.Parent != "" && !kept[node.Parent]) {
 				redirect[node.ID] = redirect[node.Parent]
 				continue
 			}
@@ -229,13 +239,18 @@ func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*sy
 		}
 		data.Edges = edges
 	}
-	// Version-1 presentations key positions by the native ordinal symbol IDs.
-	// After projecting away new inherited/attribute nodes, retain the existing
-	// declaration-order numbering and rewrite every dependent endpoint/port.
+	// Keep version-1 IDs for every occurrence the legacy projection retained.
+	// Allocate newly visible occurrences after them without reordering the native
+	// parent-first array, then rewrite all dependent endpoints and port IDs.
 	if data.Kind == view.KindTree || data.Kind == view.KindInterconnection {
 		ids := map[string]string{"": ""}
-		for i, node := range data.Nodes {
-			id := fmt.Sprintf("n%d", i)
+		next := len(legacyIDs)
+		for _, node := range data.Nodes {
+			id := legacyIDs[node.ID]
+			if id == "" {
+				id = fmt.Sprintf("n%d", next)
+				next++
+			}
 			ids[node.ID] = id
 			for j, port := range node.Ports {
 				ids[port.ID] = fmt.Sprintf("%s.%d", id, j)

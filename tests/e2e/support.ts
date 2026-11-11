@@ -471,6 +471,44 @@ export async function nodePosition(node: Locator) {
   });
 }
 
+/** Check sibling cards separately from ancestry and serialized coordinates. */
+export async function expectSeparateSiblings(
+  page: Page,
+  artifact: ViewArtifact,
+) {
+  await expect
+    .poll(async () => {
+      const overlaps: string[] = [];
+      const boxes = await Promise.all(
+        artifact.nodes.map(async (node) => ({
+          node,
+          box: await diagramSymbol(page, node.id).boundingBox(),
+        })),
+      );
+      for (let i = 0; i < boxes.length; i++) {
+        const a = boxes[i]!;
+        if (!a.box) {
+          overlaps.push(a.node.id + ' missing');
+          continue;
+        }
+        for (const b of boxes.slice(i + 1)) {
+          if (!b.box || a.node.parent !== b.node.parent) continue;
+          if (
+            Math.min(a.box.x + a.box.width, b.box.x + b.box.width) -
+              Math.max(a.box.x, b.box.x) >
+              1 &&
+            Math.min(a.box.y + a.box.height, b.box.y + b.box.height) -
+              Math.max(a.box.y, b.box.y) >
+              1
+          )
+            overlaps.push(a.node.id + '/' + b.node.id);
+        }
+      }
+      return overlaps;
+    })
+    .toEqual([]);
+}
+
 /** Check displayed model-space geometry, independently of serialized records. */
 export async function expectRenderedPositions(
   page: Page,
@@ -529,7 +567,11 @@ export async function diagramState(page: Page) {
     );
 }
 
-export async function dragNode(page: Page, node: Locator) {
+export async function dragNode(
+  page: Page,
+  node: Locator,
+  delta = { x: 80, y: 55 },
+) {
   await node.scrollIntoViewIfNeeded();
   // Mode changes fit the camera after ResizeObserver and animation frames.
   // Wait for observable heading/viewport geometry, then perform one gesture.
@@ -576,13 +618,17 @@ export async function dragNode(page: Page, node: Locator) {
   );
   await page.mouse.move(x, y);
   await page.mouse.down();
-  await page.mouse.move(x + 80, y + 55, { steps: 8 });
+  await page.mouse.move(x + delta.x, y + delta.y, { steps: 8 });
   await page.mouse.up();
 }
 
-export async function moveNode(page: Page, node: Locator) {
+export async function moveNode(
+  page: Page,
+  node: Locator,
+  delta = { x: 80, y: 55 },
+) {
   const before = await nodePosition(node);
-  await dragNode(page, node);
+  await dragNode(page, node, delta);
   await expect.poll(() => nodePosition(node)).not.toEqual(before);
   return nodePosition(node);
 }

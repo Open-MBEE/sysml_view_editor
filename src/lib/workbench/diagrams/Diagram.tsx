@@ -542,15 +542,15 @@ export function Diagram({
                 edgeTypes={edgeTypes}
                 onNodesChange={(changes) => {
                   setNodes((current) => applyNodeChanges(changes, current));
+                  for (const change of changes)
+                    if (change.type === 'select' && change.selected)
+                      onSelect(change.id);
                   if (
                     ['requirement', 'action', 'state'].includes(
                       view?.artifact?.kind ?? '',
                     ) ||
                     exploration
                   ) {
-                    for (const change of changes)
-                      if (change.type === 'select' && change.selected)
-                        onSelect(change.id);
                     if (
                       !exploration &&
                       !disabled &&

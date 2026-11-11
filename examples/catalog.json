@@ -683,8 +683,18 @@
           "nodeNames": [
             "CompressorSystem::Compressor",
             "electrical",
+            "supply",
+            "controller",
+            "motor",
             "pneumatic",
+            "pump",
+            "tank",
+            "regulator",
+            "relief",
+            "pressureSensor",
             "cooling",
+            "fan",
+            "temperature",
             "serviceConsole"
           ],
           "edgeKinds": [
@@ -699,8 +709,7 @@
             "Show electrical, pneumatic, cooling and service assemblies with authored cross-subsystem connections."
           ],
           "gaps": [
-            "Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded.",
-            "Nested typed assemblies remain component-level nodes; deeper connection endpoints are shown at those nodes rather than expanded internal ports."
+            "Conjugated port type labels are retained; effective payload directions and evaluated attribute values are not expanded."
           ],
           "notices": []
         },
@@ -711,7 +720,35 @@
           "nodeNames": [
             "CompressorSystem::Workshop",
             "compressor",
+            "electrical",
+            "supply",
+            "controller",
+            "motor",
+            "pneumatic",
+            "pump",
+            "tank",
+            "regulator",
+            "relief",
+            "pressureSensor",
+            "cooling",
+            "fan",
+            "temperature",
+            "serviceConsole",
             "spareCompressor",
+            "electrical",
+            "supply",
+            "controller",
+            "motor",
+            "pneumatic",
+            "pump",
+            "tank",
+            "regulator",
+            "relief",
+            "pressureSensor",
+            "cooling",
+            "fan",
+            "temperature",
+            "serviceConsole",
             "tool",
             "blowGun",
             "operator",
@@ -722,8 +759,7 @@
             "Keep two installed compressor usages, tools and human roles distinct."
           ],
           "gaps": [
-            "Conjugated port type labels are retained; effective payload directions and attribute compartments are not expanded.",
-            "Nested typed assemblies remain component-level nodes; deeper connection endpoints are shown at those nodes rather than expanded internal ports."
+            "Conjugated port type labels are retained; effective payload directions and evaluated attribute values are not expanded."
           ],
           "notices": []
         },

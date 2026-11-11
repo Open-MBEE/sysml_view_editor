@@ -1,3 +1,4 @@
+import { readFile } from 'node:fs/promises';
 import { noViews, assemblyExploration, documents } from './exploration-support';
 import {
   test,
@@ -13,6 +14,8 @@ import {
   copySourceSelection,
   observeEvaluations,
   overviewRoutingGeometry,
+  diagramSymbol,
+  expectSeparateSiblings,
 } from './support';
 import {
   importRequirementsTraceability,
@@ -1119,6 +1122,57 @@ for (const theme of ['light', 'dark']) {
         .toBe(true);
       await page.keyboard.press('Escape');
       await expect(trigger).toBeFocused();
+    });
+  }
+}
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [1440, 768]) {
+    test(`inherited structural occurrences ${theme} ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      const evaluations = await observeEvaluations(page);
+      await page.goto('/app');
+      await page.locator('input[type=file]').setInputFiles({
+        name: 'inherited.sysml-project.json',
+        mimeType: 'application/json',
+        buffer: await readFile(
+          new URL(
+            '../fixtures/inherited-members-legacy.sysml-project.json',
+            import.meta.url,
+          ),
+        ),
+      });
+      await expect(
+        page.getByRole('combobox', { name: 'Named view', exact: true }),
+      ).toHaveValue('Views::both');
+      await expect
+        .poll(() => evaluations.some((view) => view.view === 'Views::both'))
+        .toBe(true);
+      const view = evaluations.findLast((view) => view.view === 'Views::both')!;
+      const inherited = view.correspondence.filter(
+        (entry) => entry.subject.qualifiedName === 'Demo::Sat::c',
+      );
+      expect(inherited).toHaveLength(2);
+      expect(inherited[0]!.context).not.toEqual(inherited[1]!.context);
+      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const dialog = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await dialog.getByRole('button', { name: 'Done', exact: true }).click();
+      await expect(dialog).toBeHidden();
+      for (const entry of inherited)
+        await expect(diagramSymbol(page, entry.symbol)).toBeVisible();
+      await expectSeparateSiblings(page, view.artifact!);
+      await expect(
+        page.getByRole('region', { name: 'Diagram', exact: true }),
+      ).toHaveScreenshot(`inherited-occurrences-${theme}-${width}.png`);
     });
   }
 }

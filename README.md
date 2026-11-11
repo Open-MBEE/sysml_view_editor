@@ -49,7 +49,7 @@ OpenMBEE View Editor brings source editing, named model views and reviewed graph
 - **Edit highlighted SysML source.** CodeMirror provides line numbers, bracket matching/closing, indentation, find/replace and draft undo/redo. Apply or discard changes, undo/redo accepted source transactions, and keep the last valid model when a draft fails validation.
 - **Query the draft model.** Request engine-backed completion, symbol information and project-file definitions against the complete current source set.
 - **Inspect requirement graphs.** Browse requirement definitions/usages, declared identifiers and documentation, typing, hierarchy and positive/negated satisfaction links. Follow exact source declarations; diagram links do not report executed test results.
-- **Open source-defined views.** Navigate named SysML views independently of the active source file. Inspect nested parts, typed inherited ports and resolved connection endpoints.
+- **Open source-defined views.** Navigate named SysML views independently of the active source file. Inspect nested and inherited parts, typed inherited ports and resolved connection endpoints.
 - **Navigate source issues.** Open an issue’s reported file and line in the source editor. Missing or stale locations are explained while drafts and the last valid diagram are retained.
 - **Browse the model hierarchy.** Expand packages, definitions and declared members in the Model tree. Inspect type/kind labels; use arrow keys, type-ahead and Enter/Space to navigate and select.
 - **Review graphical changes.** Rename parts, create native views, add typed part usages and connect compatible directed ports through an exact source-change preview.
@@ -184,7 +184,7 @@ npm run test:e2e                    # fresh build, real engines and visual compa
 npm run preview -- --host 127.0.0.1
 ```
 
-PR CI runs all fast checks plus fourteen critical browser workflows, adding visual comparisons for code changes. Full browser coverage runs weekly, manually and for release/main/hotfix PRs and pushes. Run `npm run test:e2e -- --project=functional --grep @critical` to reproduce the smaller browser gate; `npm run test:e2e` still runs everything. See [CI coverage](docs/testing.md#ci-coverage) for selection and deferred coverage.
+PR CI runs all fast checks plus the critical browser workflows, adding visual comparisons for code changes. Full browser coverage runs weekly, manually and for release/main/hotfix PRs and pushes. Run `npm run test:e2e -- --project=functional --grep @critical` to reproduce the smaller browser gate; `npm run test:e2e` still runs everything. See [CI coverage](docs/testing.md#ci-coverage) for selection and deferred coverage.
 
 Functional checks can use installed Chrome with `PLAYWRIGHT_BROWSER_CHANNEL=chrome npm run test:e2e -- --project=functional`. Visual comparisons always use bundled Chromium and reviewed platform-specific baselines. The browser suite starts its own fresh production server; port **4175** must be free. See [browser testing and baseline review](docs/testing.md).
 

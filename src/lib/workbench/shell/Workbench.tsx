@@ -131,7 +131,8 @@ export function Workbench({
     setOrigin('Browser recovery');
     setEverOpened(true);
     setLauncherOpen(false);
-    await refreshView(session, entry.activeView ?? undefined);
+    // Recovery is accepted; visualization failures belong to Workbench actions.
+    await run(() => refreshView(session, entry.activeView ?? undefined));
   }
   const element = state.model?.elements.find((item) => item.id === selected);
   // Adapt only for shared rendering/selection; workspace state and saved views stay distinct.

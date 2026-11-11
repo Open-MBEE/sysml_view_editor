@@ -18,7 +18,7 @@ Loading this example opens **overview** in Diagram mode. Choose **pneumatics** f
 
 ## Views and current support
 
-- **overview**, **structure**, **installation**, **pneumatics**: structural diagrams. Nested typed assemblies can remain component-level nodes, with deeper links collapsed to those nodes. Conjugated type labels are retained, but payload expansion and effective conjugated directions remain incomplete.
+- **overview**, **structure**, **installation**, **pneumatics**: structural diagrams. Authored structural views expand inherited members within native traversal bounds and attach declared links to their actual visible ports. Conjugated type labels are retained, but payload expansion and effective conjugated directions remain incomplete.
 - **definitions**: part definitions, specialization, typing and composition with generic relationship lines.
 - **requirements**: a GeneralView tree of the specification and applied subjects; dedicated requirement notation and satisfaction/verification trace links are not drawn.
 - **actions**, **maintenance**, **states**: bounded native action/state diagrams with declared order/transitions; no execution.

@@ -204,6 +204,7 @@ export async function layoutStructure(
   });
   const nodes: StructureNode[] = [];
   const absolute: Record<string, Point> = {};
+  const restored = new Set<string>();
   let discarded = false;
   function project(graph: ElkNode, parent?: StructureNode) {
     const item = artifact.nodes.find((item) => item.id === graph.id)!;
@@ -234,9 +235,10 @@ export async function layoutStructure(
           candidate.y >= min.y - boundaryEpsilon &&
           candidate.x <= max.x + boundaryEpsilon &&
           candidate.y <= max.y + boundaryEpsilon)
-      )
+      ) {
         position = candidate;
-      else discarded = true;
+        restored.add(item.id);
+      } else discarded = true;
     }
     const compound = !!graph.children?.length;
     const node: StructureNode = {
@@ -276,6 +278,72 @@ export async function layoutStructure(
     for (const child of graph.children ?? []) project(child, node);
   }
   for (const root of layout.children ?? []) project(root);
+  // Newly retained inherited occurrences may share a legacy saved child's
+  // automatic slot. Keep ordinary authored-node placement and canonical bounds:
+  // version 1 saves positions, not larger drag extents.
+  let placementOverlap = false;
+  if (!behavior && restored.size) {
+    function separate(parent?: StructureNode): boolean {
+      const siblings = nodes.filter((node) => node.parentId === parent?.id);
+      const anchored = new Set(
+        siblings.filter((node) => separate(node) || restored.has(node.id)),
+      );
+      const automaticInherited = new Set(
+        siblings.filter(
+          (node) => !anchored.has(node) && node.data.item.inherited,
+        ),
+      );
+      const occupied = siblings.filter((node) => !automaticInherited.has(node));
+      if (occupied.length && automaticInherited.size) {
+        for (const node of automaticInherited) {
+          const nodeWidth = Number(node.style!.width);
+          const nodeHeight = Number(node.style!.height);
+          const min = parent
+            ? { x: padding, y: contentTop(parent.data.item, dense) }
+            : { x: 0, y: 0 };
+          const max = parent
+            ? {
+                x: Number(parent.style!.width) - padding - nodeWidth,
+                y: Number(parent.style!.height) - padding - nodeHeight,
+              }
+            : { x: Infinity, y: Infinity };
+          const xs = new Set([node.position.x, min.x]);
+          const ys = new Set([node.position.y, min.y]);
+          for (const other of occupied) {
+            const right = other.position.x + Number(other.style!.width);
+            const bottom = other.position.y + Number(other.style!.height);
+            xs.add(right + padding);
+            xs.add(right);
+            ys.add(bottom + padding);
+            ys.add(bottom);
+          }
+          const candidates = [...ys].flatMap((y) =>
+            [...xs].map((x) => ({ x, y })),
+          );
+          const free = candidates.find(
+            (point) =>
+              point.x >= min.x &&
+              point.y >= min.y &&
+              point.x <= max.x + boundaryEpsilon &&
+              point.y <= max.y + boundaryEpsilon &&
+              occupied.every(
+                (other) =>
+                  point.x + nodeWidth <= other.position.x ||
+                  other.position.x + Number(other.style!.width) <= point.x ||
+                  point.y + nodeHeight <= other.position.y ||
+                  other.position.y + Number(other.style!.height) <= point.y,
+              ),
+          );
+          if (free) node.position = free;
+          else placementOverlap = true;
+          occupied.push(node);
+        }
+      }
+      return anchored.size > 0;
+    }
+    separate();
+    Object.assign(absolute, absolutePositions(nodes));
+  }
   const edges: Edge[] = artifact.edges.map((edge, index) => ({
     id: `edge:${index}`,
     source: edge.from,
@@ -336,8 +404,15 @@ export async function layoutStructure(
   return {
     nodes,
     edges,
-    notice: discarded
-      ? 'Some saved positions were arranged again because they fall outside the current owner.'
-      : '',
+    notice: [
+      discarded
+        ? 'Some saved positions were arranged again because they fall outside the current owner.'
+        : '',
+      placementOverlap
+        ? 'Some automatic positions overlap saved nodes. Move saved nodes to make room.'
+        : '',
+    ]
+      .filter(Boolean)
+      .join(' '),
   };
 }

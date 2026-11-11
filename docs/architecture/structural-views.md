@@ -19,6 +19,34 @@ The retained bridge now adds `reference` and declared `direction` metadata by lo
 
 The upstream pins, archives and licenses are unchanged. The bridge overlay, builder and shared fixture bytes contribute to prepared provenance. Preparation copies the same example sources into the Go test package, tests their ownership/directions/reference/endpoints/context/notices, and rebuilds the derived WASM. Local before/after raw captures and generated provenance are retained in ignored `sandbox/assembly-before-trace.json` and `sandbox/assembly-trace.json`; these are local evidence, not distributable fixtures or upstream conformance claims.
 
+## Exposure and private imports
+
+A named view’s exposure is not an owned-members-only query. SysML exposure ignores visibility: a private import can contribute members to `expose Package::*`, even though an ordinary name lookup outside that package cannot see them. A wildcard import of `StandardViewDefinitions::*` can therefore bring its publicly reexported SysML/KerML metamodel surface into a wildcard exposure. The native renderer may expand the selected elements further; selected subjects and rendered descendants are different sets.
+
+Use explicit exposures to choose a small scope, and named imports to reduce the imported surface. For example:
+
+```sysml
+package Demo { part def Sat; }
+package Probe {
+    private import Demo::Sat;
+    private import StandardViewDefinitions::GeneralView;
+    part p : Sat;
+    view focused : GeneralView { expose Probe::p; }
+}
+```
+
+Changing the two imports to public imports would not make this explicit exposure broader. Conversely, changing `expose Probe::p` to `expose Probe::*` admits imported members as well as owned members; named imports reduce that set but do not change its meaning. Private imports remain private for ordinary external references. Each intermediate import still determines which source memberships it admits; an outer exposure does not recursively open every private dependency. The current pinned engine has a reproduced intermediate-import defect: a private source declaration can enter the selected subjects through an ordinary import, and another import layer can incorrectly admit a private owned declaration. That defect is separate from the valid immediate private-import behavior above; the [retained upstream investigation and executable fixture](../research/wp26-exposure-import-membership.md) record its failing cases and why an experimental fix was rejected. The editor does not silently remove imported/library subjects from authored exposure, and large graphs alone are not proof of a visibility failure.
+
+The basis is [SysML 2.0 Part 1](https://www.omg.org/spec/SysML/2.0/Language/PDF), §8.3.26.2–4 (Expose and NamespaceExpose), together with [KerML 1.0](https://www.omg.org/spec/KerML/1.0/PDF), §8.3.2.4.5–6 (Namespace and NamespaceImport). These rules do not prescribe exact renderer node counts, guarantee large-view readability or establish complete editor conformance.
+
+## Inherited structural occurrences
+
+Authored interconnection views retain the native renderer’s effective structural members, including inherited parts under typed usages. Each occurrence binds the source declaration to its complete usage context: `Sat::c` under `sat1` and under `sat2` share a declaration but have different canvas identities. Native traversal still determines recursion and depth bounds. Attributes remain source-backed compartments; synthetic subjects and unsupported constraints remain excluded. Connector selection still requires the existing owner/exposure policy, so retaining inherited nodes does not automatically expose a type’s internal connections.
+
+Temporary exploration and tree views retain their existing declaration-ownership scope. This change is specific to authored interconnection views. The bridge reserves the previous projection’s node and port IDs before assigning IDs to newly visible occurrences. This preserves compatible positions in unchanged version-1 projects without introducing a general persistent identity guarantee across source edits. The artifact remains parent-first even when reserved IDs are not numerically ordered. When a partial saved presentation puts an old child in a new child’s automatic slot, the projection keeps restored subtrees anchored and places automatic inherited siblings into free slots inside the canonical owner bounds. The native inherited flag is validated in the artifact contract; ordinary authored-node placement remains unchanged. Those bounds and drag extents remain unchanged because version 1 saves positions alone. If the saved geometry leaves no fitting slot, the editor keeps the saved positions and warns that automatic positions overlap; move saved nodes to make room. This does not provide general manual overlap prevention.
+
+Keyboard Enter/Space selection now updates Properties for structural nodes as well as the other diagram families. Source reveal remains disabled while a draft is unapplied.
+
 ## Geometry and interaction
 
 The structural projection lives under `workbench/diagrams/`; the workspace remains independent of React Flow and ELK. ELK calculates compound bounds from the engine's parent graph. Definitions/usages retain textual kind labels; references additionally have a `ref` label and dashed border. Typed inherited ports are selectable buttons with direction text and type labels, with handles on the appropriate boundary. The connector line itself does not assert a flow direction.
