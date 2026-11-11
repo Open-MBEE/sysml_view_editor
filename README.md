@@ -55,7 +55,7 @@ OpenMBEE View Editor brings source editing, named model views and reviewed graph
 - **Review graphical changes.** Rename parts, create native views, add typed part usages and connect compatible directed ports through an exact source-change preview.
 - **Preserve compatible layouts.** Keep verified symbol positions across supported edits, including inactive views. Unsafe identity mappings are reported and arranged again.
 - **Keep projects portable.** Download applied source, unfinished drafts and compatible diagram positions together; reopen the bundle or import multiple SysML files.
-- **Recover unfinished work.** Restore or discard one local browser recovery copy, with explicit storage errors and protection against competing tabs.
+- **Recover unfinished work.** Inspect the saved copy’s time, files, draft status and source sizes before restoring or discarding local browser recovery. Competing-tab conflicts explain that Retry only inspects the saved copy and keeps the current project open.
 - **Arrange your workspace.** Resize or collapse Explorer, Inspector, source/diagram panes and Issues using dividers, keyboard controls or panel options.
 - **Choose your appearance.** Use Light, Dark or Follow system, six diagram palettes and custom muted element colors. Theme and panel preferences stay in the browser.
 

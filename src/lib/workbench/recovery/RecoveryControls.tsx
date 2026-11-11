@@ -190,11 +190,66 @@ function RecoveryErrors({ recovery }: { recovery: LocalRecovery }) {
   ) : null;
 }
 
+function RecoverySnapshot({ state }: { state: RecoveryState }) {
+  if (!state.pending || !state.entry) return null;
+  const project = state.entry.project;
+  const applied = new Map(
+    project.documents.map((file) => [file.name, file.text]),
+  );
+  const encoder = new TextEncoder();
+  const files = project.drafts.map((file) => {
+    const text = applied.get(file.name);
+    return {
+      name: file.name,
+      unapplied: file.text !== text,
+      appliedBytes: text === undefined ? null : encoder.encode(text).length,
+      draftBytes: encoder.encode(file.text).length,
+    };
+  });
+  const drafts = files.filter((file) => file.unapplied).length;
+  return (
+    <div className="text-sm text-muted-foreground break-words">
+      <p>
+        Saved copy: {project.name}. Saved at{' '}
+        <time dateTime={new Date(state.entry.savedAt).toISOString()}>
+          {new Date(state.entry.savedAt).toLocaleString()}
+        </time>
+        .
+      </p>
+      <details>
+        <summary className="cursor-pointer">
+          {files.length} source {files.length === 1 ? 'file' : 'files'} ·{' '}
+          {drafts} unapplied {drafts === 1 ? 'draft' : 'drafts'}
+        </summary>
+        <ul
+          aria-label="Recovery source files"
+          className="mt-2 max-h-40 space-y-2 overflow-y-auto"
+        >
+          {files.map((file) => (
+            <li key={file.name}>
+              <strong>{file.name}</strong> —{' '}
+              {file.unapplied ? 'Unapplied draft' : 'Applied source'}
+              <br />
+              {file.appliedBytes === null
+                ? 'No applied source'
+                : `${file.appliedBytes} bytes applied`}{' '}
+              · {file.draftBytes} bytes draft
+            </li>
+          ))}
+        </ul>
+        <p>
+          Sizes are UTF-8 bytes. Changes that failed to save are not included.
+        </p>
+      </details>
+    </div>
+  );
+}
+
 function recoveryStatus(state: RecoveryState): string {
   if (state.pending && !state.entry && state.error)
     return 'The saved recovery cannot be restored. It is retained until you discard it; retry to check it again. New edits are not saved locally until you choose.';
   if (state.pending)
-    return 'Choose whether to restore or discard the saved recovery. New edits are protected in this session but are not saved locally until you choose.';
+    return 'Restore recovery replaces any open project with the saved copy. Discard recovery deletes the saved copy and keeps your current project. New edits remain in this tab but are not saved locally until you choose. Download your current project before restoring if you need to keep its changes.';
   if (!state.enabled)
     return 'Local recovery is off. Existing saved recovery is retained until you discard it.';
   if (state.status === 'saving') return 'Saving recovery locally…';
@@ -228,6 +283,7 @@ export function RecoveryBanner(props: RecoveryControlsProps) {
         <p className="text-muted-foreground">
           {recoveryStatus(recovery.state)}
         </p>
+        <RecoverySnapshot state={recovery.state} />
         <RecoveryErrors recovery={recovery} />
       </div>
       <RecoveryActions {...props} />
@@ -270,6 +326,7 @@ export function RecoveryButton(props: RecoveryControlsProps) {
         <p role="status" className="text-sm">
           {recoveryStatus(recovery.state)}
         </p>
+        <RecoverySnapshot state={recovery.state} />
         <RecoveryErrors recovery={recovery} />
         <RecoveryActions {...props} />
         <div className="dialog-actions">
