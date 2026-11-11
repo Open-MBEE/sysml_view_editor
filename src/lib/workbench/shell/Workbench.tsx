@@ -36,6 +36,11 @@ import {
   downloadProject,
 } from './projectFiles';
 import type { EntryRequest } from '../entry/Application';
+import { DocumentPane } from '../documents/DocumentPane';
+import {
+  documentSourceTarget,
+  type DocumentClick,
+} from '$lib/workspace/documents';
 
 const initial: WorkspaceState = {
   project: null,
@@ -50,6 +55,7 @@ const initial: WorkspaceState = {
   diagnosticDocuments: [],
   view: null,
   exploration: null,
+  renderedDocument: null,
   layoutNotices: [],
 };
 type Mode = 'split' | 'code' | 'diagram';
@@ -62,9 +68,12 @@ export function Workbench({
   entryRequest: EntryRequest;
   onHome: () => void;
 }) {
-  const [dataMode, setDataMode] = useState<'diagram' | 'table' | 'matrix'>(
-    'diagram',
+  const [rerenderingDocument, setRerenderingDocument] = useState<string | null>(
+    null,
   );
+  const [dataMode, setDataMode] = useState<
+    'diagram' | 'table' | 'matrix' | 'document'
+  >('diagram');
   const [readySession, setReadySession] = useState<Workspace | null>(null);
   const [launcherOpen, setLauncherOpen] = useState(true);
   const [everOpened, setEverOpened] = useState(false);
@@ -182,7 +191,11 @@ export function Workbench({
     if (!ref.current) throw new Error('The workspace is starting.');
     return ref.current;
   }
-  async function refreshView(session: Workspace, preferred?: string) {
+  async function refreshView(
+    session: Workspace,
+    preferred?: string,
+    preferredDocument?: string,
+  ) {
     const views =
       session
         .snapshot()
@@ -194,6 +207,22 @@ export function Workbench({
         scope: { kind: 'project' },
         representation: 'tree',
       });
+    // Re-render the open document from the new applied revision, as views are.
+    if (
+      preferredDocument &&
+      session
+        .snapshot()
+        .model?.documents?.some(
+          (item) => item.qualifiedName === preferredDocument,
+        )
+    ) {
+      setRerenderingDocument(preferredDocument);
+      try {
+        await session.openDocument(preferredDocument);
+      } finally {
+        setRerenderingDocument(null);
+      }
+    } else if (dataMode === 'document') setDataMode('diagram');
   }
   useEffect(() => {
     const { workspace: session, language } = createBrowserSession();
@@ -489,6 +518,25 @@ export function Workbench({
       end: decoder.decode(bytes.slice(0, origin.offset + origin.length)).length,
     });
   }
+  function revealDocument(click: DocumentClick) {
+    const current = workspace().snapshot();
+    if (!current.renderedDocument || !current.project) return;
+    const location = documentSourceTarget(
+      click,
+      current.renderedDocument,
+      current.project.documents,
+      current.project.drafts,
+    );
+    if (!('target' in location)) {
+      setMessage(location.reason);
+      return;
+    }
+    setSelected(location.qualifiedName ?? '');
+    setSymbolSelection(undefined);
+    setFile(location.target.file);
+    setMode('split');
+    setFocusRange({ ...location.target, focus: true });
+  }
   function revealSource() {
     if (focusRange) {
       setFile(focusRange.file);
@@ -590,28 +638,31 @@ export function Workbench({
             onUndo={() =>
               void run(async () => {
                 const session = workspace(),
-                  id = session.snapshot().view?.view;
+                  id = session.snapshot().view?.view,
+                  document = session.snapshot().renderedDocument?.document;
                 session.undo();
-                await refreshView(session, id);
+                await refreshView(session, id, document);
               })
             }
             onRedo={() =>
               void run(async () => {
                 const session = workspace(),
-                  id = session.snapshot().view?.view;
+                  id = session.snapshot().view?.view,
+                  document = session.snapshot().renderedDocument?.document;
                 session.redo();
-                await refreshView(session, id);
+                await refreshView(session, id, document);
               })
             }
             onDiscard={() => void run(() => workspace().discardDrafts())}
             onApply={() =>
               void run(async () => {
                 const session = workspace(),
-                  id = session.snapshot().view?.view;
+                  id = session.snapshot().view?.view,
+                  document = session.snapshot().renderedDocument?.document;
                 await session.apply();
                 setMessage('Source applied.');
                 setFocusRange(undefined);
-                await refreshView(session, id);
+                await refreshView(session, id, document);
               })
             }
           />
@@ -639,6 +690,18 @@ export function Workbench({
                         await workspace().openView(id);
                       } catch (error) {
                         setDataMode(dataMode);
+                        throw error;
+                      }
+                    })
+                  }
+                  onDocument={(id) =>
+                    void run(async () => {
+                      const previous = dataMode;
+                      setDataMode('document');
+                      try {
+                        await workspace().openDocument(id);
+                      } catch (error) {
+                        setDataMode(previous);
                         throw error;
                       }
                     })
@@ -702,7 +765,17 @@ export function Workbench({
                     role="group"
                     aria-label="Model representation"
                   >
-                    {(['diagram', 'table', 'matrix'] as const).map((value) => (
+                    {(
+                      [
+                        'diagram',
+                        'table',
+                        'matrix',
+                        ...(state.renderedDocument ||
+                        state.model?.documents?.length
+                          ? (['document'] as const)
+                          : []),
+                      ] as const
+                    ).map((value) => (
                       <Button
                         key={value}
                         size="xs"
@@ -715,16 +788,33 @@ export function Workbench({
                           ? 'Diagram view'
                           : value === 'table'
                             ? 'Requirements table'
-                            : 'Traceability matrix'}
+                            : value === 'matrix'
+                              ? 'Traceability matrix'
+                              : 'Document'}
                       </Button>
                     ))}
                   </div>
-                  {dataMode !== 'diagram' && readySession && (
-                    <RequirementsPanel
+                  {(dataMode === 'table' || dataMode === 'matrix') &&
+                    readySession && (
+                      <RequirementsPanel
+                        workspace={readySession}
+                        state={state}
+                        mode={dataMode}
+                        onReveal={revealRequirement}
+                      />
+                    )}
+                  {dataMode === 'document' && readySession && (
+                    <DocumentPane
                       workspace={readySession}
                       state={state}
-                      mode={dataMode}
-                      onReveal={revealRequirement}
+                      rerendering={rerenderingDocument}
+                      onReveal={revealDocument}
+                      onOpenView={(id) =>
+                        void run(async () => {
+                          setDataMode('diagram');
+                          await workspace().openView(id);
+                        })
+                      }
                     />
                   )}
                   <div

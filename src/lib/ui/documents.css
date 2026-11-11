@@ -1,0 +1,199 @@
+/* Generated document pane: engine HTML keeps its sysml- classes; the editor theme styles them. */
+.document-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+.document-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--sysml-border);
+}
+.document-heading > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.document-heading strong {
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.document-kind {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--sysml-muted);
+}
+.document-body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px 24px 32px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sysml-text);
+}
+.document-body .sysml-document {
+  max-width: 860px;
+  margin: 0 auto;
+}
+.document-body .sysml-title,
+.document-body h2,
+.document-body h3,
+.document-body h4 {
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 1.2em 0 0.5em;
+  color: var(--sysml-text);
+}
+.document-body .sysml-title {
+  font-size: 22px;
+  margin-top: 0.2em;
+}
+.document-body h2 {
+  font-size: 18px;
+}
+.document-body h3 {
+  font-size: 15px;
+}
+.document-body .sysml-section-number {
+  color: var(--sysml-muted);
+}
+.document-body .sysml-paragraph {
+  margin: 0 0 0.8em;
+}
+.document-body [data-element],
+.document-body h1,
+.document-body h2,
+.document-body h3,
+.document-body h4,
+.document-body .sysml-paragraph {
+  cursor: pointer;
+  border-radius: 3px;
+}
+.document-body [data-element]:not(tr):hover,
+.document-body h1:hover,
+.document-body h2:hover,
+.document-body h3:hover,
+.document-body h4:hover,
+.document-body .sysml-paragraph:hover,
+.document-body tr[data-element]:hover > td {
+  background: color-mix(in srgb, var(--sysml-accent) 12%, transparent);
+}
+.document-body [tabindex='0']:focus-visible {
+  outline: 2px solid var(--sysml-accent);
+  outline-offset: 1px;
+}
+.document-body .sysml-ref {
+  color: var(--sysml-accent);
+  text-decoration: underline dotted;
+}
+.document-body a[href] {
+  color: var(--sysml-accent);
+}
+.document-body .sysml-code,
+.document-body code {
+  font-family: var(--sysml-mono, ui-monospace, monospace);
+  font-size: 0.92em;
+  background: var(--sysml-panel);
+  border-radius: 3px;
+  padding: 0 3px;
+}
+.document-body table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.5em 0 1em;
+  font-size: 13px;
+}
+.document-body caption,
+.document-body figcaption {
+  caption-side: bottom;
+  text-align: left;
+  color: var(--sysml-muted);
+  font-size: 12px;
+  padding: 4px 0;
+}
+.document-body th,
+.document-body td {
+  border: 1px solid var(--sysml-border);
+  padding: 4px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+.document-body th {
+  background: var(--sysml-panel);
+  font-weight: 600;
+}
+.document-body .sysml-group-heading td,
+.document-body .sysml-group th {
+  background: color-mix(in srgb, var(--sysml-panel) 60%, transparent);
+}
+.document-body .sysml-list {
+  margin: 0 0 0.8em;
+  padding-left: 1.4em;
+}
+.document-body .sysml-definitions dt {
+  font-weight: 600;
+}
+.document-body .sysml-definitions dd {
+  margin: 0 0 0.5em 1em;
+}
+.document-body figure {
+  margin: 0.8em 0 1.2em;
+}
+.document-body .sysml-diagram {
+  border: 1px solid var(--sysml-border);
+  border-radius: 6px;
+  background: var(--sysml-surface, transparent);
+  overflow: hidden;
+}
+.document-body .sysml-diagram figcaption {
+  padding: 6px 10px;
+  border-top: 1px solid var(--sysml-border);
+}
+.sysml-diagram-mount,
+.document-diagram {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.document-diagram-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px 4px 10px;
+  font-size: 12px;
+  color: var(--sysml-muted);
+  border-bottom: 1px solid var(--sysml-border);
+}
+.document-diagram-canvas {
+  display: flex;
+  height: 360px;
+  min-height: 0;
+}
+.document-diagram-canvas .diagram-pane {
+  flex: 1;
+  min-height: 0;
+}
+.document-diagram-notice {
+  margin: 0;
+  padding: 12px;
+  font-size: 13px;
+  color: var(--sysml-muted);
+}
+.document-diagram-notice::before {
+  content: 'Engine notice: ';
+  font-weight: 600;
+}
+.document-diagram[data-state='loading'] .document-diagram-notice::before,
+.document-diagram[data-state='failed'] .document-diagram-notice::before {
+  content: '';
+}

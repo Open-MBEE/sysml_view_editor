@@ -323,7 +323,7 @@ Expected engine notices include: “Dimensions and coordinate-frame poses evalua
 
 ### Inspection rover
 
-Files: [system.sysml](inspection-rover/system.sysml), [components.sysml](inspection-rover/components.sysml), [types.sysml](inspection-rover/types.sysml), [behavior.sysml](inspection-rover/behavior.sysml), [requirements.sysml](inspection-rover/requirements.sysml), [views.sysml](inspection-rover/views.sysml).
+Files: [system.sysml](inspection-rover/system.sysml), [components.sysml](inspection-rover/components.sysml), [types.sysml](inspection-rover/types.sysml), [behavior.sysml](inspection-rover/behavior.sysml), [requirements.sysml](inspection-rover/requirements.sysml), [views.sysml](inspection-rover/views.sysml), [report.sysml](inspection-rover/report.sysml).
 
 **RoverViews::architecture** — engine artifact: `interconnection`; app: **partial**.
 

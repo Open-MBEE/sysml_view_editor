@@ -21,6 +21,9 @@ const overlays = [
   'requirements_view_test.go',
   'relationships.go',
   'relationships_test.go',
+  'render_document.go',
+  'validated_document.go',
+  'validated_document_test.go',
 ];
 const structuralFixtures = ['model.sysml', 'views.sysml'];
 const patchHash = digest(
@@ -127,6 +130,18 @@ await cp(
   resolve(source, 'internal/frontend/combined/studio_relationships_test.go'),
 );
 await cp(
+  resolve(root, 'engine-bridge/opensysml/render_document.go'),
+  resolve(source, 'internal/frontend/engine/studio_document.go'),
+);
+await cp(
+  resolve(root, 'engine-bridge/opensysml/validated_document.go'),
+  resolve(source, 'internal/frontend/combined/studio_document.go'),
+);
+await cp(
+  resolve(root, 'engine-bridge/opensysml/validated_document_test.go'),
+  resolve(source, 'internal/frontend/combined/studio_document_test.go'),
+);
+await cp(
   resolve(root, 'engine-bridge/opensysml/geometry_view.go'),
   resolve(source, 'internal/frontend/engine/studio_geometry.go'),
 );
@@ -157,14 +172,19 @@ await replace(
   'case "EvaluateView":\n var req JRenderViewRequest\n if err := decode(params, &req); err != nil { return nil, err }\n return e.evaluateView(&req)\n case "RenderView":',
 );
 await replace(
+  'internal/frontend/engine/engine.go',
+  'case "RenderView":',
+  'case "ListDocuments":\n var req JListDocumentsRequest\n if err := decode(params, &req); err != nil { return nil, err }\n return e.listDocuments(&req)\n case "RenderDocument":\n var req JRenderDocumentRequest\n if err := decode(params, &req); err != nil { return nil, err }\n return e.renderDocument(&req)\n case "RenderView":',
+);
+await replace(
   'internal/frontend/combined/combined.go',
   'case "GetServerInfo":',
-  'case "Explore":\n return s.explore(ctx,params)\n case "EvaluateRelationships":\n return s.evaluateRelationships(ctx,params)\n case "EvaluateView":\n return s.evaluateView(ctx,params)\n case "GetServerInfo":',
+  'case "Explore":\n return s.explore(ctx,params)\n case "EvaluateRelationships":\n return s.evaluateRelationships(ctx,params)\n case "EvaluateView":\n return s.evaluateView(ctx,params)\n case "ListDocuments":\n return s.listDocuments(ctx,params)\n case "RenderDocument":\n return s.renderDocument(ctx,params)\n case "GetServerInfo":',
 );
 await replace(
   'internal/frontend/combined/combined.go',
   'var capabilities = []string{',
-  'var capabilities = []string{\n "studio_exploration_v1",\n "studio_evaluate_view_v1",\n "studio_relationships_v1",',
+  'var capabilities = []string{\n "studio_exploration_v1",\n "studio_evaluate_view_v1",\n "studio_relationships_v1",\n "studio_render_document_v1",',
 );
 let go = process.env.SYSML_GO;
 if (!go) {

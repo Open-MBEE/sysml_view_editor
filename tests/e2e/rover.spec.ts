@@ -19,7 +19,7 @@ async function rover(page: import('@playwright/test').Page) {
   await waitForRoverStartup(page);
 }
 
-test('@critical opens the inspection rover with inherited declared values and exact connections, preserving all six files across its guided tour', async ({
+test('@critical opens the inspection rover with inherited declared values and exact connections, preserving all seven files across its guided tour', async ({
   page,
 }) => {
   const results = await observeEvaluations(page);
@@ -86,7 +86,7 @@ test('@critical opens the inspection rover with inherited declared values and ex
     )
     .toBe(10);
   const saved = await downloadProject(page);
-  expect(saved.bundle.documents).toHaveLength(6);
+  expect(saved.bundle.documents).toHaveLength(7);
   for (const file of saved.bundle.documents)
     expect(file.text).toBe(
       await readFile(

@@ -7,13 +7,36 @@ import {
   type ExplorationEngine,
 } from '$lib/workspace/exploration';
 import type { SemanticEngine } from '$lib/workspace/editing';
+import {
+  validateRenderedDocument,
+  type DocumentEngine,
+} from '$lib/workspace/documents';
 import { readModelSnapshot } from '$lib/workspace/project';
 import { validateEvaluation } from '$lib/workspace/views';
 import { requestWorker } from '../workers/request';
 export function createSemanticEngine(
   base: string,
-): SemanticEngine & ExplorationEngine & RequirementsEngine {
+): SemanticEngine & ExplorationEngine & RequirementsEngine & DocumentEngine {
   return {
+    renderDocument(documents, modelHash, name, form, signal) {
+      return requestWorker(
+        new Worker(new URL('./semantic.worker.ts', import.meta.url), {
+          type: 'module',
+        }),
+        {
+          protocolVersion: 1,
+          operation: 'document',
+          documents,
+          modelHash,
+          document: name,
+          form,
+          base,
+        },
+        (value) =>
+          validateRenderedDocument(value, modelHash, name, form, documents),
+        signal,
+      );
+    },
     requirements(documents, modelHash, signal) {
       return requestWorker(
         new Worker(new URL('./semantic.worker.ts', import.meta.url), {

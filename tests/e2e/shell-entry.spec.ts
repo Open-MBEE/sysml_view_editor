@@ -110,7 +110,7 @@ test('@critical landing and direct example links open the real model once and re
   await expect(page).toHaveURL(/\/app$/);
   const bundle = (await downloadProject(page)).bundle;
   expect(bundle.name).toBe('Inspection rover');
-  expect(bundle.documents).toHaveLength(6);
+  expect(bundle.documents).toHaveLength(7);
   expect(bundle.drafts).toEqual(bundle.documents);
   await page.reload();
   await waitForLauncher(page);
@@ -579,7 +579,7 @@ test('a newer example opening supersedes a held real engine request without publ
     await expect(page.getByRole('alert')).not.toBeVisible();
     const bundle = (await downloadProject(page)).bundle;
     expect(bundle.name).toBe('Inspection rover');
-    expect(bundle.documents).toHaveLength(6);
+    expect(bundle.documents).toHaveLength(7);
     for (const document of bundle.documents) {
       expect(document.text).toBe(
         await readFile(

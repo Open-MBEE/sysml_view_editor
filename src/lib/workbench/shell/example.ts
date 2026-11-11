@@ -5,6 +5,7 @@ import roverTypes from '../../../../examples/inspection-rover/types.sysml?raw';
 import roverBehavior from '../../../../examples/inspection-rover/behavior.sysml?raw';
 import roverRequirements from '../../../../examples/inspection-rover/requirements.sysml?raw';
 import roverViews from '../../../../examples/inspection-rover/views.sysml?raw';
+import roverReport from '../../../../examples/inspection-rover/report.sysml?raw';
 const roverDocuments = [
   { name: 'system.sysml', text: roverSystem },
   { name: 'components.sysml', text: roverComponents },
@@ -12,6 +13,7 @@ const roverDocuments = [
   { name: 'behavior.sysml', text: roverBehavior },
   { name: 'requirements.sysml', text: roverRequirements },
   { name: 'views.sysml', text: roverViews },
+  { name: 'report.sysml', text: roverReport },
 ];
 export const exampleView = 'RoverViews::architecture';
 export const exampleProject: ProjectBundle = {
