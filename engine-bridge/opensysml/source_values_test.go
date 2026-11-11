@@ -870,3 +870,50 @@ func TestSourceValuesBoundOwnerDoesNotBorrowTypeDefaults(t *testing.T) {
 		t.Fatal("missing occurrences")
 	}
 }
+
+// Controlled projection seam: library records must remain drawable without
+// pretending their non-project origins are applied source-value metadata.
+func TestSourceValuesLeaveLibraryRecordsUnannotated(t *testing.T) {
+	e, err := New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	text := `package P {part a;}`
+	raw, err := e.parseSources(context.Background(), &JParseSourcesRequest{Documents: []*JSourceDocument{{Name: "project.sysml", Language: "sysml", Content: &text}}, StrictConformance: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var parsed JParseSourcesResponse
+	if err = json.Unmarshal(raw, &parsed); err != nil {
+		t.Fatal(err)
+	}
+	c, _ := e.get(parsed.ModelHash)
+	var library *symbols.Symbol
+	c.Index.Registered(func(_ string, syms []*symbols.Symbol) {
+		for _, s := range syms {
+			if library == nil && s.Kind.IsAttributeLike() && c.Index.IsLibraryDocument(s.DocName) {
+				library = s
+			}
+		}
+	})
+	if library == nil {
+		t.Fatal("pinned library has no attribute control")
+	}
+	ref := c.sourceSubject(library)
+	out := EvaluatedView{Artifact: json.RawMessage(`{"kind":"tree","nodes":[{"id":"library","name":"library","kind":"attribute"}],"edges":[]}`), Correspondence: []ViewCorrespondence{{Symbol: "library", Subject: ref, Context: []string{ref.ID}}}}
+	if err = c.sourceValues(&out, map[string]*symbols.Symbol{ref.ID: library}); err != nil {
+		t.Fatal(err)
+	}
+	var artifact struct{ Nodes []map[string]json.RawMessage }
+	if err = json.Unmarshal(out.Artifact, &artifact); err != nil {
+		t.Fatal(err)
+	}
+	if len(artifact.Nodes) != 1 {
+		t.Fatal("library node removed")
+	}
+	for _, key := range []string{"sourceAttribute", "sourceAttributes"} {
+		if _, ok := artifact.Nodes[0][key]; ok {
+			t.Fatalf("library record published unapplied %s", key)
+		}
+	}
+}

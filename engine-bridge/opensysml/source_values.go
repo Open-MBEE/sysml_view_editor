@@ -516,7 +516,7 @@ func (c *cachedModel) sourceValues(out *EvaluatedView, declarations map[string]*
 			continue
 		}
 		sym := declarations[ref.Subject.ID]
-		if sym == nil {
+		if sym == nil || c.Index.IsLibraryDocument(sym.DocName) {
 			continue
 		}
 		owners := []*symbols.Symbol{}
