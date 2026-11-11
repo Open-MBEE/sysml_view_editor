@@ -1,5 +1,15 @@
 # Verification record
 
+## Exposure visibility investigation — issue #20
+
+Recorded 2026-11-11 at editor `890fe88d` / prepared OpenSysML 0.12.0 (`760c4d1fc8edfa4e214423099065c0a7c1b24e2d`). The original large wildcard graph reproduces, but the report's owned-members-only expectation is not the SysML exposure rule. Independent review checked the primary specifications and confirmed that immediate exposure can admit private imported memberships. The corrected structural/capability documentation includes a small explicit-exposure/named-import example.
+
+Independent review also found a real intermediate-import defect. Source admission is broadened before rendering, and a flattened reexport path loses import-route visibility. The [upstream-ready investigation](research/wp26-exposure-import-membership.md) and [executable source fixture](../tests/fixtures/opensysml-0.12-exposure-membership_test.go) retain expected declaration/origin sets, positive controls, split-namespace coverage and exact reproduction commands. The fixture is deliberately a separate failing upstream research reproduction, not a disabled passing editor test: the coordinator ran it against the unchanged pin and observed seven failing origin-selection cases, while ordinary lookup, traversal controls and the split-namespace control passed (`sandbox/wp26-session/exposure/upstream-known-failure.log`).
+
+A proposed resolver experiment passed the simple cases but dropped a valid import contributed by another document's declaration of the same namespace. It was rejected and is not present in the editor. A membership-aware upstream resolver/index fix remains needed; issue #20 is not claimed fixed or closed, and no upstream issue or PR has been published by this investigation.
+
+The normal bridge now retains `TestStudioExposureMembershipScope`, which passes the current immediate-private/public, explicit, named-import, no-import and outside-lookup controls without brittle graph-size assertions. The coordinator's isolated overlay run passed, and the complete current combined Go package passed (`sandbox/wp26-session/exposure/test.log`, `combined-baseline.log`). The local preparation/build during the #14 checkpoint also ran the normal bridge tests; the resulting prepared WASM retained SHA-256 `9149b23d80b7fd0b6935b374f0e9102c270bc5f7d595b43a8186d01dece7b663`. Neither these passing controls nor large node counts establish full import/renderer conformance. Hosted timing, deployment and upstream acceptance remain unverified.
+
 ## Recovery visualization error lifetime — issue #14
 
 Recorded 2026-11-11 on `fix/wp26-inspection`, based on `890fe88d`. The accepted recovery replacement and the following diagram refresh are now separate error domains. A rejected project open remains recovery-owned and retains the pending record. After acceptance, a named-view/exploration failure uses the generation-aware workbench action channel, so it stays actionable while current and does not survive a later successful action as an obsolete recovery alert. Exploration origin validation is unchanged.

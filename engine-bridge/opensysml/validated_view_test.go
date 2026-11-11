@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -370,5 +371,130 @@ func TestStudioRetainsDeclaredBoundaryConnections(t *testing.T) {
 	edge := edges[0].(map[string]any)
 	if edge["from"] != "n1" || edge["to"] != "n2" || edge["fromPort"] != nil || edge["toPort"] != nil || edge["label"] != "bridge" {
 		t.Fatalf("Incorrect retained usage boundaries: %v", edge)
+	}
+}
+
+func TestStudioExposureMembershipScope(t *testing.T) {
+	server, err := New("v0.12.0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	call := func(method string, params any) map[string]any {
+		t.Helper()
+		input, err := json.Marshal(params)
+		if err != nil {
+			t.Fatal(err)
+		}
+		raw, err := server.Call(context.Background(), method, input)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var result map[string]any
+		if err := json.Unmarshal(raw, &result); err != nil {
+			t.Fatal(err)
+		}
+		return result
+	}
+	errorsOf := func(parsed map[string]any) []string {
+		var errors []string
+		diagnostics, _ := parsed["diagnostics"].([]any)
+		for _, item := range diagnostics {
+			d := item.(map[string]any)
+			if d["severity"] == "error" {
+				errors = append(errors, d["message"].(string))
+			}
+		}
+		return errors
+	}
+	const demo = "package Demo { part def Sat; }\n"
+	evaluate := func(source, view string) map[string]string {
+		t.Helper()
+		parsed := call("ParseSources", map[string]any{"strictConformance": true, "documents": []any{map[string]any{"name": "model.sysml", "content": demo + source}}})
+		if errors := errorsOf(parsed); len(errors) > 0 {
+			t.Fatalf("positive fixture rejected: %v", errors)
+		}
+		result := call("EvaluateView", map[string]any{"modelHash": parsed["modelHash"], "view": view})
+		if result["status"] != "complete" || result["renderStatus"] != "available" {
+			t.Fatalf("unavailable view: %v", result)
+		}
+		selected, ok := result["selected"].([]any)
+		if !ok {
+			t.Fatalf("missing selected membership: %v", result)
+		}
+		names := map[string]string{}
+		for _, raw := range selected {
+			subject := raw.(map[string]any)
+			origin, ok := subject["origin"].(map[string]any)
+			if !ok || origin["file"] == "" || subject["id"] == "" {
+				t.Fatalf("selected subject lacks source identity: %v", subject)
+			}
+			name, ok := subject["qualifiedName"].(string)
+			if !ok || name == "" {
+				t.Fatalf("selected subject lacks qualified name: %v", subject)
+			}
+			names[name] = origin["file"].(string)
+		}
+		return names
+	}
+	body := func(visibility, exposure string) string {
+		return "package Probe { " + visibility + " import Demo::*; " + visibility + " import StandardViewDefinitions::*; part p : Sat; view star : GeneralView { expose " + exposure + "; } }"
+	}
+	private := evaluate(body("private", "Probe::*"), "Probe::star")
+	public := evaluate(body("public", "Probe::*"), "Probe::star")
+	if !reflect.DeepEqual(private, public) {
+		t.Fatalf("exposure must ignore import visibility: private=%v public=%v", private, public)
+	}
+	for _, name := range []string{"Probe::p", "Probe::star", "Demo::Sat", "StandardViewDefinitions::GeneralView", "SysML::Systems::PartDefinition"} {
+		if _, ok := private[name]; !ok {
+			t.Fatalf("missing admitted membership %s", name)
+		}
+	}
+	hasLibrary := false
+	for _, file := range private {
+		if file != "model.sysml" {
+			hasLibrary = true
+		}
+	}
+	if !hasLibrary {
+		t.Fatal("wildcard exposure unexpectedly removed imported library memberships")
+	}
+	explicit := evaluate(body("private", "Probe::p"), "Probe::star")
+	if !reflect.DeepEqual(explicit, map[string]string{"Probe::p": "model.sysml"}) {
+		t.Fatalf("explicit exposure widened: %v", explicit)
+	}
+	named := evaluate("package Probe { private import Demo::Sat; private import StandardViewDefinitions::GeneralView; part p : Sat; view star : GeneralView { expose Probe::*; } }", "Probe::star")
+	expected := map[string]bool{"Probe::p": true, "Probe::star": true, "Demo::Sat": true, "StandardViewDefinitions::GeneralView": true}
+	if len(named) != len(expected) {
+		t.Fatalf("named imports selected unexpected memberships: %v", named)
+	}
+	for name := range named {
+		if !expected[name] {
+			t.Fatalf("named import leaked %s", name)
+		}
+	}
+	noImports := evaluate("package Probe { part p : Demo::Sat; view star : StandardViewDefinitions::GeneralView { expose Probe::*; } }", "Probe::star")
+	if !reflect.DeepEqual(noImports, map[string]string{"Probe::p": "model.sysml", "Probe::star": "model.sysml"}) {
+		t.Fatalf("no-import scope widened: %v", noImports)
+	}
+	hidden := evaluate("package Probe { private part hidden : Demo::Sat; } view star : StandardViewDefinitions::GeneralView { expose Probe::hidden; }", "star")
+	if !reflect.DeepEqual(hidden, map[string]string{"Probe::hidden": "model.sysml"}) {
+		t.Fatalf("explicit private exposure failed: %v", hidden)
+	}
+	for _, outside := range []string{"part q : Probe::Sat;", "private import Probe::*; part q : Sat;"} {
+		source := demo + "package Probe { private import Demo::*; } package Outside { " + outside + " }"
+		parsed := call("ParseSources", map[string]any{"strictConformance": true, "documents": []any{map[string]any{"name": "model.sysml", "content": source}}})
+		errors := errorsOf(parsed)
+		if len(errors) == 0 {
+			t.Fatalf("ordinary lookup bypassed private import visibility: %s", outside)
+		}
+		targetNamed := false
+		for _, message := range errors {
+			if strings.Contains(message, "Sat") {
+				targetNamed = true
+			}
+		}
+		if !targetNamed {
+			t.Fatalf("ordinary lookup failed for unrelated reason: %v", errors)
+		}
 	}
 }
