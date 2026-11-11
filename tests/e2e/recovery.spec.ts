@@ -79,7 +79,25 @@ async function savedDraft(page: Page) {
 test('@critical restores exact applied source, invalid drafts and both view layouts from IndexedDB after reload', async ({
   page,
 }) => {
-  const { expected, draft } = await savedDraft(page);
+  const first = await savedDraft(page);
+  const draft = first.draft + '\n// latest saved text 🔧\n';
+  const expected = {
+    ...first.expected,
+    drafts: first.expected.drafts.map((file, index) =>
+      index === 0 ? { ...file, text: draft } : file,
+    ),
+  };
+  await fillSource(
+    page.getByRole('textbox', { name: 'SysML source', exact: true }),
+    draft,
+  );
+  await expect
+    .poll(async () => {
+      const raw = await readRecovery(page);
+      return raw ? JSON.parse(JSON.parse(raw).project) : null;
+    })
+    .toEqual(expected);
+  const raw = (await readRecovery(page))!;
   page.on('dialog', (dialog) => dialog.accept());
   await page.reload();
   await waitForLauncher(page);
@@ -88,6 +106,34 @@ test('@critical restores exact applied source, invalid drafts and both view layo
     exact: true,
   });
   await expect(recovery).toBeVisible();
+  await expect(recovery.locator('time')).toHaveAttribute(
+    'datetime',
+    new Date(JSON.parse(raw).savedAt).toISOString(),
+  );
+  await recovery
+    .getByText('2 source files · 1 unapplied draft', { exact: true })
+    .click();
+  const files = recovery.getByRole('list', {
+    name: 'Recovery source files',
+    exact: true,
+  });
+  for (const file of expected.drafts) {
+    const applied = expected.documents.find(
+      (document) => document.name === file.name,
+    )!;
+    const row = files.getByRole('listitem').filter({ hasText: file.name });
+    await expect(row).toContainText(
+      `${Buffer.byteLength(applied.text, 'utf8')} bytes applied`,
+    );
+    await expect(row).toContainText(
+      `${Buffer.byteLength(file.text, 'utf8')} bytes draft`,
+    );
+    await expect(row).toContainText(
+      file.text === applied.text ? 'Applied source' : 'Unapplied draft',
+    );
+  }
+  // Inspecting the summary must not alter either the stored record or project.
+  expect(await readRecovery(page)).toBe(raw);
   await recovery
     .getByRole('button', { name: 'Restore recovery', exact: true })
     .click();
@@ -227,87 +273,142 @@ test('reports denied IndexedDB storage, preserves the editable project and retri
   expect((await downloadProject(page)).bundle).toEqual(expected);
 });
 
-test('a second tab cannot silently overwrite a newer recovery or lose either live draft', async ({
-  page,
-  context,
-}) => {
-  const first = await savedDraft(page);
-  const other = await context.newPage();
-  const errors: string[] = [];
-  other.on('pageerror', (error) => errors.push(error.message));
-  try {
-    await other.goto('/app');
-    await waitForLauncher(other);
-    await other
-      .getByRole('region', { name: 'Saved recovery', exact: true })
-      .getByRole('button', { name: 'Restore recovery', exact: true })
-      .click();
-    const otherSource = other.getByRole('textbox', {
-      name: 'SysML source',
-      exact: true,
-    });
-    await expect(otherSource).toHaveSource(first.draft);
-    await expect(
-      namedViewButton(other, 'WorkshopViews::compressor'),
-    ).toHaveAttribute('aria-current', 'page');
-    await expect(
-      other.getByRole('button', { name: 'Download project', exact: true }),
-    ).toBeEnabled();
-    await expect(otherSource).toHaveAttribute('aria-readonly', 'false');
-    const newer = first.draft + '\n// newer copy from the other tab\n';
-    await fillSource(otherSource, newer);
-    await expect(otherSource).toHaveSource(newer);
-    const otherExpected = (await downloadProject(other)).bundle;
-    await expect
-      .poll(async () => {
-        const raw = await readRecovery(other);
-        return raw ? JSON.parse(JSON.parse(raw).project) : null;
-      })
-      .toEqual(otherExpected);
-    await expect
-      .poll(async () => {
-        const raw = await readRecovery(other);
-        return raw ? JSON.parse(raw).activeView : null;
-      })
-      .toBe('WorkshopViews::compressor');
-    const newerRaw = await readRecovery(other);
-    const source = page.getByRole('textbox', {
-      name: 'SysML source',
-      exact: true,
-    });
-    const older = first.draft + '\n// unsaved first-tab work\n';
-    await fillSource(source, older);
-    await page
-      .getByRole('button', { name: 'Local recovery', exact: true })
-      .click();
-    const settings = page.getByRole('dialog', {
-      name: 'Local recovery',
-      exact: true,
-    });
-    await expect(
-      settings.getByText(/Another tab changed local recovery/),
-    ).toBeVisible();
-    expect(await readRecovery(page)).toBe(newerRaw);
-    await settings
-      .getByRole('button', { name: 'Retry recovery', exact: true })
-      .click();
-    // Retry loads the newer pending copy for an explicit decision, never restores it silently.
-    await page.keyboard.press('Escape');
-    await expect(
-      page.getByRole('region', { name: 'Saved recovery', exact: true }),
-    ).toBeVisible();
-    await expect(source).toHaveSource(older);
-    await expect(otherSource).toHaveSource(newer);
-    const retained = (await downloadProject(page)).bundle;
-    expect(retained.documents).toEqual(first.expected.documents);
-    expect(retained.presentations).toEqual(first.expected.presentations);
-    expect(retained.drafts[0]!.text).toBe(older);
-    expect(await readRecovery(page)).toBe(newerRaw);
-  } finally {
-    await other.close();
-  }
-  expect(errors, 'Uncaught errors in the second recovery tab').toEqual([]);
-});
+for (const decision of ['restore', 'discard'] as const) {
+  test(`a second tab conflict preserves both drafts until explicit ${decision}`, async ({
+    page,
+    context,
+  }) => {
+    const first = await savedDraft(page);
+    const other = await context.newPage();
+    const errors: string[] = [];
+    other.on('pageerror', (error) => errors.push(error.message));
+    try {
+      await other.goto('/app');
+      await waitForLauncher(other);
+      await other
+        .getByRole('region', { name: 'Saved recovery', exact: true })
+        .getByRole('button', { name: 'Restore recovery', exact: true })
+        .click();
+      const otherSource = other.getByRole('textbox', {
+        name: 'SysML source',
+        exact: true,
+      });
+      await expect(otherSource).toHaveSource(first.draft);
+      await expect(
+        namedViewButton(other, 'WorkshopViews::compressor'),
+      ).toHaveAttribute('aria-current', 'page');
+      await expect(
+        other.getByRole('button', { name: 'Download project', exact: true }),
+      ).toBeEnabled();
+      await expect(otherSource).toHaveAttribute('aria-readonly', 'false');
+      const newer = first.draft + '\n// newer copy from the other tab\n';
+      await fillSource(otherSource, newer);
+      await expect(otherSource).toHaveSource(newer);
+      const otherExpected = (await downloadProject(other)).bundle;
+      await expect
+        .poll(async () => {
+          const raw = await readRecovery(other);
+          return raw ? JSON.parse(JSON.parse(raw).project) : null;
+        })
+        .toEqual(otherExpected);
+      await expect
+        .poll(async () => {
+          const raw = await readRecovery(other);
+          return raw ? JSON.parse(raw).activeView : null;
+        })
+        .toBe('WorkshopViews::compressor');
+      const newerRaw = await readRecovery(other);
+      const source = page.getByRole('textbox', {
+        name: 'SysML source',
+        exact: true,
+      });
+      const older = first.draft + '\n// unsaved first-tab work\n';
+      await fillSource(source, older);
+      await page
+        .getByRole('button', { name: 'Local recovery', exact: true })
+        .click();
+      const settings = page.getByRole('dialog', {
+        name: 'Local recovery',
+        exact: true,
+      });
+      await expect(
+        settings.getByText(/Another tab changed local recovery/),
+      ).toBeVisible();
+      expect(await readRecovery(page)).toBe(newerRaw);
+      await expect(settings).toContainText(
+        'Retry recovery only checks the saved copy; it does not replace your current project.',
+      );
+      await settings
+        .getByRole('button', { name: 'Retry recovery', exact: true })
+        .click();
+      // Retry loads the newer pending copy for an explicit decision, never restores it silently.
+      await page.keyboard.press('Escape');
+      await expect(
+        page.getByRole('region', { name: 'Saved recovery', exact: true }),
+      ).toBeVisible();
+      await expect(source).toHaveSource(older);
+      await expect(otherSource).toHaveSource(newer);
+      const retained = (await downloadProject(page)).bundle;
+      expect(retained.documents).toEqual(first.expected.documents);
+      expect(retained.presentations).toEqual(first.expected.presentations);
+      expect(retained.drafts[0]!.text).toBe(older);
+      expect(await readRecovery(page)).toBe(newerRaw);
+      const pending = page.getByRole('region', {
+        name: 'Saved recovery',
+        exact: true,
+      });
+      await expect(pending).toContainText(
+        'Restore recovery replaces any open project with the saved copy.',
+      );
+      await expect(pending).toContainText(
+        'Discard recovery deletes the saved copy and keeps your current project.',
+      );
+      await expect(pending.locator('time')).toHaveAttribute(
+        'datetime',
+        new Date(JSON.parse(newerRaw!).savedAt).toISOString(),
+      );
+      if (decision === 'restore') {
+        // The earlier portable download marked that revision saved. Make a new
+        // edit so this specifically exercises dirty-work confirmation.
+        const unsaved = older + '// not downloaded yet\n';
+        await fillSource(source, unsaved);
+        let confirmation = '';
+        page.once('dialog', async (dialog) => {
+          confirmation = dialog.message();
+          await dialog.dismiss();
+        });
+        await pending
+          .getByRole('button', { name: 'Restore recovery', exact: true })
+          .click();
+        await expect.poll(() => confirmation).toContain('Replace this project');
+        await expect(source).toHaveSource(unsaved);
+        expect(await readRecovery(page)).toBe(newerRaw);
+        page.once('dialog', (dialog) => dialog.accept());
+        await pending
+          .getByRole('button', { name: 'Restore recovery', exact: true })
+          .click();
+        await expect(source).toHaveSource(newer);
+        expect((await downloadProject(page)).bundle).toEqual(otherExpected);
+      } else {
+        await pending
+          .getByRole('button', { name: 'Discard recovery', exact: true })
+          .click();
+        await expect(pending).not.toBeVisible();
+        await expect(source).toHaveSource(older);
+        await expect
+          .poll(async () => {
+            const raw = await readRecovery(page);
+            return raw ? JSON.parse(JSON.parse(raw).project) : null;
+          })
+          .toEqual(retained);
+      }
+      await expect(otherSource).toHaveSource(newer);
+    } finally {
+      await other.close();
+    }
+    expect(errors, 'Uncaught errors in the second recovery tab').toEqual([]);
+  });
+}
 
 test('contains keyboard focus in recovery settings, returns focus and persists the enabled preference', async ({
   page,

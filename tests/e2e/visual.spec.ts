@@ -1015,3 +1015,110 @@ for (const theme of ['light', 'dark']) {
     });
   }
 }
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [1440, 768]) {
+    test(`recovery conflict and saved-copy choices in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      await ready(page, { split: false });
+      const project = (await downloadProject(page)).bundle;
+      // Controlled foreign record with a fixed save time; the real manager and
+      // IndexedDB compare-and-swap produce the conflict, never a mocked UI state.
+      const raw = JSON.stringify({
+        format: 'sysml-view-recovery',
+        version: 1,
+        savedAt: Date.UTC(2026, 10, 10, 9, 30),
+        project: JSON.stringify({ ...project, name: 'Other tab recovery' }),
+        activeFile: project.drafts[0]!.name,
+        activeView: null,
+      });
+      await page.evaluate(async (raw) => {
+        await new Promise<void>((resolve, reject) => {
+          const request = indexedDB.open('sysml-view-recovery', 1);
+          request.onerror = () => reject(request.error);
+          request.onsuccess = () => {
+            const database = request.result;
+            const transaction = database.transaction('recovery', 'readwrite');
+            transaction.objectStore('recovery').put(raw, 'latest');
+            transaction.oncomplete = () => {
+              database.close();
+              resolve();
+            };
+            transaction.onerror = () => reject(transaction.error);
+          };
+        });
+      }, raw);
+      await page.getByRole('button', { name: 'Code', exact: true }).click();
+      await fillSource(
+        page.getByRole('textbox', { name: 'SysML source', exact: true }),
+        project.drafts[0]!.text + '\n// work retained in this tab\n',
+      );
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      const trigger = page.getByRole('button', {
+        name: 'Local recovery',
+        exact: true,
+      });
+      await trigger.click();
+      const dialog = page.getByRole('dialog', {
+        name: 'Local recovery',
+        exact: true,
+      });
+      await expect(dialog).toContainText(
+        'Retry recovery only checks the saved copy; it does not replace your current project.',
+      );
+      await expect(dialog).toBeInViewport({ ratio: 1 });
+      await expect(dialog).toHaveScreenshot(
+        `recovery-conflict-${theme}-${width}.png`,
+        { stylePath: 'tests/e2e/recovery-dialog.css' },
+      );
+      await dialog
+        .getByRole('button', { name: 'Retry recovery', exact: true })
+        .click();
+      await expect(dialog).toContainText('Saved copy: Other tab recovery.');
+      await expect(dialog.locator('time')).toHaveAttribute(
+        'datetime',
+        '2026-11-10T09:30:00.000Z',
+      );
+      await dialog
+        .getByText(
+          `${project.drafts.length} source files · 0 unapplied drafts`,
+          { exact: true },
+        )
+        .click();
+      await expect(
+        dialog.getByRole('list', {
+          name: 'Recovery source files',
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(dialog).toBeInViewport({ ratio: 1 });
+      await expect(dialog).toHaveScreenshot(
+        `recovery-choices-${theme}-${width}.png`,
+        { stylePath: 'tests/e2e/recovery-dialog.css' },
+      );
+      await dialog.getByRole('button', { name: 'Done', exact: true }).focus();
+      await page.keyboard.press('Tab');
+      await expect
+        .poll(() =>
+          dialog.evaluate((element) =>
+            element.contains(document.activeElement),
+          ),
+        )
+        .toBe(true);
+      await page.keyboard.press('Escape');
+      await expect(trigger).toBeFocused();
+    });
+  }
+}

@@ -89,7 +89,7 @@ export function createRecoveryManager(
         ) {
           conflict = true;
           throw new Error(
-            'Another tab changed local recovery. Retry to inspect its saved copy before continuing.',
+            'Another tab changed local recovery. Your current project remains in this tab. Retry recovery only checks the saved copy; it does not replace your current project. Download your project to keep a separate backup before choosing which copy to keep.',
           );
         }
         expected = null;
@@ -100,7 +100,7 @@ export function createRecoveryManager(
       if (!(await storage.compareAndSwap(expected, raw))) {
         conflict = true;
         throw new Error(
-          'Another tab changed local recovery. Retry to inspect its saved copy before continuing.',
+          'Another tab changed local recovery. Your current project remains in this tab. Retry recovery only checks the saved copy; it does not replace your current project. Download your project to keep a separate backup before choosing which copy to keep.',
         );
       }
       expected = raw;
@@ -192,7 +192,7 @@ export function createRecoveryManager(
           conflict = true;
           fail(
             new Error(
-              'Another tab changed local recovery. Retry to inspect its saved copy before discarding.',
+              'Another tab changed local recovery. Nothing was discarded. Retry recovery only checks the saved copy; it does not replace your current project. Download your project to keep a separate backup before choosing which copy to keep.',
             ),
           );
           return;
