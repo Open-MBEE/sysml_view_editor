@@ -68,6 +68,9 @@ export function Workbench({
   entryRequest: EntryRequest;
   onHome: () => void;
 }) {
+  const [rerenderingDocument, setRerenderingDocument] = useState<string | null>(
+    null,
+  );
   const [dataMode, setDataMode] = useState<
     'diagram' | 'table' | 'matrix' | 'document'
   >('diagram');
@@ -212,9 +215,14 @@ export function Workbench({
         .model?.documents?.some(
           (item) => item.qualifiedName === preferredDocument,
         )
-    )
-      await session.openDocument(preferredDocument);
-    else if (dataMode === 'document') setDataMode('diagram');
+    ) {
+      setRerenderingDocument(preferredDocument);
+      try {
+        await session.openDocument(preferredDocument);
+      } finally {
+        setRerenderingDocument(null);
+      }
+    } else if (dataMode === 'document') setDataMode('diagram');
   }
   useEffect(() => {
     const { workspace: session, language } = createBrowserSession();
@@ -799,6 +807,7 @@ export function Workbench({
                     <DocumentPane
                       workspace={readySession}
                       state={state}
+                      rerendering={rerenderingDocument}
                       onReveal={revealDocument}
                       onOpenView={(id) =>
                         void run(async () => {

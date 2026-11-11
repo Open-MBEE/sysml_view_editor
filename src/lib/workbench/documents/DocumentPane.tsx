@@ -20,11 +20,14 @@ interface DiagramMount {
 export function DocumentPane({
   workspace,
   state,
+  rerendering = null,
   onReveal,
   onOpenView,
 }: {
   workspace: Workspace;
   state: WorkspaceState;
+  /** Qualified name of the document being re-rendered from a new applied revision. */
+  rerendering?: string | null;
   onReveal: (click: DocumentClick) => void;
   onOpenView: (id: string) => void;
 }) {
@@ -90,6 +93,18 @@ export function DocumentPane({
     const path = contentPath(target, host);
     if (path) onReveal({ kind: 'content', path });
   }
+  if (!rendered && rerendering)
+    return (
+      <section className="document-pane" aria-label="Document">
+        <div className="empty" role="status">
+          <h2>Re-rendering document</h2>
+          <p>
+            The engine is planning and evaluating {rerendering} from the applied
+            model.
+          </p>
+        </div>
+      </section>
+    );
   if (!rendered)
     return (
       <section className="document-pane" aria-label="Document">
