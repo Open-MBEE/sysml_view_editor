@@ -223,6 +223,7 @@ export function createWorkspace(dependencies: {
           ),
           before.model.modelHash,
           oldId,
+          before.project.documents,
         );
         const newView = validateEvaluation(
           await dependencies.semantic.evaluate(
@@ -233,6 +234,7 @@ export function createWorkspace(dependencies: {
           ),
           model.modelHash,
           id,
+          documents,
         );
         const mapped = reconcileView({
           oldView,
@@ -447,6 +449,7 @@ export function createWorkspace(dependencies: {
             ),
             before.model.modelHash,
             captured.view,
+            before.project.documents,
           );
           current(token);
           validateConnection(before.model, view, captured);
@@ -486,6 +489,7 @@ export function createWorkspace(dependencies: {
             ),
             model.modelHash,
             captured.view,
+            documents,
           );
           current(token);
           checkConnectionResult(model, view, captured);
@@ -605,7 +609,12 @@ export function createWorkspace(dependencies: {
         );
         current(token);
         publish({
-          view: validateEvaluation(result, model.modelHash, id),
+          view: validateEvaluation(
+            result,
+            model.modelHash,
+            id,
+            project.documents,
+          ),
           exploration: null,
         });
       } finally {

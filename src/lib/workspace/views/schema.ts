@@ -7,6 +7,46 @@ export const ViewSubjectSchema = Type.Object({
   qualifiedName: Type.Optional(Type.String()),
   origin: Type.Optional(SourceLocationSchema),
 });
+export const SourceValueSchema = Type.Union([
+  Type.Object(
+    {
+      status: Type.Literal('available'),
+      expression: Type.String({ minLength: 1 }),
+      expressionOrigin: Type.Object(
+        {
+          file: Type.String(),
+          offset: Type.Integer({ minimum: 0 }),
+          length: Type.Integer({ minimum: 1 }),
+        },
+        closed,
+      ),
+      provider: ViewSubjectSchema,
+      isDefault: Type.Boolean(),
+      isInitial: Type.Boolean(),
+      provenance: Type.Union([Type.Literal('own'), Type.Literal('redefined')]),
+    },
+    closed,
+  ),
+  Type.Object({ status: Type.Literal('absent') }, closed),
+  Type.Object(
+    {
+      status: Type.Literal('unsupported'),
+      reason: Type.String({ minLength: 1 }),
+    },
+    closed,
+  ),
+]);
+export const SourceAttributeSchema = Type.Object(
+  {
+    subject: ViewSubjectSchema,
+    name: Type.String(),
+    type: Type.Optional(Type.String()),
+    context: Type.Array(Type.String()),
+    declaration: Type.String(),
+    value: SourceValueSchema,
+  },
+  closed,
+);
 export const CorrespondenceSchema = Type.Object({
   symbol: Type.String(),
   subject: ViewSubjectSchema,
@@ -30,6 +70,8 @@ export const ArtifactNodeSchema = Type.Object({
   type: Type.Optional(Type.String()),
   detail: Type.Optional(Type.String()),
   attributeDeclarations: Type.Optional(Type.Array(Type.String())),
+  sourceAttribute: Type.Optional(SourceAttributeSchema),
+  sourceAttributes: Type.Optional(Type.Array(SourceAttributeSchema)),
   shortName: Type.Optional(Type.String()),
   documentation: Type.Optional(Type.Array(Type.String())),
   exposure: Type.Optional(
