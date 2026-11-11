@@ -6,6 +6,7 @@ import {
   SourceLocationSchema,
   ModelElementSchema,
   ModelSnapshotSchema,
+  DocumentDefinitionSchema,
   readSourceDocuments,
 } from './schema';
 export { SourceDocumentsSchema, readModelSnapshot } from './schema';
@@ -14,6 +15,9 @@ export type Diagnostic = ReadonlyData<Static<typeof DiagnosticSchema>>;
 export type SourceLocation = ReadonlyData<Static<typeof SourceLocationSchema>>;
 export type ModelElement = ReadonlyData<Static<typeof ModelElementSchema>>;
 export type ModelSnapshot = ReadonlyData<Static<typeof ModelSnapshotSchema>>;
+export type DocumentDefinition = ReadonlyData<
+  Static<typeof DocumentDefinitionSchema>
+>;
 export const sourceLimits = { files: 20, bytes: 5 * 1024 * 1024 } as const;
 export function validateDocuments(input: unknown): SourceDocument[] {
   const sources = readSourceDocuments(input);

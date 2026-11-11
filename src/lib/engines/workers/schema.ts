@@ -3,6 +3,7 @@ import { ExplorationRequestSchema } from '$lib/workspace/exploration';
 import { validator } from '$lib/contracts/validation';
 import { SourceDocumentsSchema } from '$lib/workspace/project';
 import { SemanticCommandSchema } from '$lib/workspace/editing';
+import { DocumentFormSchema } from '$lib/workspace/documents/schema';
 const common = {
     protocolVersion: Type.Literal(1),
     documents: SourceDocumentsSchema,
@@ -28,6 +29,16 @@ export const SemanticRequestSchema = Type.Union([
     closed,
   ),
   Type.Object({ ...common, operation: Type.Literal('parse') }, closed),
+  Type.Object(
+    {
+      ...common,
+      operation: Type.Literal('document'),
+      modelHash: Type.String({ minLength: 1 }),
+      document: Type.String({ minLength: 1 }),
+      form: DocumentFormSchema,
+    },
+    closed,
+  ),
   Type.Object(
     {
       ...common,

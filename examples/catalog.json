@@ -1114,7 +1114,8 @@
         "types.sysml",
         "behavior.sysml",
         "requirements.sysml",
-        "views.sysml"
+        "views.sysml",
+        "report.sysml"
       ],
       "views": [
         {

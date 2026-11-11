@@ -44,6 +44,13 @@ import {
   validateConnection,
   checkConnectionResult,
 } from './editing/structure';
+import {
+  validateDocumentDefinitions,
+  validateRenderedDocument,
+  documentDiagnostics,
+  type DocumentEngine,
+  type RenderedDocument,
+} from './documents';
 
 export interface WorkspaceState {
   readonly project: ProjectBundle | null;
@@ -58,6 +65,7 @@ export interface WorkspaceState {
   readonly diagnosticDocuments: ProjectBundle['documents'];
   readonly view: EvaluatedView | null;
   readonly exploration: ExplorationResult | null;
+  readonly renderedDocument: RenderedDocument | null;
   readonly layoutNotices: readonly LayoutNotice[];
 }
 interface Accepted {
@@ -76,6 +84,7 @@ export function createWorkspace(dependencies: {
   transformations: TransformationEngine;
   exploration?: ExplorationEngine;
   requirements?: RequirementsEngine;
+  documents?: DocumentEngine;
 }) {
   let state: WorkspaceState = immutable({
     project: null,
@@ -90,6 +99,7 @@ export function createWorkspace(dependencies: {
     diagnosticDocuments: [],
     view: null,
     exploration: null,
+    renderedDocument: null,
     layoutNotices: [],
   });
   const listeners = new Set<(value: WorkspaceState) => void>();
@@ -165,6 +175,8 @@ export function createWorkspace(dependencies: {
       validate(model);
     }
     validate(model);
+    if (model.documents)
+      validateDocumentDefinitions(model.documents, documents);
     return { ...model, sourceHash: await sourceDigest(documents) };
   }
   function restore(
@@ -178,6 +190,7 @@ export function createWorkspace(dependencies: {
       revision: state.revision + 1,
       view: null,
       exploration: null,
+      renderedDocument: null,
       diagnostics: value.model.diagnostics,
       diagnosticDocuments: value.project.documents,
       layoutNotices,
@@ -391,7 +404,10 @@ export function createWorkspace(dependencies: {
       proposals.clear();
       publish({
         project: { ...project, drafts: project.documents },
-        diagnostics: state.model?.diagnostics ?? [],
+        diagnostics: [
+          ...(state.model?.diagnostics ?? []),
+          ...documentDiagnostics(state.renderedDocument),
+        ],
         diagnosticDocuments: project.documents,
       });
     },
@@ -611,6 +627,71 @@ export function createWorkspace(dependencies: {
       } finally {
         finish(token);
       }
+    },
+    async openDocument(name: string) {
+      alive();
+      if (state.busy) throw new Error('Finish the current operation first.');
+      const { project, model } = accepted();
+      if (!dependencies.documents)
+        throw new Error('Document rendering is unavailable.');
+      if (!model.documents?.some((item) => item.qualifiedName === name))
+        throw new Error('Choose a declared document.');
+      const { token, signal } = begin();
+      try {
+        const result = validateRenderedDocument(
+          await dependencies.documents.renderDocument(
+            project.documents,
+            model.modelHash,
+            name,
+            'html',
+            signal,
+          ),
+          model.modelHash,
+          name,
+          'html',
+          project.documents,
+        );
+        current(token);
+        // Planning/evaluation failures join the model diagnostics of the same revision.
+        publish({
+          renderedDocument: result,
+          diagnostics: [...model.diagnostics, ...documentDiagnostics(result)],
+          diagnosticDocuments: project.documents,
+        });
+      } finally {
+        finish(token);
+      }
+    },
+    closeDocument() {
+      alive();
+      if (!state.renderedDocument) return;
+      const { project, model } = accepted();
+      publish({
+        renderedDocument: null,
+        diagnostics: model.diagnostics,
+        diagnosticDocuments: project.documents,
+      });
+    },
+    /** Evaluate a declared view for an embedded, read-only rendering without replacing the open view. */
+    async previewView(id: string, signal?: AbortSignal) {
+      alive();
+      const { project, model } = accepted();
+      if (
+        !model.elements.some(
+          (item) => item.id === id && item.kind === 'viewUsage',
+        )
+      )
+        throw new Error('Choose a declared view.');
+      return validateEvaluation(
+        await dependencies.semantic.evaluate(
+          project.documents,
+          model.modelHash,
+          id,
+          signal,
+        ),
+        model.modelHash,
+        id,
+      );
     },
     moveSymbol(symbol: string, position: Point) {
       moveSymbols({ [symbol]: position });

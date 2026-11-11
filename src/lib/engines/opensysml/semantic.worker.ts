@@ -1,4 +1,8 @@
-import type { Diagnostic, ModelElement } from '$lib/workspace/project';
+import type {
+  Diagnostic,
+  DocumentDefinition,
+  ModelElement,
+} from '$lib/workspace/project';
 import type { EvaluatedView } from '$lib/workspace/views';
 interface GoRuntime {
   importObject: WebAssembly.Imports;
@@ -72,6 +76,19 @@ self.onmessage = async (event: MessageEvent<unknown>) => {
       });
       return;
     }
+    if (operation === 'document') {
+      if (parsed.modelHash !== request.modelHash)
+        throw new Error('Document request no longer matches source.');
+      // Mirrors the upstream RenderDocument field names: modelHash, document, form.
+      self.postMessage({
+        value: call<unknown>('RenderDocument', {
+          modelHash: parsed.modelHash,
+          document: request.document,
+          form: request.form,
+        }),
+      });
+      return;
+    }
     if (operation === 'evaluate' || operation === 'explore') {
       if (parsed.modelHash !== request.modelHash)
         throw new Error('View request no longer matches source.');
@@ -89,7 +106,12 @@ self.onmessage = async (event: MessageEvent<unknown>) => {
       return;
     }
     const elements: ModelElement[] = [];
+    let documentDefinitions: DocumentDefinition[] = [];
     if (!diagnostics.some((item) => item.severity === 'error')) {
+      documentDefinitions = call<{ documents: DocumentDefinition[] }>(
+        'ListDocuments',
+        { modelHash: parsed.modelHash },
+      ).documents;
       const pending = parsed.roots.flatMap((root) =>
           (root.childIds ?? []).map((id) => ({
             id,
@@ -125,7 +147,12 @@ self.onmessage = async (event: MessageEvent<unknown>) => {
       }
     }
     self.postMessage({
-      value: { modelHash: parsed.modelHash, elements, diagnostics },
+      value: {
+        modelHash: parsed.modelHash,
+        elements,
+        diagnostics,
+        documents: documentDefinitions,
+      },
     });
   } catch (error) {
     self.postMessage({
