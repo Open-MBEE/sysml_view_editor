@@ -1194,6 +1194,12 @@ for (const theme of ['light', 'dark'])
         new URL('../fixtures/source-values.sysml', import.meta.url),
       );
       await page.goto('/app');
+      // Geist bundles Latin only. Pin the Unicode fallback in this visual
+      // fixture so Greek evidence pointers do not depend on the host desktop.
+      await page.addStyleTag({
+        content:
+          ':root { font-family: "Geist Variable", "Liberation Sans", sans-serif; }',
+      });
       await page.locator('input[type=file]').setInputFiles({
         name: 'values.sysml',
         mimeType: 'text/plain',
