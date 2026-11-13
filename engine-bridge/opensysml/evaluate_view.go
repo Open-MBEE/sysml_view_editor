@@ -368,6 +368,9 @@ func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*sy
 	for i, edge := range data.Edges {
 		out.Correspondence = append(out.Correspondence, ViewCorrespondence{Symbol: fmt.Sprintf("edge:%d", i), Subject: subject(edge.Origin), Context: []string{}})
 	}
+	if err := cached.sourceValues(&out, declarations); err != nil {
+		return nil, err
+	}
 	return marshal(out)
 }
 

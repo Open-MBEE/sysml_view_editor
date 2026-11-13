@@ -159,7 +159,15 @@ function useLayoutController(mode: Mode) {
       panels[other].current?.collapse();
       remember({ [closedKey[other]]: true });
     }
-    panel.resize(`${preferences.current[id]}%`);
+    // A remembered desktop percentage can fall below a side tool's pixel
+    // minimum on a phone; the panel library may then keep it collapsed.
+    const minimum = id === 'inspector' ? 190 : 145;
+    panel.resize(
+      id !== 'issues' &&
+        (window.innerWidth * preferences.current[id]) / 100 < minimum
+        ? `${minimum}px`
+        : `${preferences.current[id]}%`,
+    );
     remember({ [closedKey[id]]: false });
     if (transferFocus) setFocusRequest({ id, collapsed: false });
   }
@@ -496,6 +504,7 @@ export function WorkbenchPanels({
   inspector,
   issues,
   issueKey,
+  inspectionRequest,
 }: {
   explorer: ReactNode;
   source: ReactNode;
@@ -503,10 +512,14 @@ export function WorkbenchPanels({
   inspector: ReactNode;
   issues: ReactNode;
   issueKey: string;
+  inspectionRequest: number;
 }) {
   const layout = usePanels();
   const initial = layout.initial;
   const lastIssue = useRef('');
+  useEffect(() => {
+    if (inspectionRequest) layout.show('inspector', window.innerWidth < 600);
+  }, [inspectionRequest]);
   useEffect(() => {
     if (issueKey && issueKey !== lastIssue.current)
       layout.show('issues', false);

@@ -49,9 +49,10 @@ OpenMBEE View Editor brings source editing, named model views and reviewed graph
 - **Edit highlighted SysML source.** CodeMirror provides line numbers, bracket matching/closing, indentation, find/replace and draft undo/redo. Apply or discard changes, undo/redo accepted source transactions, and keep the last valid model when a draft fails validation.
 - **Query the draft model.** Request engine-backed completion, symbol information and project-file definitions against the complete current source set.
 - **Inspect requirement graphs.** Browse requirement definitions/usages, declared identifiers and documentation, typing, hierarchy and positive/negated satisfaction links. Follow exact source declarations; diagram links do not report executed test results.
+- **Read authored attribute values.** See source expressions on attribute nodes, general-view card previews and effective structural compartments, with full expressions and provider declarations in the Inspector. Unresolved binding or precedence cases are explained rather than displayed as calculated values.
 - **Open source-defined views.** Navigate named SysML views independently of the active source file. Inspect nested and inherited parts, typed inherited ports and resolved connection endpoints.
 - **Navigate source issues.** Open an issue’s reported file and line in the source editor. Missing or stale locations are explained while drafts and the last valid diagram are retained.
-- **Browse the model hierarchy.** Expand packages, definitions and declared members in the Model tree. Inspect type/kind labels; use arrow keys, type-ahead and Enter/Space to navigate and select.
+- **Browse the model hierarchy.** Expand packages, definitions and declared members in the Model tree. Selection opens Inspector details. Inspect type/kind labels; use arrow keys, type-ahead and Enter/Space to navigate and select.
 - **Review graphical changes.** Rename parts, create native views, add typed part usages and connect compatible directed ports through an exact source-change preview.
 - **Preserve compatible layouts.** Keep verified symbol positions across supported edits, including inactive views. Unsafe identity mappings are reported and arranged again.
 - **Keep projects portable.** Download applied source, unfinished drafts and compatible diagram positions together; reopen the bundle or import multiple SysML files.
@@ -62,6 +63,8 @@ OpenMBEE View Editor brings source editing, named model views and reviewed graph
 Structural, native requirement and bounded action/state workflows have real-engine browser coverage. Use-case, mixed, sequence and geometry renderers remain unavailable; behavior diagrams do not execute or simulate models. See [capabilities and limits](docs/capabilities.md) and [local verification](docs/verification.md) for the implemented scope.
 
 In the source editor, use **Ctrl+F** / **Cmd+F** for find/replace and **Ctrl+Z** / **Cmd+Z** for draft editing undo; **Ctrl+Y** / **Cmd+Shift+Z** redo draft edits. **Tab** moves focus out of the editor. Toolbar **Undo source** / **Redo source** operate on accepted model revisions. Highlighting is lexical; the pinned engines still validate source when you apply it. Use **Ctrl+Space** for engine-backed completion, **F1** for symbol information and **F12** for project-file definitions; pointing at a symbol also requests hover information. Queries use the complete current draft source set. Unsupported completion edits and stale replies are rejected. Formatting and inline diagnostics remain future work.
+
+**Read large views:** large authored trees and interconnections open at a readable scale when fitting the whole graph would reduce zoom below 60%. Pan to continue, choose **Fit view** for an overview, or select a diagram occurrence and choose **100%** to read it. These camera actions preserve source and saved symbol positions.
 
 ## Quick start
 
@@ -106,7 +109,7 @@ Connection creation currently requires explicit compatible directions and identi
 
 ### 4. Inspect requirements and source
 
-Choose **Requirements table** above the diagram to browse applied requirement identifiers, documentation and declared links; search or sort the rows and export CSV. **Traceability matrix** shows satisfaction or verification declarations against linked elements, including explicitly negated links. These are read-only views, not executed verification results. Click a requirement or link to reveal its source; apply or discard a changed draft in that file first.
+Choose **Requirements table** above the diagram to browse applied requirement identifiers, documentation and declared links; search or sort the rows and export CSV. **Traceability matrix** shows satisfaction or verification declarations against linked elements, including explicitly negated links. These are read-only views, not executed verification results. Select a requirement or link to open its Inspector details. Choose **Open source** there to navigate to its declaration; apply or discard a changed draft in that file first.
 
 In the source pane, **Find references** (also Shift+F12) lists project reference locations. **Format source** formats the current draft with Toolkit. Formatting supports local editor undo; **Apply source** validates and accepts it into source history. Failed or stale queries retain your work.
 

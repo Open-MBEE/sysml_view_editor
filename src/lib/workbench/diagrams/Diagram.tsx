@@ -1,3 +1,5 @@
+import { TreeLabel } from './TreeLabel';
+import { treeNodeHeight } from './source-attributes';
 import { useDiagramFit } from './useDiagramFit';
 import { layoutExploration, explorationKindLabel } from './exploration';
 import { RoutedEdge } from './RoutedEdge';
@@ -36,15 +38,17 @@ function FitAvailableSpace({
   padding,
   layoutMode,
   bounds,
+  readableEntry,
 }: {
   padding: number;
   layoutMode: string;
   bounds?: Rect;
+  readableEntry: boolean;
 }) {
   const width = useStore((state) => state.width);
   const height = useStore((state) => state.height);
   const initialized = useNodesInitialized();
-  const fit = useDiagramFit(padding, bounds);
+  const fit = useDiagramFit(padding, bounds, readableEntry);
   const fitted = useRef(false);
   const previousMode = useRef(layoutMode);
   useEffect(() => {
@@ -97,6 +101,7 @@ interface Props {
   presentation?: ViewPresentation;
   disabled: boolean;
   onSelect: (symbol: string) => void;
+  selectedSymbol?: string;
   onMove: (positions: Record<string, Point>) => void;
   onCreatePart: () => void;
   onConnectPorts: () => void;
@@ -114,6 +119,7 @@ export function Diagram({
   presentation,
   disabled,
   onSelect,
+  selectedSymbol,
   onMove,
   onCreatePart,
   onConnectPorts,
@@ -234,7 +240,7 @@ export function Diagram({
       children: artifact.nodes.map((item) => ({
         id: item.id,
         width: 190,
-        height: 65,
+        height: treeNodeHeight(item),
       })),
       edges: artifact.edges
         .filter(
@@ -252,6 +258,12 @@ export function Diagram({
       .layout(graph)
       .then((layout) => {
         if (cancelled) return;
+        const subjects = new Map(
+          view.correspondence.map((entry) => [entry.symbol, entry.subject]),
+        );
+        const names = new Map(
+          elements.map((element) => [element.id, element.name]),
+        );
         const next = artifact.nodes.map((item) => {
           const point =
             stored[item.id] ??
@@ -269,13 +281,16 @@ export function Diagram({
             position: { x: point?.x ?? 0, y: point?.y ?? 0 },
             data: {
               label: (
-                <>
-                  <span className="model-node-kind">{item.kind}</span>
-                  {item.name + (item.type ? ' : ' + item.type : '')}
-                </>
+                <TreeLabel
+                  item={item}
+                  localName={names.get(
+                    subjects.get(item.id)?.qualifiedName ?? '',
+                  )}
+                  subject={subjects.get(item.id)}
+                />
               ),
             },
-            style: { width: 190, minHeight: 65 },
+            style: { width: 190, minHeight: treeNodeHeight(item) },
           };
         });
         setNodes(next);
@@ -598,17 +613,7 @@ export function Diagram({
                       : 0.2,
                   maxZoom: 1,
                 }}
-                minZoom={
-                  exploration ||
-                  [
-                    'requirement',
-                    'action',
-                    'state',
-                    'interconnection',
-                  ].includes(view?.artifact?.kind ?? '')
-                    ? 0.1
-                    : 0.5
-                }
+                minZoom={0.1}
                 nodesConnectable={false}
                 nodesDraggable={!disabled && !locked && !exploration}
                 elementsSelectable={!locked}
@@ -630,12 +635,24 @@ export function Diagram({
                 }}
               >
                 <FitAvailableSpace
+                  readableEntry={
+                    !!view?.artifact &&
+                    ['tree', 'interconnection'].includes(view.artifact.kind) &&
+                    !exploration
+                  }
                   layoutMode={layoutMode}
                   padding={fitPadding}
                   bounds={sceneBounds}
                 />
                 <Background />
                 <DiagramControls
+                  readTarget={
+                    view?.artifact?.nodes.find(
+                      (node) =>
+                        node.id === selectedSymbol ||
+                        node.ports?.some((port) => port.id === selectedSymbol),
+                    )?.id
+                  }
                   locked={locked}
                   onLock={setLocked}
                   padding={fitPadding}

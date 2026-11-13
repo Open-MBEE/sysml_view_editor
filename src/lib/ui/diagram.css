@@ -469,3 +469,47 @@
   justify-content: flex-end;
   gap: 6px;
 }
+
+.tree-node-name,
+.tree-node-value {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.tree-node-name {
+  -webkit-line-clamp: 1;
+}
+.tree-node-value {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 16px;
+}
+
+.diagram-controls .diagram-zoom {
+  font-size: 10px;
+  color: var(--sysml-muted);
+  text-align: center;
+}
+.diagram-controls button {
+  max-width: 46px;
+}
+
+.tree-attribute-preview {
+  display: block;
+  font-size: 11px;
+  line-height: 18px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+  margin-top: 3px;
+}
+.tree-values-count {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+  color: var(--sysml-muted);
+}
