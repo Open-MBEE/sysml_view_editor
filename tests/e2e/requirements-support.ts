@@ -1,7 +1,12 @@
 import { readFile } from 'node:fs/promises';
 import type { Locator, Page } from '@playwright/test';
 import type { EvaluatedView } from '../../src/lib/workspace/views';
-import { expect, namedViewButton, diagramState } from './support';
+import {
+  expect,
+  namedViewButton,
+  diagramState,
+  readingCenterOffset,
+} from './support';
 
 export const requirementViews = {
   requirements: 'TraceViews::requirements',
@@ -201,10 +206,31 @@ export async function centerRequirementCard(page: Page, card: Locator) {
     x: bounds.x + bounds.width / 2 - box.x - box.width / 2,
     y: bounds.y + bounds.height / 2 - box.y - box.height / 2,
   };
-  const start = {
-    x: delta.x >= 0 ? bounds.x + 50 : bounds.x + bounds.width - 50,
-    y: delta.y >= 0 ? bounds.y + 50 : bounds.y + bounds.height - 50,
-  };
+  const start = await canvas.evaluate((element, delta) => {
+    const bounds = element.getBoundingClientRect();
+    const candidates = [
+      {
+        x: delta.x >= 0 ? bounds.x + 50 : bounds.right - 50,
+        y: delta.y >= 0 ? bounds.y + 50 : bounds.bottom - 50,
+      },
+      {
+        x: delta.x >= 0 ? bounds.x + 8 : bounds.right - 8,
+        y: delta.y >= 0 ? bounds.y + 8 : bounds.bottom - 8,
+      },
+      { x: bounds.x + 8, y: bounds.y + 8 },
+      { x: bounds.right - 8, y: bounds.y + 8 },
+      { x: bounds.x + 8, y: bounds.bottom - 8 },
+      { x: bounds.right - 8, y: bounds.bottom - 8 },
+      { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 },
+    ];
+    return candidates.find((point) =>
+      element.ownerDocument
+        .elementFromPoint(point.x, point.y)
+        ?.classList.contains('react-flow__pane'),
+    );
+  }, delta);
+  if (!start)
+    throw new Error('No unobstructed canvas point for requirement panning.');
   await page.mouse.move(start.x, start.y);
   await page.mouse.down({ button: 'middle' });
   await page.mouse.move(start.x + delta.x, start.y + delta.y, { steps: 8 });
@@ -228,6 +254,7 @@ export async function centerRequirementCard(page: Page, card: Locator) {
       },
     )
     .toBeGreaterThanOrEqual(0);
+  await expect.poll(() => readingCenterOffset(card)).toBeLessThan(1);
   await expect.poll(() => diagramState(page)).toEqual(before);
 }
 
