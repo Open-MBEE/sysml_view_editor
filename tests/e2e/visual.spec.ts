@@ -21,6 +21,7 @@ import {
   importRequirementsTraceability,
   waitForRequirements,
   centerRequirementCard,
+  consumeRequirementAutomaticFit,
   zoomRequirementForReading,
   requirementCard,
 } from './requirements-support';
@@ -592,6 +593,8 @@ for (const theme of ['light', 'dark']) {
       await expect(
         page.getByRole('region', { name: 'Issues', exact: true }),
       ).not.toBeVisible();
+      // A fit after the resize leaves a pan remainder integer drags cannot remove.
+      await consumeRequirementAutomaticFit(page);
       await page.setViewportSize({ width, height: 900 });
       await page
         .getByRole('button', { name: 'Appearance', exact: true })
