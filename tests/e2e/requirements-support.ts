@@ -188,6 +188,28 @@ export async function expectRequirementsFit(page: Page) {
     .toBeGreaterThanOrEqual(0);
 }
 
+/**
+ * The automatic fit runs once, frames after the cards appear, at whatever size
+ * the canvas then has. A mode round trip makes its completion observable.
+ */
+export async function consumeRequirementAutomaticFit(page: Page) {
+  const camera = () =>
+    page
+      .getByRole('region', { name: 'Diagram', exact: true })
+      .locator('.react-flow__viewport')
+      .evaluate((viewport) => getComputedStyle(viewport).transform);
+  await expectRequirementsFit(page);
+  const fitted = await camera();
+  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  await expect
+    .poll(camera, { message: 'Split mode fits the narrower canvas' })
+    .not.toBe(fitted);
+  await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+  await expect
+    .poll(camera, { message: 'Diagram mode restores the full-canvas fit' })
+    .toBe(fitted);
+}
+
 /** Center the focused card with a real canvas pan, retaining model-space geometry. */
 export async function centerRequirementCard(page: Page, card: Locator) {
   await settledRequirementViewport(page);
@@ -267,7 +289,7 @@ async function settledRequirementViewport(page: Page) {
 /**
  * Normalize through the visible maximum-zoom endpoint, then five real zoom-out
  * actions. React Flow documents each zoom-out as 1/1.2 of the previous scale.
- * This does not depend on whether initial fit finished before a panel resize.
+ * This fixes the scale only; the pan still depends on the size at initial fit.
  */
 export async function zoomRequirementForReading(page: Page, card: Locator) {
   const zoomIn = page.getByRole('button', { name: 'Zoom in', exact: true });
