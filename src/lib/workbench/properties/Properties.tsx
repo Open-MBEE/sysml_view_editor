@@ -1,13 +1,18 @@
+import { SourceValues } from './SourceValues';
+import type { SourceLocation } from '$lib/workspace/project';
 import { CodeXml, SquarePlus, Cable, Eye, Pencil } from 'lucide-react';
 import { Input } from '$lib/ui/primitives/input';
 import { Button } from '$lib/ui/primitives/button';
 import { useState } from 'react';
+import type { RequirementsResult } from '$lib/workspace/requirements';
 import type { ModelElement } from '$lib/workspace/project';
 import type { ArtifactNode } from '$lib/workspace/views';
 import type { DiagramRelationshipSelection } from './diagram-selection';
 export function Properties({
   element,
   artifactNode,
+  requirement,
+  subject,
   relationship,
   sourceAvailable = true,
   readOnlyDiagram = false,
@@ -16,11 +21,14 @@ export function Properties({
   onRename,
   onCreateView,
   onSource,
+  onValueSource,
   onCreatePart,
   onConnectPorts,
 }: {
   element?: ModelElement;
   artifactNode?: ArtifactNode;
+  requirement?: RequirementsResult['requirements'][number];
+  subject?: RequirementsResult['requirements'][number]['subject'];
   relationship?: DiagramRelationshipSelection;
   sourceAvailable?: boolean;
   readOnlyDiagram?: boolean;
@@ -29,6 +37,7 @@ export function Properties({
   onRename: (name: string) => void;
   onCreateView: () => void;
   onSource: () => void;
+  onValueSource: (origin: SourceLocation) => void;
   onCreatePart: () => void;
   onConnectPorts: () => void;
 }) {
@@ -122,7 +131,17 @@ export function Properties({
                 : artifactNode.detail && <p>{artifactNode.detail}</p>}
             </>
           )}
-          <Button variant="outline" disabled={disabled} onClick={onSource}>
+          {!sourceAvailable && (
+            <p>
+              Source location unavailable for this selection, or its file has an
+              unapplied draft.
+            </p>
+          )}
+          <Button
+            variant="outline"
+            disabled={disabled || !sourceAvailable}
+            onClick={onSource}
+          >
             <CodeXml aria-hidden="true" />
             Open source
           </Button>
@@ -167,8 +186,59 @@ export function Properties({
             </Button>
           )}
         </>
+      ) : subject ? (
+        <>
+          <h3>Declaration</h3>
+          <dl>
+            <dt>Identity</dt>
+            <dd>{subject.qualifiedName ?? subject.id}</dd>
+            {subject.origin && (
+              <>
+                <dt>Source file</dt>
+                <dd>{subject.origin.file}</dd>
+              </>
+            )}
+          </dl>
+          <p>Applied model declaration; no execution result is reported.</p>
+          {!sourceAvailable && (
+            <p>
+              Source location unavailable for this selection, or its file has an
+              unapplied draft.
+            </p>
+          )}
+          <Button
+            variant="outline"
+            disabled={disabled || !sourceAvailable}
+            onClick={onSource}
+          >
+            <CodeXml aria-hidden="true" />
+            Open source
+          </Button>
+        </>
       ) : (
         <p>Select a model element or diagram symbol to inspect it.</p>
+      )}
+      {requirement && (
+        <>
+          {requirement.shortName && (
+            <p>
+              <strong>Identifier:</strong> {requirement.shortName}
+            </p>
+          )}
+          {requirement.documentation.map((text, index) => (
+            <p key={index}>{text}</p>
+          ))}
+          <p>
+            Applied requirement declaration; no execution result is reported.
+          </p>
+        </>
+      )}
+      {artifactNode && (
+        <SourceValues
+          node={artifactNode}
+          disabled={disabled}
+          onSource={onValueSource}
+        />
       )}
     </aside>
   );

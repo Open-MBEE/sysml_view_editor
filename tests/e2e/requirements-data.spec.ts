@@ -57,6 +57,10 @@ test('@critical reads requirements and exact declared traceability without chang
       exact: true,
     })
     .click();
+  await page
+    .getByRole('complementary', { name: 'Properties', exact: true })
+    .getByRole('button', { name: 'Open source', exact: true })
+    .click();
   const source = page.getByRole('textbox', {
     name: 'SysML source',
     exact: true,
@@ -143,9 +147,18 @@ test('@critical reads requirements and exact declared traceability without chang
       exact: true,
     })
     .click();
+  // Inspection remains available for applied declarations; source navigation is
+  // explicitly unavailable while that file has a different draft.
+  const properties = page.getByRole('complementary', {
+    name: 'Properties',
+    exact: true,
+  });
+  await expect(properties).toContainText('TraceRequirements::excludedCapacity');
+  await expect(properties).toContainText('unapplied draft');
   await expect(
-    page.getByRole('status').filter({ hasText: 'Apply or discard this file' }),
-  ).toBeVisible();
+    properties.getByRole('button', { name: 'Open source', exact: true }),
+  ).toBeDisabled();
+
   const saved = (await downloadProject(page)).bundle;
   expect(saved.documents).toEqual(before.documents);
   expect(saved.presentations).toEqual(before.presentations);
@@ -245,6 +258,10 @@ test('matrix verification resolves the actual verifier and requirement through a
       .getByRole('button', { name: 'Requirements::safety', exact: true }),
   ).toBeVisible();
   await matrix.getByRole('button', { name: 'Declared', exact: true }).click();
+  await page
+    .getByRole('complementary', { name: 'Properties', exact: true })
+    .getByRole('button', { name: 'Open source', exact: true })
+    .click();
   await expect
     .poll(() =>
       copySourceSelection(

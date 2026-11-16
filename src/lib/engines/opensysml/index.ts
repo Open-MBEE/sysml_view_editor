@@ -70,7 +70,7 @@ export function createSemanticEngine(
           view,
           base,
         },
-        (value) => validateEvaluation(value, modelHash, view),
+        (value) => validateEvaluation(value, modelHash, view, documents),
         signal,
       );
     },

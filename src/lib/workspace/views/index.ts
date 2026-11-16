@@ -1,3 +1,5 @@
+import { validateSourceValues } from './source-values';
+import type { SourceDocument } from '../project';
 import type { Static } from 'typebox';
 import type { ReadonlyData } from '$lib/contracts/validation';
 import {
@@ -15,6 +17,7 @@ export function validateEvaluation(
   value: unknown,
   modelHash: string,
   view: string,
+  documents: readonly SourceDocument[] = [],
 ): EvaluatedView {
   const result = readEvaluatedView(value);
   if (
@@ -45,6 +48,7 @@ export function validateEvaluation(
   )
     validateStructure(result.artifact);
   if (result.artifact?.kind === 'requirement') validateRequirements(result);
+  validateSourceValues(result, documents);
   return result;
 }
 

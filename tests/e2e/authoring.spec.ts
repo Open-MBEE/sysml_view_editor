@@ -12,6 +12,7 @@ import {
   diagramSymbol,
   expectRenderedPositions,
   diagramState,
+  readDiagramSymbol,
 } from './support';
 
 test('@critical creates a typed part and connects its actual inherited usage ports through reviewed source transactions', async ({
@@ -30,6 +31,13 @@ test('@critical creates a typed part and connects its actual inherited usage por
   }
   const baseline = (await downloadProject(page)).bundle;
   const originalPositions = semanticPositions(baseline, evaluations);
+  await readDiagramSymbol(
+    page,
+    page.getByRole('group', {
+      name: 'part Assembly::Station::bay',
+      exact: true,
+    }),
+  );
   await page
     .getByRole('group', { name: 'part Assembly::Station::bay', exact: true })
     .click({ position: { x: 30, y: 30 } });

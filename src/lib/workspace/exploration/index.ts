@@ -82,7 +82,7 @@ export function validateExploration(
     result.modelHash !== modelHash
   )
     throw new Error('Invalid or stale exploration response.');
-  validateEvaluation({ ...result, view: '' }, modelHash, '');
+  validateEvaluation({ ...result, view: '' }, modelHash, '', documents);
   const sizes = new Map(
     documents.map((file) => [
       file.name,

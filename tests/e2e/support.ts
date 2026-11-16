@@ -419,6 +419,16 @@ export async function showAssemblyDiagram(page: Page) {
     name: 'part def Assembly::Station',
     exact: true,
   });
+  // Compare fitted overviews across modes. Readable entry can deliberately
+  // start at 100%, so its cropped card width is not a fit-to-pane measurement.
+  await page.getByRole('button', { name: 'Fit view', exact: true }).click();
+  const available = await regionSize(
+    page.getByRole('region', { name: 'Diagram', exact: true }),
+    'width',
+  );
+  await expect
+    .poll(async () => (await station.boundingBox())!.width)
+    .toBeLessThan(available);
   const before = (await station.boundingBox())!.width;
   await page.getByRole('button', { name: 'Diagram', exact: true }).click();
   await expect
@@ -572,7 +582,20 @@ export async function dragNode(
   node: Locator,
   delta = { x: 80, y: 55 },
 ) {
-  await node.scrollIntoViewIfNeeded();
+  const reachable = await node.evaluate((element) => {
+    const heading =
+      element.querySelector('.structure-heading, .requirement-heading') ??
+      element;
+    const box = heading.getBoundingClientRect();
+    const hit = document.elementFromPoint(
+      box.x + Math.min(30, box.width / 3),
+      box.y + box.height / 2,
+    );
+    return !!hit && element.contains(hit);
+  });
+  // Canvas contents are navigated with the camera, not page scrolling. A
+  // readable entry may intentionally leave a later occurrence off-screen.
+  if (!reachable) await readDiagramSymbol(page, node);
   // Mode changes fit the camera after ResizeObserver and animation frames.
   // Wait for observable heading/viewport geometry, then perform one gesture.
   const { x, y } = await node.evaluate(
@@ -620,6 +643,12 @@ export async function dragNode(
   await page.mouse.down();
   await page.mouse.move(x + delta.x, y + delta.y, { steps: 8 });
   await page.mouse.up();
+}
+
+export async function readDiagramSymbol(page: Page, node: Locator) {
+  await node.focus();
+  await node.press('Enter');
+  await page.getByRole('button', { name: 'Read at 100%', exact: true }).click();
 }
 
 export async function moveNode(
@@ -682,6 +711,17 @@ export async function diagramCamera(page: Page) {
       const matrix = new DOMMatrixReadOnly(getComputedStyle(element).transform);
       return { x: matrix.e, y: matrix.f, zoom: matrix.a };
     });
+}
+/** Distance from the actual selected card center to the canvas center. */
+export async function readingCenterOffset(node: Locator) {
+  return node.evaluate((element) => {
+    const card = element.getBoundingClientRect();
+    const canvas = element.closest('.react-flow')!.getBoundingClientRect();
+    return Math.hypot(
+      card.x + card.width / 2 - canvas.x - canvas.width / 2,
+      card.y + card.height / 2 - canvas.y - canvas.height / 2,
+    );
+  });
 }
 export async function panDiagram(page: Page) {
   const pane = page

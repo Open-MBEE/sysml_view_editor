@@ -15,12 +15,16 @@ export function RequirementsPanel({
   workspace,
   state,
   mode,
-  onReveal,
+  onInspect,
 }: {
   workspace: Workspace;
   state: WorkspaceState;
   mode: 'table' | 'matrix';
-  onReveal: (subject: RequirementSubject) => void;
+  onInspect: (
+    subject: RequirementSubject,
+    modelHash: string,
+    row?: RequirementsResult['requirements'][number],
+  ) => void;
 }) {
   const [result, setResult] = useState<RequirementsResult>();
   const [error, setError] = useState('');
@@ -92,7 +96,12 @@ export function RequirementsPanel({
     current.modelHash === state.model?.modelHash &&
     !state.busy;
   function reveal(subject: RequirementSubject) {
-    if (available) onReveal(subject);
+    if (available && current)
+      onInspect(
+        subject,
+        current.modelHash,
+        current.requirements.find((row) => row.subject.id === subject.id),
+      );
   }
   function exportCSV() {
     if (!available || tooLarge) return;

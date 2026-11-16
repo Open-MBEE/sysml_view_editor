@@ -11,6 +11,8 @@ const archiveHash =
 const digest = (bytes) => createHash('sha256').update(bytes).digest('hex');
 const overlays = [
   'evaluate_view.go',
+  'source_values.go',
+  'source_values_test.go',
   'exploration.go',
   'exploration_test.go',
   'validated_view.go',
@@ -98,6 +100,11 @@ for (const [name, folder] of [
       folder,
       name.endsWith('_test.go') ? 'studio_view_test.go' : 'studio_view.go',
     ),
+  );
+for (const name of ['source_values.go', 'source_values_test.go'])
+  await cp(
+    resolve(root, 'engine-bridge/opensysml', name),
+    resolve(source, 'internal/frontend/engine', 'studio_' + name),
   );
 for (const [name, folder] of [
   ['exploration.go', 'engine'],

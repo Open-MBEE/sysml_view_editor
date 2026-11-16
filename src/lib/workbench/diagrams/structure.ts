@@ -1,3 +1,4 @@
+import { sourceAttributeCount } from './source-attributes';
 import type { LayoutRoute } from './RoutedEdge';
 import ELK, { type ElkNode } from 'elkjs/lib/elk.bundled.js';
 import { MarkerType, type Node, type Edge } from '@xyflow/react';
@@ -29,7 +30,7 @@ export const headingHeight = 66;
 export const portHeight = 30;
 const contentTop = (item: ArtifactNode, dense = false) =>
   headingHeight +
-  (item.attributeDeclarations?.length ?? 0) * (dense ? 32 : 48) +
+  sourceAttributeCount(item) * (dense ? 32 : 48) +
   (item.ports?.length ?? 0) * portHeight +
   20;
 
@@ -152,9 +153,8 @@ export async function layoutStructure(
                 y:
                   1 +
                   headingHeight +
-                  (item.attributeDeclarations?.length ?? 0) *
-                    (dense ? 32 : 48) +
-                  (item.attributeDeclarations?.length ? 1 : 0) +
+                  sourceAttributeCount(item) * (dense ? 32 : 48) +
+                  (sourceAttributeCount(item) ? 1 : 0) +
                   (index + 0.5) *
                     (portHeight +
                       (!nested.length ? 18 / item.ports!.length : 0)) +
