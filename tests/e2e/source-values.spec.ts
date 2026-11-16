@@ -144,7 +144,9 @@ test('@critical inspects exact nested defaults and overrides, explains bindings 
       expect(await copySourceSelection(source)).toContain(
         'attribute gain : Real default = 12.50;',
       );
-      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Show model only', exact: true })
+        .click();
     }
   }
   const bound = view.correspondence.find(
@@ -165,7 +167,9 @@ test('@critical inspects exact nested defaults and overrides, explains bindings 
   await page.getByRole('button', { name: 'Read at 100%', exact: true }).click();
   await moveNode(page, node);
   const before = (await downloadProject(page)).bundle;
-  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   const source = page.getByRole('textbox', {
     name: 'SysML source',
     exact: true,

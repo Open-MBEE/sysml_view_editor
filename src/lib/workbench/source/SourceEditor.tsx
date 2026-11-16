@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Button } from '$lib/ui/primitives/button';
 import { useEffectEvent, useLayoutEffect, useRef, useState } from 'react';
 import { basicSetup } from 'codemirror';
@@ -25,6 +26,7 @@ const highlighting = HighlightStyle.define([
 
 export function SourceEditor({
   file,
+  renderHeader,
   disabled = false,
   selection,
   onChange,
@@ -34,6 +36,7 @@ export function SourceEditor({
   languageContext,
 }: {
   file: SourceDocument;
+  renderHeader?: (tools: ReactNode) => ReactNode;
   disabled?: boolean;
   selection?: { start: number; end: number; focus?: boolean };
   onChange: (value: string) => void;
@@ -156,29 +159,36 @@ export function SourceEditor({
     });
     if (selection.focus !== false) view.focus();
   }, [selection, file.name]);
+  const tools = (
+    <div className="source-query-actions">
+      <Button
+        size="xs"
+        variant="ghost"
+        disabled={disabled}
+        onClick={() => void assistance.current?.references()}
+      >
+        Find references
+      </Button>
+      <Button
+        size="xs"
+        variant="ghost"
+        disabled={disabled}
+        onClick={() => void assistance.current?.format()}
+      >
+        Format source
+      </Button>
+    </div>
+  );
   return (
     <section className="editor-pane" aria-label="Source editor">
-      <header className="pane-heading">
-        <strong title={file.name}>{file.name}</strong>
-        <div className="source-query-actions">
-          <Button
-            size="xs"
-            variant="ghost"
-            disabled={disabled}
-            onClick={() => void assistance.current?.references()}
-          >
-            Find references
-          </Button>
-          <Button
-            size="xs"
-            variant="ghost"
-            disabled={disabled}
-            onClick={() => void assistance.current?.format()}
-          >
-            Format source
-          </Button>
-        </div>
-      </header>
+      {renderHeader ? (
+        renderHeader(tools)
+      ) : (
+        <header className="pane-heading">
+          <strong title={file.name}>{file.name}</strong>
+          {tools}
+        </header>
+      )}
       <p id="source-help" className="sr-only">
         Find and replace with Control+F or Command+F. Tab leaves the editor.
         Request completion with Control+Space. Press F1 for symbol information

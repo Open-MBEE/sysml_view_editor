@@ -62,7 +62,9 @@ OpenMBEE View Editor brings source editing, named model views and reviewed graph
 
 Structural, native requirement and bounded action/state workflows have real-engine browser coverage. Use-case, mixed, sequence and geometry renderers remain unavailable; behavior diagrams do not execute or simulate models. See [capabilities and limits](docs/capabilities.md) and [local verification](docs/verification.md) for the implemented scope.
 
-In the source editor, use **Ctrl+F** / **Cmd+F** for find/replace and **Ctrl+Z** / **Cmd+Z** for draft editing undo; **Ctrl+Y** / **Cmd+Shift+Z** redo draft edits. **Tab** moves focus out of the editor. Toolbar **Undo source** / **Redo source** operate on accepted model revisions. Highlighting is lexical; the pinned engines still validate source when you apply it. Use **Ctrl+Space** for engine-backed completion, **F1** for symbol information and **F12** for project-file definitions; pointing at a symbol also requests hover information. Queries use the complete current draft source set. Unsupported completion edits and stale replies are rejected. Formatting and inline diagnostics remain future work.
+In the source editor, use **Ctrl+F** / **Cmd+F** for find/replace and **Ctrl+Z** / **Cmd+Z** for draft editing undo; **Ctrl+Y** / **Cmd+Shift+Z** redo draft edits. **Tab** moves focus out of the editor. Toolbar **Undo source** / **Redo source** operate on accepted model revisions. Highlighting is lexical; the pinned engines still validate source when you apply it. Use **Ctrl+Space** for engine-backed completion, **F1** for symbol information and **F12** for project-file definitions; pointing at a symbol also requests hover information. Queries use the complete current draft source set. Unsupported completion edits and stale replies are rejected. **Format source** updates the current draft; applying remains explicit. Inline diagnostics remain future work.
+
+**Arrange Source and Model:** the global arrangement controls choose **Source only**, **Source + Model** or **Model only**. The Model representation remains independent. Source history, Apply/Discard and language actions live in the Source header; show Source to reach them. A **Draft** badge beside the filename describes that file only, while Apply/Discard affect all project source drafts.
 
 **Read large views:** large authored trees and interconnections open at a readable scale when fitting the whole graph would reduce zoom below 60%. Pan to continue, choose **Fit view** for an overview, or select a diagram occurrence and choose **100%** to read it. These camera actions preserve source and saved symbol positions.
 
@@ -85,12 +87,12 @@ Vite excludes generated `sandbox/` contents and prepared `static/vendor/` binari
 
 The landing page offers **Open app** and **Try an example**. `/app` opens a project launcher with **New project**, **Open files or project**, **Load example** and **Local recovery**. No model loads implicitly. New projects stay marked modified until downloaded.
 
-Choose **Load example** to open the **Inspection rover** in Diagram mode. Six source files describe four connected assemblies, declared component values, an inspection mission, operating states and quantitative requirements.
+Choose **Load example** to open the **Inspection rover** in **Model only** arrangement. Six source files describe four connected assemblies, declared component values, an inspection mission, operating states and quantitative requirements.
 
 Explore the named views **architecture → mission → lifecycle → requirements → definitions**. Choose **Guide** in the project header for a tour of the editor controls. The opening diagram includes a 480 Wh battery, two distinct drives, lidar, controller, camera and radio. Declared values, successions and satisfaction links are model content; the app does not execute or simulate them.
 
 1. Select another named view in Explorer or the diagram’s **Named view** selector.
-2. Choose **Split** to see source; selecting a file keeps the active diagram open.
+2. Choose **Source + Model** (tooltip: **Show source and model**) to see source; selecting a file keeps the active diagram open.
 3. Edit source and choose **Apply source**. Invalid drafts retain the applied model and appear in **Issues**.
 4. Choose **Download project** to preserve sources and arranged view geometry.
 

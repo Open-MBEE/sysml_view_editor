@@ -231,9 +231,16 @@ export async function centerRequirementCard(page: Page, card: Locator) {
   }, delta);
   if (!start)
     throw new Error('No unobstructed canvas point for requirement panning.');
-  await page.mouse.move(start.x, start.y);
+  // Browser mouse events quantize coordinates. Round the displacement rather
+  // than letting two fractional endpoints accumulate a pixel of error per axis.
+  const origin = { x: Math.round(start.x), y: Math.round(start.y) };
+  await page.mouse.move(origin.x, origin.y);
   await page.mouse.down({ button: 'middle' });
-  await page.mouse.move(start.x + delta.x, start.y + delta.y, { steps: 8 });
+  await page.mouse.move(
+    origin.x + Math.round(delta.x),
+    origin.y + Math.round(delta.y),
+    { steps: 8 },
+  );
   await page.mouse.up({ button: 'middle' });
   await settledRequirementViewport(page);
   await expect

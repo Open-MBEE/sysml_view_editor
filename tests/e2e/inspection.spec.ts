@@ -24,7 +24,9 @@ test('@critical tree selection reveals hidden details while retaining the curren
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
-  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   const draft = buffer.toString() + '\n// retained inspection draft';
   const source = page.getByRole('textbox', {
     name: 'SysML source',
@@ -60,7 +62,9 @@ test('@critical table selection opens details without automatically navigating t
 }) => {
   await page.goto('/app');
   await importRequirementsTraceability(page);
-  await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show model only', exact: true })
+    .click();
   await page
     .getByRole('button', { name: 'Collapse Inspector', exact: true })
     .click();
@@ -87,7 +91,7 @@ test('@critical table selection opens details without automatically navigating t
     'TraceRequirements::leftSpecification::leftCapacity',
   );
   await expect(
-    page.getByRole('button', { name: 'Diagram', exact: true }),
+    page.getByRole('button', { name: 'Show model only', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
   await expect(row).toBeFocused();
   await expect(properties).toContainText('REQ-LEFT-CAP');

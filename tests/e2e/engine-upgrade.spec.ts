@@ -163,6 +163,7 @@ test('retains 0.10 declaration-to-position identities across structural, require
         }),
         model.modelHash,
         view.view,
+        sample.documents,
       );
       expect(result.status, view.view).toBe('complete');
       expect(result.artifact?.kind, view.view).toBe(view.kind);

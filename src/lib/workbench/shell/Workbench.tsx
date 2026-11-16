@@ -37,7 +37,8 @@ import {
 import type { RecoveryEntry } from '../recovery/envelope';
 import { ProjectLauncher } from '../entry/ProjectLauncher';
 import { ProjectHeader } from './ProjectHeader';
-import { SourceToolbar } from './SourceToolbar';
+import { WorkspaceToolbar } from './WorkspaceToolbar';
+import { SourcePaneHeader } from './SourcePaneHeader';
 import {
   createLocalProject,
   readProjectFiles,
@@ -655,38 +656,7 @@ export function Workbench({
             onRestore={restoreRecovery}
             busy={state.busy}
           />
-          <SourceToolbar
-            state={state}
-            mode={mode}
-            onMode={setMode}
-            onUndo={() =>
-              void run(async () => {
-                const session = workspace(),
-                  id = session.snapshot().view?.view;
-                session.undo();
-                await refreshView(session, id);
-              })
-            }
-            onRedo={() =>
-              void run(async () => {
-                const session = workspace(),
-                  id = session.snapshot().view?.view;
-                session.redo();
-                await refreshView(session, id);
-              })
-            }
-            onDiscard={() => void run(() => workspace().discardDrafts())}
-            onApply={() =>
-              void run(async () => {
-                const session = workspace(),
-                  id = session.snapshot().view?.view;
-                await session.apply();
-                setMessage('Source applied.');
-                setFocusRange(undefined);
-                await refreshView(session, id);
-              })
-            }
-          />
+          <WorkspaceToolbar mode={mode} onMode={setMode} />
           <main
             className="workbench"
             aria-label="Model workspace"
@@ -723,6 +693,48 @@ export function Workbench({
               source={
                 source ? (
                   <SourceEditor
+                    renderHeader={(tools) => (
+                      <SourcePaneHeader
+                        state={state}
+                        fileName={source.name}
+                        fileUnapplied={
+                          source.text !==
+                          state.project?.documents.find(
+                            (document) => document.name === source.name,
+                          )?.text
+                        }
+                        tools={tools}
+                        onUndo={() =>
+                          void run(async () => {
+                            const session = workspace(),
+                              id = session.snapshot().view?.view;
+                            session.undo();
+                            await refreshView(session, id);
+                          })
+                        }
+                        onRedo={() =>
+                          void run(async () => {
+                            const session = workspace(),
+                              id = session.snapshot().view?.view;
+                            session.redo();
+                            await refreshView(session, id);
+                          })
+                        }
+                        onDiscard={() =>
+                          void run(() => workspace().discardDrafts())
+                        }
+                        onApply={() =>
+                          void run(async () => {
+                            const session = workspace(),
+                              id = session.snapshot().view?.view;
+                            await session.apply();
+                            setMessage('Source applied.');
+                            setFocusRange(undefined);
+                            await refreshView(session, id);
+                          })
+                        }
+                      />
+                    )}
                     file={source}
                     disabled={state.busy}
                     languageContext={state.project?.drafts}

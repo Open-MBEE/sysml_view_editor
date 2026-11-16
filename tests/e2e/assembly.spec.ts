@@ -140,6 +140,9 @@ test('moves an assembly with its descendants and reopens absolute positions with
   const { buffer, bundle } = await downloadProject(page);
   expect(bundle.documents).toEqual(documents);
   expect(bundle.drafts).toEqual(documents);
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   await expect(
     page.getByRole('button', { name: 'Undo source', exact: true }),
   ).toBeDisabled();

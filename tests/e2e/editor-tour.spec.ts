@@ -86,7 +86,9 @@ test('guide explains hidden controls without changing the workspace layout', asy
   page,
 }) => {
   await ready(page);
-  await page.getByRole('button', { name: 'Code', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source only', exact: true })
+    .click();
   await page
     .getByRole('button', { name: 'Collapse Explorer', exact: true })
     .click();
@@ -100,11 +102,11 @@ test('guide explains hidden controls without changing the workspace layout', asy
     await guide.getByRole('button', { name: 'Next', exact: true }).click();
   }
   await expect(guide).toContainText(
-    'Choose Split or Diagram to reveal these controls.',
+    'Choose Source + Model or Model only to reveal these controls.',
   );
   await expect(guide).toHaveAccessibleDescription(/4 of 5.*Inspect your model/);
   await expect(
-    page.getByRole('button', { name: 'Code', exact: true }),
+    page.getByRole('button', { name: 'Show source only', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
   await guide.getByRole('button', { name: 'Close', exact: true }).click();
   await expect(trigger).toBeFocused();
@@ -120,7 +122,10 @@ test('dismissing the guide by choosing a control keeps focus on that control', a
 }) => {
   await ready(page);
   await page.getByRole('button', { name: 'Guide to the editor' }).click();
-  const code = page.getByRole('button', { name: 'Code', exact: true });
+  const code = page.getByRole('button', {
+    name: 'Show source only',
+    exact: true,
+  });
   await code.click();
   await expect(
     page.getByRole('dialog', { name: 'Editor guide' }),

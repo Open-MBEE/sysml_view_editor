@@ -81,18 +81,10 @@ function useLayoutController(mode: Mode) {
       };
     }
   });
-  const [bounds, setBounds] = useState({
-    explorer: initial.value.explorerClosed
-      ? 0
-      : (window.innerWidth * initial.value.explorer) / 100,
-    inspector: initial.value.inspectorClosed
-      ? 0
-      : (window.innerWidth * initial.value.inspector) / 100,
-    split: initial.value.split,
-  });
-  function measure(id: 'explorer' | 'inspector' | 'split', value: number) {
-    setBounds((before) =>
-      Math.abs(before[id] - value) < 0.01 ? before : { ...before, [id]: value },
+  const [splitSize, setSplitSize] = useState(initial.value.split);
+  function observeSplit(value: number) {
+    setSplitSize((before) =>
+      Math.abs(before - value) < 0.01 ? before : value,
     );
   }
   const preferences = useRef(initial.value);
@@ -263,14 +255,13 @@ function useLayoutController(mode: Mode) {
   useEffect(() => {
     // Panel constraint registration may finish after the mode effect. Reapply
     // a single-pane layout when the resize callback reports leftover space.
-    if (mode === 'code' && bounds.split !== 100)
+    if (mode === 'code' && splitSize !== 100)
       editorGroup.current?.setLayout({ source: 100, diagram: 0 });
-    else if (mode === 'diagram' && bounds.split !== 0)
+    else if (mode === 'diagram' && splitSize !== 0)
       editorGroup.current?.setLayout({ source: 0, diagram: 100 });
-  }, [mode, bounds.split]);
+  }, [mode, splitSize]);
   return {
-    bounds,
-    measure,
+    observeSplit,
     mode,
     narrow,
     initial: initial.value,
@@ -354,54 +345,6 @@ export function PanelControls() {
           )}
         </PopoverContent>
       </Popover>
-    </div>
-  );
-}
-/** Align command groups with the measured panes rather than viewport-wide gaps. */
-export function WorkbenchToolbar({
-  history,
-  sourceActions,
-  modes,
-}: {
-  history: ReactNode;
-  sourceActions: ReactNode;
-  modes: ReactNode;
-}) {
-  const layout = usePanels();
-  const stacked = layout.narrow;
-  return (
-    <div
-      className="workbench-toolbar"
-      style={{
-        gridTemplateColumns: `${layout.bounds.explorer + (layout.closed.explorer ? 32 : 0) + 5}px minmax(0, 1fr) ${layout.bounds.inspector + (layout.closed.inspector ? 32 : 0) + 5}px`,
-      }}
-    >
-      <div aria-hidden="true" />
-      <div
-        className={`toolbar-editors ${stacked ? 'stacked' : layout.mode === 'split' ? 'split' : 'single'}`}
-        style={
-          layout.mode === 'split' && !stacked
-            ? {
-                gridTemplateColumns: `${layout.bounds.split}fr 5px ${100 - layout.bounds.split}fr`,
-              }
-            : undefined
-        }
-      >
-        <div className="toolbar-source">
-          <div className="source-command-grid">
-            {history}
-            {sourceActions}
-            <span className="source-action-balance" aria-hidden="true" />
-          </div>
-        </div>
-        {layout.mode === 'split' && !stacked && <div aria-hidden="true" />}
-        <div className="toolbar-mode">
-          <span aria-hidden="true" />
-          {modes}
-          <PanelControls />
-        </div>
-      </div>
-      <div aria-hidden="true" />
     </div>
   );
 }
@@ -517,6 +460,21 @@ export function WorkbenchPanels({
   const layout = usePanels();
   const initial = layout.initial;
   const lastIssue = useRef('');
+  const sourceContent = useRef<HTMLDivElement>(null);
+  const [sourceMinimum, setSourceMinimum] = useState(100);
+  useLayoutEffect(() => {
+    const header = sourceContent.current?.querySelector('.source-pane-header');
+    if (!header) return;
+    const measure = () => {
+      const height = header.getBoundingClientRect().height;
+      // A hidden Source pane has no box; retain its last visible minimum.
+      if (height > 0) setSourceMinimum(Math.ceil(height) + 80);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, [source]);
   useEffect(() => {
     if (inspectionRequest) layout.show('inspector', window.innerWidth < 600);
   }, [inspectionRequest]);
@@ -536,7 +494,6 @@ export function WorkbenchPanels({
       collapsedSize="0%"
       onResize={(size) => {
         layout.observe(id, size.asPercentage);
-        layout.measure(id, size.inPixels);
       }}
     >
       <div
@@ -594,7 +551,7 @@ export function WorkbenchPanels({
               <ResizablePanel
                 id="source"
                 panelRef={layout.source}
-                onResize={(size) => layout.measure('split', size.asPercentage)}
+                onResize={(size) => layout.observeSplit(size.asPercentage)}
                 defaultSize={
                   layout.mode === 'diagram'
                     ? '0%'
@@ -602,11 +559,12 @@ export function WorkbenchPanels({
                       ? '100%'
                       : `${initial.split}%`
                 }
-                minSize={layout.narrow ? '100px' : '160px'}
+                minSize={layout.narrow ? `${sourceMinimum}px` : '160px'}
                 collapsible={layout.mode !== 'split'}
                 collapsedSize="0%"
               >
                 <div
+                  ref={sourceContent}
                   className="editor-content"
                   hidden={layout.mode === 'diagram'}
                   inert={layout.mode === 'diagram'}

@@ -28,13 +28,15 @@ Panel changes do not invoke workspace transactions, reparse source, alter diagra
 
 Local text changes update workspace drafts. Busy operations reconfigure editing access without replacing the view or local history. A different file or externally replaced source starts a fresh editor state, preventing local undo from reviving discarded work or another file's edits. The view itself stays mounted through resizing and editor-mode changes. Source reveal translates raw UTF-16 positions to CodeMirror's LF-based positions, including CRLF and Unicode. Text edits retain untouched line separators, including mixed endings; inserted lines use the file's first separator. Portable sources, drafts, geometry and the version-1 project format retain their existing schemas and ownership.
 
-## Toolbar alignment
+## Toolbar ownership
 
-The toolbar mirrors measured panel boundaries. In horizontal Split mode, source transaction history sits at Source's left edge, source status/discard/apply commands are centred over Source, and the mode selector is centred over Diagram. Workspace layout stays at the editor's right edge. The group widths update with the actual divider positions; viewport-wide `space-between` does not determine their placement.
+`WorkspaceToolbar` contains only `ArrangementSelector` and Workspace layout. Source only, Source + Model and Model only retain the internal `code`, `split` and `diagram` states. The mutually pressed arrangement controls are centered in their global bar, independent of the active Diagram/table/matrix representation. The Model header/representation selector migration remains tracked by [#42](https://github.com/Open-MBEE/sysml_view_editor/issues/42).
 
-Single-editor mode puts the mode selector and Workspace layout in separate columns with an 8 px gap. If the available editor width is at most 540 px, those controls move to another row so source commands remain reachable even when both side panels are wide.
+`SourcePaneHeader` lives inside SourceEditor and receives the existing source transaction callbacks from Workbench. It shows the active filename, a per-file draft badge, source undo/redo, workspace source status and labeled Apply/Discard actions. The badge compares that file's draft and applied text; a different file's draft can keep the workspace status pending without marking the active file. SourceEditor supplies its own Find references/Format source actions through a header composition callback; its CodeMirror instance and source-assistance ownership remain unchanged.
 
-Sidebar collapse controls remain in their own headers. A collapsed tool gets a narrow reopen rail at that same workspace edge, keeping those controls contextual and providing a stable focus target. Compact source commands retain a visible Discard label and Apply source; their accessible names remain explicit. Compact source commands take a full row below history so their group remains centred. Narrow toolbars reflow in groups without clipping controls, and the vertical editor arrangement centres each group across the editor area. Icon SVG bounds and toolbar/pane centre lines are covered by browser geometry assertions.
+Source actions become hidden/inert with Source in Model-only mode. Showing Source makes them reachable; arrangement changes never apply or discard. The existing diagram metadata continues to distinguish the applied model from pending drafts. Source history and action groups align inside the actual pane and wrap at constrained pane widths, so global toolbar alignment no longer measures Explorer/Inspector pixel widths. Source split-ratio observation remains for the single-pane constraint-registration guard, and persisted preferences are unchanged. In the vertical arrangement, Source’s minimum height follows the measured, wrapping header plus 80 px of editor space. A ResizeObserver updates that limit when the header width/content changes, ignoring zero-height measurements while Source is hidden; horizontal Source width limits are unchanged.
+
+Sidebar collapse controls remain in their own headers, with contextual edge reopen rails. The activity rail and sectioned Explorer are tracked separately by [#43](https://github.com/Open-MBEE/sysml_view_editor/issues/43). Broader responsive/accessibility integration remains [#44](https://github.com/Open-MBEE/sysml_view_editor/issues/44). See the [agreed product design](../design/workbench-product-decisions.md) for staged scope and preservation gates.
 
 ## Icons and controls
 
@@ -43,7 +45,7 @@ Lucide icons use the shared shadcn Button sizes, theme roles and focus indicator
 | Action                                     | Icon                                                      |
 | ------------------------------------------ | --------------------------------------------------------- |
 | Source undo / redo                         | Undo2 / Redo2                                             |
-| Code / Split / Diagram                     | CodeXml / Columns2 / Network                              |
+| Source only / Source + Model / Model only  | CodeXml / Columns2 / Layers                               |
 | New project / Open / Download              | FilePlus2 / FolderOpen / Download                         |
 | Apply / discard draft                      | Check / X                                                 |
 | Appearance                                 | Palette                                                   |

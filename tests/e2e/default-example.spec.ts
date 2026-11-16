@@ -23,7 +23,7 @@ test('imports the complete legacy Smart air workshop fixture in its workshop ove
     page.getByRole('banner').getByText('Smart air workshop', { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole('button', { name: 'Diagram', exact: true }),
+    page.getByRole('button', { name: 'Show model only', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
   await expect(
     page.getByRole('region', { name: 'Source editor', exact: true }),
@@ -81,7 +81,9 @@ test('imports the complete legacy Smart air workshop fixture in its workshop ove
     expect(source.text).toBe(expected);
   }
   expect(saved.bundle.drafts).toEqual(saved.bundle.documents);
-  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   const source = page.getByRole('textbox', {
     name: 'SysML source',
     exact: true,

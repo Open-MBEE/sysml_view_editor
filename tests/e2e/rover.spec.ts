@@ -222,7 +222,9 @@ for (const [view, target, declaration] of [
           : 'transition pathClear first safeStop then patrolling;',
       );
     expect((await downloadProject(page)).bundle).toEqual(before);
-    await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Show model only', exact: true })
+      .click();
     await moveNode(page, symbol);
     const saved = await downloadProject(page);
     expect(saved.bundle.presentations['RoverViews::' + view]).toBeDefined();
@@ -255,6 +257,7 @@ test('keeps structural routes with a moved rover assembly and retains exact sour
     page,
     diagramSymbol(page, architecture.artifact!.nodes[0]!.id),
   );
+  await page.getByRole('button', { name: 'Fit view', exact: true }).click();
   await expect
     .poll(
       async () =>
@@ -274,6 +277,7 @@ test('keeps structural routes with a moved rover assembly and retains exact sour
     buffer: saved.buffer,
   });
   await expectRenderedPositions(page, saved.bundle, 'RoverViews::architecture');
+  await page.getByRole('button', { name: 'Fit view', exact: true }).click();
   await expect
     .poll(
       async () =>

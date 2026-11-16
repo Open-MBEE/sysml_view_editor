@@ -16,7 +16,9 @@ test('routes the real assembly overview clear of cards and labels while preservi
   const documents = await assemblyExploration(page);
   await expect.poll(() => results.length).toBe(1);
   expect(results[0]!.artifact).toEqual(nativeArtifact);
-  await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show model only', exact: true })
+    .click();
   const before = (await downloadProject(page)).bundle;
   expect(before.documents).toEqual(documents);
   await page.getByRole('button', { name: 'Fit view', exact: true }).click();
@@ -51,13 +53,13 @@ test('routes the real assembly overview clear of cards and labels while preservi
     await relation.focus();
     await relation.press('Enter');
     await expect(relation).toBeFocused();
-    await expect(
-      page.getByRole('button', { name: 'Apply source', exact: true }),
-    ).toBeDisabled();
     await page
       .getByRole('complementary', { name: 'Properties', exact: true })
       .getByRole('button', { name: 'Open source', exact: true })
       .click();
+    await expect(
+      page.getByRole('button', { name: 'Apply source', exact: true }),
+    ).toBeDisabled();
     await expect
       .poll(() =>
         copySourceSelection(

@@ -112,7 +112,9 @@ test('@critical responsive panes preserve explicit preferences, camera and the u
   await expect(
     page.getByRole('combobox', { name: 'Named view', exact: true }),
   ).toBeEnabled();
-  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   const editor = page.getByRole('textbox', {
     name: 'SysML source',
     exact: true,
