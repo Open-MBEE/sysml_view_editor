@@ -2,6 +2,9 @@ import {
   test,
   expect,
   openWorkshop,
+  importWorkshop,
+  dragSeparator,
+  sourceHeaderGeometry,
   readSource,
   fillSource,
   downloadProject,
@@ -101,4 +104,54 @@ test('@critical keeps source commands local and preserves independent arrangemen
     source.getByLabel('Unapplied draft in model.sysml', { exact: true }),
   ).toBeVisible();
   expect((await downloadProject(page)).bundle).toEqual(saved);
+});
+
+test('@critical keeps source actions and editor space reachable at the narrow divider minimum', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 900 });
+  await page.goto('/app');
+  await importWorkshop(page);
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
+  const editor = page.getByRole('textbox', {
+    name: 'SysML source',
+    exact: true,
+  });
+  const originalEditor = await editor.elementHandle();
+  const draft = (await readSource(editor)) + '\n// retain this narrow draft\n';
+  await fillSource(editor, draft);
+  const saved = (await downloadProject(page)).bundle;
+  for (const [width, height] of [
+    [390, 900],
+    [768, 900],
+    [390, 600],
+  ] as const) {
+    await page.setViewportSize({ width, height });
+    await dragSeparator(page, 'Resize Source and Diagram', 'y', -2000);
+    await expect
+      .poll(async () => (await sourceHeaderGeometry(page)).editorHeight)
+      .toBeGreaterThanOrEqual(80);
+    await page
+      .getByRole('button', { name: 'Show model only', exact: true })
+      .click();
+    await page
+      .getByRole('button', { name: 'Show source and model', exact: true })
+      .click();
+    await expect
+      .poll(async () => (await sourceHeaderGeometry(page)).editorHeight)
+      .toBeGreaterThanOrEqual(80);
+    await expect
+      .poll(async () => (await sourceHeaderGeometry(page)).minInset)
+      .toBeGreaterThanOrEqual(0);
+    await expect
+      .poll(async () => (await sourceHeaderGeometry(page)).reachable)
+      .toBe(true);
+    await expect(editor).toHaveSource(draft);
+    expect(await originalEditor!.evaluate((node) => node.isConnected)).toBe(
+      true,
+    );
+    expect((await downloadProject(page)).bundle).toEqual(saved);
+  }
 });

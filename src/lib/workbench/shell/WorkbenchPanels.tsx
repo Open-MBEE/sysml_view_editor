@@ -460,6 +460,21 @@ export function WorkbenchPanels({
   const layout = usePanels();
   const initial = layout.initial;
   const lastIssue = useRef('');
+  const sourceContent = useRef<HTMLDivElement>(null);
+  const [sourceMinimum, setSourceMinimum] = useState(100);
+  useLayoutEffect(() => {
+    const header = sourceContent.current?.querySelector('.source-pane-header');
+    if (!header) return;
+    const measure = () => {
+      const height = header.getBoundingClientRect().height;
+      // A hidden Source pane has no box; retain its last visible minimum.
+      if (height > 0) setSourceMinimum(Math.ceil(height) + 80);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, [source]);
   useEffect(() => {
     if (inspectionRequest) layout.show('inspector', window.innerWidth < 600);
   }, [inspectionRequest]);
@@ -544,11 +559,12 @@ export function WorkbenchPanels({
                       ? '100%'
                       : `${initial.split}%`
                 }
-                minSize={layout.narrow ? '100px' : '160px'}
+                minSize={layout.narrow ? `${sourceMinimum}px` : '160px'}
                 collapsible={layout.mode !== 'split'}
                 collapsedSize="0%"
               >
                 <div
+                  ref={sourceContent}
                   className="editor-content"
                   hidden={layout.mode === 'diagram'}
                   inert={layout.mode === 'diagram'}

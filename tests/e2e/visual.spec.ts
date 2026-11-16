@@ -11,6 +11,7 @@ import {
   openWorkshop,
   importWorkshop,
   sourceHeaderGeometry,
+  dragSeparator,
   downloadProject,
   fillSource,
   readSource,
@@ -1318,5 +1319,19 @@ for (const theme of ['light', 'dark'])
       await expect(page).toHaveScreenshot(
         `source-pane-header-${theme}-${width}.png`,
       );
+      if (width === 390) {
+        await dragSeparator(page, 'Resize Source and Diagram', 'y', -2000);
+        await expect
+          .poll(async () => (await sourceHeaderGeometry(page)).editorHeight)
+          .toBeGreaterThanOrEqual(80);
+        await expect
+          .poll(async () => (await sourceHeaderGeometry(page)).minInset)
+          .toBeGreaterThanOrEqual(0);
+        await expect
+          .poll(async () => (await sourceHeaderGeometry(page)).reachable)
+          .toBe(true);
+        await page.mouse.move(0, 0);
+        await expect(page).toHaveScreenshot(`source-pane-minimum-${theme}.png`);
+      }
     });
   }
