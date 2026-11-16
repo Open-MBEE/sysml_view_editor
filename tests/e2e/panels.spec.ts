@@ -88,7 +88,7 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
   await expect(source).toBeVisible();
   expect((await toolbarCenterOffsets(page)).source).toBeLessThan(1);
   await expect(
-    page.getByRole('button', { name: 'Split', exact: true }),
+    page.getByRole('button', { name: 'Show source and model', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Show Issues', exact: true }).click();
   const issues = page.getByRole('region', { name: 'Issues', exact: true });
@@ -100,7 +100,11 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
   await expect.poll(() => regionSize(issues, 'height')).toBeGreaterThan(bottom);
   expect(await diagramCamera(page)).toEqual(camera);
   // Explicit editor modes refit the view; divider changes above preserve the camera.
-  for (const mode of ['Diagram', 'Code', 'Split'])
+  for (const mode of [
+    'Show model only',
+    'Show source only',
+    'Show source and model',
+  ])
     await page.getByRole('button', { name: mode, exact: true }).click();
   await expect(source).toHaveSource(draft);
   expect(

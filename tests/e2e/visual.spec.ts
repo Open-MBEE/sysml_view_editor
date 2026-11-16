@@ -9,8 +9,11 @@ import {
   showAssemblyDiagram,
   modelTreeItem,
   openWorkshop,
+  importWorkshop,
+  sourceHeaderGeometry,
   downloadProject,
   fillSource,
+  readSource,
   copySourceSelection,
   observeEvaluations,
   overviewRoutingGeometry,
@@ -281,7 +284,9 @@ for (const theme of ['light', 'dark']) {
         (await page
           .getByRole('region', { name: 'Diagram', exact: true })
           .boundingBox())![axis];
-      await page.getByRole('button', { name: 'Code', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Show source only', exact: true })
+        .click();
       await expect
         .poll(async () => (await sourcePane.boundingBox())![axis])
         .toBeGreaterThanOrEqual(available - 1);
@@ -423,7 +428,9 @@ for (const theme of ['light', 'dark']) {
       await appearance
         .getByRole('button', { name: 'Done', exact: true })
         .click();
-      await page.getByRole('button', { name: 'Code', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Show source only', exact: true })
+        .click();
       const source = page.getByRole('textbox', {
         name: 'SysML source',
         exact: true,
@@ -656,7 +663,9 @@ for (const theme of ['light', 'dark']) {
     }) => {
       await page.setViewportSize({ width, height: 900 });
       await noViews(page);
-      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Show model only', exact: true })
+        .click();
       const before = (await downloadProject(page)).bundle;
       await page
         .getByRole('button', { name: 'Appearance', exact: true })
@@ -728,7 +737,9 @@ for (const theme of ['light', 'dark'])
     }) => {
       await page.setViewportSize({ width, height: 900 });
       await assemblyExploration(page);
-      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Show model only', exact: true })
+        .click();
       await page
         .getByRole('button', { name: 'Appearance', exact: true })
         .click();
@@ -813,7 +824,9 @@ for (const theme of ['light', 'dark'])
           exact: true,
         }),
       ).toBeVisible();
-      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Show model only', exact: true })
+        .click();
       await page
         .getByRole('button', { name: 'Appearance', exact: true })
         .click();
@@ -1059,7 +1072,9 @@ for (const theme of ['light', 'dark']) {
           };
         });
       }, raw);
-      await page.getByRole('button', { name: 'Code', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Show source only', exact: true })
+        .click();
       await fillSource(
         page.getByRole('textbox', { name: 'SysML source', exact: true }),
         project.drafts[0]!.text + '\n// work retained in this tab\n',
@@ -1162,7 +1177,9 @@ for (const theme of ['light', 'dark']) {
       );
       expect(inherited).toHaveLength(2);
       expect(inherited[0]!.context).not.toEqual(inherited[1]!.context);
-      await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+      await page
+        .getByRole('button', { name: 'Show model only', exact: true })
+        .click();
       await page
         .getByRole('button', { name: 'Appearance', exact: true })
         .click();
@@ -1243,6 +1260,63 @@ for (const theme of ['light', 'dark'])
       await expect(details).toContainText('Reading::small::evidence');
       await expect(page).toHaveScreenshot(
         `source-values-${theme}-${width}.png`,
+      );
+    });
+  }
+
+for (const theme of ['light', 'dark'])
+  for (const width of [1440, 390]) {
+    test(`pane-local source controls in ${theme} at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/app');
+      await importWorkshop(page);
+      await page
+        .getByRole('button', { name: 'Show source and model', exact: true })
+        .click();
+      const source = page.getByRole('region', {
+        name: 'Source editor',
+        exact: true,
+      });
+      const editor = source.getByRole('textbox', {
+        name: 'SysML source',
+        exact: true,
+      });
+      const original = await readSource(editor);
+      await fillSource(
+        editor,
+        original + '\n// Keep this file draft visible in the source header.\n',
+      );
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      await page.mouse.move(0, 0);
+      await expect(
+        source.getByLabel('Unapplied draft in model.sysml', { exact: true }),
+      ).toBeVisible();
+      await expect
+        .poll(async () => (await sourceHeaderGeometry(page)).actionCount)
+        .toBe(2);
+      await expect
+        .poll(async () => (await sourceHeaderGeometry(page)).minInset)
+        .toBeGreaterThanOrEqual(0);
+      await expect
+        .poll(async () => (await sourceHeaderGeometry(page)).reachable)
+        .toBe(true);
+      await expect
+        .poll(async () => (await sourceHeaderGeometry(page)).editorHeight)
+        .toBeGreaterThanOrEqual(80);
+      await expect(page).toHaveScreenshot(
+        `source-pane-header-${theme}-${width}.png`,
       );
     });
   }

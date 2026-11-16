@@ -31,12 +31,14 @@ test('icon actions retain accessible names, tooltips and exact source undo/redo'
   await expect(undo).toBeDisabled();
   await expect(redo).toBeDisabled();
   await source.focus();
-  await page.getByRole('button', { name: 'Split', exact: true }).focus();
-  await expect(page.getByRole('tooltip')).toHaveText('Split');
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .focus();
+  await expect(page.getByRole('tooltip')).toHaveText('Show source and model');
   await page.keyboard.press('Escape');
   await expect(page.getByRole('tooltip')).not.toBeVisible();
   await expect(
-    page.getByRole('button', { name: 'Split', exact: true }),
+    page.getByRole('button', { name: 'Show source and model', exact: true }),
   ).toBeFocused();
   await fillSource(source, original + '\n// toolbar history\n');
   await page.getByRole('button', { name: 'Apply source', exact: true }).click();
@@ -94,14 +96,14 @@ test('diagram icons zoom, fit and lock without adding source or layout history',
   ).toBeDisabled();
 });
 
-test('centres source commands and mode icons over their panes while resizing', async ({
+test('keeps source commands pane-local and arrangement controls global while resizing', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 2048, height: 900 });
   await ready(page, { split: false });
   const modeGap = async () => {
     const mode = await page
-      .getByRole('button', { name: 'Diagram', exact: true })
+      .getByRole('button', { name: 'Show model only', exact: true })
       .boundingBox();
     const options = await page
       .getByRole('button', { name: 'Workspace layout', exact: true })
@@ -109,16 +111,18 @@ test('centres source commands and mode icons over their panes while resizing', a
     return options!.x - mode!.x - mode!.width;
   };
   await expect.poll(modeGap).toBeGreaterThanOrEqual(8);
-  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   const aligned = async () =>
     Math.max(...Object.values(await toolbarCenterOffsets(page)));
   await expect.poll(aligned).toBeLessThan(1);
   for (const name of [
     'Undo source',
     'Redo source',
-    'Code',
-    'Split',
-    'Diagram',
+    'Show source only',
+    'Show source and model',
+    'Show model only',
     'Collapse Explorer',
     'Collapse Inspector',
     'Workspace layout',
@@ -133,17 +137,19 @@ test('centres source commands and mode icons over their panes while resizing', a
   await page.setViewportSize({ width: 768, height: 900 });
   await expect.poll(aligned).toBeLessThan(1);
   await page.setViewportSize({ width: 1024, height: 900 });
-  await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source only', exact: true })
+    .click();
   await dragSeparator(page, 'Resize Explorer', 'x', 200);
   await expect
     .poll(async () => {
       const modes = await page
-        .getByRole('group', { name: 'Editor layout', exact: true })
+        .getByRole('group', { name: 'Workspace arrangement', exact: true })
         .boundingBox();
       const actions = await page
         .getByRole('group', { name: 'Source actions', exact: true })
         .boundingBox();
-      return modes!.y - actions!.y - actions!.height;
+      return actions!.y - modes!.y - modes!.height;
     })
     .toBeGreaterThanOrEqual(0);
   await expect.poll(modeGap).toBeGreaterThanOrEqual(8);
@@ -165,6 +171,9 @@ test('keeps wrapped mobile project actions inside the header and above source co
     }),
   ).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   const header = page.getByRole('banner');
   const actions = header.getByRole('navigation', {
     name: 'Project actions',
@@ -201,7 +210,10 @@ test('keeps wrapped mobile project actions inside the header and above source co
               .getByRole('group', { name: 'Source actions', exact: true })
               .boundingBox(),
             page
-              .getByRole('group', { name: 'Editor layout', exact: true })
+              .getByRole('group', {
+                name: 'Workspace arrangement',
+                exact: true,
+              })
               .boundingBox(),
           ]);
           return (

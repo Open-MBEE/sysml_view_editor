@@ -176,7 +176,7 @@ test('creates a new source project from the launcher and returns dialog focus on
     page.getByRole('banner').getByText('Bench · modified', { exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole('button', { name: 'Code', exact: true }),
+    page.getByRole('button', { name: 'Show source only', exact: true }),
   ).toHaveAttribute('aria-pressed', 'true');
   let replacement = '';
   page.once('dialog', async (confirmation) => {
@@ -216,7 +216,9 @@ test('imports source files through the launcher file chooser without an implicit
   const chooser = await chooseFiles(page);
   await chooser.setFiles(files);
   await expect(diagramNode(page, 'Workshop::Motor')).toBeVisible();
-  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   const source = page.getByRole('textbox', {
     name: 'SysML source',
     exact: true,

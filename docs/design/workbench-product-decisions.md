@@ -367,11 +367,11 @@ Do not put model identifiers/source content into layout preferences. Do not incr
 - If adding a Toggle Explorer shortcut, document and test it. Do not invent a default shortcut that conflicts with existing code editor bindings.
 - New menus and selectors need keyboard and screen-reader testing, not just geometry screenshots.
 
-## 11. Verified current code touchpoints
+## 11. Baseline code touchpoints
 
-The design was discussed against the repository's current files:
+The design was discussed against the merged #38 baseline, before the #41 toolbar extraction. Section 17 maps the first-stage replacements:
 
-| File                                             | Current relevant responsibilities                                                          | Proposed change                                                                                             |
+| File                                             | Baseline relevant responsibilities                                                         | Proposed change                                                                                             |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
 | `src/lib/workbench/shell/Workbench.tsx`          | `mode`, `dataMode`, selected file/view, orchestration, model representation buttons        | Compose separate pane headers; retain existing state/actions                                                |
 | `src/lib/workbench/shell/SourceToolbar.tsx`      | Source transactions + Code/Split/Diagram selector                                          | Extract global arrangement selector and pane-local source controls                                          |

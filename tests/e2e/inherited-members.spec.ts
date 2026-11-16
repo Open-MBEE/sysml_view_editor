@@ -47,7 +47,9 @@ async function importProject(page: Page, buffer: Buffer) {
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
-  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
 }
 
 async function evaluated(evaluations: EvaluatedView[], view = both) {

@@ -17,19 +17,20 @@ const steps = [
   },
   {
     title: 'Choose a layout',
-    text: 'Switch between source, a split view and the diagram using these controls.',
-    target: '[aria-label="Editor layout"]',
+    text: 'Choose Source only, Source + Model or Model only without changing the model representation.',
+    target: '[aria-label="Workspace arrangement"]',
   },
   {
     title: 'Apply source changes',
     text: 'Source edits stay in a draft until you choose Apply source. Issues explain errors while your draft is retained.',
     target: '[aria-label="Source actions"]',
+    hidden: 'Choose Source only or Source + Model to reveal source actions.',
   },
   {
     title: 'Inspect your model',
     text: 'Choose Diagram view, Requirements table or Traceability matrix to inspect the applied model.',
     target: '[aria-label="Model representation"]',
-    hidden: 'Choose Split or Diagram to reveal these controls.',
+    hidden: 'Choose Source + Model or Model only to reveal these controls.',
   },
   {
     title: 'Save your project',

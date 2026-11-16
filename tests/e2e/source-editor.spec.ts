@@ -233,12 +233,16 @@ for (const width of [1440, 768]) {
     const axis = width < 900 ? 'height' : 'width';
     const before = (await source.boundingBox())![axis];
     const available = before + (await diagram.boundingBox())![axis];
-    await page.getByRole('button', { name: 'Code', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Show source only', exact: true })
+      .click();
     await expect
       .poll(async () => (await source.boundingBox())![axis])
       .toBeGreaterThanOrEqual(available - 1);
     await expect(diagram).not.toBeVisible();
-    await page.getByRole('button', { name: 'Split', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Show source and model', exact: true })
+      .click();
     await expect
       .poll(async () => Math.abs((await source.boundingBox())![axis] - before))
       .toBeLessThan(1);

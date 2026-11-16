@@ -184,7 +184,9 @@ test('@critical browses exact requirement hierarchy and declared satisfaction wi
         ? "requirement <'REQ-LEFT-CAP'> leftCapacity"
         : "requirement <'REQ-RIGHT-CAP'> rightCapacity",
     );
-    await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Show model only', exact: true })
+      .click();
     const edge = requirementEdge(page, result, 'satisfy', from, to);
     await edge.focus();
     await edge.press('Enter');
@@ -207,7 +209,9 @@ test('@critical browses exact requirement hierarchy and declared satisfaction wi
     expect(await copySourceSelection(source)).toBe(
       `satisfy ${to.includes('leftSpecification') ? 'leftSpecification' : 'rightSpecification'}.${to.includes('leftSpecification') ? 'leftCapacity' : 'rightCapacity'} by ${from};`,
     );
-    await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Show model only', exact: true })
+      .click();
   }
   const negative = requirementEdge(
     page,
@@ -237,7 +241,9 @@ test('@critical browses exact requirement hierarchy and declared satisfaction wi
       page.getByRole('textbox', { name: 'SysML source', exact: true }),
     ),
   ).toBe('assert not satisfy excludedCapacity by TraceSystem::spare;');
-  await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show model only', exact: true })
+    .click();
   const definition = requirementCard(
     page,
     result,
@@ -280,6 +286,9 @@ test('@critical browses exact requirement hierarchy and declared satisfaction wi
   await expect(
     page.getByRole('button', { name: 'Connect ports', exact: true }),
   ).toHaveCount(0);
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   await expect(
     page.getByRole('button', { name: 'Undo source', exact: true }),
   ).toBeDisabled();
@@ -345,7 +354,9 @@ test('retains independent requirement and overview positions plus invalid drafts
   await moveNode(page, diagramSymbol(page, identity.symbol));
   await namedViewButton(page, requirementViews.requirements).click();
   await expect.poll(() => nodePosition(requirement)).toEqual(moved);
-  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   await page
     .getByRole('button', { name: 'requirements.sysml', exact: true })
     .click();
@@ -373,7 +384,9 @@ test('retains independent requirement and overview positions plus invalid drafts
   await expect(
     namedViewButton(page, requirementViews.requirements),
   ).toHaveAttribute('aria-current', 'page');
-  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   await page
     .getByRole('button', { name: 'requirements.sysml', exact: true })
     .click();
@@ -388,6 +401,9 @@ test('retains independent requirement and overview positions plus invalid drafts
   const reopened = (await downloadProject(page)).bundle;
   expect(reopened).toEqual(saved.bundle);
   expect(semanticPositions(reopened, evaluations)).toEqual(positions);
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   await expect(
     page.getByRole('button', { name: 'Undo source', exact: true }),
   ).toBeDisabled();
@@ -410,7 +426,9 @@ test('retains the accepted requirement graph and draft after real engine failure
   );
   await moveNode(page, card);
   const before = (await downloadProject(page)).bundle;
-  await page.getByRole('button', { name: 'Split', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   await page
     .getByRole('button', { name: 'requirements.sysml', exact: true })
     .click();

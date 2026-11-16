@@ -314,7 +314,9 @@ test('shows the entire qualified scope and its definition/usage kind at narrow w
     exact: true,
   });
   await expect(scope).toBeEnabled();
-  await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show model only', exact: true })
+    .click();
   await page.setViewportSize({ width: 768, height: 900 });
   await page
     .getByRole('button', { name: 'Collapse Explorer', exact: true })
@@ -389,6 +391,9 @@ test('retries an initial exploration asset failure without reopening or changing
   await expect(
     page.getByRole('combobox', { name: 'Exploration scope', exact: true }),
   ).toBeFocused();
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
   await expect(
     page.getByRole('button', { name: 'Apply source', exact: true }),
   ).toBeDisabled();

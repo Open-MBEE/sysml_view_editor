@@ -175,7 +175,9 @@ export async function waitForStartup(page: Page, { split = true } = {}) {
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
   if (split)
-    await page.getByRole('button', { name: 'Split', exact: true }).click();
+    await page
+      .getByRole('button', { name: 'Show source and model', exact: true })
+      .click();
   await page.evaluate(() => document.fonts.ready);
 }
 
@@ -231,7 +233,8 @@ export async function startExample(
   await waitForStartup(page, { split: false });
   await page
     .getByRole('button', {
-      name: options.split === false ? 'Diagram' : 'Split',
+      name:
+        options.split === false ? 'Show model only' : 'Show source and model',
       exact: true,
     })
     .click();
@@ -279,8 +282,8 @@ export async function importWorkshop(page: Page) {
   });
   await expect(diagramNode(page, 'Workshop::Motor')).toBeVisible();
   await expect(
-    namedViewButton(page, 'WorkshopViews::overview'),
-  ).toHaveAttribute('aria-current', 'page');
+    page.getByRole('combobox', { name: 'Named view', exact: true }),
+  ).toHaveValue('WorkshopViews::overview');
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
@@ -430,7 +433,9 @@ export async function showAssemblyDiagram(page: Page) {
     .poll(async () => (await station.boundingBox())!.width)
     .toBeLessThan(available);
   const before = (await station.boundingBox())!.width;
-  await page.getByRole('button', { name: 'Diagram', exact: true }).click();
+  await page
+    .getByRole('button', { name: 'Show model only', exact: true })
+    .click();
   await expect
     .poll(async () => (await station.boundingBox())!.width)
     .toBeGreaterThan(before + 50);
@@ -752,11 +757,8 @@ export async function toolbarCenterOffsets(page: Page) {
     ),
     modes: Math.abs(
       (await center(
-        page.getByRole('group', { name: 'Editor layout', exact: true }),
-      )) -
-        (await center(
-          page.getByRole('region', { name: 'Diagram', exact: true }),
-        )),
+        page.getByRole('group', { name: 'Workspace arrangement', exact: true }),
+      )) - (await center(page.locator('.workspace-toolbar'))),
     ),
   };
 }
@@ -994,4 +996,43 @@ export async function waitForRoverStartup(page: Page) {
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
   await page.evaluate(() => document.fonts.ready);
+}
+
+/** Measure visible pane-local source actions, not the global arrangement bar. */
+export async function sourceHeaderGeometry(page: Page) {
+  return page
+    .getByRole('region', { name: 'Source editor', exact: true })
+    .evaluate((pane) => {
+      const bounds = pane.getBoundingClientRect();
+      const actions = [
+        ...pane.querySelectorAll<HTMLElement>('.source-actions button'),
+      ];
+      const insets = actions.map((button) => {
+        const box = button.getBoundingClientRect();
+        return Math.min(
+          box.left - bounds.left,
+          bounds.right - box.right,
+          box.top - bounds.top,
+          bounds.bottom - box.bottom,
+          box.left,
+          window.innerWidth - box.right,
+          box.top,
+          window.innerHeight - box.bottom,
+        );
+      });
+      return {
+        actionCount: actions.length,
+        minInset: Math.min(...insets),
+        reachable: actions.every((button) => {
+          const box = button.getBoundingClientRect();
+          const hit = document.elementFromPoint(
+            box.x + box.width / 2,
+            box.y + box.height / 2,
+          );
+          return !!hit && button.contains(hit);
+        }),
+        editorHeight: pane.querySelector('.cm-editor')!.getBoundingClientRect()
+          .height,
+      };
+    });
 }

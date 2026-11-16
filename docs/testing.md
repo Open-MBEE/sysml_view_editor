@@ -90,6 +90,8 @@ Visual checks complement source, identity and geometry assertions. Current basel
 
 `source-values.spec.ts`, `inspection.spec.ts` and `readability.spec.ts` cover source-backed expressions, explicit inspection and the overview/detail camera path. The actual pinned worker supplies keyword-free and inherited redefinitions in distinct usage contexts; tests check provider source ranges, unavailable bindings, retained drafts, independent positions and fresh-context reopen. Inspection cases cover tree/table selection, anonymous requirement documentation and phone focus in both themes. Readability checks assert the exact inspected occurrence is centered at 100%, including when React Flow retains an older selection, and preserve camera, preferences and drafts across responsive resizing. Four source-value snapshots cover desktop/narrow widths in both themes. These checks do not establish expression evaluation or general binding precedence.
 
+`source-header.spec.ts` checks pane-local source commands, exact per-file draft badges, unchanged editor DOM through arrangement changes, Diagram/table/matrix independence, active file/view retention and exact portable data. The toolbar geometry helper measures Source commands inside Source and arrangement controls in the global bar. Four source-header visual cases additionally assert that labeled Apply/Discard controls fit and are hit-test reachable at 1440/390 in both themes, with usable editor space.
+
 ## Investigate failures and review baselines
 
 ```sh

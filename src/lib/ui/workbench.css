@@ -47,22 +47,60 @@
   display: flex;
   gap: 7px;
 }
-.workbench-toolbar {
+.workspace-toolbar {
   display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
   flex-shrink: 0;
   min-height: 48px;
+  padding: 4px 8px;
   border-bottom: 1px solid var(--sysml-border);
   background: var(--sysml-surface);
 }
-.toolbar-editors {
-  container-type: inline-size;
-  display: grid;
-  min-width: 0;
+.workspace-toolbar > .panel-controls {
+  justify-self: end;
 }
-.toolbar-source {
+.source-pane-header {
   container-type: inline-size;
-  min-width: 0;
+  flex-shrink: 0;
   padding: 6px 8px;
+  border-bottom: 1px solid var(--sysml-border);
+  background: var(--sysml-surface);
+}
+.source-pane-identity {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-height: 32px;
+}
+.source-file {
+  display: flex;
+  flex: 1 1 120px;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+}
+.source-file > svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.source-file > strong {
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.source-file-draft {
+  font-size: 10px;
+  color: var(--sysml-warning);
+  flex-shrink: 0;
+}
+.source-pane-identity > .source-query-actions {
+  margin-left: auto;
+  max-width: 100%;
+  flex-wrap: wrap;
 }
 .source-command-grid {
   display: grid;
@@ -78,61 +116,6 @@
 }
 .source-action-balance {
   min-width: 0;
-}
-.toolbar-mode {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: center;
-  min-width: 0;
-  min-height: 48px;
-}
-.toolbar-mode .modes {
-  justify-self: center;
-}
-.toolbar-mode .panel-controls {
-  justify-self: end;
-  margin-right: 6px;
-}
-.toolbar-editors.single {
-  display: block;
-  position: relative;
-}
-.toolbar-editors.single .toolbar-mode {
-  position: absolute;
-  right: 6px;
-  top: 0;
-  height: 100%;
-  width: auto;
-  grid-template-columns: auto auto;
-  gap: 8px;
-}
-.toolbar-editors.single .toolbar-mode > span {
-  display: none;
-}
-.toolbar-editors.single .toolbar-mode .panel-controls {
-  margin-right: 0;
-}
-@container (max-width: 540px) {
-  .toolbar-editors.single .toolbar-mode {
-    position: static;
-    width: 100%;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    gap: 0;
-  }
-  .toolbar-editors.single .toolbar-mode > span {
-    display: block;
-  }
-  .toolbar-editors.single .toolbar-mode .panel-controls {
-    margin-right: 6px;
-  }
-}
-.toolbar-editors.stacked {
-  display: flex;
-  flex-direction: column;
-}
-.toolbar-editors.stacked .toolbar-mode {
-  position: static;
-  width: 100%;
 }
 .panel-rail {
   display: flex;

@@ -1,38 +1,46 @@
-import {
-  Undo2,
-  Redo2,
-  Check,
-  X,
-  CodeXml,
-  Columns2,
-  Network,
-} from 'lucide-react';
+import type { ReactNode } from 'react';
+import { Undo2, Redo2, Check, X, FileCode2 } from 'lucide-react';
 import { IconButton } from '$lib/ui/IconButton';
 import { Button } from '$lib/ui/primitives/button';
 import type { WorkspaceState } from '$lib/workspace/createWorkspace';
-import { WorkbenchToolbar } from './WorkbenchPanels';
-type Mode = 'code' | 'split' | 'diagram';
 
-export function SourceToolbar({
+export function SourcePaneHeader({
+  fileName,
+  fileUnapplied,
+  tools,
   state,
-  mode,
-  onMode,
   onUndo,
   onRedo,
   onDiscard,
   onApply,
 }: {
+  fileName: string;
+  fileUnapplied: boolean;
+  tools: ReactNode;
   state: Pick<WorkspaceState, 'busy' | 'unapplied' | 'canUndo' | 'canRedo'>;
-  mode: Mode;
-  onMode: (mode: Mode) => void;
   onUndo: () => void;
   onRedo: () => void;
   onDiscard: () => void;
   onApply: () => void;
 }) {
   return (
-    <WorkbenchToolbar
-      history={
+    <header className="source-pane-header">
+      <div className="source-pane-identity">
+        <div className="source-file">
+          <FileCode2 aria-hidden="true" />
+          <strong title={fileName}>{fileName}</strong>
+          {fileUnapplied && (
+            <span
+              className="source-file-draft"
+              aria-label={`Unapplied draft in ${fileName}`}
+            >
+              Draft
+            </span>
+          )}
+        </div>
+        {tools}
+      </div>
+      <div className="source-command-grid">
         <div
           className="source-history"
           role="group"
@@ -40,27 +48,26 @@ export function SourceToolbar({
         >
           <IconButton
             variant="ghost"
+            size="icon-xs"
+            label="Undo source"
+            icon={Undo2}
             disabled={state.busy || state.unapplied || !state.canUndo}
             onClick={onUndo}
-            label="Undo source"
-            size="icon-xs"
-            icon={Undo2}
           />
           <IconButton
             variant="ghost"
+            size="icon-xs"
+            label="Redo source"
+            icon={Redo2}
             disabled={state.busy || state.unapplied || !state.canRedo}
             onClick={onRedo}
-            label="Redo source"
-            size="icon-xs"
-            icon={Redo2}
           />
         </div>
-      }
-      sourceActions={
         <div
           className="source-actions"
           role="group"
           aria-label="Source actions"
+          title="Apply and discard affect all project source drafts"
         >
           <span className={state.unapplied ? 'pending' : ''}>
             {state.busy
@@ -89,20 +96,8 @@ export function SourceToolbar({
             Apply source
           </Button>
         </div>
-      }
-      modes={
-        <div className="modes" role="group" aria-label="Editor layout">
-          {(['code', 'split', 'diagram'] as const).map((value) => (
-            <IconButton
-              key={value}
-              label={value.charAt(0).toUpperCase() + value.slice(1)}
-              icon={{ code: CodeXml, split: Columns2, diagram: Network }[value]}
-              aria-pressed={mode === value}
-              onClick={() => onMode(value)}
-            />
-          ))}
-        </div>
-      }
-    />
+        <span className="source-action-balance" aria-hidden="true" />
+      </div>
+    </header>
   );
 }
