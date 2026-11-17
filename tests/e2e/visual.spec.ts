@@ -699,6 +699,7 @@ for (const theme of ['light', 'dark']) {
         name: 'Exploration representation',
         exact: true,
       });
+      await page.getByRole('button', { name: 'Fit view', exact: true }).click();
       await scope.focus();
       await expect(scope).toBeFocused();
       await page.keyboard.press('Tab');

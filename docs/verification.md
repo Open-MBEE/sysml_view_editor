@@ -1,5 +1,11 @@
 # Verification record
 
+## Model header hosted visual follow-up (#46)
+
+Recorded 2026-11-17. Hosted run `44033593254` passed 100 of 101 visual cases and failed the light 768 px exploration overview by 6,822 pixels. Inspected expected/actual/diff captures show the same model and scale with an 80 px vertical camera translation, not missing content or changed controls. The fixture collapsed Explorer after initial fitting and captured the retained camera without choosing a final framing action. It now explicitly invokes Fit view before restoring keyboard focus to the exploration selectors. This tests a deliberate fitted overview after pane changes; application camera/resize behavior is unchanged.
+
+All four real-engine exploration visual scenarios passed generation in the isolated #42 checkout (`sandbox/ci-fix/generated-final.log`). Only the two narrow overview baselines changed, to the explicit current-pane Fit result (64%); both were inspected. Desktop and subsequent structure captures remained unchanged. All twelve normal comparisons passed across three repetitions without baseline updates (`sandbox/ci-fix/comparison.log`: 2.7 minutes). `npm run check` passed formatting, architecture, TypeScript, 179 unit tests and ten script checks (`sandbox/ci-fix/check-final.log`). The first check passed the unit suite but its source-watcher test timed out because the temporary checkout itself was inside ignored `sandbox/`; moving that owned checkout outside `sandbox/` made the unchanged complete check pass. Cold preparation was cancelled and replaced with the same provenance-verified prepared assets from the unchanged bridge/pins; a leftover owned preview server was stopped before the successful fresh build.
+
 ## Product design stage 2 — composed Model header (#42)
 
 Recorded 2026-11-16 on `feature/product-design-model-header`, based on #41’s merged develop commit `7a1661e`. ModelPaneHeader composes the existing representation state and one DiagramTargetControls set. The latter retains named-view/exploration handlers and focus refs; controls remain mounted but hidden/inert for data representations. Diagram keeps its existing key, mounted renderer, layout/selection/camera behavior, canvas controls and local arranging/failure reports. No engine, dependency, semantic workspace or saved-format changes.
