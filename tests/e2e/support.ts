@@ -1036,3 +1036,15 @@ export async function sourceHeaderGeometry(page: Page) {
       };
     });
 }
+
+/** Test the visible hit target after keyboard focus scrolls a constrained header. */
+export async function controlReachable(control: Locator) {
+  return control.evaluate((element) => {
+    const box = element.getBoundingClientRect();
+    const hit = element.ownerDocument.elementFromPoint(
+      box.x + box.width / 2,
+      box.y + box.height / 2,
+    );
+    return !!hit && element.contains(hit);
+  });
+}

@@ -92,6 +92,8 @@ Visual checks complement source, identity and geometry assertions. Current basel
 
 `source-header.spec.ts` checks pane-local source commands, exact per-file draft badges, unchanged editor DOM through arrangement changes, Diagram/table/matrix independence, active file/view retention and exact portable data. The toolbar geometry helper measures Source commands inside Source and arrangement controls in the global bar. Four source-header visual cases additionally assert that labeled Apply/Discard controls fit and are hit-test reachable at 1440/390 in both themes, with usable editor space. The divider-minimum regression additionally checks 390/768 widths and a 600 px-tall window while retaining exact drafts, portable data and editor DOM identity. Phone light/dark captures exercise the minimum with at least 80 px of editor space and both source actions reachable.
 
+`model-header.spec.ts` covers a single composed Model header, keyboard representation switching without focus loss, unchanged arrangement/active source/drafts/portable data, stable renderer/editor DOM and no evaluation caused by representation changes. It also exercises real unsupported sequence rendering, a held real-engine apply that reports busy/applied revision correctly, and keyboard access after shrinking the vertical Model pane. Existing requirement inspection and source-reveal guards remain covered separately.
+
 ## Investigate failures and review baselines
 
 ```sh

@@ -30,13 +30,21 @@ Local text changes update workspace drafts. Busy operations reconfigure editing 
 
 ## Toolbar ownership
 
-`WorkspaceToolbar` contains only `ArrangementSelector` and Workspace layout. Source only, Source + Model and Model only retain the internal `code`, `split` and `diagram` states. The mutually pressed arrangement controls are centered in their global bar, independent of the active Diagram/table/matrix representation. The Model header/representation selector migration remains tracked by [#42](https://github.com/Open-MBEE/sysml_view_editor/issues/42).
+`WorkspaceToolbar` contains only `ArrangementSelector` and Workspace layout. Source only, Source + Model and Model only retain the internal `code`, `split` and `diagram` states. The mutually pressed arrangement controls are centered in their global bar, independent of the active Diagram/table/matrix representation. `ModelPaneHeader` composes the visibly labeled representation buttons, applied/draft/busy status and diagram target controls for [#42](https://github.com/Open-MBEE/sysml_view_editor/issues/42).
 
 `SourcePaneHeader` lives inside SourceEditor and receives the existing source transaction callbacks from Workbench. It shows the active filename, a per-file draft badge, source undo/redo, workspace source status and labeled Apply/Discard actions. The badge compares that file's draft and applied text; a different file's draft can keep the workspace status pending without marking the active file. SourceEditor supplies its own Find references/Format source actions through a header composition callback; its CodeMirror instance and source-assistance ownership remain unchanged.
 
 Source actions become hidden/inert with Source in Model-only mode. Showing Source makes them reachable; arrangement changes never apply or discard. The existing diagram metadata continues to distinguish the applied model from pending drafts. Source history and action groups align inside the actual pane and wrap at constrained pane widths, so global toolbar alignment no longer measures Explorer/Inspector pixel widths. Source split-ratio observation remains for the single-pane constraint-registration guard, and persisted preferences are unchanged. In the vertical arrangement, Source’s minimum height follows the measured, wrapping header plus 80 px of editor space. A ResizeObserver updates that limit when the header width/content changes, ignoring zero-height measurements while Source is hidden; horizontal Source width limits are unchanged.
 
 Sidebar collapse controls remain in their own headers, with contextual edge reopen rails. The activity rail and sectioned Explorer are tracked separately by [#43](https://github.com/Open-MBEE/sysml_view_editor/issues/43). Broader responsive/accessibility integration remains [#44](https://github.com/Open-MBEE/sysml_view_editor/issues/44). See the [agreed product design](../design/workbench-product-decisions.md) for staged scope and preservation gates.
+
+## Model header and renderer lifetime
+
+`ModelPaneHeader` uses the existing Workbench `dataMode` and transaction handlers. `DiagramTargetControls` owns named-view selection, exploration scope/representation focus, view-kind metadata and existing contextual authoring buttons. It is composed once into the header; Diagram no longer renders a competing target header. Its controls remain mounted but hidden/inert for tables/matrices, preserving exploration focus refs without exposing diagram-only controls.
+
+The Diagram renderer remains at its existing stable position/key and is hidden for data representations. Its layout, camera, selection, asynchronous arranging/failure reporting and canvas Fit/100%/lock controls remain renderer-owned. `supportsDiagram` shares the original UI capability gate with the header: an evaluated engine artifact can still have no renderer here, as with sequence views. Busy status distinguishes work in progress from the applied revision still being displayed; unapplied drafts do not imply a new rendered model.
+
+Tables/matrices are explicitly labeled Project-wide requirements. Their search, sorting, filters, CSV export, loading/error/retry and guarded inspection remain owned by RequirementsPanel. Header overflow uses a bounded native scroll area when the vertical Model pane is deliberately reduced; representation and target controls remain keyboard reachable. The broader responsive/assistive-technology integration remains #44.
 
 ## Icons and controls
 

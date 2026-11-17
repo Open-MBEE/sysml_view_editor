@@ -1,14 +1,14 @@
+import { supportsDiagram } from './supports-diagram';
 import { TreeLabel } from './TreeLabel';
 import { treeNodeHeight } from './source-attributes';
 import { useDiagramFit } from './useDiagramFit';
-import { layoutExploration, explorationKindLabel } from './exploration';
+import { layoutExploration } from './exploration';
 import { RoutedEdge } from './RoutedEdge';
 import { ExplorationEdge } from './ExplorationEdge';
 import type { ExplorationRequest } from '$lib/workspace/exploration';
 import type { ModelElement } from '$lib/workspace/project';
 import { DiagramControls } from './DiagramControls';
-import { SquarePlus, Cable } from 'lucide-react';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -24,10 +24,6 @@ import {
 import '@xyflow/react/dist/style.css';
 import ELK from 'elkjs/lib/elk.bundled.js';
 import { Button } from '$lib/ui/primitives/button';
-import {
-  NativeSelect,
-  NativeSelectOption,
-} from '$lib/ui/primitives/native-select';
 import { layoutStructure, absolutePositions } from './structure';
 import { StructureNode, SelectDiagramSymbol } from './StructureNode';
 import { RequirementNode } from './RequirementNode';
@@ -89,40 +85,30 @@ import type {
 interface Props {
   exploration?: ExplorationRequest;
   elements?: readonly ModelElement[];
-  explorationFocus?: 'scope' | 'representation';
   onExplore?: (
     request: ExplorationRequest,
     focus?: 'scope' | 'representation',
   ) => void;
   view: EvaluatedView | null;
-  views: readonly { id: string; name: string }[];
   busy: boolean;
-  onOpenView: (id: string) => void;
   presentation?: ViewPresentation;
   disabled: boolean;
   onSelect: (symbol: string) => void;
   selectedSymbol?: string;
   onMove: (positions: Record<string, Point>) => void;
-  onCreatePart: () => void;
-  onConnectPorts: () => void;
   layoutMode: 'code' | 'split' | 'diagram';
 }
 export function Diagram({
   exploration,
-  explorationFocus,
   elements = [],
   onExplore,
   view,
-  views,
   busy,
-  onOpenView,
   presentation,
   disabled,
   onSelect,
   selectedSymbol,
   onMove,
-  onCreatePart,
-  onConnectPorts,
   layoutMode,
 }: Props) {
   const [nodes, setNodes] = useState<Node[]>([]),
@@ -132,31 +118,11 @@ export function Diagram({
     [layoutNotice, setLayoutNotice] = useState(''),
     [locked, setLocked] = useState(false);
   const [sceneBounds, setSceneBounds] = useState<Rect>();
-  const scopeControl = useRef<HTMLSelectElement>(null);
-  const representationControl = useRef<HTMLSelectElement>(null);
-  useLayoutEffect(() => {
-    if (!busy && explorationFocus)
-      (explorationFocus === 'scope'
-        ? scopeControl
-        : representationControl
-      ).current?.focus({ preventScroll: true });
-  }, [busy, explorationFocus]);
   const explorationSubject =
     exploration?.scope.kind !== 'project'
       ? exploration?.scope.subject
       : undefined;
-  const supported =
-    view?.status === 'complete' &&
-    view.renderStatus === 'available' &&
-    view.artifact &&
-    [
-      'tree',
-      'interconnection',
-      'definition',
-      'requirement',
-      'action',
-      'state',
-    ].includes(view.artifact.kind);
+  const supported = supportsDiagram(view);
   const fitPadding = exploration
     ? 0.1
     : ['interconnection', 'requirement', 'action', 'state'].includes(
@@ -321,192 +287,11 @@ export function Diagram({
       cancelled = true;
     };
   }, [view, supported, initialPresentation]);
-  const viewNames = new Map<string, number>();
-  for (const item of views)
-    viewNames.set(item.name, (viewNames.get(item.name) ?? 0) + 1);
   return (
     <section
       className={`diagram-pane${exploration ? ' diagram-exploration' : ''}`}
       aria-label="Diagram"
     >
-      <header className="pane-heading">
-        <div className="diagram-context">
-          <NativeSelect
-            size="sm"
-            aria-label="Named view"
-            title={view?.view ?? 'Choose a named view'}
-            value={view?.view ?? ''}
-            disabled={busy}
-            onChange={(event) =>
-              event.target.value
-                ? onOpenView(event.target.value)
-                : onExplore?.({
-                    scope: { kind: 'project' },
-                    representation: 'tree',
-                  })
-            }
-          >
-            <NativeSelectOption value="">Explore model</NativeSelectOption>
-            {views.map((item) => (
-              <NativeSelectOption key={item.id} value={item.id}>
-                {viewNames.get(item.name) === 1 ? item.name : item.id}
-              </NativeSelectOption>
-            ))}
-          </NativeSelect>
-          {exploration && (
-            <>
-              <div className="exploration-field exploration-scope-field">
-                <label htmlFor="exploration-scope">Scope</label>
-                <NativeSelect
-                  size="sm"
-                  ref={scopeControl}
-                  id="exploration-scope"
-                  aria-label="Exploration scope"
-                  value={
-                    exploration.scope.kind === 'project'
-                      ? ''
-                      : exploration.scope.subject
-                  }
-                  disabled={busy}
-                  onChange={(event) => {
-                    const subject = event.target.value;
-                    const item = elements.find((item) => item.id === subject);
-                    onExplore?.(
-                      !subject
-                        ? { scope: { kind: 'project' }, representation: 'tree' }
-                        : item?.kind === 'package'
-                          ? {
-                              scope: { kind: 'package', subject },
-                              representation: 'tree',
-                            }
-                          : {
-                              scope: { kind: 'element', subject },
-                              representation: 'tree',
-                            },
-                      'scope',
-                    );
-                  }}
-                >
-                  <NativeSelectOption value="">
-                    Project overview
-                  </NativeSelectOption>
-                  {elements
-                    .filter((item) =>
-                      ['package', 'partDef', 'partUsage'].includes(item.kind),
-                    )
-                    .map((item) => (
-                      <NativeSelectOption key={item.id} value={item.id}>
-                        {item.id} · {explorationKindLabel(item.kind)}
-                      </NativeSelectOption>
-                    ))}
-                </NativeSelect>
-              </div>
-              <div className="exploration-field">
-                <label htmlFor="exploration-representation">
-                  Representation
-                </label>
-                <NativeSelect
-                  size="sm"
-                  ref={representationControl}
-                  id="exploration-representation"
-                  aria-label="Exploration representation"
-                  value={exploration.representation}
-                  disabled={busy}
-                  onChange={(event) =>
-                    onExplore?.(
-                      event.target.value === 'interconnection' &&
-                        exploration.scope.kind === 'element'
-                        ? {
-                            scope: exploration.scope,
-                            representation: 'interconnection',
-                          }
-                        : { ...exploration, representation: 'tree' },
-                      'representation',
-                    )
-                  }
-                >
-                  <NativeSelectOption value="tree">
-                    Ownership overview
-                  </NativeSelectOption>
-                  <NativeSelectOption
-                    value="interconnection"
-                    disabled={exploration.scope.kind !== 'element'}
-                  >
-                    Structure
-                  </NativeSelectOption>
-                </NativeSelect>
-              </div>
-              <div
-                className="exploration-current"
-                role="group"
-                aria-label="Current exploration scope"
-              >
-                <span>
-                  {exploration.scope.kind === 'project'
-                    ? 'Project'
-                    : explorationKindLabel(
-                        elements.find((item) => item.id === explorationSubject)
-                          ?.kind ?? exploration.scope.kind,
-                      )}
-                </span>
-                <strong>
-                  {exploration.scope.kind === 'project'
-                    ? 'Project overview'
-                    : exploration.scope.subject}
-                </strong>
-              </div>
-            </>
-          )}
-          <div className="diagram-context-meta">
-            {view?.artifact && (
-              <span className="diagram-representation">
-                {view.artifact.kind === 'interconnection'
-                  ? 'Structure'
-                  : view.artifact.kind === 'requirement'
-                    ? 'Requirements'
-                    : view.artifact.kind === 'action'
-                      ? 'Mission flow'
-                      : view.artifact.kind === 'state'
-                        ? 'Operating states'
-                        : view.artifact.kind === 'tree'
-                          ? exploration
-                            ? 'Ownership overview'
-                            : 'Overview tree'
-                          : 'Named view'}
-              </span>
-            )}
-            <span className="diagram-revision">
-              {disabled
-                ? 'Applied revision · draft pending'
-                : view
-                  ? exploration
-                    ? 'Temporary exploration · applied model'
-                    : 'Applied model'
-                  : 'Choose a named view'}
-            </span>
-          </div>
-        </div>
-        {!exploration && view?.artifact?.kind === 'interconnection' && (
-          <div className="diagram-actions">
-            <Button
-              variant="ghost"
-              disabled={disabled || !view}
-              onClick={onCreatePart}
-            >
-              <SquarePlus aria-hidden="true" />
-              New part
-            </Button>
-            <Button
-              variant="ghost"
-              disabled={disabled || view?.artifact?.kind !== 'interconnection'}
-              onClick={onConnectPorts}
-            >
-              <Cable aria-hidden="true" />
-              Connect ports
-            </Button>
-          </div>
-        )}
-      </header>
       {!view ? (
         <div className="empty">
           <h2>One model. Focused views.</h2>

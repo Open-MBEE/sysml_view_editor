@@ -511,3 +511,9 @@ The original v1.0 brief was supplied by Rohan on 2026-11-16. This repository bas
 | Primary source controls fit their pane and remain labeled                             | Actual pane-width geometry checks and reviewed desktop/narrow light/dark captures        |
 
 Every result must distinguish observed baseline behavior, the implemented change, focused acceptance and hosted CI. No dependency, engine pin, semantic interface, portable format or layout-storage migration is part of this stage.
+
+## 18. Stage 2 implementation and verification map
+
+The #42 slice composes ModelPaneHeader with DiagramTargetControls using the existing `dataMode`, workspace handlers and Diagram identity key. Header controls and the renderer remain mounted when data representations hide them. The renderer’s original capability gate is shared with the header, so successful native evaluation is distinguished from a UI renderer being available. Tables/matrices state project-wide scope and retain their own query/filter/export/inspection ownership.
+
+`model-header.spec.ts` covers single control ownership, keyboard focus through representation changes, unchanged arrangement/drafts/bundles, stable renderer/editor DOM, unavailable sequence rendering, busy/applied status and constrained-header keyboard reachability. Existing authoring, exploration, requirement inspection, source reveal and preservation cases retain semantic assertions. Four composed-header visual cases add diagram/table captures at desktop/phone sizes in both themes. Results are recorded in the verification log; this map does not mark #43/#44 complete.

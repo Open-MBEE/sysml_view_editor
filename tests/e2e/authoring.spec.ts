@@ -42,7 +42,7 @@ test('@critical creates a typed part and connects its actual inherited usage por
     .getByRole('group', { name: 'part Assembly::Station::bay', exact: true })
     .click({ position: { x: 30, y: 30 } });
   await page
-    .getByRole('region', { name: 'Diagram', exact: true })
+    .getByRole('group', { name: 'Model header', exact: true })
     .getByRole('button', { name: 'New part', exact: true })
     .click();
   let dialog = page.getByRole('dialog');
@@ -264,7 +264,7 @@ test('contains authoring dialog focus and retains source and positions after dup
   );
   const before = (await downloadProject(page)).bundle;
   const trigger = page
-    .getByRole('region', { name: 'Diagram', exact: true })
+    .getByRole('group', { name: 'Model header', exact: true })
     .getByRole('button', { name: 'New part', exact: true });
   await trigger.focus();
   await page.keyboard.press('Enter');
@@ -333,7 +333,7 @@ test('cancels an in-flight source proposal and permits a fresh review without ch
   );
   const before = (await downloadProject(page)).bundle;
   const trigger = page
-    .getByRole('region', { name: 'Diagram', exact: true })
+    .getByRole('group', { name: 'Model header', exact: true })
     .getByRole('button', { name: 'New part', exact: true });
   await trigger.click();
   const dialog = page.getByRole('dialog');

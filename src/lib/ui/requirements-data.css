@@ -8,8 +8,7 @@
 .model-data-tabs {
   display: flex;
   gap: 4px;
-  padding: 6px 10px;
-  border-bottom: 1px solid var(--sysml-border);
+  align-items: center;
   flex-wrap: wrap;
 }
 .model-data-diagram {
@@ -113,4 +112,38 @@
   text-decoration: underline;
   cursor: pointer;
   color: var(--sysml-accent);
+}
+
+.model-pane-header {
+  flex-shrink: 0;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--sysml-border);
+  background: var(--sysml-surface);
+  max-height: 60%;
+  overflow: auto;
+}
+.model-header-primary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+}
+.model-data-tabs > strong {
+  font-size: 12px;
+}
+.model-representation-label,
+.model-header-status,
+.model-header-scope {
+  font-size: 11px;
+  color: var(--sysml-muted);
+}
+.model-header-status,
+.model-header-scope {
+  margin: 4px 0;
+}
+.diagram-target-controls {
+  font-size: 12px;
+  display: flex;
+  gap: 6px 10px;
+  align-items: center;
 }
