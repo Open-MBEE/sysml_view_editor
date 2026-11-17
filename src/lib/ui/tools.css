@@ -6,7 +6,7 @@
   padding: 18px 10px;
 }
 .explorer section + section {
-  margin-top: 28px;
+  margin-top: 16px;
 }
 .explorer h2 {
   font-size: 11px;
@@ -17,8 +17,31 @@
 }
 .section-heading {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2px;
+}
+.explorer-section > .section-heading > h2 {
+  margin: 0;
+  min-width: 0;
+}
+.explorer-section > .section-heading > h2 > button {
+  font-size: 11px;
+  font-weight: 600;
+  gap: 5px;
+  white-space: nowrap;
+}
+.explorer-section > .section-heading > h2 > button > svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+.explorer-section .section-heading .expanded {
+  transform: rotate(90deg);
+}
+.explorer-section > [hidden] {
+  display: none;
 }
 .explorer button {
   display: flex;
@@ -62,17 +85,6 @@
   color: var(--sysml-muted);
   margin-top: 3px;
   line-height: 1.5;
-}
-.file-mark {
-  font: 10px var(--sysml-font-mono);
-  color: var(--sysml-accent);
-}
-.view-mark {
-  font-size: 17px;
-  color: var(--sysml-accent);
-}
-.kind-mark {
-  color: var(--sysml-muted);
 }
 .explorer p {
   font-size: 12px;
@@ -270,7 +282,7 @@
 .model-tree-actions {
   display: flex;
   gap: 2px;
-  margin-bottom: 8px;
+  margin-left: auto;
 }
 .model-tree-actions button {
   width: 24px;

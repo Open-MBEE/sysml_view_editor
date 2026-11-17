@@ -44,6 +44,8 @@ OpenMBEE View Editor brings source editing, named model views and reviewed graph
 
 <p align="center"><em>Inspection rover: connected assemblies, declared component values and typed interfaces.</em></p>
 
+Explorer has independent Files, Views and Model sections. Fold a section to make room without losing its state; the Explorer activity button at the left edge toggles the sidebar. New view and model expand/collapse actions remain separate from section toggles. Diagram selection reveals the Model owner chain without moving keyboard focus away from the diagram. Section expansion lasts for the current session and is not saved in project files. Model representation labels wrap to the pane width. High-contrast mode retains a selection marker separate from keyboard focus; reduced motion follows system preferences. See [verification](docs/verification.md) for targeted accessibility coverage and limits.
+
 ## Features
 
 - **Edit highlighted SysML source.** CodeMirror provides line numbers, bracket matching/closing, indentation, find/replace and draft undo/redo. Apply or discard changes, undo/redo accepted source transactions, and keep the last valid model when a draft fails validation.

@@ -11,7 +11,7 @@ import {
 const steps = [
   {
     title: 'Find your files and views',
-    text: 'Use Explorer to open source files, choose named views and browse model elements.',
+    text: 'Use the Explorer activity button to show or hide the sidebar. Its Files, Views and Model sections fold independently; their actions stay separate.',
     target: '[data-tour-explorer]',
     hidden: 'Choose Show Explorer to reopen the panel.',
   },
@@ -28,7 +28,7 @@ const steps = [
   },
   {
     title: 'Inspect your model',
-    text: 'Choose Diagram view, Requirements table or Traceability matrix to inspect the applied model.',
+    text: 'The Model header selects Diagram view, Requirements table or Traceability matrix independently of workspace arrangement. Tables show project-wide requirements.',
     target: '[aria-label="Model representation"]',
     hidden: 'Choose Source + Model or Model only to reveal these controls.',
   },

@@ -126,6 +126,21 @@
   padding-top: 4px;
   background: var(--sysml-surface);
 }
+.activity-rail {
+  display: flex;
+  flex: 0 0 48px;
+  width: 48px;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 4px;
+  background: var(--sysml-surface);
+  border-right: 1px solid var(--sysml-border);
+}
+.activity-rail button[aria-pressed='true'] {
+  background: var(--sysml-active-bg);
+  color: var(--sysml-active-text);
+  border-left: 3px solid currentColor;
+}
 @container (max-width: 410px) {
   .source-command-grid {
     display: flex;
@@ -328,6 +343,9 @@
   }
 }
 @media (forced-colors: active) {
+  :is(.modes, .model-data-tabs) button[aria-pressed='true'] {
+    border-bottom: 3px solid Highlight;
+  }
   [data-slot='resizable-handle'].workbench-resizer {
     background: ButtonBorder;
   }

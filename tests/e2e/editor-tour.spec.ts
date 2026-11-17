@@ -23,7 +23,7 @@ test('editor guide is optional, keyboard accessible and preserves the project', 
   await expect(guide).toContainText('Find your files and views');
   await expect(guide).toContainText('1 of 5');
   await expect(guide).toHaveAccessibleDescription(
-    /1 of 5.*Find your files and views.*Use Explorer/,
+    /1 of 5.*Find your files and views.*Explorer activity button/,
   );
   await expect(guide.locator('[aria-live="polite"]')).toHaveAttribute(
     'aria-atomic',

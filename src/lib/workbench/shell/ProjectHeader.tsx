@@ -1,5 +1,5 @@
 import type { ReactNode, Ref } from 'react';
-import { FilePlus2, FolderOpen, Download, PanelsTopLeft } from 'lucide-react';
+import { FilePlus2, FolderOpen, Download, Folders } from 'lucide-react';
 import { Button } from '$lib/ui/primitives/button';
 import { AppearanceSettings } from '$lib/ui/AppearanceSettings';
 import type { WorkspaceState } from '$lib/workspace/createWorkspace';
@@ -38,7 +38,7 @@ export function ProjectHeader({
         aria-label="Projects"
         onClick={onProjects}
       >
-        <PanelsTopLeft aria-hidden="true" />
+        <Folders aria-hidden="true" />
         <span className="button-label">Projects</span>
       </Button>
       <div className="project-identity">

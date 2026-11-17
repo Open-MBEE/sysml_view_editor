@@ -10,6 +10,14 @@
   gap: 4px;
   align-items: center;
   flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
+}
+.model-data-tabs button {
+  max-width: 100%;
+  height: auto;
+  min-height: 24px;
+  white-space: normal;
 }
 .model-data-diagram {
   display: flex;

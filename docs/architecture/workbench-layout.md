@@ -50,18 +50,18 @@ Tables/matrices are explicitly labeled Project-wide requirements. Their search, 
 
 Lucide icons use the shared shadcn Button sizes, theme roles and focus indicators. Compact history and mode actions use `ui/IconButton.tsx`: each has an explicit accessible name, a Tooltip and a decorative SVG. The root supplies one delayed Tooltip provider, and hints pass pointer events through to the underlying UI.
 
-| Action                                     | Icon                                                      |
-| ------------------------------------------ | --------------------------------------------------------- |
-| Source undo / redo                         | Undo2 / Redo2                                             |
-| Source only / Source + Model / Model only  | CodeXml / Columns2 / Layers                               |
-| New project / Open / Download              | FilePlus2 / FolderOpen / Download                         |
-| Apply / discard draft                      | Check / X                                                 |
-| Appearance                                 | Palette                                                   |
-| New part / connection                      | SquarePlus / Cable                                        |
-| Source reveal / reviewed rename / new view | CodeXml / Pencil / Eye                                    |
-| Diagram zoom / fit / lock                  | ZoomIn / ZoomOut / Scan / LockKeyhole variants            |
-| Panel visibility                           | PanelLeft, PanelRight and PanelBottom open/close variants |
-| Panel options / reset layout               | Ellipsis / RotateCcw                                      |
+| Action                                     | Icon                                                           |
+| ------------------------------------------ | -------------------------------------------------------------- |
+| Source undo / redo                         | Undo2 / Redo2                                                  |
+| Source only / Source + Model / Model only  | CodeXml / Columns2 / Layers                                    |
+| New project / Open / Download              | FilePlus2 / FolderOpen / Download                              |
+| Apply / discard draft                      | Check / X                                                      |
+| Appearance                                 | Palette                                                        |
+| New part / connection                      | SquarePlus / Cable                                             |
+| Source reveal / reviewed rename / new view | CodeXml / Pencil / Eye                                         |
+| Diagram zoom / fit / lock                  | ZoomIn / ZoomOut / Scan / LockKeyhole variants                 |
+| Panel visibility                           | Explorer Folder activity; contextual panel close/open variants |
+| Panel options / reset layout               | Ellipsis / RotateCcw                                           |
 
 Apply and Download retain visible labels; frequent compact actions retain precise names such as Undo source. CodeMirror draft undo/redo is distinct from accepted source transaction history. Standard editor/search shortcuts are documented in the README; Tab retains focus navigation. Existing kind labels remain visible alongside Explorer icons; those icons do not establish SysML notation support.
 
@@ -75,7 +75,9 @@ Apply and Download retain visible labels; frequent compact actions retain precis
 
 Navigation follows the [WAI-ARIA tree pattern](https://www.w3.org/WAI/ARIA/apg/patterns/treeview/): arrows move through visible rows and fold/unfold branches, Home/End reach the visible extremes, typed prefixes find visible names, and Enter/Space select the focused declaration. Focus and selection are separate. One treeitem participates in Tab order; shared focus styling distinguishes it from the inspected row.
 
-Diagram selection opens the selected declaration's owner chain without taking focus from the diagram. A UI request counter handles a second selection of the same symbol after its branch has been folded. These are reveal requests, not semantic revisions or identity reconciliation. Selecting a tree row retains the existing Inspector behavior; source-range reveal still requires diagram correspondence. Expansion is not portable project data or automatic work recovery.
+ExplorerSection owns independent session-only Files/Views/Model disclosure state. Section bodies stay mounted while hidden/inert, preserving tree expansion and focus state. New view and tree-wide actions are separate header targets. ActivityRail exposes only the implemented Explorer destination and delegates visibility to the existing panel controller; it owns no layout preferences. It replaces the adjacent collapsed Explorer rail, retaining the Inspector reopen control. Existing sidebar visibility preferences and `sysml-workbench-layout-v1` remain unchanged.
+
+Diagram selection opens the Model section and the selected declaration's owner chain without taking focus from the diagram. A UI request counter handles a second selection of the same symbol after its branch has been folded. These are reveal requests, not semantic revisions or identity reconciliation. Selecting a tree row retains the existing Inspector behavior; source-range reveal still requires diagram correspondence. Expansion is not portable project data or automatic work recovery.
 
 ## Entry and session lifetime
 
@@ -83,4 +85,10 @@ The public landing lives at `/`; `/app` starts with a project launcher. Source/d
 
 ## Shell code ownership
 
-`Workbench.tsx` retains the live session, project-opening validation, selection and reviewed-command orchestration. `ProjectHeader.tsx` and `SourceToolbar.tsx` render shell controls through explicit callbacks. `projectFiles.ts` owns local bundle construction, file reading and browser download preparation; workspace validation and saved-state tracking retain their existing contracts. Panel controls and preferences remain in `WorkbenchPanels.tsx` and `layout.ts`. Surface CSS is imported through `ui/theme.css`; see the [design-system ownership table](../design-system.md#ownership).
+`Workbench.tsx` retains the live session, project-opening validation, selection and reviewed-command orchestration. `ProjectHeader.tsx`, `WorkspaceToolbar.tsx`, `SourcePaneHeader.tsx` and `ModelPaneHeader.tsx` render shell controls through explicit callbacks. `projectFiles.ts` owns local bundle construction, file reading and browser download preparation; workspace validation and saved-state tracking retain their existing contracts. Panel controls and preferences remain in `WorkbenchPanels.tsx` and `layout.ts`. Surface CSS is imported through `ui/theme.css`; see the [design-system ownership table](../design-system.md#ownership).
+
+## Responsive and accessibility integration
+
+Pane-local controls use intrinsic wrapping; Model representation buttons can wrap their labels within narrow panes even beside Inspector. Existing 900 px vertical Split and below-600 mutually exclusive side tools are retained. Opening a collapsed tool first releases its reopen rail before requesting space, avoiding a narrow-panel constraint deadlock. Hidden panels and sections remain mounted/inert. Projects and Workspace layout have distinct Folders/PanelsTopLeft icons; forced-color representation/arrangement selection has a persistent border separate from the focus outline. Reduced-motion behavior remains the shared rule in `base.css`.
+
+`workbench-chrome.spec.ts` checks actual pane extremes, viewport transitions, exact drafts/bundle/editor/camera preservation, minimum-height canvas control access and forced-color focus/selection. Targeted accessibility-tree and screen-reader observations are recorded in [verification](../verification.md); they do not establish comprehensive assistive-technology support.

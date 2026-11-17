@@ -1048,3 +1048,21 @@ export async function controlReachable(control: Locator) {
     return !!hit && element.contains(hit);
   });
 }
+
+/** Normalize a closed Explorer and visible reopen focus after responsive layout. */
+export async function hideExplorer(page: Page) {
+  const activity = page
+    .getByRole('navigation', { name: 'Workspace activities', exact: true })
+    .getByRole('button');
+  if ((await activity.getAttribute('aria-expanded')) === 'true')
+    await activity.click();
+  else await activity.focus();
+  await expect(activity).toHaveAttribute('aria-expanded', 'false');
+  await expect(
+    page.getByRole('complementary', {
+      name: 'Project navigation',
+      exact: true,
+    }),
+  ).not.toBeVisible();
+  await expect(activity).toBeFocused();
+}

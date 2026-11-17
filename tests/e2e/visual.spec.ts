@@ -3,6 +3,7 @@ import { noViews, assemblyExploration, documents } from './exploration-support';
 import {
   test,
   expect,
+  hideExplorer,
   ready,
   waitForRoverStartup,
   importAssembly,
@@ -25,6 +26,7 @@ import {
   importRequirementsTraceability,
   waitForRequirements,
   centerRequirementCard,
+  expectRequirementsFit,
   zoomRequirementForReading,
   requirementCard,
 } from './requirements-support';
@@ -166,9 +168,7 @@ for (const theme of ['light', 'dark']) {
         .selectOption(theme);
       await page.getByRole('button', { name: 'Done', exact: true }).click();
       if (narrow) {
-        await page
-          .getByRole('button', { name: 'Collapse Explorer', exact: true })
-          .click();
+        await hideExplorer(page);
         await page
           .getByRole('button', { name: 'Show Inspector', exact: true })
           .click();
@@ -637,15 +637,15 @@ for (const theme of ['light', 'dark']) {
         await expect(page).toHaveScreenshot(
           `requirements-overview-${theme}.png`,
         );
-      if (width === 768)
-        await page
-          .getByRole('button', { name: 'Collapse Explorer', exact: true })
-          .click();
+      if (width === 768) await hideExplorer(page);
       const selectedRequirement = requirementCard(
         page,
         result,
         'TraceRequirements::MinimumCapacity',
       );
+      // Establish a final-pane camera origin before the normalized reading zoom.
+      await page.getByRole('button', { name: 'Fit view', exact: true }).click();
+      await expectRequirementsFit(page);
       await zoomRequirementForReading(page, selectedRequirement);
       await selectedRequirement.focus();
       await selectedRequirement.press('Enter');
@@ -684,9 +684,7 @@ for (const theme of ['light', 'dark']) {
         page.getByRole('button', { name: 'Appearance', exact: true }),
       ).toBeFocused();
       if (width === 768) {
-        await page
-          .getByRole('button', { name: 'Collapse Explorer', exact: true })
-          .click();
+        await hideExplorer(page);
         await expect(
           page.getByRole('button', { name: 'Show Explorer', exact: true }),
         ).toBeFocused();
@@ -755,9 +753,7 @@ for (const theme of ['light', 'dark'])
         page.getByRole('button', { name: 'Appearance', exact: true }),
       ).toBeFocused();
       if (width === 768) {
-        await page
-          .getByRole('button', { name: 'Collapse Explorer', exact: true })
-          .click();
+        await hideExplorer(page);
         await expect(
           page.getByRole('button', { name: 'Show Explorer', exact: true }),
         ).toBeFocused();
@@ -841,10 +837,7 @@ for (const theme of ['light', 'dark'])
       await expect(
         page.getByRole('button', { name: 'Appearance', exact: true }),
       ).toBeFocused();
-      if (width === 768)
-        await page
-          .getByRole('button', { name: 'Collapse Explorer', exact: true })
-          .click();
+      if (width === 768) await hideExplorer(page);
       await page
         .getByRole('button', { name: 'Explore model', exact: true })
         .focus();
@@ -885,9 +878,7 @@ for (const theme of ['light', 'dark']) {
     await expect(
       page.getByRole('button', { name: 'Appearance', exact: true }),
     ).toBeFocused();
-    await page
-      .getByRole('button', { name: 'Collapse Explorer', exact: true })
-      .click();
+    await hideExplorer(page);
     await expect(
       page.getByRole('button', { name: 'Show Explorer', exact: true }),
     ).toBeFocused();
@@ -940,10 +931,7 @@ for (const theme of ['light', 'dark'])
       await expect(
         page.getByRole('button', { name: 'Appearance', exact: true }),
       ).toBeFocused();
-      if (width === 768)
-        await page
-          .getByRole('button', { name: 'Collapse Explorer', exact: true })
-          .click();
+      if (width === 768) await hideExplorer(page);
       const selector = page.getByRole('combobox', {
         name: 'Named view',
         exact: true,
@@ -1399,3 +1387,68 @@ for (const theme of ['light', 'dark'])
       );
     });
   }
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [1440, 390]) {
+    test(`sectioned Explorer in ${theme} at ${width}px`, async ({ page }) => {
+      await ready(page, { split: false });
+      await page.setViewportSize({ width, height: 900 });
+      const show = page.getByRole('button', {
+        name: 'Show Explorer',
+        exact: true,
+      });
+      if (await show.isVisible()) await show.click();
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      const nav = page.getByRole('complementary', {
+        name: 'Project navigation',
+        exact: true,
+      });
+      for (const section of ['Files', 'Views', 'Model'])
+        await expect(
+          nav.getByRole('button', { name: section, exact: true }),
+        ).toHaveAttribute('aria-expanded', 'true');
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `explorer-sections-${theme}-${width}.png`,
+      );
+      await nav.getByRole('button', { name: 'Files', exact: true }).click();
+      await nav.getByRole('button', { name: 'Views', exact: true }).click();
+      await nav
+        .getByRole('button', { name: 'Expand all model elements', exact: true })
+        .click();
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `explorer-model-${theme}-${width}.png`,
+      );
+    });
+  }
+}
+
+test('workbench selection and focus in forced colors', async ({ page }) => {
+  await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
+  await page.goto('/app');
+  await importWorkshop(page);
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
+  const header = page.getByRole('group', { name: 'Model header', exact: true });
+  await header
+    .getByRole('button', { name: 'Requirements table', exact: true })
+    .focus();
+  await expect(
+    header.getByRole('button', { name: 'Diagram view', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(page).toHaveScreenshot(
+    'workbench-forced-colors-selection-focus.png',
+  );
+});

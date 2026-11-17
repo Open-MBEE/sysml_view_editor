@@ -8,6 +8,7 @@ import {
   type KeyboardEvent,
 } from 'react';
 import {
+  ListTree,
   Folder,
   FolderOpen,
   Box,
@@ -28,6 +29,7 @@ import {
   ChevronsDownUp,
   type LucideIcon,
 } from 'lucide-react';
+import { ExplorerSection } from './ExplorerSection';
 import { Button } from '$lib/ui/primitives/button';
 import { IconButton } from '$lib/ui/IconButton';
 import type { ModelElement } from '$lib/workspace/project';
@@ -275,9 +277,11 @@ export function ModelTree({
     );
   }
   return (
-    <section className="model-tree-section">
-      <div className="section-heading">
-        <h2>Model</h2>
+    <ExplorerSection
+      title="Model"
+      icon={ListTree}
+      revealRequest={selectionRequest}
+      actions={
         <div className="model-tree-actions">
           <IconButton
             size="icon-xs"
@@ -294,7 +298,8 @@ export function ModelTree({
             onClick={() => setExpanded(new Set())}
           />
         </div>
-      </div>
+      }
+    >
       <p id={help} className="sr-only">
         Use arrow keys to navigate and expand. Press Enter or Space to select a
         declaration. Type a name to find a visible declaration.
@@ -320,6 +325,6 @@ export function ModelTree({
       ) : (
         <p>No model declarations to display.</p>
       )}
-    </section>
+    </ExplorerSection>
   );
 }

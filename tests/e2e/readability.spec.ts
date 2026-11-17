@@ -150,7 +150,45 @@ test('@critical responsive panes preserve explicit preferences, camera and the u
     const primary = await page
       .getByRole('region', { name: 'Diagram', exact: true })
       .boundingBox();
-    expect(primary!.width).toBeGreaterThan(width * (width <= 900 ? 0.8 : 0.4));
+    const workspace = await page
+      .getByRole('main', { name: 'Model workspace', exact: true })
+      .boundingBox();
+    const activity = await page
+      .getByRole('navigation', { name: 'Workspace activities', exact: true })
+      .boundingBox();
+    const reopen = await page
+      .getByRole('toolbar', { name: 'Inspector panel reopen', exact: true })
+      .boundingBox();
+    const leftDivider = await page
+      .getByRole('separator', { name: 'Resize Explorer', exact: true })
+      .boundingBox();
+    const rightDivider = await page
+      .getByRole('separator', { name: 'Resize Inspector', exact: true })
+      .boundingBox();
+    const available =
+      workspace!.width -
+      activity!.width -
+      reopen!.width -
+      leftDivider!.width -
+      rightDivider!.width;
+    const sourcePane = await page
+      .getByRole('region', { name: 'Source editor', exact: true })
+      .boundingBox();
+    if (width <= 900) {
+      expect(primary!.width).toBeCloseTo(available, 0);
+      expect(sourcePane!.width).toBeCloseTo(available, 0);
+    } else {
+      const split = await page
+        .getByRole('separator', {
+          name: 'Resize Source and Diagram',
+          exact: true,
+        })
+        .boundingBox();
+      expect(primary!.width + sourcePane!.width + split!.width).toBeCloseTo(
+        available,
+        0,
+      );
+    }
   }
   await page
     .getByRole('button', { name: 'Show Inspector', exact: true })

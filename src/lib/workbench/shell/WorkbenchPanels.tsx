@@ -14,7 +14,6 @@ import type {
   PanelImperativeHandle,
 } from 'react-resizable-panels';
 import {
-  PanelLeftOpen,
   PanelLeftClose,
   PanelRightOpen,
   PanelRightClose,
@@ -36,6 +35,7 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from '$lib/ui/primitives/popover';
+import { ActivityRail } from './ActivityRail';
 import { Button } from '$lib/ui/primitives/button';
 import { IconButton } from '$lib/ui/IconButton';
 import {
@@ -133,15 +133,33 @@ function useLayoutController(mode: Mode) {
     id: Side;
     collapsed: boolean;
   } | null>(null);
+  const [opening, setOpening] = useState<Side | null>(null);
   useLayoutEffect(() => {
-    if (!focusRequest || closed[focusRequest.id] !== focusRequest.collapsed)
+    if (
+      opening ||
+      !focusRequest ||
+      closed[focusRequest.id] !== focusRequest.collapsed
+    )
       return;
     const target = focusRequest.collapsed
       ? toggles[focusRequest.id]
       : collapseButtons[focusRequest.id];
     target.current?.focus({ preventScroll: true });
     setFocusRequest(null);
-  }, [focusRequest, closed]);
+  }, [focusRequest, closed, opening]);
+  useLayoutEffect(() => {
+    if (!opening) return;
+    // Release the collapsed tool's reopen rail before allocating its width.
+    // Otherwise the rail + activity bar + minimum editors can prevent expansion.
+    const minimum = opening === 'inspector' ? 190 : 145;
+    panels[opening].current?.resize(
+      opening !== 'issues' &&
+        (window.innerWidth * preferences.current[opening]) / 100 < minimum
+        ? `${minimum}px`
+        : `${preferences.current[opening]}%`,
+    );
+    setOpening(null);
+  }, [opening]);
   function show(id: Side, transferFocus = true) {
     const panel = panels[id].current;
     if (!panel) return;
@@ -153,13 +171,8 @@ function useLayoutController(mode: Mode) {
     }
     // A remembered desktop percentage can fall below a side tool's pixel
     // minimum on a phone; the panel library may then keep it collapsed.
-    const minimum = id === 'inspector' ? 190 : 145;
-    panel.resize(
-      id !== 'issues' &&
-        (window.innerWidth * preferences.current[id]) / 100 < minimum
-        ? `${minimum}px`
-        : `${preferences.current[id]}%`,
-    );
+    setClosed((before) => ({ ...before, [id]: false }));
+    setOpening(id);
     remember({ [closedKey[id]]: false });
     if (transferFocus) setFocusRequest({ id, collapsed: false });
   }
@@ -348,15 +361,19 @@ export function PanelControls() {
     </div>
   );
 }
-function CollapsedRail({ id }: { id: 'explorer' | 'inspector' }) {
+function CollapsedRail({ id }: { id: 'inspector' }) {
   const layout = usePanels();
   if (!layout.closed[id]) return null;
   return (
-    <div className="panel-rail">
+    <div
+      className="panel-rail"
+      role="toolbar"
+      aria-label="Inspector panel reopen"
+    >
       <IconButton
         ref={layout.toggles[id]}
         label={`Show ${titles[id]}`}
-        icon={id === 'explorer' ? PanelLeftOpen : PanelRightOpen}
+        icon={PanelRightOpen}
         aria-expanded={false}
         onClick={() => layout.show(id)}
       />
@@ -498,6 +515,7 @@ export function WorkbenchPanels({
     >
       <div
         className="panel-content"
+        id={`workspace-${id}`}
         hidden={layout.closed[id]}
         inert={layout.closed[id]}
       >
@@ -529,8 +547,16 @@ export function WorkbenchPanels({
             layout.changed('outer', value, meta)
           }
         >
+          <ActivityRail
+            expanded={!layout.closed.explorer}
+            buttonRef={layout.toggles.explorer}
+            onToggle={() =>
+              layout.closed.explorer
+                ? layout.show('explorer')
+                : layout.hide('explorer')
+            }
+          />
           {side('explorer', explorer)}
-          <CollapsedRail id="explorer" />
           <ResizableHandle
             className="workbench-resizer"
             aria-label="Resize Explorer"
@@ -627,6 +653,7 @@ export function WorkbenchPanels({
       >
         <div
           className="panel-content"
+          id="workspace-issues"
           hidden={layout.closed.issues}
           inert={layout.closed.issues}
         >
