@@ -37,8 +37,12 @@ test('@critical tree selection reveals hidden details while retaining the curren
   await page
     .getByRole('button', { name: 'Collapse Inspector', exact: true })
     .click();
+  await expect(
+    page.getByRole('button', { name: 'Show Inspector', exact: true }),
+  ).toBeFocused();
   const reading = modelTreeItem(page, 'Reading');
   await reading.focus();
+  await expect(reading).toBeFocused();
   await page.keyboard.press('ArrowRight');
   const selected = modelTreeItem(page, 'Reading::small');
   await selected.focus();
