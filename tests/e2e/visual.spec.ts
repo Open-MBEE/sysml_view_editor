@@ -131,7 +131,7 @@ for (const appearance of [
       ['Connect ports', 'Connect ports', 'connection'],
     ]) {
       const trigger = page
-        .getByRole('region', { name: 'Diagram', exact: true })
+        .getByRole('group', { name: 'Model header', exact: true })
         .getByRole('button', { name: action!, exact: true });
       await trigger.focus();
       await page.keyboard.press('Enter');
@@ -699,6 +699,7 @@ for (const theme of ['light', 'dark']) {
         name: 'Exploration representation',
         exact: true,
       });
+      await page.getByRole('button', { name: 'Fit view', exact: true }).click();
       await scope.focus();
       await expect(scope).toBeFocused();
       await page.keyboard.press('Tab');
@@ -1333,5 +1334,68 @@ for (const theme of ['light', 'dark'])
         await page.mouse.move(0, 0);
         await expect(page).toHaveScreenshot(`source-pane-minimum-${theme}.png`);
       }
+    });
+  }
+
+for (const theme of ['light', 'dark'])
+  for (const width of [1440, 390]) {
+    test(`composed Model header in ${theme} at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 1000 });
+      await page.goto('/app');
+      await importWorkshop(page);
+      await page
+        .getByRole('button', { name: 'Show source and model', exact: true })
+        .click();
+      const source = page.getByRole('textbox', {
+        name: 'SysML source',
+        exact: true,
+      });
+      await fillSource(
+        source,
+        (await readSource(source)) + '\n// pending source remains unapplied\n',
+      );
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      const header = page.getByRole('group', {
+        name: 'Model header',
+        exact: true,
+      });
+      await expect(header).toContainText('Applied revision · draft pending');
+      await expect(
+        header.getByRole('combobox', { name: 'Named view', exact: true }),
+      ).toHaveValue('WorkshopViews::overview');
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `model-header-diagram-${theme}-${width}.png`,
+      );
+      await header
+        .getByRole('button', { name: 'Requirements table', exact: true })
+        .click();
+      await expect(
+        page
+          .getByRole('region', { name: 'Requirements table', exact: true })
+          .getByRole('status'),
+      ).toHaveText('0 requirements');
+      await expect(
+        header.getByText('Project-wide requirements', { exact: true }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole('combobox', { name: 'Named view', exact: true }),
+      ).toHaveCount(0);
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `model-header-table-${theme}-${width}.png`,
+      );
     });
   }

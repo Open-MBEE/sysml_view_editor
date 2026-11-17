@@ -24,8 +24,8 @@ test('@critical loads real source-defined views and keeps the view stable when c
   await expect(
     page.getByRole('textbox', { name: 'SysML source' }),
   ).toHaveSource(/package WorkshopViews/);
-  const diagram = page.getByRole('region', { name: 'Diagram', exact: true });
-  const view = diagram.getByRole('combobox', {
+  const header = page.getByRole('group', { name: 'Model header', exact: true });
+  const view = header.getByRole('combobox', {
     name: 'Named view',
     exact: true,
   });
@@ -119,7 +119,7 @@ test('@critical creates a native view declaration through a reviewed transaction
     page.getByRole('button', { name: 'CompressorDetail', exact: true }),
   ).toBeVisible();
   const view = page
-    .getByRole('region', { name: 'Diagram', exact: true })
+    .getByRole('group', { name: 'Model header', exact: true })
     .getByRole('combobox', { name: 'Named view', exact: true });
   await expect(view).toBeVisible();
   await expect(view).toHaveValue('Workshop::CompressorDetail');

@@ -4,7 +4,6 @@ import type {
   RequirementsResult,
   RequirementSubject,
 } from '$lib/workspace/requirements';
-import { Button } from '$lib/ui/primitives/button';
 import {
   WorkbenchLayout,
   WorkbenchPanels,
@@ -39,6 +38,8 @@ import { ProjectLauncher } from '../entry/ProjectLauncher';
 import { ProjectHeader } from './ProjectHeader';
 import { WorkspaceToolbar } from './WorkspaceToolbar';
 import { SourcePaneHeader } from './SourcePaneHeader';
+import { ModelPaneHeader } from './ModelPaneHeader';
+import { DiagramTargetControls } from '../diagrams/DiagramTargetControls';
 import {
   createLocalProject,
   readProjectFiles,
@@ -782,28 +783,36 @@ export function Workbench({
               }
               diagram={
                 <div className="model-data-surface">
-                  <div
-                    className="model-data-tabs"
-                    role="group"
-                    aria-label="Model representation"
+                  <ModelPaneHeader
+                    representation={dataMode}
+                    onRepresentation={setDataMode}
+                    state={state}
+                    view={displayedView}
+                    exploring={!!state.exploration}
                   >
-                    {(['diagram', 'table', 'matrix'] as const).map((value) => (
-                      <Button
-                        key={value}
-                        size="xs"
-                        variant={dataMode === value ? 'secondary' : 'ghost'}
-                        aria-pressed={dataMode === value}
-                        disabled={state.busy}
-                        onClick={() => setDataMode(value)}
-                      >
-                        {value === 'diagram'
-                          ? 'Diagram view'
-                          : value === 'table'
-                            ? 'Requirements table'
-                            : 'Traceability matrix'}
-                      </Button>
-                    ))}
-                  </div>
+                    <DiagramTargetControls
+                      views={
+                        state.model?.elements.filter(
+                          (item) => item.kind === 'viewUsage',
+                        ) ?? []
+                      }
+                      busy={state.busy}
+                      onOpenView={(id) =>
+                        void run(() => workspace().openView(id))
+                      }
+                      view={displayedView}
+                      exploration={state.exploration?.request}
+                      elements={state.model?.elements ?? []}
+                      explorationFocus={explorationFocus}
+                      onExplore={(request, focus) => {
+                        setExplorationFocus(focus);
+                        void run(() => workspace().explore(request));
+                      }}
+                      disabled={state.busy || state.unapplied}
+                      onCreatePart={newPart}
+                      onConnectPorts={newConnection}
+                    />
+                  </ModelPaneHeader>
                   {dataMode !== 'diagram' && readySession && (
                     <RequirementsPanel
                       workspace={readySession}
@@ -820,21 +829,12 @@ export function Workbench({
                   >
                     <Diagram
                       selectedSymbol={selectedCorrespondence?.symbol}
-                      views={
-                        state.model?.elements.filter(
-                          (item) => item.kind === 'viewUsage',
-                        ) ?? []
-                      }
                       busy={state.busy}
-                      onOpenView={(id) =>
-                        void run(() => workspace().openView(id))
-                      }
                       layoutMode={mode}
                       key={(diagramIdentity ?? 'none') + ':' + state.revision}
                       view={displayedView}
                       exploration={state.exploration?.request}
                       elements={state.model?.elements ?? []}
-                      explorationFocus={explorationFocus}
                       onExplore={(request, focus) => {
                         setExplorationFocus(focus);
                         void run(() => workspace().explore(request));
@@ -842,8 +842,6 @@ export function Workbench({
                       presentation={compatiblePresentation}
                       disabled={state.busy || state.unapplied}
                       onSelect={selectSymbol}
-                      onCreatePart={newPart}
-                      onConnectPorts={newConnection}
                       onMove={(positions) =>
                         state.exploration
                           ? undefined
