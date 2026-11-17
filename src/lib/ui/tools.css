@@ -86,17 +86,6 @@
   margin-top: 3px;
   line-height: 1.5;
 }
-.file-mark {
-  font: 10px var(--sysml-font-mono);
-  color: var(--sysml-accent);
-}
-.view-mark {
-  font-size: 17px;
-  color: var(--sysml-accent);
-}
-.kind-mark {
-  color: var(--sysml-muted);
-}
 .explorer p {
   font-size: 12px;
   padding: 0 8px;

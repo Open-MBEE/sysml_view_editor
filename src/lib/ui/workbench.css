@@ -343,6 +343,9 @@
   }
 }
 @media (forced-colors: active) {
+  :is(.modes, .model-data-tabs) button[aria-pressed='true'] {
+    border-bottom: 3px solid Highlight;
+  }
   [data-slot='resizable-handle'].workbench-resizer {
     background: ButtonBorder;
   }

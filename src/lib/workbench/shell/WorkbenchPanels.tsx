@@ -365,7 +365,11 @@ function CollapsedRail({ id }: { id: 'inspector' }) {
   const layout = usePanels();
   if (!layout.closed[id]) return null;
   return (
-    <div className="panel-rail">
+    <div
+      className="panel-rail"
+      role="toolbar"
+      aria-label="Inspector panel reopen"
+    >
       <IconButton
         ref={layout.toggles[id]}
         label={`Show ${titles[id]}`}

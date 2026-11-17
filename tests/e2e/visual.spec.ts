@@ -699,6 +699,7 @@ for (const theme of ['light', 'dark']) {
         name: 'Exploration representation',
         exact: true,
       });
+      await page.getByRole('button', { name: 'Fit view', exact: true }).click();
       await scope.focus();
       await expect(scope).toBeFocused();
       await page.keyboard.press('Tab');
@@ -1444,3 +1445,22 @@ for (const theme of ['light', 'dark']) {
     });
   }
 }
+
+test('workbench selection and focus in forced colors', async ({ page }) => {
+  await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
+  await page.goto('/app');
+  await importWorkshop(page);
+  await page
+    .getByRole('button', { name: 'Show source and model', exact: true })
+    .click();
+  const header = page.getByRole('group', { name: 'Model header', exact: true });
+  await header
+    .getByRole('button', { name: 'Requirements table', exact: true })
+    .focus();
+  await expect(
+    header.getByRole('button', { name: 'Diagram view', exact: true }),
+  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(page).toHaveScreenshot(
+    'workbench-forced-colors-selection-focus.png',
+  );
+});
