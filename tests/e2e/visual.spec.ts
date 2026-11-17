@@ -1398,3 +1398,49 @@ for (const theme of ['light', 'dark'])
       );
     });
   }
+
+for (const theme of ['light', 'dark']) {
+  for (const width of [1440, 390]) {
+    test(`sectioned Explorer in ${theme} at ${width}px`, async ({ page }) => {
+      await ready(page, { split: false });
+      await page.setViewportSize({ width, height: 900 });
+      const show = page.getByRole('button', {
+        name: 'Show Explorer',
+        exact: true,
+      });
+      if (await show.isVisible()) await show.click();
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      const nav = page.getByRole('complementary', {
+        name: 'Project navigation',
+        exact: true,
+      });
+      for (const section of ['Files', 'Views', 'Model'])
+        await expect(
+          nav.getByRole('button', { name: section, exact: true }),
+        ).toHaveAttribute('aria-expanded', 'true');
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `explorer-sections-${theme}-${width}.png`,
+      );
+      await nav.getByRole('button', { name: 'Files', exact: true }).click();
+      await nav.getByRole('button', { name: 'Views', exact: true }).click();
+      await nav
+        .getByRole('button', { name: 'Expand all model elements', exact: true })
+        .click();
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `explorer-model-${theme}-${width}.png`,
+      );
+    });
+  }
+}

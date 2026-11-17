@@ -1,5 +1,6 @@
 import { Button } from '$lib/ui/primitives/button';
-import { Eye, FileCode2 } from 'lucide-react';
+import { Eye, FileCode2, Folder, Network, Plus } from 'lucide-react';
+import { ExplorerSection } from './ExplorerSection';
 import { ModelTree } from './ModelTree';
 import type { WorkspaceState } from '$lib/workspace/createWorkspace';
 import type { ModelElement } from '$lib/workspace/project';
@@ -26,8 +27,7 @@ export function Explorer({
     state.model?.elements.filter((item) => item.kind === 'viewUsage') ?? [];
   return (
     <aside className="explorer" aria-label="Project navigation">
-      <section>
-        <h2>Files</h2>
+      <ExplorerSection title="Files" icon={Folder}>
         {state.project?.drafts.map((document) => (
           <Button
             variant="ghost"
@@ -47,19 +47,22 @@ export function Explorer({
             )}
           </Button>
         ))}
-      </section>
-      <section>
-        <div className="section-heading">
-          <h2>Views</h2>
+      </ExplorerSection>
+      <ExplorerSection
+        title="Views"
+        icon={Network}
+        actions={
           <Button
             variant="ghost"
             className="small"
             disabled={state.busy || state.unapplied || !state.model}
             onClick={onNewView}
           >
+            <Plus aria-hidden="true" />
             New view
           </Button>
-        </div>
+        }
+      >
         {views.map((view) => (
           <Button
             variant="ghost"
@@ -78,7 +81,7 @@ export function Explorer({
         {!views.length && (
           <p>No named views. Explore the model or create a view.</p>
         )}
-      </section>
+      </ExplorerSection>
       <ModelTree
         key={state.project?.name}
         elements={state.model?.elements ?? []}
