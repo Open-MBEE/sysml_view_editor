@@ -35,11 +35,22 @@ export const ModelElementSchema = Type.Object(
   },
   closed,
 );
+export const DocumentDefinitionSchema = Type.Object(
+  {
+    qualifiedName: Type.String({ minLength: 1 }),
+    name: Type.String(),
+    origin: Type.Optional(SourceLocationSchema),
+  },
+  closed,
+);
 export const ModelSnapshotSchema = Type.Object(
   {
     modelHash: Type.String(),
     elements: Type.Array(ModelElementSchema, { maxItems: 2000 }),
     diagnostics: Type.Array(DiagnosticSchema),
+    documents: Type.Optional(
+      Type.Array(DocumentDefinitionSchema, { maxItems: 200 }),
+    ),
   },
   closed,
 );

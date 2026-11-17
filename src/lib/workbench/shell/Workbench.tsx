@@ -46,6 +46,11 @@ import {
   downloadProject,
 } from './projectFiles';
 import type { EntryRequest } from '../entry/Application';
+import { DocumentPane } from '../documents/DocumentPane';
+import {
+  documentSourceTarget,
+  type DocumentClick,
+} from '$lib/workspace/documents';
 
 const initial: WorkspaceState = {
   project: null,
@@ -60,6 +65,7 @@ const initial: WorkspaceState = {
   diagnosticDocuments: [],
   view: null,
   exploration: null,
+  renderedDocument: null,
   layoutNotices: [],
 };
 type Mode = 'split' | 'code' | 'diagram';
@@ -72,9 +78,13 @@ export function Workbench({
   entryRequest: EntryRequest;
   onHome: () => void;
 }) {
-  const [dataMode, setDataMode] = useState<'diagram' | 'table' | 'matrix'>(
-    'diagram',
+  const [rerenderingDocument, setRerenderingDocument] = useState<string | null>(
+    null,
   );
+  const [documentFailure, setDocumentFailure] = useState<string | null>(null);
+  const [dataMode, setDataMode] = useState<
+    'diagram' | 'table' | 'matrix' | 'document'
+  >('diagram');
   const [readySession, setReadySession] = useState<Workspace | null>(null);
   const [launcherOpen, setLauncherOpen] = useState(true);
   const [everOpened, setEverOpened] = useState(false);
@@ -220,19 +230,55 @@ export function Workbench({
     if (!ref.current) throw new Error('The workspace is starting.');
     return ref.current;
   }
-  async function refreshView(session: Workspace, preferred?: string) {
-    const views =
+  async function refreshView(
+    session: Workspace,
+    preferred?: string,
+    preferredDocument?: string,
+  ) {
+    const generation = actionGeneration.current;
+    const document =
+      preferredDocument &&
       session
         .snapshot()
-        .model?.elements.filter((item) => item.kind === 'viewUsage') ?? [];
-    const target = views.find((item) => item.id === preferred) ?? views[0];
-    if (target) await session.openView(target.id);
-    else
-      await session.explore({
-        scope: { kind: 'project' },
-        representation: 'tree',
-      });
+        .model?.documents?.some(
+          (item) => item.qualifiedName === preferredDocument,
+        )
+        ? preferredDocument
+        : undefined;
+    setDocumentFailure(null);
+    setRerenderingDocument(document ?? null);
+    try {
+      const views =
+        session
+          .snapshot()
+          .model?.elements.filter((item) => item.kind === 'viewUsage') ?? [];
+      const target = views.find((item) => item.id === preferred) ?? views[0];
+      if (target) await session.openView(target.id);
+      else
+        await session.explore({
+          scope: { kind: 'project' },
+          representation: 'tree',
+        });
+    } finally {
+      // A separate display failure must not skip the document of this revision.
+      if (generation === actionGeneration.current) {
+        try {
+          if (document) await session.openDocument(document);
+          else if (dataMode === 'document') setDataMode('diagram');
+        } catch (error) {
+          if (generation === actionGeneration.current)
+            setDocumentFailure(
+              error instanceof Error ? error.message : String(error),
+            );
+          throw error;
+        } finally {
+          if (generation === actionGeneration.current)
+            setRerenderingDocument(null);
+        }
+      }
+    }
   }
+
   useEffect(() => {
     const { workspace: session, language } = createBrowserSession();
     languageRef.current = language;
@@ -563,6 +609,25 @@ export function Workbench({
     setFocusRange(undefined);
     setInspectionRequest((request) => request + 1);
   }
+  function revealDocument(click: DocumentClick) {
+    const current = workspace().snapshot();
+    if (!current.renderedDocument || !current.project) return;
+    const location = documentSourceTarget(
+      click,
+      current.renderedDocument,
+      current.project.documents,
+      current.project.drafts,
+    );
+    if (!('target' in location)) {
+      setMessage(location.reason);
+      return;
+    }
+    setSelected(location.qualifiedName ?? '');
+    setSymbolSelection(undefined);
+    setFile(location.target.file);
+    setMode('split');
+    setFocusRange({ ...location.target, focus: true });
+  }
   function revealSource() {
     if (inspectionRange) {
       setFile(inspectionRange.file);
@@ -687,6 +752,19 @@ export function Workbench({
                       }
                     })
                   }
+                  onDocument={(id) =>
+                    void run(async () => {
+                      const previous = dataMode;
+                      setDocumentFailure(null);
+                      setDataMode('document');
+                      try {
+                        await workspace().openDocument(id);
+                      } catch (error) {
+                        setDataMode(previous);
+                        throw error;
+                      }
+                    })
+                  }
                   onSelect={selectElement}
                   onNewView={newView}
                 />
@@ -708,17 +786,21 @@ export function Workbench({
                         onUndo={() =>
                           void run(async () => {
                             const session = workspace(),
-                              id = session.snapshot().view?.view;
+                              id = session.snapshot().view?.view,
+                              document =
+                                session.snapshot().renderedDocument?.document;
                             session.undo();
-                            await refreshView(session, id);
+                            await refreshView(session, id, document);
                           })
                         }
                         onRedo={() =>
                           void run(async () => {
                             const session = workspace(),
-                              id = session.snapshot().view?.view;
+                              id = session.snapshot().view?.view,
+                              document =
+                                session.snapshot().renderedDocument?.document;
                             session.redo();
-                            await refreshView(session, id);
+                            await refreshView(session, id, document);
                           })
                         }
                         onDiscard={() =>
@@ -727,11 +809,13 @@ export function Workbench({
                         onApply={() =>
                           void run(async () => {
                             const session = workspace(),
-                              id = session.snapshot().view?.view;
+                              id = session.snapshot().view?.view,
+                              document =
+                                session.snapshot().renderedDocument?.document;
                             await session.apply();
                             setMessage('Source applied.');
                             setFocusRange(undefined);
-                            await refreshView(session, id);
+                            await refreshView(session, id, document);
                           })
                         }
                       />
@@ -813,12 +897,28 @@ export function Workbench({
                       onConnectPorts={newConnection}
                     />
                   </ModelPaneHeader>
-                  {dataMode !== 'diagram' && readySession && (
-                    <RequirementsPanel
+                  {(dataMode === 'table' || dataMode === 'matrix') &&
+                    readySession && (
+                      <RequirementsPanel
+                        workspace={readySession}
+                        state={state}
+                        mode={dataMode}
+                        onInspect={inspectRequirement}
+                      />
+                    )}
+                  {dataMode === 'document' && readySession && (
+                    <DocumentPane
                       workspace={readySession}
                       state={state}
-                      mode={dataMode}
-                      onInspect={inspectRequirement}
+                      rerendering={rerenderingDocument}
+                      failure={documentFailure}
+                      onReveal={revealDocument}
+                      onOpenView={(id) =>
+                        void run(async () => {
+                          setDataMode('diagram');
+                          await workspace().openView(id);
+                        })
+                      }
                     />
                   )}
                   <div

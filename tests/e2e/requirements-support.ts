@@ -301,7 +301,8 @@ async function settledRequirementViewport(page: Page) {
 /**
  * Normalize through the visible maximum-zoom endpoint, then five real zoom-out
  * actions. React Flow documents each zoom-out as 1/1.2 of the previous scale.
- * This does not depend on whether initial fit finished before a panel resize.
+ * This fixes scale only; callers establish the final-pane camera origin with
+ * Fit view before zooming. Integer mouse pans retain sub-pixel remainders.
  */
 export async function zoomRequirementForReading(page: Page, card: Locator) {
   const zoomIn = page.getByRole('button', { name: 'Zoom in', exact: true });

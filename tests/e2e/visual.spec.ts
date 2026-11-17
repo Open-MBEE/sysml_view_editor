@@ -1,3 +1,4 @@
+import { openRoverReport } from './document-support';
 import { readFile } from 'node:fs/promises';
 import { noViews, assemblyExploration, documents } from './exploration-support';
 import {
@@ -1452,3 +1453,45 @@ test('workbench selection and focus in forced colors', async ({ page }) => {
     'workbench-forced-colors-selection-focus.png',
   );
 });
+
+for (const theme of ['light', 'dark'])
+  for (const width of [1440, 390]) {
+    test(`generated document and embedded view in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 900 });
+      const { pane } = await openRoverReport(page);
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      if (width === 390) await hideExplorer(page);
+      const embedded = pane.getByRole('group', {
+        name: 'Embedded diagram RoverViews::architecture',
+        exact: true,
+      });
+      await expect(embedded).toHaveAttribute('data-state', 'rendered');
+      await pane
+        .getByRole('heading', { name: 'Inspection Rover Report', exact: true })
+        .scrollIntoViewIfNeeded();
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `document-report-${theme}-${width}.png`,
+      );
+      await embedded.scrollIntoViewIfNeeded();
+      await embedded
+        .getByRole('button', { name: 'Fit view', exact: true })
+        .click();
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `document-embedded-${theme}-${width}.png`,
+      );
+    });
+  }
