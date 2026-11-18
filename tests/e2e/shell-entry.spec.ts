@@ -428,8 +428,8 @@ test('the diagram view selector keeps source-file choice, pending draft and both
     before.documents.find((file) => file.name === 'views.sysml')!.text +
     '\n// independent source draft\npart';
   await fillSource(source, draft);
-  const diagram = page.getByRole('region', { name: 'Diagram', exact: true });
-  const selector = diagram.getByRole('combobox', {
+  const header = page.getByRole('group', { name: 'Model header', exact: true });
+  const selector = header.getByRole('combobox', {
     name: 'Named view',
     exact: true,
   });
@@ -443,10 +443,10 @@ test('the diagram view selector keeps source-file choice, pending draft and both
       namedViewButton(page, 'WorkshopViews::' + view),
     ).toHaveAttribute('aria-current', 'page');
     await expect(
-      diagram.getByText(representation, { exact: true }),
+      header.getByText(representation, { exact: true }),
     ).toBeVisible();
     await expect(
-      diagram.getByText('Applied revision · draft pending', { exact: true }),
+      header.getByText('Applied revision · draft pending', { exact: true }),
     ).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'views.sysml', exact: true }),
