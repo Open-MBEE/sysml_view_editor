@@ -245,6 +245,10 @@ for (const theme of ['light', 'dark']) {
       await page
         .getByTitle('CompressorBehavior', { exact: true })
         .scrollIntoViewIfNeeded();
+      // Leave one row of margin after native scrolling, whose integer endpoint
+      // can clip a fractional line-height at the Explorer's top edge.
+      await page.getByTitle('CompressorBehavior', { exact: true }).hover();
+      await page.mouse.wheel(0, -32);
       await expect(
         page.getByTitle('CompressorBehavior', { exact: true }),
       ).toBeInViewport({ ratio: 1 });

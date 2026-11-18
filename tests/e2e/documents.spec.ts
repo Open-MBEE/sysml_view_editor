@@ -5,6 +5,9 @@ import {
   fillSource,
   readSource,
   downloadProject,
+  dragSeparator,
+  controlReachable,
+  hideExplorer,
 } from './support';
 
 import { openRoverReport } from './document-support';
@@ -106,6 +109,31 @@ test('@critical renders the rover report from the engine, reveals clicked declar
   await expect(
     page.getByRole('combobox', { name: 'Named view', exact: true }),
   ).toHaveValue('RoverViews::architecture');
+});
+
+test('keeps document source links reachable at the vertical pane minimum', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  const { pane, explorer } = await openRoverReport(page);
+  await explorer
+    .getByRole('button', { name: 'report.sysml', exact: true })
+    .click();
+  await hideExplorer(page);
+  const before = (await downloadProject(page)).bundle;
+  await dragSeparator(page, 'Resize Source and Diagram', 'y', 2000);
+  const reference = pane.getByRole('link', { name: 'rover', exact: true });
+  await reference.focus();
+  await expect.poll(() => controlReachable(reference)).toBe(true);
+  await reference.press('Enter');
+  const source = page.getByRole('textbox', {
+    name: 'SysML source',
+    exact: true,
+  });
+  await expect
+    .poll(() => copySourceSelection(source))
+    .toBe('part rover : InspectionRover;');
+  expect((await downloadProject(page)).bundle).toEqual(before);
 });
 
 test('re-renders the open document from the applied revision and reports typed planning failures in Issues', async ({
