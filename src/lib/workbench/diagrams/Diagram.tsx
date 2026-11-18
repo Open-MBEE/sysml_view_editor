@@ -97,6 +97,8 @@ interface Props {
   selectedSymbol?: string;
   onMove: (positions: Record<string, Point>) => void;
   layoutMode: 'code' | 'split' | 'diagram';
+  /** Read-only rendering inside another surface: no view selector, actions or geometry edits. */
+  embedded?: boolean;
 }
 export function Diagram({
   exploration,
@@ -110,6 +112,7 @@ export function Diagram({
   selectedSymbol,
   onMove,
   layoutMode,
+  embedded = false,
 }: Props) {
   const [nodes, setNodes] = useState<Node[]>([]),
     [edges, setEdges] = useState<Edge[]>([]),
@@ -289,7 +292,7 @@ export function Diagram({
   }, [view, supported, initialPresentation]);
   return (
     <section
-      className={`diagram-pane${exploration ? ' diagram-exploration' : ''}`}
+      className={`diagram-pane${exploration ? ' diagram-exploration' : ''}${embedded ? ' diagram-embedded' : ''}`}
       aria-label="Diagram"
     >
       {!view ? (

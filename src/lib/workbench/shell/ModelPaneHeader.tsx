@@ -1,6 +1,6 @@
 import { supportsDiagram } from '../diagrams/supports-diagram';
 import type { ReactNode } from 'react';
-import { Network, Table2, Grid3X3 } from 'lucide-react';
+import { Network, Table2, Grid3X3, FileText } from 'lucide-react';
 import { Button } from '$lib/ui/primitives/button';
 import type { WorkspaceState } from '$lib/workspace/createWorkspace';
 import type { EvaluatedView } from '$lib/workspace/views';
@@ -13,9 +13,12 @@ export function ModelPaneHeader({
   exploring,
   children,
 }: {
-  representation: 'diagram' | 'table' | 'matrix';
-  onRepresentation: (mode: 'diagram' | 'table' | 'matrix') => void;
-  state: Pick<WorkspaceState, 'busy' | 'unapplied' | 'model'>;
+  representation: 'diagram' | 'table' | 'matrix' | 'document';
+  onRepresentation: (mode: 'diagram' | 'table' | 'matrix' | 'document') => void;
+  state: Pick<
+    WorkspaceState,
+    'busy' | 'unapplied' | 'model' | 'renderedDocument'
+  >;
   view: EvaluatedView | null;
   exploring: boolean;
   children: ReactNode;
@@ -39,6 +42,9 @@ export function ModelPaneHeader({
               ['diagram', 'Diagram view', Network],
               ['table', 'Requirements table', Table2],
               ['matrix', 'Traceability matrix', Grid3X3],
+              ...(state.renderedDocument || state.model?.documents?.length
+                ? [['document', 'Document', FileText] as const]
+                : []),
             ] as const
           ).map(([value, label, Icon]) => (
             <Button
@@ -79,7 +85,7 @@ export function ModelPaneHeader({
       >
         {children}
       </div>
-      {representation !== 'diagram' && (
+      {(representation === 'table' || representation === 'matrix') && (
         <p className="model-header-scope">Project-wide requirements</p>
       )}
     </header>

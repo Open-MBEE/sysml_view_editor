@@ -53,6 +53,7 @@ Explorer has independent Files, Views and Model sections. Fold a section to make
 - **Inspect requirement graphs.** Browse requirement definitions/usages, declared identifiers and documentation, typing, hierarchy and positive/negated satisfaction links. Follow exact source declarations; diagram links do not report executed test results.
 - **Read authored attribute values.** See source expressions on attribute nodes, general-view card previews and effective structural compartments, with full expressions and provider declarations in the Inspector. Unresolved binding or precedence cases are explained rather than displayed as calculated values.
 - **Open source-defined views.** Navigate named SysML views independently of the active source file. Inspect nested and inherited parts, typed inherited ports and resolved connection endpoints.
+- **Read generated documents.** Open document definitions (`part def` specializations of `DocumentQueries::Document`) next to named views. The embedded OpenSysML engine plans, evaluates and renders them; headings, table rows and inline references reveal their source declarations, and `Diagram` blocks mount the editor’s native view renderer.
 - **Navigate source issues.** Open an issue’s reported file and line in the source editor. Missing or stale locations are explained while drafts and the last valid diagram are retained.
 - **Browse the model hierarchy.** Expand packages, definitions and declared members in the Model tree. Selection opens Inspector details. Inspect type/kind labels; use arrow keys, type-ahead and Enter/Space to navigate and select.
 - **Review graphical changes.** Rename parts, create native views, add typed part usages and connect compatible directed ports through an exact source-change preview.
@@ -62,7 +63,7 @@ Explorer has independent Files, Views and Model sections. Fold a section to make
 - **Arrange your workspace.** Resize or collapse Explorer, Inspector, source/diagram panes and Issues using dividers, keyboard controls or panel options.
 - **Choose your appearance.** Use Light, Dark or Follow system, six diagram palettes and custom muted element colors. Theme and panel preferences stay in the browser.
 
-Structural, native requirement and bounded action/state workflows have real-engine browser coverage. Use-case, mixed, sequence and geometry renderers remain unavailable; behavior diagrams do not execute or simulate models. See [capabilities and limits](docs/capabilities.md) and [local verification](docs/verification.md) for the implemented scope.
+Structural, native requirement and bounded action/state workflows have real-engine browser coverage. Use-case, mixed, sequence and geometry renderers remain unavailable; behavior diagrams do not execute or simulate models. Generated documents are read-only: there is no inline text editing, publication or Flexo MMS export, and PDF/AsciiDoc output is unavailable in the browser. See [capabilities and limits](docs/capabilities.md) and [local verification](docs/verification.md) for the implemented scope.
 
 In the source editor, use **Ctrl+F** / **Cmd+F** for find/replace and **Ctrl+Z** / **Cmd+Z** for draft editing undo; **Ctrl+Y** / **Cmd+Shift+Z** redo draft edits. **Tab** moves focus out of the editor. Toolbar **Undo source** / **Redo source** operate on accepted model revisions. Highlighting is lexical; the pinned engines still validate source when you apply it. Use **Ctrl+Space** for engine-backed completion, **F1** for symbol information and **F12** for project-file definitions; pointing at a symbol also requests hover information. Queries use the complete current draft source set. Unsupported completion edits and stale replies are rejected. **Format source** updates the current draft; applying remains explicit. Inline diagnostics remain future work.
 
@@ -131,6 +132,8 @@ Open all `.sysml` files from one example folder together. Each project has its o
 
 Engine evaluation, application rendering and intended visual quality are recorded separately. Passing an example does not establish full SysML v2 conformance.
 
+Read generated documents from Explorer with source-linked content and embedded native named views. Documents are read-only; editing, PDF export and publication remain follow-ups.
+
 ## Modeling engines
 
 The editor uses both OpenSysML and SysML Toolkit locally as WebAssembly in disposable browser workers:
@@ -186,6 +189,7 @@ Script names containing colons use hyphens in recipes: `just engines-prepare`, `
 ```bash
 npm run check                       # formatting, architecture, types and unit checks
 npm run build                       # prepare engines and build static output
+npm run audit                       # strict audit with documented expiring dev exception
 npx playwright install chromium
 npm run test:e2e                    # fresh build, real engines and visual comparisons
 npm run preview -- --host 127.0.0.1

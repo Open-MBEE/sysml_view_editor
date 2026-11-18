@@ -22,7 +22,7 @@ export function ExplorerSection({
     if (revealRequest) setOpen(true);
   }, [revealRequest]);
   return (
-    <section className="explorer-section">
+    <section className="explorer-section" aria-label={title}>
       <div className="section-heading">
         <h2>
           <Button

@@ -52,6 +52,10 @@ test-e2e *args:
 check:
     npm run check
 
+# Audit dependencies with the documented expiring development exception.
+audit:
+    npm run audit
+
 # Regenerate the example catalog index.
 examples-index:
     npm run examples:index

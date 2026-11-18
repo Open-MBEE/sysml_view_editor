@@ -38,6 +38,15 @@ Follow the [integration research](research/openmbee-flexo-mms.md): prove unchang
 
 Publication follows only after one reviewed command preserves repository UUIDs and unedited semantics, with server-enforced stale-head rejection and defined retry/ambiguous-outcome handling. Authentication, conversion and publication failures must retain local work. No deployment/authentication target has been selected here.
 
+## Generated documents: follow-ups
+
+The read-only document surface renders engine HTML and reveals declarations in source. Out of scope so far, in order of expected value:
+
+- Editing document text in place (paragraph and span text, titles, captions) through Toolkit source transactions with the same preview/review flow as graphical edits.
+- Exporting PDF, which needs the engine's external converters (WeasyPrint, pandoc, mermaid-cli) and is unavailable in the browser; a hosted service or the CLI remains the route.
+- Publishing rendered documents to Flexo MMS alongside the planned project checkout/publication flow.
+- Replacing the local `studio_render_document_v1` overlay with the upstream `RenderDocument` RPC once the pinned engine serves it; the bridge already mirrors its field names.
+
 ## Follow-on usability and rendering
 
 Named structural and bounded action/state diagrams now retain generated orthogonal routes and labels. Follow-on [edge interaction and routing](architecture/structural-views.md#planned-edge-interactions-and-routing) work includes accessible endpoint descriptions, hit targets and obstacle rerouting after arbitrary individual-node movement. Read-only exploration retains its separate routing geometry.

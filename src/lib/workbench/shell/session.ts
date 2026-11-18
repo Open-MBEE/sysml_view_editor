@@ -13,6 +13,7 @@ export function createBrowserSession() {
       semantic,
       exploration: semantic,
       requirements: semantic,
+      documents: semantic,
       transformations: createTransformationEngine(toolkitBase),
     }),
     language: createSourceLanguageEngine(toolkitBase),

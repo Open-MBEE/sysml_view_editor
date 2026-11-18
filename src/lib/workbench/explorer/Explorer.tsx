@@ -1,6 +1,7 @@
 import { Button } from '$lib/ui/primitives/button';
-import { Eye, FileCode2, Folder, Network, Plus } from 'lucide-react';
+import { Eye, FileCode2, Folder, Network, Plus, FileText } from 'lucide-react';
 import { ExplorerSection } from './ExplorerSection';
+import { documentEntries } from '$lib/workspace/documents';
 import { ModelTree } from './ModelTree';
 import type { WorkspaceState } from '$lib/workspace/createWorkspace';
 import type { ModelElement } from '$lib/workspace/project';
@@ -11,6 +12,7 @@ export function Explorer({
   selectionRequest,
   onFile,
   onView,
+  onDocument,
   onSelect,
   onNewView,
 }: {
@@ -20,11 +22,13 @@ export function Explorer({
   selectionRequest: number;
   onFile: (name: string) => void;
   onView: (id: string) => void;
+  onDocument: (id: string) => void;
   onSelect: (element: ModelElement) => void;
   onNewView: () => void;
 }) {
   const views =
     state.model?.elements.filter((item) => item.kind === 'viewUsage') ?? [];
+  const documents = documentEntries(state.model?.documents);
   return (
     <aside className="explorer" aria-label="Project navigation">
       <ExplorerSection title="Files" icon={Folder}>
@@ -81,6 +85,29 @@ export function Explorer({
         {!views.length && (
           <p>No named views. Explore the model or create a view.</p>
         )}
+      </ExplorerSection>
+      <ExplorerSection title="Documents" icon={FileText}>
+        {documents.map((entry) => (
+          <Button
+            variant="ghost"
+            key={entry.id}
+            aria-label={entry.name}
+            aria-current={
+              state.renderedDocument?.document === entry.id ? 'page' : undefined
+            }
+            className={
+              state.renderedDocument?.document === entry.id ? 'active' : ''
+            }
+            disabled={state.busy}
+            title={entry.id}
+            onClick={() => onDocument(entry.id)}
+          >
+            <FileText aria-hidden="true" />
+            <span className="explorer-filename">{entry.name}</span>
+            {entry.file && <small>{entry.file}</small>}
+          </Button>
+        ))}
+        {!documents.length && <p>No documents declared in this model.</p>}
       </ExplorerSection>
       <ModelTree
         key={state.project?.name}

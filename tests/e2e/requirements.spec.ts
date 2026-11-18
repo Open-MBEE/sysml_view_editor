@@ -496,7 +496,7 @@ test('browses the compressor requirements tree without changing its sources or s
   const before = (await downloadProject(page)).bundle;
   await namedViewButton(page, 'CompressorViews::requirements').click();
   await expect(
-    page.getByRole('region', { name: 'Diagram', exact: true }),
+    page.getByRole('group', { name: 'Model header', exact: true }),
   ).toContainText('Overview tree');
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),

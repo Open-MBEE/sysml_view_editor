@@ -31,7 +31,7 @@ jobs:
         run: node scripts/ci-test-plan.mjs
       - run: npm ci
       - run: npm run check
-      - run: npm audit --audit-level=low
+      - run: npm run audit
       - run: npx playwright install --with-deps chromium
       - name: Full browser suite
         if: steps.browser-plan.outputs.full == 'true'

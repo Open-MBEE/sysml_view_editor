@@ -92,3 +92,9 @@ The public landing lives at `/`; `/app` starts with a project launcher. Source/d
 Pane-local controls use intrinsic wrapping; Model representation buttons can wrap their labels within narrow panes even beside Inspector. Existing 900 px vertical Split and below-600 mutually exclusive side tools are retained. Opening a collapsed tool first releases its reopen rail before requesting space, avoiding a narrow-panel constraint deadlock. Hidden panels and sections remain mounted/inert. Projects and Workspace layout have distinct Folders/PanelsTopLeft icons; forced-color representation/arrangement selection has a persistent border separate from the focus outline. Reduced-motion behavior remains the shared rule in `base.css`.
 
 `workbench-chrome.spec.ts` checks actual pane extremes, viewport transitions, exact drafts/bundle/editor/camera preservation, minimum-height canvas control access and forced-color focus/selection. Targeted accessibility-tree and screen-reader observations are recorded in [verification](../verification.md); they do not establish comprehensive assistive-technology support.
+
+## Generated document integration
+
+Documents is an independent Explorer section using the same mounted disclosure behavior. ModelPaneHeader conditionally offers Document when declarations exist; it hides diagram targets without changing arrangement or the active file/view. The document pane renders applied-source content and retains explicit guarded source reveal. Embedded diagrams use read-only previews with the same source-value validation context as named views; Open as named view is a separate action.
+
+Source acceptance, undo and redo independently refresh the selected document even if the separate diagram refresh fails. Document progress and transport failures are visible, and newer actions suppress obsolete refresh work. Document data is derived session state and does not enter the portable project or layout preference schema.
