@@ -107,12 +107,7 @@ export function Explorer({
             {entry.file && <small>{entry.file}</small>}
           </Button>
         ))}
-        {!documents.length && (
-          <p>
-            No documents. Declare a part def specializing
-            DocumentQueries::Document.
-          </p>
-        )}
+        {!documents.length && <p>No documents declared in this model.</p>}
       </ExplorerSection>
       <ModelTree
         key={state.project?.name}
