@@ -13,6 +13,7 @@
     "build": "npm run engines:prepare && tsc --noEmit && vite build",
     "preview": "vite preview",
     "engines:prepare": "node scripts/prepare-sysml-toolkit.mjs && node scripts/prepare-opensysml.mjs",
+    "audit": "node scripts/audit.mjs",
     "typecheck": "tsc --noEmit",
     "check:architecture": "node scripts/check-architecture.mjs",
     "format": "prettier --write .",

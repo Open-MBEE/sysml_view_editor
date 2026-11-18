@@ -189,6 +189,7 @@ Script names containing colons use hyphens in recipes: `just engines-prepare`, `
 ```bash
 npm run check                       # formatting, architecture, types and unit checks
 npm run build                       # prepare engines and build static output
+npm run audit                       # strict audit with documented expiring dev exception
 npx playwright install chromium
 npm run test:e2e                    # fresh build, real engines and visual comparisons
 npm run preview -- --host 127.0.0.1
