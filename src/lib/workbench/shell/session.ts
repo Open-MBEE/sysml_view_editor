@@ -19,7 +19,3 @@ export function createBrowserSession() {
     language: createSourceLanguageEngine(toolkitBase),
   };
 }
-/** Existing consumers that only need semantic transactions remain compatible. */
-export function createBrowserWorkspace() {
-  return createBrowserSession().workspace;
-}
