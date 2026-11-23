@@ -180,21 +180,41 @@ export function SourceEditor({
       },
       scrollIntoView: true,
     });
-    let firstFrame = 0;
-    let secondFrame = 0;
-    if (selection.focus !== false) {
-      if (host.current!.getBoundingClientRect().width > 0) view.focus();
-      else {
-        // A guarded reveal can first restore a maximised layout. Focus only
-        // after that panel is visible; its editor remains the same instance.
-        firstFrame = requestAnimationFrame(() => {
-          secondFrame = requestAnimationFrame(() => view.focus());
-        });
-      }
+    if (selection.focus === false) return;
+    // A reveal can restore hidden/inert panels before their size constraints
+    // settle. Observe actual visibility instead of assuming two frames suffice.
+    const container = host.current!;
+    const owner = container.ownerDocument;
+    let completed = false;
+    const observer = new ResizeObserver(focusWhenVisible);
+    function focusWhenVisible() {
+      if (completed) return;
+      const rect = container.getBoundingClientRect();
+      if (
+        container.closest('[hidden], [inert]') ||
+        rect.width <= 0 ||
+        rect.height <= 0
+      )
+        return;
+      view.focus();
+      if (view.hasFocus) stop();
     }
+    function stop() {
+      completed = true;
+      observer.disconnect();
+      owner.removeEventListener('pointerdown', stop, true);
+      owner.removeEventListener('keydown', stop, true);
+    }
+    // New user input supersedes a delayed reveal. Reopening a panel later must
+    // not revive the older request and steal focus from its toggle.
+    owner.addEventListener('pointerdown', stop, true);
+    owner.addEventListener('keydown', stop, true);
+    observer.observe(container);
+    const frame = requestAnimationFrame(focusWhenVisible);
+    focusWhenVisible();
     return () => {
-      cancelAnimationFrame(firstFrame);
-      cancelAnimationFrame(secondFrame);
+      cancelAnimationFrame(frame);
+      stop();
     };
   }, [selection, file.name]);
   const tools = (

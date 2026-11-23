@@ -272,35 +272,61 @@ test('workspace tabs and model history restore the camera and preserve project d
   expect((await downloadProject(page)).bundle).toEqual(before);
 });
 
-test('explicit source reveal leaves a maximised inspection panel', async ({
-  page,
-}) => {
-  await ready(page, { split: false, inspection: false });
-  await page
-    .getByRole('group', { name: 'part pump : Pump', exact: true })
-    .getByText('pump', { exact: true })
-    .click();
-  await page
-    .getByRole('button', { name: 'Inspect selection', exact: true })
-    .click();
-  const before = (await downloadProject(page)).bundle;
-  await page
-    .getByRole('button', { name: 'Maximize Inspector', exact: true })
-    .click();
-  const source = page.getByRole('textbox', {
-    name: 'SysML source',
-    exact: true,
+for (const delayed of [false, true]) {
+  test(`explicit source reveal leaves a maximised inspection panel${delayed ? ' after delayed layout' : ''}`, async ({
+    page,
+  }) => {
+    await ready(page, { split: false, inspection: false });
+    await page
+      .getByRole('group', { name: 'part pump : Pump', exact: true })
+      .getByText('pump', { exact: true })
+      .click();
+    await page
+      .getByRole('button', { name: 'Inspect selection', exact: true })
+      .click();
+    const before = (await downloadProject(page)).bundle;
+    await page
+      .getByRole('button', { name: 'Maximize Inspector', exact: true })
+      .click();
+    const source = page.getByRole('textbox', {
+      name: 'SysML source',
+      exact: true,
+    });
+    await expect(source).toBeHidden();
+    // Controlled layout delay: keep the mounted editor unmeasurable beyond the
+    // former two-frame focus budget, then permit the real panel to settle.
+    const delay = delayed
+      ? await page.addStyleTag({
+          content: '.source-editor { display: none !important; }',
+        })
+      : null;
+    await page
+      .getByRole('complementary', { name: 'Properties', exact: true })
+      .getByRole('button', { name: 'Open source', exact: true })
+      .click();
+    if (delay) {
+      await expect(page.locator('#workspace-source')).not.toHaveAttribute(
+        'hidden',
+      );
+      await page.evaluate(
+        () =>
+          new Promise<void>((resolve) => {
+            let remaining = 4;
+            const next = () =>
+              --remaining ? requestAnimationFrame(next) : resolve();
+            requestAnimationFrame(next);
+          }),
+      );
+      await delay.evaluate((element) =>
+        element.parentNode?.removeChild(element),
+      );
+    }
+    await expect(source).toBeVisible();
+    await expect(source).toBeFocused();
+    expect(await copySourceSelection(source)).toContain('pump');
+    expect((await downloadProject(page)).bundle).toEqual(before);
   });
-  await expect(source).toBeHidden();
-  await page
-    .getByRole('complementary', { name: 'Properties', exact: true })
-    .getByRole('button', { name: 'Open source', exact: true })
-    .click();
-  await expect(source).toBeVisible();
-  await expect(source).toBeFocused();
-  expect(await copySourceSelection(source)).toContain('pump');
-  expect((await downloadProject(page)).bundle).toEqual(before);
-});
+}
 
 test('project replacement does not replay old panel reveal requests or editor history', async ({
   page,
