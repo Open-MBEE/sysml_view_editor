@@ -74,3 +74,37 @@ func TestStudioExploration(t *testing.T) {
 		t.Fatalf("%v", rejected)
 	}
 }
+
+// Requirement subjects create native implicit typing/subsetting edges without
+// declaration origins. Exploration must retain source-backed content without
+// publishing those edges as navigable source relationships.
+func TestStudioExplorationRequirementSubjects(t *testing.T) {
+	server, err := New("v0.12.0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	call := func(method string, params any) map[string]any {
+		t.Helper()
+		raw, _ := json.Marshal(params)
+		body, err := server.Call(context.Background(), method, raw)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var out map[string]any
+		if err := json.Unmarshal(body, &out); err != nil {
+			t.Fatal(err)
+		}
+		return out
+	}
+	parsed := call("ParseSources", map[string]any{"documents": []any{map[string]any{"name": "requirements.sysml", "content": "package P { part def Battery; part battery : Battery; requirement def Reserve { subject unit : Battery; } requirement reserve : Reserve { subject unit = battery; } }"}}, "strictConformance": true})
+	result := call("Explore", map[string]any{"modelHash": parsed["modelHash"], "request": map[string]any{"scope": map[string]any{"kind": "project"}, "representation": "tree"}})
+	if result["status"] != "complete" || result["renderStatus"] != "available" {
+		t.Fatalf("%v", result)
+	}
+	for _, raw := range result["correspondence"].([]any) {
+		item := raw.(map[string]any)
+		if item["subject"].(map[string]any)["origin"] == nil {
+			t.Fatalf("Missing exact source origin: %v", item)
+		}
+	}
+}

@@ -128,6 +128,11 @@ export function DiagramTargetControls({
           </div>
         )}
       </div>
+      {exploration && !!view?.diagnostics.length && (
+        <p className="model-header-status" role="status">
+          {view.diagnostics.join(' ')}
+        </p>
+      )}
       {!exploration && view?.artifact?.kind === 'interconnection' && (
         <div className="diagram-actions">
           <Button

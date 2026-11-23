@@ -58,3 +58,5 @@ Follow-up slices are explicit creation of a named view from exploration, storage
 ## Engine evidence
 
 The [pinned-engine investigation](../research/automatic-exploration-contract.md) executed the current WASM boundary and native renderer. The investigation originally identified a declaration-free project/package seam; the bounded implementation now exposes it through a separate browser contract. A typed system usage did not automatically unfold its definition’s internals. The first delivered exploration must therefore use an overview until structural subject/usage expansion is proven, rather than promise an inferred full-system diagram.
+
+Temporary exploration publishes exact source correspondence. Native relationships without a recorded source location are omitted with a diagnostic count shown in the exploration header, while declarations and source-backed relationships remain. This bounded projection does not invent origins for implicit typing/subsetting and does not alter authored views.
