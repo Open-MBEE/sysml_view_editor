@@ -1,7 +1,6 @@
 import Type from 'typebox';
 import { validator } from '$lib/contracts/validation';
 import { SourceLocationSchema } from '../project/schema';
-export { DocumentDefinitionSchema } from '../project/schema';
 const closed = { additionalProperties: false };
 export const DocumentFormSchema = Type.Union([
   Type.Literal('html'),

@@ -42,15 +42,6 @@
   justify-content: start;
   padding-block: 5px;
 }
-.diagram-slot {
-  display: flex;
-  min-width: 0;
-  min-height: 0;
-  border-left: 1px solid var(--sysml-border);
-}
-.diagram-slot[hidden] {
-  display: none;
-}
 .canvas {
   flex: 1;
   min-height: 0;
