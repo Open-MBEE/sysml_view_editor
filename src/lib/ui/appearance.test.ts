@@ -153,8 +153,8 @@ describe('appearance preferences', () => {
             const style = mutedColorStyle({ usage: `#${r}${g}${b}` }, theme);
             const fill = luminance(style.match(/#[0-9a-f]{6}/)![0]);
             for (const text of theme === 'light'
-              ? ['#1e293b', '#475569']
-              : ['#e2e8f0', '#b2bfd0']) {
+              ? ['#10052f', '#4e4764']
+              : ['#f1f1f4', '#d6d6d6']) {
               const foreground = luminance(text);
               expect(
                 (Math.max(fill, foreground) + 0.05) /

@@ -36,9 +36,16 @@ license is retained in static/licenses/react-resizable-panels.txt.
 Radix UI, cn, class-variance-authority, Lucide React, Tailwind CSS and
 animation utilities retain their upstream package licenses.
 
-Geist Latin variable font is bundled from @fontsource-variable/geist 5.3.0.
-Copyright 2024 The Geist Project Authors. SIL Open Font License 1.1 and
-asset provenance are retained in static/fonts/geist/.
+ABeeZee Regular (Latin subset) is bundled from @fontsource/abeezee 5.3.0.
+Copyright 2011 The ABeeZee Project Authors. SIL Open Font License 1.1 and
+asset provenance are retained in static/fonts/abeezee/.
+
+The OpenMBEE icon and favicon in static/brand/ and static/favicon.svg are
+unmodified files from the OpenMBEE brand guidelines
+(https://www.openmbee.org/brand.html). The OpenMBEE name and logo are
+excluded from the website's general Apache/CC BY licenses; refer to the
+brand guidelines and https://www.openmbee.org/licenses.html for their
+brand/trademark terms. Provenance is retained in static/brand/README.md.
 
 The Smart air workshop model in examples/air-compressor/ is copied from
 sysml_ide/examples/sysml-structural/air-compressor/ at revision

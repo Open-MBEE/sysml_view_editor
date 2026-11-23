@@ -14,7 +14,22 @@
   text-decoration: none;
   font-size: 14px;
 }
-.product-brand > span:first-child {
+.product-brand {
+  align-items: center;
+}
+.product-brand-icon {
+  width: auto;
+  height: 24px;
+  flex-shrink: 0;
+}
+.product-brand-icon-dark,
+[data-theme='dark'] .product-brand-icon-light {
+  display: none;
+}
+[data-theme='dark'] .product-brand-icon-dark {
+  display: block;
+}
+.product-brand > span:first-of-type {
   font-weight: 720;
 }
 .product-brand > span:last-child {

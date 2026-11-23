@@ -114,7 +114,7 @@ export function mutedColorProperties(
       const base = [1, 3, 5].map((start) =>
         parseInt(color.slice(start, start + 2), 16),
       );
-      const surface = theme === 'light' ? [255, 255, 255] : [24, 34, 49];
+      const surface = theme === 'light' ? [255, 255, 255] : [27, 17, 57];
       const weight = theme === 'light' ? 0.12 : 0.18;
       const fill = base
         .map((channel, i) =>

@@ -32,6 +32,8 @@ OpenMBEE View Editor is a sandbox browser workspace for SysML v2 source and name
 
 ## Planned work and research
 
+- [OpenMBEE brand-guide review](research/openmbee-brand-review.md): PR #53 scope, corrected brand-mark attribution, screenshot inspection and verification limits.
+
 - [November stabilization review](research/stabilization-2026-11.md): open PR dispositions, CubeSat timeout replay, issue reconciliation and remaining investigation boundaries.
 
 - [Workbench product design](design/workbench-product-decisions.md): agreed navigation, arrangement and pane-header direction, staged issues and preservation gates.

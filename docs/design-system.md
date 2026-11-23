@@ -9,7 +9,7 @@ The OpenMBEE landing, launcher and React workbench share one appearance system, 
 | `src/lib/ui/tokens.css`             | Shared `--sysml-*` roles, spacing, light/dark themes and six palettes adapted from the previous editor |
 | `src/lib/ui/shadcn.css`             | Tailwind integration and mapping shadcn roles onto those same tokens                                   |
 | `src/lib/ui/primitives/`            | Owned React component sources from the official shadcn registry; Radix supplies dialog/slot behavior   |
-| `src/lib/ui/controls.css`           | Self-hosted Geist typography, shared focus and forced-color rules                                      |
+| `src/lib/ui/controls.css`           | Self-hosted ABeeZee typography, shared focus and forced-color rules                                    |
 | `src/lib/ui/appearance.ts`          | Framework-independent preference validation, storage helpers and safe custom-color blending            |
 | `src/lib/ui/AppearanceSettings.tsx` | Browser storage, system-theme subscription and appearance controls                                     |
 | `src/lib/ui/Dialog.tsx`             | Shared controlled modal composition and focus return for workbench actions                             |
@@ -26,7 +26,8 @@ Use the installed shadcn primitives for new controls. The Button defaults to com
 
 ## Visual rules
 
-- Use Geist for interface text and the shared monospace stack for source, identifiers and technical values. The bundled Geist asset covers Latin normal weights; other characters fall back to system fonts.
+- Follow the [OpenMBEE brand guidelines](https://www.openmbee.org/brand.html). The default light and dark themes are built from its dark blue `#10052F`, light blue `#64DDFA` and grey `#D6D6D6`; the dark single-colour icon is used on light surfaces and the full-colour icon on dark surfaces. The other diagram palettes are user choices and keep their own colours.
+- Use ABeeZee Regular for interface text and the shared monospace stack for source, identifiers and technical values. The bundled asset covers the Latin regular weight; heavier weights are synthesized and other characters fall back to system fonts.
 - Use the 4/8/12/16/24 px spacing scale for related controls and sections. Keep dense engineering content readable and advanced options behind explicit disclosure.
 - Keep surfaces, model-kind fills, interaction state and status separate. Components consume role variables rather than palette-specific hex values.
 - Use Lucide for interface actions. Model notation remains the responsibility of the diagram adapter, with visible kind text; interface icons do not establish SysML notation support.
@@ -71,7 +72,7 @@ The Model tree uses the shared Button through `asChild` for its rows and IconBut
 
 ## Entry surfaces and shared appearance
 
-The OpenMBEE landing and project launcher use the existing Geist/Lucide/shadcn foundation and appearance roles. `ui/entry.css` owns their responsive arrangements. A single `AppearanceProvider` owns theme/palette preferences and root tokens across landing, launcher and retained workbench; individual Appearance buttons own only their dialog visibility. Navigating between surfaces must not reset appearance or create competing preference stores. The product uses a typographic OpenMBEE identity; no invented brand mark or copied predecessor license claims are introduced.
+The OpenMBEE landing and project launcher use the existing ABeeZee/Lucide/shadcn foundation and appearance roles. `ui/entry.css` owns their responsive arrangements. A single `AppearanceProvider` owns theme/palette preferences and root tokens across landing, launcher and retained workbench; individual Appearance buttons own only their dialog visibility. Navigating between surfaces must not reset appearance or create competing preference stores. The product identity pairs the official OpenMBEE icon from `static/brand/` with the product name; no invented brand mark or copied predecessor license claims are introduced.
 
 Entry screens remain useful at 390, 768 and 1440 px. The launcher is a full app surface, not an empty workbench behind a modal. Contextual source and diagram actions remain in their own workbench rows; the Named view selector exposes actual authored views and its supported representation, without implying automatic model exploration.
 
