@@ -1,6 +1,6 @@
 # Application shell
 
-Current implementation, updated 2026-11-01. The application uses the shared ABeeZee/Lucide/shadcn controls and appearance tokens. Product identity is **OpenMBEE View Editor**, at **Sandbox** stage; legal and third-party attribution remains in the repository notices.
+Current implementation, updated 2026-11-23. The application uses the shared ABeeZee/Lucide/shadcn controls and appearance tokens. Product identity is **OpenMBEE View Editor**, at **Sandbox** stage; legal and third-party attribution remains in the repository notices.
 
 ## Entry and opening
 

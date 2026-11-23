@@ -42,8 +42,10 @@ asset provenance are retained in static/fonts/abeezee/.
 
 The OpenMBEE icon and favicon in static/brand/ and static/favicon.svg are
 unmodified files from the OpenMBEE brand guidelines
-(https://www.openmbee.org/brand.html), licensed CC BY 4.0. Provenance is
-retained in static/brand/README.md.
+(https://www.openmbee.org/brand.html). The OpenMBEE name and logo are
+excluded from the website's general Apache/CC BY licenses; refer to the
+brand guidelines and https://www.openmbee.org/licenses.html for their
+brand/trademark terms. Provenance is retained in static/brand/README.md.
 
 The Smart air workshop model in examples/air-compressor/ is copied from
 sysml_ide/examples/sysml-structural/air-compressor/ at revision

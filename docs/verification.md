@@ -1,5 +1,17 @@
 # Verification record
 
+## OpenMBEE brand-guide integration (#53)
+
+Recorded 2026-11-23 on `feature/openmbee-brand-guide`, merging `develop` `697736e` into original brand head `2968796`. See the [independent review findings, correction and scope](research/openmbee-brand-review.md). Source/model contracts, dependency manifests/lockfile, engine pins and saved formats are unchanged relative to develop. The unsupported CC BY assertion for brand marks is corrected to the official guidelines/license-page exclusion; the historical Geist fallback rationale is retained accurately.
+
+- `npm run check`: formatting, architecture, TypeScript, 187 Vitest tests and 12 Node script tests pass (`sandbox/brand-review/final-check.log`).
+- `npm run audit`: both scopes pass without exceptions (`audit.log`). Fresh production builds and normal pinned-engine preparation pass through the browser runs, with the existing chunk-size warning.
+- `npm run test:e2e -- --project=visual --output=sandbox/playwright/brand-review-visual`: all 110 normal comparisons pass in 10.3 minutes, without baseline updates (`visual.log`). All 159 changed baseline files were inspected in contact sheets, with eight full-size desktop/phone captures in both themes; exact hashes and inspection scope are in `inspected-visuals.json`.
+- `npm run test:e2e -- --project=functional --grep '@critical|entire qualified scope|distinguishes exposed membership|appearance|narrow|phone|fits controls|diagram icons|hidden workbench save' --output=sandbox/playwright/brand-review-functional-fresh`: all 50 selected scenarios pass in 5.9 minutes, exit 0 (`functional-fresh.log`, `functional-fresh.exit`). Comparing the selected and critical inventories verifies all 35 critical cases are included (`functional-coverage.json`). This is not a complete 148-scenario functional rerun. The first shared-server attempt printed all 50 assertions passed, then returned SIGTERM (143); its retained `functional.log` is not used as proof of clean process completion.
+- The isolated production-page probe confirms the loaded ABeeZee face, unchanged accessible home-link name, empty decorative image alt text, and exactly one appropriate visible 24 px icon in each theme (`brand-runtime.json`).
+
+Short log/manifest names above are under ignored `sandbox/brand-review/` and may be absent in another checkout. The original author's PR-head results remain separate historical evidence. Current hosted CI, a complete accessibility/security audit, Firefox/WebKit and deployment are not established by these local results.
+
 ## November stabilization integration
 
 Recorded 2026-11-23 on `fix/stabilization-pass` from `develop` `88e3bc7`, with Node 26.3.1 and npm 11.16.0. The five develop-targeted diffs from #48–52 are integrated locally, with the existing dependency manifest, engine pins and portable formats unchanged. See [review dispositions, issue reconciliation and remaining limits](research/stabilization-2026-11.md).
