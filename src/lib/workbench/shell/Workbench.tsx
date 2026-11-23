@@ -291,7 +291,12 @@ export function Workbench({
     if (!currentTab) return;
     setNavigation((before) =>
       before.entries[before.index]?.id === currentTab.id
-        ? before
+        ? {
+            ...before,
+            entries: before.entries.map((entry, index) =>
+              index === before.index ? currentTab : entry,
+            ),
+          }
         : {
             entries: [...before.entries.slice(0, before.index + 1), currentTab],
             index: before.index + 1,

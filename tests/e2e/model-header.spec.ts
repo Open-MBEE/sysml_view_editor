@@ -305,6 +305,33 @@ test('shows exploration scope once with an on-demand chooser and one view-type c
       .getByRole('tablist', { name: 'Workspace documents', exact: true })
       .getByRole('tab', { name: 'System', exact: true }),
   ).toHaveCount(1);
+  const before = (await downloadProject(page)).bundle;
+  await openProjectData(page, 'Requirements table');
+  await page
+    .getByRole('button', { name: 'Back in model', exact: true })
+    .click();
+  await expect(activeWorkspaceTab(page)).toHaveText('System');
+  await expect(viewType).toHaveValue('interconnection');
+  await page
+    .getByRole('button', { name: 'Forward in model', exact: true })
+    .click();
+  await expect(activeWorkspaceTab(page)).toHaveText('Requirements table');
+  await page
+    .getByRole('button', { name: 'Back in model', exact: true })
+    .click();
+  await expect(viewType).toHaveValue('interconnection');
+  // Updating the current history entry must also retain an existing forward entry.
+  await viewType.selectOption('tree');
+  await expect(viewType).toHaveValue('tree');
+  await page
+    .getByRole('button', { name: 'Forward in model', exact: true })
+    .click();
+  await expect(activeWorkspaceTab(page)).toHaveText('Requirements table');
+  await page
+    .getByRole('button', { name: 'Back in model', exact: true })
+    .click();
+  await expect(viewType).toHaveValue('tree');
+  expect((await downloadProject(page)).bundle).toEqual(before);
 });
 
 test('a failed content choice retains the active view and draft, restores picker focus, and permits retry', async ({

@@ -1,5 +1,11 @@
 # Verification record
 
+## PR #56 history review follow-up
+
+Recorded 2026-11-24 after review of `94f1de9`. The same-tab guard retained an outdated exploration request in model history when the representation changed. The current history entry now receives the updated descriptor while preserving forward entries. The real-engine regression failed before the fix: Back restored `tree` instead of `interconnection` (`sandbox/history-review/red.log`, retained trace). After the fix, all three focused scenarios passed: representation/history updates including an existing forward entry, independent cameras/project preservation, and failed-navigation draft/focus recovery (`green.log`). The expanded scenario also checks unchanged portable project data.
+
+`npm run check` passed formatting, architecture, TypeScript, 188 Vitest tests and 12 Node script tests; a fresh build passed with the existing chunk-size warning (`check.log`, `build.log`). No visual comparisons were rerun because rendering/styles and baseline registration are unchanged. These are local Chromium results; CI results are tracked separately on the PR. Engine pins, dependencies and saved formats are unchanged.
+
 ## Follow-up cleanup and reduced visual suite (local branch)
 
 Recorded 2026-11-24 after `4e84687`. Local `.vercel/` metadata/output is now ignored without deleting it. Rover project exploration previously returned eight native implicit typing/subsetting relationships without source origins. The existing correspondence validator correctly rejected them. Temporary exploration now omits unlocatable relationships and exposes the diagnostic count in its header; all 194 declarations and 134 source-backed relationships remain, with all seven project files unchanged. Authored-view normalization, source guards, engine pins and portable format are unchanged. A minimized requirement-subject Go case failed before the fix and passed afterwards.
