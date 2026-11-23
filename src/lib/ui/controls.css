@@ -1,9 +1,9 @@
 @font-face {
-  font-family: 'Geist Variable';
+  font-family: 'ABeeZee';
   font-style: normal;
   font-display: swap;
-  font-weight: 100 900;
-  src: url('/fonts/geist/geist-latin-wght-normal.woff2') format('woff2');
+  font-weight: 400;
+  src: url('/fonts/abeezee/abeezee-latin-400-normal.woff2') format('woff2');
   unicode-range:
     U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
     U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212,
@@ -11,12 +11,13 @@
 }
 :root {
   font-family:
-    'Geist Variable',
+    'ABeeZee',
     system-ui,
     -apple-system,
     sans-serif;
   --sysml-font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
-  font-synthesis: none;
+  /* ABeeZee has one weight; headings and labels rely on synthesized bold. */
+  font-synthesis: weight;
 }
 .sysml-appearance {
   --sysml-on-accent: #fff;
@@ -24,7 +25,7 @@
   background: var(--sysml-canvas);
 }
 .sysml-appearance[data-theme='dark'] {
-  --sysml-on-accent: #101722;
+  --sysml-on-accent: #10052f;
 }
 button,
 input,

@@ -4,7 +4,7 @@
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme inline {
-  --font-sans: 'Geist Variable', system-ui, sans-serif;
+  --font-sans: 'ABeeZee', system-ui, sans-serif;
   --color-background: var(--sysml-surface);
   --color-foreground: var(--sysml-text);
   --color-primary: var(--sysml-accent);

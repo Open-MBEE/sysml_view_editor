@@ -9,7 +9,7 @@
   --sysml-control-radius: 6px;
   --sysml-focus-width: 2px;
   --sysml-success: #247254;
-  --sysml-info: #1d4ed8;
+  --sysml-info: #0b6f8f;
   --sysml-source: #6d3ac6;
   --sysml-structure: #087c91;
   --sysml-behavior: #b65016;
@@ -20,27 +20,27 @@
   --sysml-parameters: #8b6110;
   color-scheme: light;
   --sysml-surface: #ffffff;
-  --sysml-subtle: #f8fafc;
-  --sysml-canvas: #fafbfe;
-  --sysml-grid: #dbe1eb;
-  --sysml-text: #1e293b;
-  --sysml-muted: #475569;
-  --sysml-border: #cbd5e1;
-  --sysml-stroke: #26364a;
+  --sysml-subtle: #f6f6f8;
+  --sysml-canvas: #fafafc;
+  --sysml-grid: #d6d6d6;
+  --sysml-text: #10052f;
+  --sysml-muted: #4e4764;
+  --sysml-border: #d6d6d6;
+  --sysml-stroke: #10052f;
   --sysml-node-border: color-mix(
     in srgb,
     var(--sysml-stroke) 65%,
     var(--sysml-border)
   );
-  --sysml-accent: #2563eb;
-  --sysml-active-bg: #eff6ff;
-  --sysml-active-text: #1d4ed8;
+  --sysml-accent: #10052f;
+  --sysml-active-bg: #e0f8fe;
+  --sysml-active-text: #10052f;
   --sysml-error: #b91c1c;
   --sysml-error-bg: #fef2f2;
   --sysml-warning: #92400e;
   --sysml-warning-bg: #fffbeb;
   --sysml-warning-border: #d97706;
-  --sysml-shadow: #0f172a26;
+  --sysml-shadow: #10052f26;
   --sysml-definition-bg: var(--sysml-surface);
   --sysml-usage-bg: var(--sysml-surface);
   --sysml-package-bg: var(--sysml-subtle);
@@ -88,19 +88,19 @@
   --sysml-entities: #82d1cb;
   --sysml-parameters: #e8c778;
   --sysml-success: #9bc8ac;
-  --sysml-info: #93c5fd;
+  --sysml-info: #64ddfa;
   color-scheme: dark;
-  --sysml-surface: #182231;
-  --sysml-subtle: #202d3e;
-  --sysml-canvas: #101722;
-  --sysml-grid: #334155;
-  --sysml-text: #e2e8f0;
-  --sysml-muted: #b2bfd0;
-  --sysml-border: #526278;
-  --sysml-stroke: #c2cede;
-  --sysml-accent: #93c5fd;
-  --sysml-active-bg: #243f60;
-  --sysml-active-text: #dbeafe;
+  --sysml-surface: #1b1139;
+  --sysml-subtle: #251b45;
+  --sysml-canvas: #10052f;
+  --sysml-grid: #3a3155;
+  --sysml-text: #f1f1f4;
+  --sysml-muted: #d6d6d6;
+  --sysml-border: #5a5270;
+  --sysml-stroke: #d6d6d6;
+  --sysml-accent: #64ddfa;
+  --sysml-active-bg: #1d3f5c;
+  --sysml-active-text: #c9f3fd;
   --sysml-error: #fca5a5;
   --sysml-error-bg: #451e27;
   --sysml-warning: #fde68a;
@@ -119,13 +119,13 @@
   --sysml-port-inout-bg: #e2f3f2;
 }
 .sysml-appearance[data-theme='dark'][data-palette='muted'] {
-  --sysml-package-bg: #2a3442;
-  --sysml-definition-bg: #22344d;
-  --sysml-usage-bg: #203a35;
-  --sysml-port-bg: #44391e;
-  --sysml-port-in-bg: #223a52;
-  --sysml-port-out-bg: #44391e;
-  --sysml-port-inout-bg: #203e3d;
+  --sysml-package-bg: #2a2549;
+  --sysml-definition-bg: #21285f;
+  --sysml-usage-bg: #193347;
+  --sysml-port-bg: #472d30;
+  --sysml-port-in-bg: #21285f;
+  --sysml-port-out-bg: #472d30;
+  --sysml-port-inout-bg: #182b49;
 }
 
 .sysml-appearance[data-palette='contrast'] {

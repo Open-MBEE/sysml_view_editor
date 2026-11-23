@@ -19,6 +19,20 @@ export function Brand({ onHome }: { onHome: () => void }) {
         }}
         aria-label="OpenMBEE View Editor home"
       >
+        <img
+          className="product-brand-icon product-brand-icon-light"
+          src="/brand/openmbee-icon-dark.svg"
+          alt=""
+          width="25"
+          height="24"
+        />
+        <img
+          className="product-brand-icon product-brand-icon-dark"
+          src="/brand/openmbee-icon.svg"
+          alt=""
+          width="25"
+          height="24"
+        />
         <span>OpenMBEE</span>
         <span>View Editor</span>
       </a>
