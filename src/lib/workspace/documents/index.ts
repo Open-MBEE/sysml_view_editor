@@ -8,23 +8,11 @@ import type {
 } from '../project';
 import {
   DocumentFormSchema,
-  DocumentReferenceSchema,
-  DocumentContentSchema,
-  DocumentDiagnosticSchema,
   RenderedDocumentSchema,
   readRenderedDocument,
 } from './schema';
-export { RenderedDocumentSchema, readRenderedDocument } from './schema';
+export { RenderedDocumentSchema } from './schema';
 export type DocumentForm = Static<typeof DocumentFormSchema>;
-export type DocumentReference = ReadonlyData<
-  Static<typeof DocumentReferenceSchema>
->;
-export type DocumentContent = ReadonlyData<
-  Static<typeof DocumentContentSchema>
->;
-export type DocumentDiagnostic = ReadonlyData<
-  Static<typeof DocumentDiagnosticSchema>
->;
 export type RenderedDocument = ReadonlyData<
   Static<typeof RenderedDocumentSchema>
 >;

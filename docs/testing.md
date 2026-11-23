@@ -24,15 +24,11 @@ PLAYWRIGHT_BROWSER_CHANNEL=chrome npm run test:e2e -- --project=functional
 
 The browser-channel override applies only to functional checks. Visual checks always use the Chromium version installed for the locked Playwright version. The checked-in baselines were generated on Linux; use the same OS, browser and fonts for comparisons. Other platforms need separately reviewed baselines, not wider mismatch thresholds. Visual tests fix the viewport, locale, timezone, system theme and reduced-motion preference, and wait for the example diagram and local fonts before capture.
 
-## Dependency audit and temporary exception
+## Dependency audit
 
-Run `npm run audit` (or `just audit`) to reproduce CI's dependency gate. It first requires a clean production audit, then examines the complete development-inclusive report. Registry errors, malformed reports, unknown advisories and findings outside the reviewed scope fail the command. Full reports remain visible in CI logs. Raw `npm audit --audit-level=low` remains useful and currently fails; an accepted exception is not a vulnerability fix or a clean audit.
+Run `npm run audit` (or `just audit`) to reproduce CI's dependency gate. Both production-only and development-inclusive reports must be clean at the low severity threshold. Registry errors, malformed reports and any findings fail the command; complete reports remain visible in logs.
 
-On 2026-11-18, work on PR39 was blocked by [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf), a repeated-extglob denial of service in picomatch. The advisory lists no patched release, and the registry's latest release is 4.0.7. The existing development toolchain is affected; the document integration did not change the dependency manifests. The production-only audit reports zero findings. Source models are processed in the pinned browser engines; the affected glob packages belong to repository build/test tooling. This limits the exposure but does not remove the underlying vulnerability when tooling processes hostile glob patterns.
-
-To proceed with hosted verification, `scripts/audit.mjs` temporarily accepts this exact advisory and its propagated entries only for the current dev-only lockfile paths/versions: picomatch 4.0.7, fdir 6.5.0, tinyglobby 0.2.17, Vite 8.2.4, Vitest 4.1.12 and @vitejs/plugin-react 6.1.2. New causes, versions, paths, severities, production reachability or unrelated packages require review and fail closed. The exception expires at **2026-12-02 00:00 UTC**; findings after that time fail CI. No audit threshold is raised, no production finding is waived, and no dependency is downgraded.
-
-Rohan owns the follow-up decision. Before expiry, check upstream for remediation, update the existing dependency tree through npm and rerun the raw audit, static/build and browser checks. Remove this exception and its tests when the raw audit is clean. If no safe fix exists by expiry, CI should remain blocked until a fresh decision; do not silently extend the date. This is a temporary risk acceptance for the requested PR39 verification and merge, not security certification.
+The temporary exception for [GHSA-fc5q-39xc-vjpf](https://github.com/advisories/GHSA-fc5q-39xc-vjpf) was retired on 2026-11-23. GitHub withdrew the advisory on 2026-11-18 because it was not a security issue; both registry audit reports now return zero findings. This is an advisory withdrawal, not a dependency vulnerability fix or independent security certification. Future findings require remediation; no advisory is automatically waived.
 
 ## CI coverage
 

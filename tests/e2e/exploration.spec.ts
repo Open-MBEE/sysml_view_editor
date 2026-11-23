@@ -317,13 +317,17 @@ test('shows the entire qualified scope and its definition/usage kind at narrow w
   await page
     .getByRole('button', { name: 'Show model only', exact: true })
     .click();
-  await page.setViewportSize({ width: 768, height: 900 });
   await page
     .getByRole('button', { name: 'Collapse Explorer', exact: true })
     .click();
   await expect(
     page.getByRole('button', { name: 'Show Explorer', exact: true }),
   ).toBeFocused();
+  // Establish the closed tool at desktop width before responsive auto-collapse.
+  await page.setViewportSize({ width: 768, height: 900 });
+  await expect(
+    page.getByRole('button', { name: 'Show Explorer', exact: true }),
+  ).toBeVisible();
   await scope.selectOption(target);
   await expect(scope).toBeEnabled();
   const caption = page.getByRole('group', {
