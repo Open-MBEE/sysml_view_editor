@@ -7,3 +7,6 @@ static/vendor/
 !.env.example
 *.tsbuildinfo
 .DS_Store
+
+# Local Vercel project metadata and prebuilt deployment output
+.vercel/
