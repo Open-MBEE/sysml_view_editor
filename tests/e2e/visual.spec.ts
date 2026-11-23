@@ -115,8 +115,6 @@ test('workbench and keyboard-operated appearance at a narrow viewport', async ({
 
 for (const appearance of [
   { theme: 'light', narrow: false },
-  { theme: 'dark', narrow: false },
-  { theme: 'light', narrow: true },
   { theme: 'dark', narrow: true },
 ]) {
   test(`structural authoring dialogs in ${appearance.theme}${appearance.narrow ? ' narrow' : ''}`, async ({
@@ -156,8 +154,11 @@ for (const appearance of [
   });
 }
 
+// Pair light desktop with dark compact layouts instead of multiplying every
+// surface across both themes and widths. Functional scenarios own behavior.
 for (const theme of ['light', 'dark']) {
   for (const narrow of [false, true]) {
+    if (narrow !== (theme === 'dark')) continue;
     test(`resized workspace panels in ${theme}${narrow ? ' narrow' : ''}`, async ({
       page,
     }) => {
@@ -209,6 +210,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const narrow of [false, true]) {
+    if (narrow !== (theme === 'dark')) continue;
     test(`model ownership tree in ${theme}${narrow ? ' narrow' : ''}`, async ({
       page,
     }) => {
@@ -262,6 +264,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const narrow of [false, true]) {
+    if (narrow !== (theme === 'dark')) continue;
     test(`source editor and search in ${theme}${narrow ? ' narrow' : ''}`, async ({
       page,
     }) => {
@@ -320,6 +323,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const narrow of [false, true]) {
+    if (narrow !== (theme === 'dark')) continue;
     test(`navigable source diagnostics in ${theme}${narrow ? ' narrow' : ''}`, async ({
       page,
     }) => {
@@ -363,6 +367,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const narrow of [false, true]) {
+    if (narrow !== (theme === 'dark')) continue;
     test(`local recovery dialog in ${theme}${narrow ? ' narrow' : ''}`, async ({
       page,
     }) => {
@@ -482,6 +487,11 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const width of [1440, 768, 390]) {
+    if (!(
+      (theme === 'light' && [1440, 390].includes(width)) ||
+      (theme === 'dark' && width === 768)
+    ))
+      continue;
     test(`OpenMBEE entry surfaces in ${theme} at ${width}`, async ({
       page,
     }) => {
@@ -538,6 +548,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const narrow of [false, true]) {
+    if (narrow !== (theme === 'dark')) continue;
     test(`selected structural nodes in ${theme}${narrow ? ' narrow' : ''}`, async ({
       page,
     }) => {
@@ -573,6 +584,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const width of [390, 600]) {
+    if (width !== (theme === 'light' ? 390 : 600)) continue;
     test(`mobile project header in ${theme} at ${width}`, async ({ page }) => {
       await ready(page, { split: false });
       await page.setViewportSize({ width, height: 900 });
@@ -596,6 +608,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const width of [1440, 768]) {
+    if (width !== (theme === 'light' ? 1440 : 768)) continue;
     test(`requirement hierarchy and declared satisfaction in ${theme} at ${width}`, async ({
       page,
     }) => {
@@ -659,6 +672,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const width of [1440, 768]) {
+    if (width !== (theme === 'light' ? 1440 : 768)) continue;
     test(`read-only model exploration in ${theme} at ${width}`, async ({
       page,
     }) => {
@@ -732,6 +746,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark'])
   for (const width of [1440, 768]) {
+    if (width !== (theme === 'light' ? 1440 : 768)) continue;
     test(`assembly exploration routing in ${theme} at ${width}`, async ({
       page,
     }) => {
@@ -795,6 +810,7 @@ for (const theme of ['light', 'dark'])
 
 for (const theme of ['light', 'dark'])
   for (const width of [1440, 768]) {
+    if (width !== (theme === 'light' ? 1440 : 768)) continue;
     test(`initial exploration retry in ${theme} at ${width}`, async ({
       page,
     }) => {
@@ -908,6 +924,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark'])
   for (const width of [1440, 768]) {
+    if (width !== (theme === 'light' ? 1440 : 768)) continue;
     test(`rover guided behavior and traceability in ${theme} at ${width}`, async ({
       page,
     }) => {
@@ -963,6 +980,7 @@ for (const theme of ['light', 'dark'])
 
 for (const theme of ['light', 'dark']) {
   for (const width of [1440, 768]) {
+    if (width !== (theme === 'light' ? 1440 : 768)) continue;
     for (const representation of [
       'Requirements table',
       'Traceability matrix',
@@ -1002,6 +1020,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const width of [1440, 768]) {
+    if (width !== (theme === 'light' ? 1440 : 768)) continue;
     test(`editor guide in ${theme} at ${width}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 900 });
       await ready(page);
@@ -1023,6 +1042,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const width of [1440, 768]) {
+    if (width !== (theme === 'light' ? 1440 : 768)) continue;
     test(`recovery conflict and saved-copy choices in ${theme} at ${width}`, async ({
       page,
     }) => {
@@ -1132,6 +1152,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark']) {
   for (const width of [1440, 768]) {
+    if (width !== (theme === 'light' ? 1440 : 768)) continue;
     test(`inherited structural occurrences ${theme} ${width}`, async ({
       page,
     }) => {
@@ -1186,6 +1207,7 @@ for (const theme of ['light', 'dark']) {
 
 for (const theme of ['light', 'dark'])
   for (const width of [1440, 800]) {
+    if (width !== (theme === 'light' ? 1440 : 800)) continue;
     test(`source value inspection in ${theme} at ${width}px`, async ({
       page,
     }) => {
@@ -1251,6 +1273,7 @@ for (const theme of ['light', 'dark'])
 
 for (const theme of ['light', 'dark'])
   for (const width of [1440, 390]) {
+    if (width !== (theme === 'light' ? 1440 : 390)) continue;
     test(`pane-local source controls in ${theme} at ${width}px`, async ({
       page,
     }) => {
@@ -1325,6 +1348,7 @@ for (const theme of ['light', 'dark'])
 
 for (const theme of ['light', 'dark'])
   for (const width of [1440, 390]) {
+    if (width !== (theme === 'light' ? 1440 : 390)) continue;
     test(`composed Model header in ${theme} at ${width}px`, async ({
       page,
     }) => {
@@ -1387,6 +1411,7 @@ for (const theme of ['light', 'dark'])
 
 for (const theme of ['light', 'dark']) {
   for (const width of [1440, 390]) {
+    if (width !== (theme === 'light' ? 1440 : 390)) continue;
     test(`sectioned Explorer in ${theme} at ${width}px`, async ({ page }) => {
       await ready(page, { split: false });
       await page.setViewportSize({ width, height: 900 });
@@ -1452,6 +1477,7 @@ test('workbench selection and focus in forced colors', async ({ page }) => {
 
 for (const theme of ['light', 'dark'])
   for (const width of [1440, 390]) {
+    if (width !== (theme === 'light' ? 1440 : 390)) continue;
     test(`generated document and embedded view in ${theme} at ${width}`, async ({
       page,
     }) => {
@@ -1494,6 +1520,7 @@ for (const theme of ['light', 'dark'])
 
 for (const theme of ['light', 'dark'])
   for (const width of [1440, 390]) {
+    if (width !== (theme === 'light' ? 1440 : 390)) continue;
     test(`workspace content picker in ${theme} at ${width}`, async ({
       page,
     }) => {
