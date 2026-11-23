@@ -92,11 +92,11 @@ Light mode is the initial Stitch design target. Dark mode must use its complete 
 
 The Explorer uses faint category-tinted headings and counts of files, view declarations, documents and indexed model elements. Model counts include collapsed descendants. Package icon tiles use a source-colour tint; definition and usage tiles use the existing palette surfaces. Labels and selection edges remain meaningful without colour.
 
-The workspace title names the active tab, above representation controls. Applied/draft status remains separate and subdued. Inspection gives the selected element a larger title and a readable kind badge; technical identities remain available in the summary. Declared attribute expressions appear immediately in quiet value cards. Declaration/provider metadata is expandable within each card, and source navigation remains guarded by draft/source availability. These expressions are authored values, not evaluated results.
+The active workspace tab names the content; the contextual toolbar shows status and actions. Pending drafts, updates and rendering issues receive subdued status text; healthy applied state adds no toolbar label. Inspection gives the selected element a larger title and a readable kind badge; technical identities remain available in the summary. Declared attribute expressions appear immediately in quiet value cards. Declaration/provider metadata is expandable within each card, and source navigation remains guarded by draft/source availability. These expressions are authored values, not evaluated results.
 
-### Navigation follow-up
+### Navigation controls
 
-The current workspace still combines opened-content tabs, a named-view selector and representation buttons. User review identified this as redundant. The proposed follow-up is Explorer for discovering content, one workspace tab strip for opened diagrams/project-wide requirements/traceability/documents, and a compact action toolbar. This simplification is not part of the colour refinement above.
+Explorer discovers named views and documents. One workspace strip holds opened diagrams, project-wide Requirements/Traceability and documents. **Open workspace tab** (+) lists available content when Explorer is hidden. The persistent named-view dropdown, representation-button row and repeated visible workspace title are removed. Model history, Inspect and guarded editing actions remain in the contextual toolbar. Exploration uses one scope breadcrumb that opens its chooser on demand, plus one view-type control. Remove repeated scope/representation summaries and healthy-state text. Fully qualified scope names wrap inside the breadcrumb rather than overflowing the pane.
 
 ## Layout proposal: four available panels
 

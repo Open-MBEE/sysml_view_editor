@@ -1,3 +1,5 @@
+import { openProjectData } from './support';
+import { activeWorkspaceTab } from './support';
 import {
   test,
   expect,
@@ -46,17 +48,13 @@ test('@critical keeps source commands local and preserves independent arrangemen
     source.getByText('Draft not applied', { exact: true }),
   ).toBeVisible();
   const saved = (await downloadProject(page)).bundle;
-  const namedView = await page
-    .getByRole('combobox', { name: 'Named view', exact: true })
-    .inputValue();
+  const namedView = await activeWorkspaceTab(page).getAttribute('title');
   const arrangement = page.getByRole('group', {
     name: 'Workspace arrangement',
     exact: true,
   });
   for (const representation of ['Requirements table', 'Traceability matrix']) {
-    await page
-      .getByRole('button', { name: representation, exact: true })
-      .click();
+    await openProjectData(page, representation);
     await expect(
       arrangement.getByRole('button', {
         name: 'Show source and model',
@@ -87,15 +85,14 @@ test('@critical keeps source commands local and preserves independent arrangemen
         ).toHaveCount(0);
       }
     }
-    await expect(
-      page.getByRole('button', { name: representation, exact: true }),
-    ).toHaveAttribute('aria-pressed', 'true');
+    await expect(activeWorkspaceTab(page)).toHaveText(representation);
     expect((await downloadProject(page)).bundle).toEqual(saved);
   }
-  await page.getByRole('button', { name: 'Diagram view', exact: true }).click();
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue(namedView);
+  await page
+    .getByRole('tablist', { name: 'Workspace documents', exact: true })
+    .getByTitle(namedView!, { exact: true })
+    .click();
+  await expect(activeWorkspaceTab(page)).toHaveAttribute('title', namedView!);
   await expect(
     source.getByRole('tab', { name: 'views.sysml', exact: true }),
   ).toBeVisible();

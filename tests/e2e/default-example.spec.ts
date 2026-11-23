@@ -1,3 +1,4 @@
+import { activeWorkspaceTab } from './support';
 import { readFile } from 'node:fs/promises';
 import {
   test,
@@ -15,9 +16,11 @@ test('imports the complete legacy Smart air workshop fixture in its workshop ove
   const evaluations = await observeEvaluations(page);
   await page.goto('/app');
   await startExample(page, { split: false });
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue('CompressorViews::overview', { timeout: 3000 });
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:' + 'CompressorViews::overview',
+    { timeout: 3000 },
+  );
   await waitForStartup(page, { split: false });
   await expect(
     page.getByRole('banner').getByText('Smart air workshop', { exact: true }),

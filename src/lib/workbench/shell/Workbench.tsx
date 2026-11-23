@@ -1,6 +1,6 @@
 import type { ExplorationRequest } from '$lib/workspace/exploration';
 import { Button } from '$lib/ui/primitives/button';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ArrowLeft, ArrowRight, House } from 'lucide-react';
 import { ContentTabs } from './ContentTabs';
 import { openTab, type WorkspaceTab } from './workspace-tabs';
 import { RequirementsPanel } from '../requirements/RequirementsPanel';
@@ -46,6 +46,7 @@ import { ProjectHeader } from './ProjectHeader';
 import { loadLayout } from './layout';
 import { WorkspaceToolbar } from './WorkspaceToolbar';
 import { SourcePaneHeader } from './SourcePaneHeader';
+import { WorkspaceOpener } from './WorkspaceOpener';
 import { ModelPaneHeader } from './ModelPaneHeader';
 import { DiagramTargetControls } from '../diagrams/DiagramTargetControls';
 import {
@@ -91,6 +92,7 @@ export function Workbench({
   );
   const [documentFailure, setDocumentFailure] = useState<string | null>(null);
   const [projectGeneration, setProjectGeneration] = useState(0);
+  const [workspaceFocusRequest, setWorkspaceFocusRequest] = useState(0);
   const [workspaceTabs, setWorkspaceTabs] = useState<WorkspaceTab[]>([]);
   const [sourceTabs, setSourceTabs] = useState<{ id: string; label: string }[]>(
     [],
@@ -233,7 +235,8 @@ export function Workbench({
       ? {
           id: dataMode,
           kind: dataMode,
-          label: dataMode === 'table' ? 'Requirements' : 'Traceability',
+          label:
+            dataMode === 'table' ? 'Requirements table' : 'Traceability matrix',
         }
       : dataMode === 'document' && state.renderedDocument
         ? {
@@ -250,7 +253,9 @@ export function Workbench({
           ? undefined
           : state.exploration
             ? {
-                id: 'exploration:' + JSON.stringify(state.exploration.request),
+                id:
+                  'exploration:' +
+                  JSON.stringify(state.exploration.request.scope),
                 kind: 'exploration',
                 request: state.exploration.request,
                 label:
@@ -316,20 +321,7 @@ export function Workbench({
       setDataMode('diagram');
     });
   }
-  const breadcrumbs: ModelElement[] = [];
   const breadcrumbScope = state.exploration?.request.scope;
-  if (breadcrumbScope && breadcrumbScope.kind !== 'project') {
-    let item = state.model?.elements.find(
-      (item) => item.id === breadcrumbScope.subject,
-    );
-    const seen = new Set<string>();
-    while (item && !seen.has(item.id)) {
-      seen.add(item.id);
-      breadcrumbs.unshift(item);
-      const owner = item.ownerId;
-      item = state.model?.elements.find((candidate) => candidate.id === owner);
-    }
-  }
   async function activateTab(tab: WorkspaceTab) {
     let success = false;
     await run(async () => {
@@ -1062,105 +1054,105 @@ export function Workbench({
               diagram={
                 <div className="model-data-surface">
                   <div className="model-workspace-chrome">
-                    <ContentTabs
-                      label="Workspace documents"
-                      tabs={workspaceTabs}
-                      active={currentTab?.id}
-                      disabled={state.busy}
-                      onSelect={(id) => {
-                        const tab = workspaceTabs.find(
-                          (item) => item.id === id,
-                        );
-                        if (tab) void activateTab(tab);
-                      }}
-                      onClose={(id) => void closeWorkspaceTab(id)}
-                    />
-                    <nav
-                      className="model-navigation"
-                      aria-label="Model navigation"
-                    >
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        aria-label="Back in model"
-                        disabled={state.busy || navigation.index <= 0}
-                        onClick={() => void navigateHistory(-1)}
-                      >
-                        <ArrowLeft aria-hidden="true" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        aria-label="Forward in model"
-                        disabled={
-                          state.busy ||
-                          navigation.index >= navigation.entries.length - 1
-                        }
-                        onClick={() => void navigateHistory(1)}
-                      >
-                        <ArrowRight aria-hidden="true" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        disabled={state.busy || !state.model}
-                        onClick={() => exploreScope()}
-                      >
-                        Project overview
-                      </Button>
-                      {breadcrumbs
-                        .filter((item) =>
-                          ['package', 'partDef', 'partUsage'].includes(
-                            item.kind,
-                          ),
-                        )
-                        .map((item) => (
-                          <Button
-                            key={item.id}
-                            variant="ghost"
-                            size="xs"
-                            disabled={state.busy}
-                            onClick={() => exploreScope(item)}
-                            title={item.id}
-                          >
-                            {item.name}
-                          </Button>
-                        ))}
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        disabled={
-                          state.busy ||
-                          !element ||
-                          !['package', 'partDef', 'partUsage'].includes(
-                            element.kind,
-                          )
-                        }
-                        onClick={() => element && exploreScope(element)}
-                      >
-                        Explore selection
-                      </Button>
-                    </nav>
+                    <div className="workspace-tabbar">
+                      <ContentTabs
+                        label="Workspace documents"
+                        focusRequest={workspaceFocusRequest}
+                        tabs={workspaceTabs}
+                        active={currentTab?.id}
+                        disabled={state.busy}
+                        onSelect={(id) => {
+                          const tab = workspaceTabs.find(
+                            (item) => item.id === id,
+                          );
+                          if (tab) void activateTab(tab);
+                        }}
+                        onClose={(id) => void closeWorkspaceTab(id)}
+                      />
+                      <WorkspaceOpener
+                        active={active && !launcherOpen}
+                        state={state}
+                        onOpen={async (tab) => {
+                          const success = await activateTab(tab);
+                          if (success)
+                            setWorkspaceFocusRequest((value) => value + 1);
+                          return success;
+                        }}
+                      />
+                    </div>
+
                     <ModelPaneHeader
                       title={currentTab?.label}
                       actions={<InspectButton />}
                       representation={dataMode}
-                      onRepresentation={setDataMode}
+                      navigation={
+                        <nav
+                          className="model-navigation"
+                          aria-label="Model navigation"
+                        >
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            aria-label="Back in model"
+                            disabled={state.busy || navigation.index <= 0}
+                            onClick={() => void navigateHistory(-1)}
+                          >
+                            <ArrowLeft aria-hidden="true" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon-xs"
+                            aria-label="Forward in model"
+                            disabled={
+                              state.busy ||
+                              navigation.index >= navigation.entries.length - 1
+                            }
+                            onClick={() => void navigateHistory(1)}
+                          >
+                            <ArrowRight aria-hidden="true" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="xs"
+                            disabled={state.busy || !state.model}
+                            aria-label="Project overview"
+                            title="Project overview"
+                            onClick={() => exploreScope()}
+                          >
+                            <House aria-hidden="true" />
+                          </Button>
+                          {element &&
+                            ['package', 'partDef', 'partUsage'].includes(
+                              element.kind,
+                            ) &&
+                            (breadcrumbScope?.kind === 'project' ||
+                              breadcrumbScope?.subject !== element.id) && (
+                              <Button
+                                variant="ghost"
+                                size="xs"
+                                disabled={
+                                  state.busy ||
+                                  !element ||
+                                  !['package', 'partDef', 'partUsage'].includes(
+                                    element.kind,
+                                  )
+                                }
+                                onClick={() => element && exploreScope(element)}
+                              >
+                                Explore selection
+                              </Button>
+                            )}
+                        </nav>
+                      }
                       state={state}
                       view={displayedView}
-                      exploring={!!state.exploration}
                     >
                       <DiagramTargetControls
-                        views={
-                          state.model?.elements.filter(
-                            (item) => item.kind === 'viewUsage',
-                          ) ?? []
-                        }
-                        busy={state.busy}
-                        onOpenView={(id) =>
-                          void run(() => workspace().openView(id))
+                        active={
+                          active && !launcherOpen && dataMode === 'diagram'
                         }
                         view={displayedView}
+                        busy={state.busy}
                         exploration={state.exploration?.request}
                         elements={state.model?.elements ?? []}
                         explorationFocus={explorationFocus}

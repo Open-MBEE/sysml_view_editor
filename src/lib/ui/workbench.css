@@ -465,3 +465,132 @@
   max-height: none;
   overflow: visible;
 }
+
+/* One content strip and a compact, contextual action toolbar. */
+.workspace-tabbar {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  background: var(--sysml-subtle);
+  border-bottom: 1px solid var(--sysml-border);
+  padding-right: 6px;
+}
+.workspace-tabbar > .content-tabs {
+  flex: 0 1 auto;
+  min-width: 0;
+  border-bottom: 0;
+}
+.workspace-tabbar > button {
+  flex-shrink: 0;
+}
+.model-pane-header .model-navigation {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.model-pane-header .model-header-status,
+.model-pane-header .model-header-scope {
+  margin: 0;
+}
+.model-pane-context:not([hidden]) {
+  display: contents;
+}
+.model-pane-context .diagram-target-controls:not(.diagram-exploration) {
+  flex: 1;
+  min-width: 0;
+}
+.model-pane-context .diagram-context {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.model-pane-context .diagram-context-meta {
+  margin: 0;
+  font-size: 11px;
+  color: var(--sysml-muted);
+}
+.workspace-opener {
+  max-height: min(70vh, 540px);
+  overflow: auto;
+  background: var(--sysml-surface);
+  color: var(--sysml-text);
+  border-color: var(--sysml-border);
+}
+.workspace-opener h2 {
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+.workspace-opener h3 {
+  font-size: 11px;
+  color: var(--sysml-muted);
+  margin: 12px 0 4px;
+}
+.workspace-opener button {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  height: auto;
+  min-height: 30px;
+  white-space: normal;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.workspace-opener p {
+  font-size: 12px;
+  color: var(--sysml-muted);
+}
+
+/* Exploration uses a single scope breadcrumb and one view-type control. */
+.model-pane-context .diagram-target-controls {
+  min-width: 0;
+  max-width: 100%;
+}
+.model-pane-context .diagram-exploration .diagram-context {
+  align-items: center;
+  width: auto;
+}
+.exploration-scope-picker {
+  min-width: 0;
+  max-width: min(380px, 100%);
+}
+.exploration-scope-picker .scope-trigger {
+  display: flex;
+  align-items: baseline;
+  max-width: 100%;
+  height: auto;
+  min-height: 28px;
+  white-space: normal;
+  text-align: left;
+  gap: 6px;
+}
+.scope-trigger strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 400;
+}
+.scope-trigger .scope-kind {
+  color: var(--sysml-muted);
+  font-size: 10px;
+  flex-shrink: 0;
+}
+.scope-trigger > svg {
+  align-self: center;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+}
+.scope-picker-content {
+  max-width: calc(100vw - 16px);
+  background: var(--sysml-surface);
+  color: var(--sysml-text);
+  border-color: var(--sysml-border);
+}
+.scope-picker-content label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.scope-picker-content [data-slot='native-select-wrapper'] {
+  width: 100%;
+}

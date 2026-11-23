@@ -1,3 +1,4 @@
+import { activeWorkspaceTab } from './support';
 import {
   importRequirementsTraceability,
   requirementCard,
@@ -34,9 +35,7 @@ for (const width of [1600, 800])
         evaluations.some((value) => value.view === 'ReadingViews::assembly'),
       )
       .toBe(true);
-    await expect(
-      page.getByRole('combobox', { name: 'Named view', exact: true }),
-    ).toBeEnabled();
+    await expect(activeWorkspaceTab(page)).toBeEnabled();
     await expect
       .poll(async () => (await diagramCamera(page)).zoom, { timeout: 1500 })
       .toBeGreaterThanOrEqual(0.75);
@@ -109,9 +108,7 @@ test('@critical responsive panes preserve explicit preferences, camera and the u
     mimeType: 'text/plain',
     buffer: Buffer.from(source),
   });
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toBeEnabled();
+  await expect(activeWorkspaceTab(page)).toBeEnabled();
   await page
     .getByRole('button', { name: 'Show source and model', exact: true })
     .click();

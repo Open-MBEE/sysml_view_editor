@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type Ref,
 } from 'react';
 import type {
   GroupImperativeHandle,
@@ -361,7 +362,13 @@ export function IssuesToggle({ count }: { count: number }) {
     </Button>
   );
 }
-function ToolActions({ id }: { id: Tool }) {
+function ToolActions({
+  id,
+  closeRef,
+}: {
+  id: Tool;
+  closeRef?: Ref<HTMLButtonElement>;
+}) {
   const c = usePanels();
   const name =
     id === 'inspection' ? 'Inspector' : id === 'source' ? 'Source' : 'Explorer';
@@ -375,6 +382,7 @@ function ToolActions({ id }: { id: Tool }) {
       />
       <IconButton
         size="icon-xs"
+        ref={closeRef}
         label={`Collapse ${name}`}
         icon={X}
         onClick={() => c.hide(id)}
@@ -406,6 +414,7 @@ export function WorkbenchPanels({
 }) {
   const c = usePanels();
   const lastIssue = useRef('');
+  const inspectionClose = useRef<HTMLButtonElement>(null);
   // Explicit reveal requests belong to this project surface. Mounting its
   // replacement must not replay requests consumed by the previous project.
   const requests = useRef({
@@ -445,9 +454,29 @@ export function WorkbenchPanels({
   }, [source]);
 
   useEffect(() => {
-    if (inspectionRequest !== requests.current.inspection && inspectionRequest)
+    let frame = 0;
+    let settled = 0;
+    if (
+      inspectionRequest !== requests.current.inspection &&
+      inspectionRequest
+    ) {
+      const focusOpenedTool = c.narrow && !c.visible.inspection;
       c.inspect('properties');
+      // The newly opened bottom dock can clip the table row that requested it.
+      // Transfer phone keyboard focus after the resized panels have committed.
+      if (focusOpenedTool)
+        frame = requestAnimationFrame(() => {
+          settled = requestAnimationFrame(() => {
+            if (inspectionClose.current?.getClientRects().length)
+              inspectionClose.current.focus({ preventScroll: true });
+          });
+        });
+    }
     requests.current.inspection = inspectionRequest;
+    return () => {
+      cancelAnimationFrame(frame);
+      cancelAnimationFrame(settled);
+    };
   }, [inspectionRequest]);
   useEffect(() => {
     if (issueKey && issueKey !== lastIssue.current) c.inspect('issues');
@@ -614,7 +643,7 @@ export function WorkbenchPanels({
                         ),
                       )}
                     </div>
-                    <ToolActions id="inspection" />
+                    <ToolActions id="inspection" closeRef={inspectionClose} />
                   </header>
                   <div
                     id="inspection-properties"

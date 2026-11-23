@@ -11,6 +11,7 @@ export function ContentTabs({
   tabs,
   active,
   disabled,
+  focusRequest,
   onSelect,
   onClose,
 }: {
@@ -18,10 +19,22 @@ export function ContentTabs({
   tabs: readonly ContentTab[];
   active?: string;
   disabled?: boolean;
+  focusRequest?: number;
   onSelect: (id: string) => void;
   onClose: (id: string) => void;
 }) {
   const list = useRef<HTMLDivElement>(null);
+  const focusedRequest = useRef(focusRequest);
+  useLayoutEffect(() => {
+    if (focusRequest === focusedRequest.current) return;
+    const selected = list.current?.querySelector<HTMLButtonElement>(
+      '[role="tab"][aria-selected="true"]',
+    );
+    if (selected) {
+      selected.focus();
+      focusedRequest.current = focusRequest;
+    }
+  }, [focusRequest, tabs, active]);
   const closing = useRef<string | null>(null);
   useLayoutEffect(() => {
     if (!closing.current || tabs.some((tab) => tab.id === closing.current))

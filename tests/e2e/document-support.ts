@@ -1,3 +1,4 @@
+import { activeWorkspaceTab } from './support';
 import type { Page } from '@playwright/test';
 import { expect } from './support';
 
@@ -5,9 +6,10 @@ import { expect } from './support';
 export async function openRoverReport(page: Page) {
   await page.goto('/app');
   await page.getByRole('button', { name: 'Load example', exact: true }).click();
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue('RoverViews::architecture');
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:' + 'RoverViews::architecture',
+  );
   const show = page.getByRole('button', { name: 'Show Explorer', exact: true });
   if (await show.isVisible()) await show.click();
   const explorer = page.getByRole('complementary', {

@@ -1,3 +1,5 @@
+import { selectExplorationScope } from './support';
+import { activeWorkspaceTab, openNamedView } from './support';
 import {
   test,
   expect,
@@ -116,15 +118,15 @@ test('@critical opens a no-view multi-file model as an overview and distinguishe
   expect(before.documents).toEqual(documents);
   expect(before.drafts).toEqual(documents);
   expect(before.presentations).toEqual({});
-  const scope = page.getByRole('combobox', {
-    name: 'Exploration scope',
+  const scope = page.getByRole('button', {
+    name: 'Change exploration scope',
     exact: true,
   });
   const representation = page.getByRole('combobox', {
     name: 'Exploration representation',
     exact: true,
   });
-  await scope.selectOption('P');
+  await selectExplorationScope(page, 'P');
   await expect(scope).toBeEnabled();
   await expect(scope).toBeFocused();
   await expect
@@ -133,7 +135,7 @@ test('@critical opens a no-view multi-file model as an overview and distinguishe
   await expect(
     representation.getByRole('option', { name: 'Structure', exact: true }),
   ).toBeDisabled();
-  await scope.selectOption('P::System');
+  await selectExplorationScope(page, 'P::System');
   await expect(scope).toBeEnabled();
   await representation.selectOption('interconnection');
   await expect(representation).toBeEnabled();
@@ -183,7 +185,7 @@ test('@critical opens a no-view multi-file model as an overview and distinguishe
   await expect
     .poll(() => copySourceSelection(source))
     .toBe('part primary : Q::Motor;');
-  await scope.selectOption('P::system');
+  await selectExplorationScope(page, 'P::system');
   await expect(scope).toBeEnabled();
   await representation.selectOption('interconnection');
   await expect(representation).toBeEnabled();
@@ -198,7 +200,7 @@ test('@critical opens a no-view multi-file model as an overview and distinguishe
   ).toBeVisible();
   await page.getByRole('button', { name: 'other.sysml', exact: true }).click();
   await expect(source).toHaveSource(documents[1]!.text);
-  await expect(scope).toHaveValue('P::system');
+  await expect(scope).toHaveAttribute('title', 'P::system');
   await expect(representation).toHaveValue('interconnection');
   await expect(
     page.getByRole('button', { name: 'New part', exact: true }),
@@ -223,18 +225,18 @@ test('exploration preserves invalid drafts and independent named-view geometry a
     (await readSource(source)) + '\n// preserved while browsing\npart';
   await fillSource(source, draft);
   const expected = await downloadProject(page);
-  const named = page.getByRole('combobox', { name: 'Named view', exact: true });
-  await named.selectOption('');
-  const scope = page.getByRole('combobox', {
-    name: 'Exploration scope',
+  const named = activeWorkspaceTab(page);
+  await openNamedView(page, '');
+  const scope = page.getByRole('button', {
+    name: 'Change exploration scope',
     exact: true,
   });
   await expect(scope).toBeEnabled();
-  await scope.selectOption('Workshop');
+  await selectExplorationScope(page, 'Workshop');
   await expect(scope).toBeEnabled();
   await expect(source).toHaveSource(draft);
   expect((await downloadProject(page)).bundle).toEqual(expected.bundle);
-  await named.selectOption('WorkshopViews::overview');
+  await openNamedView(page, 'WorkshopViews::overview');
   await expect(scope).not.toBeVisible();
   await expectRenderedPositions(page, before, 'WorkshopViews::overview');
   expect((await downloadProject(page)).bundle).toEqual(expected.bundle);
@@ -259,8 +261,8 @@ test('an actual exploration engine asset failure preserves the old scope, diagra
 }) => {
   await noViews(page);
   const before = (await downloadProject(page)).bundle;
-  const scope = page.getByRole('combobox', {
-    name: 'Exploration scope',
+  const scope = page.getByRole('button', {
+    name: 'Change exploration scope',
     exact: true,
   });
   let failures = 0;
@@ -272,19 +274,19 @@ test('an actual exploration engine asset failure preserves the old scope, diagra
       body: 'Controlled exploration failure',
     });
   });
-  await scope.selectOption('P');
+  await selectExplorationScope(page, 'P');
   await expect.poll(() => failures).toBeGreaterThan(0);
   await expect(
     page.getByText('OpenSysML browser assets are unavailable.', {
       exact: true,
     }),
   ).toBeVisible();
-  await expect(scope).toHaveValue('');
+  await expect(scope).toHaveAttribute('title', 'Project overview');
   expect((await downloadProject(page)).bundle).toEqual(before);
   await page.unroute(asset);
-  await scope.selectOption('P');
+  await selectExplorationScope(page, 'P');
   await expect(scope).toBeEnabled();
-  await expect(scope).toHaveValue('P');
+  await expect(scope).toHaveAttribute('title', 'P');
   expect((await downloadProject(page)).bundle).toEqual(before);
 });
 
@@ -309,8 +311,8 @@ test('shows the entire qualified scope and its definition/usage kind at narrow w
       buffer: Buffer.from(file.text),
     })),
   );
-  const scope = page.getByRole('combobox', {
-    name: 'Exploration scope',
+  const scope = page.getByRole('button', {
+    name: 'Change exploration scope',
     exact: true,
   });
   await expect(scope).toBeEnabled();
@@ -328,7 +330,7 @@ test('shows the entire qualified scope and its definition/usage kind at narrow w
   await expect(
     page.getByRole('button', { name: 'Show Explorer', exact: true }),
   ).toBeVisible();
-  await scope.selectOption(target);
+  await selectExplorationScope(page, target);
   await expect(scope).toBeEnabled();
   const caption = page.getByRole('group', {
     name: 'Current exploration scope',
@@ -337,7 +339,7 @@ test('shows the entire qualified scope and its definition/usage kind at narrow w
   await expect(caption).toContainText(target);
   await expect(caption).toContainText('Part definition');
   await expect.poll(() => explorationScopeFits(page)).toBe(true);
-  await scope.selectOption(prefix + '::installedDrive');
+  await selectExplorationScope(page, prefix + '::installedDrive');
   await expect(scope).toBeEnabled();
   await expect(caption).toContainText(prefix + '::installedDrive');
   await expect(caption).toContainText('Part usage');
@@ -375,7 +377,7 @@ test('retries an initial exploration asset failure without reopening or changing
   const before = (await downloadProject(page)).bundle;
   expect(before.documents).toEqual(documents);
   await expect(
-    page.getByRole('combobox', { name: 'Exploration scope', exact: true }),
+    page.getByRole('button', { name: 'Change exploration scope', exact: true }),
   ).not.toBeVisible();
   const retry = page.getByRole('button', {
     name: 'Explore model',
@@ -386,14 +388,14 @@ test('retries an initial exploration asset failure without reopening or changing
   await retry.focus();
   await retry.press('Enter');
   await expect(
-    page.getByRole('combobox', { name: 'Exploration scope', exact: true }),
+    page.getByRole('button', { name: 'Change exploration scope', exact: true }),
   ).toBeEnabled();
   await expect(
     page.getByRole('group', { name: 'part def System', exact: true }),
   ).toBeVisible();
   await expect(retry).not.toBeVisible();
   await expect(
-    page.getByRole('combobox', { name: 'Exploration scope', exact: true }),
+    page.getByRole('button', { name: 'Change exploration scope', exact: true }),
   ).toBeFocused();
   await page
     .getByRole('button', { name: 'Show source and model', exact: true })

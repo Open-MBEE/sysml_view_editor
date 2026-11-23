@@ -21,7 +21,7 @@ export async function noViews(page: Page) {
     })),
   );
   await expect(
-    page.getByRole('combobox', { name: 'Exploration scope', exact: true }),
+    page.getByRole('button', { name: 'Change exploration scope', exact: true }),
   ).toBeEnabled();
   await expect(
     page
@@ -47,7 +47,7 @@ export async function assemblyExploration(page: Page) {
     page.getByRole('group', { name: 'package Assembly', exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole('combobox', { name: 'Exploration scope', exact: true }),
+    page.getByRole('button', { name: 'Change exploration scope', exact: true }),
   ).toBeEnabled();
   return [{ name: 'assembly.sysml', text }];
 }

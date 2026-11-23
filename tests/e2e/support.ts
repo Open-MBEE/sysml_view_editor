@@ -168,9 +168,10 @@ export async function waitForStartup(page: Page, { split = true } = {}) {
       exact: true,
     }),
   ).toBeVisible();
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue('CompressorViews::overview');
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:' + 'CompressorViews::overview',
+  );
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
@@ -247,9 +248,7 @@ export async function ready(
 ) {
   await page.goto('/app');
   await startExample(page, options);
-  await page
-    .getByRole('combobox', { name: 'Named view', exact: true })
-    .selectOption('CompressorViews::pneumatics');
+  await openNamedView(page, 'CompressorViews::pneumatics');
   await expect(
     page.getByRole('group', { name: 'part pump : Pump', exact: true }),
   ).toBeVisible();
@@ -293,9 +292,10 @@ export async function importWorkshop(page: Page) {
     ),
   });
   await expect(diagramNode(page, 'Workshop::Motor')).toBeVisible();
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue('WorkshopViews::overview');
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:' + 'WorkshopViews::overview',
+  );
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
@@ -425,9 +425,10 @@ export async function importAssembly(page: Page) {
       buffer: Buffer.from(item.text),
     })),
   );
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue('AssemblyViews::structure');
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:' + 'AssemblyViews::structure',
+  );
   await expect(
     page.getByRole('group', { name: 'part primary : Device', exact: true }),
   ).toBeVisible();
@@ -460,7 +461,23 @@ export async function showAssemblyDiagram(page: Page) {
   // A wider panel can remain limited by height. Fit must contain the root,
   // without assuming that removing Source always increases zoom.
   await page.getByRole('button', { name: 'Fit view', exact: true }).click();
-  await expect(station).toBeInViewport({ ratio: 1 });
+  await expect(station).toBeInViewport();
+  // IntersectionObserver can round a fully visible transformed box just below
+  // ratio 1. Check all edges against the actual diagram pane instead.
+  await expect
+    .poll(async () => {
+      const box = (await station.boundingBox())!;
+      const pane = (await page
+        .getByRole('region', { name: 'Diagram', exact: true })
+        .boundingBox())!;
+      return Math.max(
+        pane.x - box.x,
+        pane.y - box.y,
+        box.x + box.width - pane.x - pane.width,
+        box.y + box.height - pane.y - pane.height,
+      );
+    })
+    .toBeLessThanOrEqual(0.5);
   const wider = await regionSize(
     page.getByRole('region', { name: 'Diagram', exact: true }),
     'width',
@@ -1015,9 +1032,10 @@ export async function overviewRoutingGeometry(
 
 /** Product-default startup, independent of the retained air-workshop test fixture. */
 export async function waitForRoverStartup(page: Page) {
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue('RoverViews::architecture');
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:' + 'RoverViews::architecture',
+  );
   await expect(
     page.getByRole('group', { name: 'part battery : Battery', exact: true }),
   ).toBeVisible();
@@ -1107,4 +1125,62 @@ export async function hideExplorer(page: Page) {
     }),
   ).not.toBeVisible();
   await expect(activity).toBeFocused();
+}
+
+/** The sole selected content tab, independent of Explorer visibility. */
+export function activeWorkspaceTab(page: Page) {
+  return page
+    .getByRole('tablist', { name: 'Workspace documents', exact: true })
+    .getByRole('tab', { selected: true });
+}
+export async function openNamedView(page: Page, id: string) {
+  if (!id) {
+    await page
+      .getByRole('button', { name: 'Project overview', exact: true })
+      .click();
+    await expect(activeWorkspaceTab(page)).toHaveText('Project overview');
+    return;
+  }
+  await page
+    .getByRole('button', { name: 'Open workspace tab', exact: true })
+    .click();
+  await page
+    .getByRole('dialog', { name: 'Open workspace tab', exact: true })
+    .getByTitle(id, { exact: true })
+    .click();
+  await expect(activeWorkspaceTab(page)).toHaveAttribute('title', 'view:' + id);
+  await expect(
+    page.getByRole('button', { name: 'Open workspace tab', exact: true }),
+  ).toBeEnabled();
+}
+export async function openProjectData(page: Page, name: string) {
+  await page
+    .getByRole('button', { name: 'Open workspace tab', exact: true })
+    .click();
+  await page
+    .getByRole('dialog', { name: 'Open workspace tab', exact: true })
+    .getByRole('button', { name, exact: true })
+    .click();
+  await expect(
+    page.getByRole('dialog', { name: 'Open workspace tab', exact: true }),
+  ).toHaveCount(0);
+  await expect(activeWorkspaceTab(page)).toHaveText(name);
+  await expect(activeWorkspaceTab(page)).toBeFocused();
+}
+
+export async function selectExplorationScope(page: Page, subject: string) {
+  const trigger = page.getByRole('button', {
+    name: 'Change exploration scope',
+    exact: true,
+  });
+  await trigger.click();
+  const picker = page.getByRole('dialog', {
+    name: 'Change exploration scope',
+    exact: true,
+  });
+  await picker
+    .getByRole('combobox', { name: 'Exploration scope', exact: true })
+    .selectOption(subject);
+  await expect(picker).not.toBeVisible();
+  await expect(trigger).toBeEnabled();
 }

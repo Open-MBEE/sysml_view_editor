@@ -1,3 +1,4 @@
+import { activeWorkspaceTab } from './support';
 import {
   fillSource,
   readSource,
@@ -24,16 +25,18 @@ test('@critical loads real source-defined views and keeps the view stable when c
   await expect(
     page.getByRole('textbox', { name: 'SysML source' }),
   ).toHaveSource(/package WorkshopViews/);
-  const header = page.getByRole('group', { name: 'Model header', exact: true });
-  const view = header.getByRole('combobox', {
-    name: 'Named view',
-    exact: true,
-  });
+  const view = activeWorkspaceTab(page);
   await expect(view).toBeVisible();
-  await expect(view).toHaveValue('WorkshopViews::overview');
+  await expect(view).toHaveAttribute(
+    'title',
+    'view:' + 'WorkshopViews::overview',
+  );
   await expect(diagramNode(page, 'Workshop::Motor')).toBeVisible();
   await openView(page, 'compressor');
-  await expect(view).toHaveValue('WorkshopViews::compressor');
+  await expect(view).toHaveAttribute(
+    'title',
+    'view:' + 'WorkshopViews::compressor',
+  );
   await expect(
     page.getByRole('textbox', { name: 'SysML source' }),
   ).toHaveSource(/package WorkshopViews/);
@@ -119,11 +122,12 @@ test('@critical creates a native view declaration through a reviewed transaction
   await expect(
     page.getByRole('button', { name: 'CompressorDetail', exact: true }),
   ).toBeVisible();
-  const view = page
-    .getByRole('group', { name: 'Model header', exact: true })
-    .getByRole('combobox', { name: 'Named view', exact: true });
+  const view = activeWorkspaceTab(page);
   await expect(view).toBeVisible();
-  await expect(view).toHaveValue('Workshop::CompressorDetail');
+  await expect(view).toHaveAttribute(
+    'title',
+    'view:' + 'Workshop::CompressorDetail',
+  );
   await expect(diagramNode(page, 'primary : Motor')).toBeVisible();
   await expect(diagramNode(page, 'standby : Motor')).toBeVisible();
   const bundle = (await downloadProject(page)).bundle;

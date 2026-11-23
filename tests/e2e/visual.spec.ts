@@ -1,3 +1,6 @@
+import { selectExplorationScope } from './support';
+import { openProjectData } from './support';
+import { activeWorkspaceTab, openNamedView } from './support';
 import { openRoverReport } from './document-support';
 import { readFile } from 'node:fs/promises';
 import { noViews, assemblyExploration, documents } from './exploration-support';
@@ -686,8 +689,8 @@ for (const theme of ['light', 'dark']) {
           page.getByRole('button', { name: 'Show Explorer', exact: true }),
         ).toBeFocused();
       }
-      const scope = page.getByRole('combobox', {
-        name: 'Exploration scope',
+      const scope = page.getByRole('button', {
+        name: 'Change exploration scope',
         exact: true,
       });
       const representation = page.getByRole('combobox', {
@@ -704,7 +707,7 @@ for (const theme of ['light', 'dark']) {
       await expect(page).toHaveScreenshot(
         `exploration-overview-${theme}-${width}.png`,
       );
-      await scope.selectOption('P::System');
+      await selectExplorationScope(page, 'P::System');
       await expect(scope).toBeEnabled();
       await representation.selectOption('interconnection');
       await expect(
@@ -767,11 +770,11 @@ for (const theme of ['light', 'dark'])
       await expect(page).toHaveScreenshot(
         `assembly-exploration-overview-${theme}-${width}.png`,
       );
-      const scope = page.getByRole('combobox', {
-        name: 'Exploration scope',
+      const scope = page.getByRole('button', {
+        name: 'Change exploration scope',
         exact: true,
       });
-      await scope.selectOption('Assembly::Station');
+      await selectExplorationScope(page, 'Assembly::Station');
       await expect(scope).toBeEnabled();
       const representation = page.getByRole('combobox', {
         name: 'Exploration representation',
@@ -882,9 +885,7 @@ for (const theme of ['light', 'dark']) {
     await page.mouse.move(0, 0);
     await page.keyboard.press('Escape');
     await expect(page.getByRole('tooltip')).not.toBeVisible();
-    await page
-      .getByRole('combobox', { name: 'Named view', exact: true })
-      .focus();
+    await activeWorkspaceTab(page).focus();
     await page.getByRole('button', { name: 'Fit view', exact: true }).click();
     await page.evaluate(() => document.fonts.ready);
     await page.mouse.move(0, 0);
@@ -929,12 +930,9 @@ for (const theme of ['light', 'dark'])
         page.getByRole('button', { name: 'Appearance', exact: true }),
       ).toBeFocused();
       if (width === 768) await hideExplorer(page);
-      const selector = page.getByRole('combobox', {
-        name: 'Named view',
-        exact: true,
-      });
+      const selector = activeWorkspaceTab(page);
       for (const view of ['mission', 'lifecycle', 'requirements']) {
-        await selector.selectOption('RoverViews::' + view);
+        await openNamedView(page, 'RoverViews::' + view);
         await expect(selector).toBeEnabled();
         await page
           .getByRole('button', { name: 'Fit view', exact: true })
@@ -985,9 +983,7 @@ for (const theme of ['light', 'dark']) {
         await dialog.getByLabel('Theme', { exact: true }).selectOption(theme);
         await dialog.getByRole('button', { name: 'Done', exact: true }).click();
         await page.setViewportSize({ width, height: 900 });
-        await page
-          .getByRole('button', { name: representation, exact: true })
-          .click();
+        await openProjectData(page, representation);
         const panel = page.getByRole('region', {
           name: representation,
           exact: true,
@@ -1152,9 +1148,10 @@ for (const theme of ['light', 'dark']) {
           ),
         ),
       });
-      await expect(
-        page.getByRole('combobox', { name: 'Named view', exact: true }),
-      ).toHaveValue('Views::both');
+      await expect(activeWorkspaceTab(page)).toHaveAttribute(
+        'title',
+        'view:' + 'Views::both',
+      );
       await expect
         .poll(() => evaluations.some((view) => view.view === 'Views::both'))
         .toBe(true);
@@ -1209,9 +1206,7 @@ for (const theme of ['light', 'dark'])
         mimeType: 'text/plain',
         buffer,
       });
-      await expect(
-        page.getByRole('combobox', { name: 'Named view', exact: true }),
-      ).toBeEnabled();
+      await expect(activeWorkspaceTab(page)).toBeEnabled();
       await page
         .getByRole('button', { name: 'Appearance', exact: true })
         .click();
@@ -1363,16 +1358,15 @@ for (const theme of ['light', 'dark'])
         exact: true,
       });
       await expect(header).toContainText('Applied revision · draft pending');
-      await expect(
-        header.getByRole('combobox', { name: 'Named view', exact: true }),
-      ).toHaveValue('WorkshopViews::overview');
+      await expect(activeWorkspaceTab(page)).toHaveAttribute(
+        'title',
+        'view:' + 'WorkshopViews::overview',
+      );
       await page.mouse.move(0, 0);
       await expect(page).toHaveScreenshot(
         `model-header-diagram-${theme}-${width}.png`,
       );
-      await header
-        .getByRole('button', { name: 'Requirements table', exact: true })
-        .click();
+      await openProjectData(page, 'Requirements table');
       await expect(
         page
           .getByRole('region', { name: 'Requirements table', exact: true })
@@ -1444,13 +1438,13 @@ test('workbench selection and focus in forced colors', async ({ page }) => {
   await page
     .getByRole('button', { name: 'Show source and model', exact: true })
     .click();
-  const header = page.getByRole('group', { name: 'Model header', exact: true });
-  await header
-    .getByRole('button', { name: 'Requirements table', exact: true })
+  await page
+    .getByRole('button', { name: 'Open workspace tab', exact: true })
     .focus();
-  await expect(
-    header.getByRole('button', { name: 'Diagram view', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'aria-selected',
+    'true',
+  );
   await expect(page).toHaveScreenshot(
     'workbench-forced-colors-selection-focus.png',
   );
@@ -1495,5 +1489,52 @@ for (const theme of ['light', 'dark'])
       await expect(page).toHaveScreenshot(
         `document-embedded-${theme}-${width}.png`,
       );
+    });
+  }
+
+for (const theme of ['light', 'dark'])
+  for (const width of [1440, 390]) {
+    test(`workspace content picker in ${theme} at ${width}`, async ({
+      page,
+    }) => {
+      await ready(page, { split: false, inspection: false });
+      await page.setViewportSize({ width, height: 900 });
+      await hideExplorer(page);
+      await page
+        .getByRole('button', { name: 'Appearance', exact: true })
+        .click();
+      const appearance = page.getByRole('dialog', {
+        name: 'Appearance',
+        exact: true,
+      });
+      await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
+      await appearance
+        .getByRole('button', { name: 'Done', exact: true })
+        .click();
+      await expect(appearance).not.toBeVisible();
+      const trigger = page.getByRole('button', {
+        name: 'Open workspace tab',
+        exact: true,
+      });
+      await trigger.focus();
+      await trigger.press('Enter');
+      const picker = page.getByRole('dialog', {
+        name: 'Open workspace tab',
+        exact: true,
+      });
+      await expect(picker).toBeVisible();
+      await expect(
+        picker.getByRole('button', { name: 'Requirements table', exact: true }),
+      ).toBeVisible();
+      const bounds = await picker.boundingBox();
+      expect(bounds!.x).toBeGreaterThanOrEqual(0);
+      expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(width);
+      await page.mouse.move(0, 0);
+      await expect(page).toHaveScreenshot(
+        `workspace-picker-${theme}-${width}.png`,
+      );
+      await page.keyboard.press('Escape');
+      await expect(picker).not.toBeVisible();
+      await expect(trigger).toBeFocused();
     });
   }

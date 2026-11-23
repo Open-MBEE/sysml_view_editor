@@ -1,3 +1,4 @@
+import { activeWorkspaceTab } from './support';
 import { readFile, writeFile } from 'node:fs/promises';
 import { test, expect, importWorkshop } from './support';
 
@@ -54,21 +55,31 @@ test('@critical exposes navigation disclosures and independent representation st
   await expect(
     nav.getByRole('tree', { name: 'Model', exact: true }),
   ).toBeVisible();
-  const table = page.getByRole('button', {
-    name: 'Requirements table',
-    exact: true,
-  });
+  await page
+    .getByRole('button', { name: 'Open workspace tab', exact: true })
+    .click();
+  const table = page
+    .getByRole('dialog', { name: 'Open workspace tab', exact: true })
+    .getByRole('button', {
+      name: 'Requirements table',
+      exact: true,
+    });
   await table.focus();
   await heard('Requirements table');
   await table.press('Enter');
-  await expect(table).toHaveAttribute('aria-pressed', 'true');
+  await expect(activeWorkspaceTab(page)).toHaveText('Requirements table');
+  await expect(activeWorkspaceTab(page)).toBeFocused();
   await expect(
     page.getByRole('group', { name: 'Model header', exact: true }),
   ).toContainText('Project-wide requirements');
   const header = await page
     .getByRole('group', { name: 'Model header', exact: true })
     .ariaSnapshot();
-  expect(header).toContain('button "Requirements table" [pressed]');
+  expect(
+    await page
+      .getByRole('tablist', { name: 'Workspace documents', exact: true })
+      .ariaSnapshot(),
+  ).toContain('tab "Requirements table" [selected]');
   expect(header).not.toContain('Named view');
   await page
     .getByRole('button', { name: 'Show source only', exact: true })
