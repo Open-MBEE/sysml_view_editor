@@ -1,10 +1,10 @@
 # Next steps
 
-Updated 2026-11-05. This is the forward plan; [capabilities](capabilities.md) describes shipped behavior and [verification](verification.md) records actual checks. No delivery dates are assigned.
+Updated 2026-11-23. This is the forward plan; [capabilities](capabilities.md) describes shipped behavior and [verification](verification.md) records actual checks. No delivery dates are assigned.
 
 ## Current position
 
-The editor supports reviewed rename/view/part/connection commands, bounded layout preservation, CodeMirror source editing and draft language queries, issue navigation, resizable panels and explicit browser recovery. The OpenMBEE landing → launcher → workbench flow is implemented. Opening the app does not load an example implicitly. The in-progress `feature/automatic-exploration` slice also opens project/package overviews and explicit part subjects without authored views.
+The editor supports reviewed rename/view/part/connection commands, bounded layout preservation, CodeMirror source editing and draft language queries, issue navigation, resizable panels and explicit browser recovery. The OpenMBEE landing → launcher → workbench flow is implemented. Opening the app does not load an example implicitly. Read-only model exploration opens project/package overviews and explicit part subjects without authored views. Source-backed values, requirements tables/matrices and read-only generated documents are also implemented within their documented bounds. The [November stabilization review](research/stabilization-2026-11.md) records the current PR and bug triage; it does not establish deployment.
 
 ## 1. Requirements and satisfaction diagrams
 

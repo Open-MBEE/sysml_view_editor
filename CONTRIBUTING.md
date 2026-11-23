@@ -1,6 +1,6 @@
 # Contributing
 
-Start with the [documentation index](docs/README.md), [current capabilities](docs/capabilities.md) and [next steps](docs/next-steps.md). The source/assembly editing workflow and explicit entry shell are implemented within their documented limits. Automatic read-only model exploration is the next feature priority; follow its [acceptance criteria](docs/architecture/model-exploration.md#first-implementation-slice). Before extending semantic editing, read the [authoring limits](docs/architecture/graphical-authoring.md) and [identity policy](docs/architecture/identity-reconciliation.md).
+Start with the [documentation index](docs/README.md), [current capabilities](docs/capabilities.md) and [next steps](docs/next-steps.md). Source/assembly editing, read-only model exploration, requirements inspection and generated documents are implemented within their documented limits. Follow [next steps](docs/next-steps.md) for remaining work and the [exploration acceptance criteria](docs/architecture/model-exploration.md#first-implementation-slice) when extending that workflow. Before extending semantic editing, read the [authoring limits](docs/architecture/graphical-authoring.md) and [identity policy](docs/architecture/identity-reconciliation.md).
 
 ## Get started
 
@@ -11,7 +11,7 @@ npm ci
 npm run dev -- --host 127.0.0.1
 ```
 
-The app opens an example project. Try opening a named view, applying source, reviewing a part rename, undoing it, and downloading/reopening the project before changing those workflows. The [README](README.md#development) explains engine preparation, prerequisites and browser setup.
+The app opens the project launcher. Choose **Load example** or open local source files. Try opening a named view, applying source, reviewing a part rename, undoing it, and downloading/reopening the project before changing those workflows. The [README](README.md#development) explains engine preparation, prerequisites and browser setup.
 
 Choose a focused user task with a small, non-sensitive SysML fixture. Bug reports should include the input, reproduction steps, expected and observed behavior, browser and relevant engine versions. For feature work, explain the user workflow and acceptance criteria. Discuss changes to public module interfaces, project formats, engine pins or modeling semantics in an issue before broad implementation. Documentation, accessibility improvements and reproducible bug fixtures are useful contributions too.
 
