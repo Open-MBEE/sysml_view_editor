@@ -26,34 +26,39 @@ export function SourceValues({
             ? value.provider.origin
             : row.subject.origin;
         return (
-          <details key={row.subject.id} open={rows.length === 1}>
-            <summary>{row.name || 'Unnamed attribute'}</summary>
-            <dl>
-              <dt>Declaration</dt>
-              <dd>{row.subject.qualifiedName ?? row.subject.id}</dd>
-              {row.type && (
-                <>
-                  <dt>Type</dt>
-                  <dd>{row.type}</dd>
-                </>
-              )}
-              {value.status === 'available' && (
-                <>
-                  <dt>
-                    {value.isInitial
-                      ? 'Initial expression'
-                      : value.isDefault
-                        ? 'Default expression'
-                        : 'Authored expression'}
-                  </dt>
-                  <dd>
-                    <pre>{value.expression}</pre>
-                  </dd>
-                  <dt>Value declared by</dt>
-                  <dd>{value.provider.qualifiedName ?? value.provider.id}</dd>
-                </>
-              )}
-            </dl>
+          <article className="source-value-card" key={row.subject.id}>
+            <h4>{row.name || 'Unnamed attribute'}</h4>
+            {value.status === 'available' && (
+              <>
+                <span className="source-value-label">
+                  {value.isInitial
+                    ? 'Initial expression'
+                    : value.isDefault
+                      ? 'Default expression'
+                      : 'Authored expression'}
+                </span>
+                <pre>{value.expression}</pre>
+              </>
+            )}
+            <details>
+              <summary>Declaration details</summary>
+              <dl>
+                <dt>Declaration</dt>
+                <dd>{row.subject.qualifiedName ?? row.subject.id}</dd>
+                {row.type && (
+                  <>
+                    <dt>Type</dt>
+                    <dd>{row.type}</dd>
+                  </>
+                )}
+                {value.status === 'available' && (
+                  <>
+                    <dt>Value declared by</dt>
+                    <dd>{value.provider.qualifiedName ?? value.provider.id}</dd>
+                  </>
+                )}
+              </dl>
+            </details>
             {value.status === 'absent' && (
               <p>
                 No declared expression found. Bindings and evaluated values are
@@ -73,7 +78,7 @@ export function SourceValues({
                 : 'Open attribute source'}{' '}
               for {row.name || 'unnamed attribute'}
             </Button>
-          </details>
+          </article>
         );
       })}
     </section>

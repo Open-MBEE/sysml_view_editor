@@ -6,13 +6,16 @@ import type { WorkspaceState } from '$lib/workspace/createWorkspace';
 import type { EvaluatedView } from '$lib/workspace/views';
 
 export function ModelPaneHeader({
+  title,
   representation,
   onRepresentation,
   state,
   view,
   exploring,
   children,
+  actions,
 }: {
+  title?: string;
   representation: 'diagram' | 'table' | 'matrix' | 'document';
   onRepresentation: (mode: 'diagram' | 'table' | 'matrix' | 'document') => void;
   state: Pick<
@@ -22,6 +25,7 @@ export function ModelPaneHeader({
   view: EvaluatedView | null;
   exploring: boolean;
   children: ReactNode;
+  actions?: ReactNode;
 }) {
   return (
     <header
@@ -29,14 +33,13 @@ export function ModelPaneHeader({
       role="group"
       aria-label="Model header"
     >
+      <h2 className="model-workspace-title">{title || 'Model'}</h2>
       <div className="model-header-primary">
         <div
           className="model-data-tabs"
           role="group"
           aria-label="Model representation"
         >
-          <strong>Model</strong>
-          <span className="model-representation-label">Representation</span>
           {(
             [
               ['diagram', 'Diagram view', Network],
@@ -60,6 +63,7 @@ export function ModelPaneHeader({
             </Button>
           ))}
         </div>
+        {actions}
       </div>
       <p className="model-header-status">
         {state.busy

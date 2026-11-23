@@ -11,17 +11,16 @@ import type {
   GroupImperativeHandle,
   Layout,
   LayoutChangedMeta,
-  PanelImperativeHandle,
 } from 'react-resizable-panels';
 import {
-  PanelLeftClose,
-  PanelRightOpen,
-  PanelRightClose,
-  PanelBottomClose,
+  PanelLeft,
+  PanelRight,
+  PanelBottom,
+  Maximize2,
+  Minimize2,
+  X,
+  Focus,
   PanelsTopLeft,
-  Ellipsis,
-  ArrowLeftRight,
-  ArrowUpDown,
   RotateCcw,
   TriangleAlert,
 } from 'lucide-react';
@@ -35,290 +34,282 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from '$lib/ui/primitives/popover';
-import { ActivityRail } from './ActivityRail';
 import { Button } from '$lib/ui/primitives/button';
 import { IconButton } from '$lib/ui/IconButton';
 import {
   defaultLayout,
   loadLayout,
   saveLayout,
-  type WorkbenchLayout,
+  type WorkbenchLayout as Preferences,
 } from './layout';
 
 type Mode = 'code' | 'split' | 'diagram';
-type Side = 'explorer' | 'inspector' | 'issues';
-const titles = {
-  explorer: 'Explorer',
-  inspector: 'Inspector',
-  issues: 'Issues',
-};
-const closedKey = {
-  explorer: 'explorerClosed',
-  inspector: 'inspectorClosed',
-  issues: 'issuesClosed',
-} as const;
-function useNarrow() {
-  const [narrow, setNarrow] = useState(
-    () => window.matchMedia('(max-width: 900px)').matches,
-  );
+type Tool = 'explorer' | 'source' | 'inspection';
+type Expanded = Tool | 'canvas' | null;
+function useLayoutController(mode: Mode, onMode: (mode: Mode) => void) {
+  const [initial] = useState(() => {
+    try {
+      return { value: loadLayout(window.localStorage, false), failed: false };
+    } catch {
+      return { value: { ...defaultLayout }, failed: true };
+    }
+  });
+  const [preferences, setPreferences] = useState(initial.value);
+  const saved = useRef(initial.value);
+  const [storageFailed, setStorageFailed] = useState(initial.failed);
+  const [expanded, setExpanded] = useState<Expanded>(null);
+  const [narrow, setNarrow] = useState(() => window.innerWidth <= 900);
+  const outer = useRef<GroupImperativeHandle>(null);
+  const editors = useRef<GroupImperativeHandle>(null);
+  const vertical = useRef<GroupImperativeHandle>(null);
+  const toggleExplorer = useRef<HTMLButtonElement>(null);
+  const toggleSource = useRef<HTMLButtonElement>(null);
+  const toggleInspection = useRef<HTMLButtonElement>(null);
+  const toggleFocus = useRef<HTMLButtonElement>(null);
+  const triggers = {
+    explorer: toggleExplorer,
+    source: toggleSource,
+    inspection: toggleInspection,
+  };
+  const focusTarget = useRef<HTMLButtonElement | null>(null);
+  function remember(patch: Partial<Preferences>) {
+    const next = { ...saved.current, ...patch };
+    saved.current = next;
+    setPreferences(next);
+    try {
+      setStorageFailed(!saveLayout(window.localStorage, next));
+    } catch {
+      setStorageFailed(true);
+    }
+  }
   useEffect(() => {
     const media = window.matchMedia('(max-width: 900px)');
     const changed = () => setNarrow(media.matches);
     media.addEventListener('change', changed);
     return () => media.removeEventListener('change', changed);
   }, []);
-  return narrow;
-}
-function useLayoutController(mode: Mode) {
-  const narrow = useNarrow();
-  const [initial] = useState(() => {
-    try {
-      return { value: loadLayout(window.localStorage, narrow), failed: false };
-    } catch {
-      return {
-        value: { ...defaultLayout, inspectorClosed: narrow },
-        failed: true,
-      };
-    }
-  });
-  const [splitSize, setSplitSize] = useState(initial.value.split);
-  function observeSplit(value: number) {
-    setSplitSize((before) =>
-      Math.abs(before - value) < 0.01 ? before : value,
-    );
-  }
-  const preferences = useRef(initial.value);
-  const [closed, setClosed] = useState<Record<Side, boolean>>({
-    explorer: initial.value.explorerClosed,
-    inspector: initial.value.inspectorClosed,
-    issues: initial.value.issuesClosed,
-  });
-  const [storageFailed, setStorageFailed] = useState(initial.failed);
-  const explorer = useRef<PanelImperativeHandle>(null),
-    inspector = useRef<PanelImperativeHandle>(null),
-    issues = useRef<PanelImperativeHandle>(null);
-  const source = useRef<PanelImperativeHandle>(null),
-    diagram = useRef<PanelImperativeHandle>(null);
-  const outerGroup = useRef<GroupImperativeHandle>(null),
-    editorGroup = useRef<GroupImperativeHandle>(null),
-    verticalGroup = useRef<GroupImperativeHandle>(null);
-  const explorerToggle = useRef<HTMLButtonElement>(null),
-    inspectorToggle = useRef<HTMLButtonElement>(null),
-    issuesToggle = useRef<HTMLButtonElement>(null);
-  const explorerCollapse = useRef<HTMLButtonElement>(null),
-    inspectorCollapse = useRef<HTMLButtonElement>(null),
-    issuesCollapse = useRef<HTMLButtonElement>(null);
-  const panels = { explorer, inspector, issues };
-  const toggles = {
-    explorer: explorerToggle,
-    inspector: inspectorToggle,
-    issues: issuesToggle,
+  const visible = {
+    explorer: expanded
+      ? expanded === 'explorer'
+      : !preferences.explorerClosed && (!narrow || mode === 'diagram'),
+    source: expanded ? expanded === 'source' : mode !== 'diagram',
+    inspection: expanded
+      ? expanded === 'inspection'
+      : mode !== 'code' && !preferences.inspectionClosed,
+    canvas: expanded ? expanded === 'canvas' : mode !== 'code',
   };
-  const collapseButtons = {
-    explorer: explorerCollapse,
-    inspector: inspectorCollapse,
-    issues: issuesCollapse,
-  };
-  function remember(patch: Partial<WorkbenchLayout>) {
-    const next = { ...preferences.current, ...patch };
-    if (JSON.stringify(next) === JSON.stringify(preferences.current)) return;
-    preferences.current = next;
-    try {
-      setStorageFailed(!saveLayout(window.localStorage, next));
-    } catch {
-      setStorageFailed(true);
+  useEffect(() => {
+    const closed = mode === 'diagram';
+    if (saved.current.sourceClosed !== closed)
+      remember({ sourceClosed: closed });
+  }, [mode]);
+  // Apply after the panel library registers changed size constraints. Normal
+  // preferences remain independent of temporary focus/maximise layouts.
+  useEffect(() => {
+    const apply = () => {
+      outer.current?.setLayout({
+        explorer:
+          expanded === 'explorer'
+            ? 100
+            : visible.explorer
+              ? preferences.explorer
+              : 0,
+        editors:
+          expanded === 'explorer'
+            ? 0
+            : visible.explorer
+              ? 100 - preferences.explorer
+              : 100,
+      });
+      editors.current?.setLayout({
+        centre: visible.source
+          ? visible.canvas || visible.inspection
+            ? 100 - preferences.source
+            : 0
+          : 100,
+        source: visible.source
+          ? visible.canvas || visible.inspection
+            ? preferences.source
+            : 100
+          : 0,
+      });
+      vertical.current?.setLayout({
+        diagram: visible.canvas
+          ? visible.inspection
+            ? 100 - preferences.inspection
+            : 100
+          : 0,
+        inspection: visible.inspection
+          ? visible.canvas
+            ? preferences.inspection
+            : 100
+          : 0,
+      });
+    };
+    const frame = requestAnimationFrame(apply);
+    focusTarget.current?.focus({ preventScroll: true });
+    focusTarget.current = null;
+    return () => cancelAnimationFrame(frame);
+  }, [
+    expanded,
+    visible.explorer,
+    visible.source,
+    visible.inspection,
+    visible.canvas,
+    preferences.explorer,
+    preferences.source,
+    preferences.inspection,
+    narrow,
+  ]);
+  function show(id: Tool, focus = false) {
+    setExpanded(null);
+    if (id === 'source') {
+      if (mode === 'diagram') onMode('split');
+    } else if (id === 'explorer') {
+      remember({ explorerClosed: false });
+      if (narrow) onMode('diagram');
+    } else {
+      remember({ inspectionClosed: false });
+      if (mode === 'code') onMode('split');
     }
+    if (focus) focusTarget.current = triggers[id].current;
   }
-  const [focusRequest, setFocusRequest] = useState<{
-    id: Side;
-    collapsed: boolean;
-  } | null>(null);
-  const [opening, setOpening] = useState<Side | null>(null);
-  useLayoutEffect(() => {
-    if (
-      opening ||
-      !focusRequest ||
-      closed[focusRequest.id] !== focusRequest.collapsed
-    )
-      return;
-    const target = focusRequest.collapsed
-      ? toggles[focusRequest.id]
-      : collapseButtons[focusRequest.id];
-    target.current?.focus({ preventScroll: true });
-    setFocusRequest(null);
-  }, [focusRequest, closed, opening]);
-  useLayoutEffect(() => {
-    if (!opening) return;
-    // Release the collapsed tool's reopen rail before allocating its width.
-    // Otherwise the rail + activity bar + minimum editors can prevent expansion.
-    const minimum = opening === 'inspector' ? 190 : 145;
-    panels[opening].current?.resize(
-      opening !== 'issues' &&
-        (window.innerWidth * preferences.current[opening]) / 100 < minimum
-        ? `${minimum}px`
-        : `${preferences.current[opening]}%`,
-    );
-    setOpening(null);
-  }, [opening]);
-  function show(id: Side, transferFocus = true) {
-    const panel = panels[id].current;
-    if (!panel) return;
-    // On small screens a side tool must leave room for the editor.
-    if (window.innerWidth < 600 && id !== 'issues') {
-      const other = id === 'explorer' ? 'inspector' : 'explorer';
-      panels[other].current?.collapse();
-      remember({ [closedKey[other]]: true });
-    }
-    // A remembered desktop percentage can fall below a side tool's pixel
-    // minimum on a phone; the panel library may then keep it collapsed.
-    setClosed((before) => ({ ...before, [id]: false }));
-    setOpening(id);
-    remember({ [closedKey[id]]: false });
-    if (transferFocus) setFocusRequest({ id, collapsed: false });
+  function hide(id: Tool) {
+    setExpanded(null);
+    if (id === 'source') onMode('diagram');
+    else
+      remember(
+        id === 'explorer'
+          ? { explorerClosed: true }
+          : { inspectionClosed: true },
+      );
+    triggers[id].current?.focus({ preventScroll: true });
   }
-  function hide(id: Side) {
-    panels[id].current?.collapse();
-    remember({ [closedKey[id]]: true });
-    setFocusRequest({ id, collapsed: true });
+  function toggle(id: Tool) {
+    if (visible[id]) hide(id);
+    else show(id);
   }
-  function resize(id: Side, delta: number) {
-    const panel = panels[id].current;
-    if (!panel) return;
-    const value = Math.max(
-      id === 'issues' ? 12 : 5,
-      Math.min(id === 'issues' ? 60 : 45, panel.getSize().asPercentage + delta),
-    );
-    panel.resize(`${value}%`);
-    remember({ [id]: value, [closedKey[id]]: false });
+  function inspect(tab: Preferences['inspectionTab'], focus = false) {
+    remember({ inspectionClosed: false, inspectionTab: tab });
+    if (mode === 'code') onMode('split');
+    setExpanded(null);
+    if (focus) focusTarget.current = toggleInspection.current;
   }
-  function resizeSplit(delta: number) {
-    const value = Math.max(10, Math.min(90, preferences.current.split + delta));
-    editorGroup.current?.setLayout({ source: value, diagram: 100 - value });
-    remember({ split: value });
+  function maximize(id: Tool) {
+    setExpanded((before) => (before === id ? null : id));
+    focusTarget.current = triggers[id].current;
+  }
+  function focus() {
+    setExpanded((before) => (before === 'canvas' ? null : 'canvas'));
+    focusTarget.current = toggleFocus.current;
   }
   function changed(
-    kind: 'outer' | 'editors' | 'vertical',
-    layout: Layout,
+    group: 'outer' | 'editors' | 'vertical',
+    value: Layout,
     meta: LayoutChangedMeta,
   ) {
-    if (!meta.isUserInteraction) return;
-    const wanted = meta.requestedLayout ?? layout;
-    if (kind === 'editors') {
-      if (mode === 'split' && wanted.source! >= 10 && wanted.source! <= 90)
-        remember({ split: wanted.source });
-      return;
+    if (!meta.isUserInteraction || expanded) return;
+    const wanted = meta.requestedLayout ?? value;
+    if (group === 'outer')
+      remember({
+        explorerClosed: value.explorer === 0,
+        ...(wanted.explorer! >= 5 && wanted.explorer! <= 45
+          ? { explorer: wanted.explorer }
+          : {}),
+      });
+    if (group === 'editors' && mode === 'split') {
+      if (value.source === 0) onMode('diagram');
+      else if (wanted.source! >= 10 && wanted.source! <= 65)
+        remember({ source: wanted.source });
     }
-    const ids: Side[] =
-      kind === 'outer' ? ['explorer', 'inspector'] : ['issues'];
-    const patch: Partial<WorkbenchLayout> = {};
-    for (const id of ids) {
-      const collapsed = layout[id] === 0;
-      patch[closedKey[id]] = collapsed;
-      if (!collapsed)
-        patch[id] = Math.max(
-          id === 'issues' ? 12 : 5,
-          Math.min(id === 'issues' ? 60 : 45, wanted[id]!),
-        );
-      if (
-        collapsed &&
-        document.activeElement?.getAttribute('aria-label') ===
-          `Resize ${titles[id]}`
-      )
-        setFocusRequest({ id, collapsed: true });
-    }
-    remember(patch);
-  }
-  function observe(id: Side, size: number) {
-    const value = size === 0;
-    setClosed((before) =>
-      before[id] === value ? before : { ...before, [id]: value },
-    );
+    if (group === 'vertical')
+      remember({
+        inspectionClosed: value.inspection === 0,
+        ...(wanted.inspection! >= 12 && wanted.inspection! <= 60
+          ? { inspection: wanted.inspection }
+          : {}),
+      });
   }
   function reset() {
-    const next = { ...defaultLayout, inspectorClosed: narrow };
-    preferences.current = next;
-    outerGroup.current?.setLayout({
-      explorer: next.explorer,
-      editors:
-        100 - next.explorer - (next.inspectorClosed ? 0 : next.inspector),
-      inspector: next.inspectorClosed ? 0 : next.inspector,
-    });
-    editorGroup.current?.setLayout(
-      mode === 'split'
-        ? { source: next.split, diagram: 100 - next.split }
-        : {
-            source: mode === 'code' ? 100 : 0,
-            diagram: mode === 'diagram' ? 100 : 0,
-          },
-    );
-    verticalGroup.current?.setLayout({ workspace: 100, issues: 0 });
-    try {
-      setStorageFailed(!saveLayout(window.localStorage, next));
-    } catch {
-      setStorageFailed(true);
-    }
+    remember({ ...defaultLayout });
+    setExpanded(null);
+    onMode('diagram');
   }
-  useEffect(() => {
-    const ratio = preferences.current.split;
-    editorGroup.current?.setLayout({
-      source: mode === 'diagram' ? 0 : mode === 'code' ? 100 : ratio,
-      diagram: mode === 'code' ? 0 : mode === 'diagram' ? 100 : 100 - ratio,
-    });
-  }, [mode, narrow]);
-  useEffect(() => {
-    // Panel constraint registration may finish after the mode effect. Reapply
-    // a single-pane layout when the resize callback reports leftover space.
-    if (mode === 'code' && splitSize !== 100)
-      editorGroup.current?.setLayout({ source: 100, diagram: 0 });
-    else if (mode === 'diagram' && splitSize !== 0)
-      editorGroup.current?.setLayout({ source: 0, diagram: 100 });
-  }, [mode, splitSize]);
   return {
-    observeSplit,
     mode,
-    narrow,
+    onMode,
+    preferences,
+    visible,
     initial: initial.value,
-    closed,
     storageFailed,
-    panels,
-    source,
-    diagram,
-    outerGroup,
-    editorGroup,
-    verticalGroup,
-    toggles,
-    collapseButtons,
+    expanded,
+    narrow,
+    outer,
+    editors,
+    vertical,
+    triggers,
+    toggleFocus,
+    remember,
     show,
     hide,
-    resize,
-    resizeSplit,
+    toggle,
+    inspect,
+    maximize,
+    focus,
     changed,
-    observe,
     reset,
   };
 }
 type Controller = ReturnType<typeof useLayoutController>;
 const PanelContext = createContext<Controller | null>(null);
 function usePanels() {
-  const layout = useContext(PanelContext);
-  if (!layout) throw new Error('Workspace panel provider is missing.');
-  return layout;
+  const value = useContext(PanelContext);
+  if (!value) throw new Error('Workspace panel provider is missing.');
+  return value;
 }
 export function WorkbenchLayout({
   mode,
+  onMode,
   children,
 }: {
   mode: Mode;
+  onMode: (mode: Mode) => void;
   children: ReactNode;
 }) {
   return (
-    <PanelContext value={useLayoutController(mode)}>{children}</PanelContext>
+    <PanelContext value={useLayoutController(mode, onMode)}>
+      {children}
+    </PanelContext>
   );
 }
 export function PanelControls() {
-  const layout = usePanels();
+  const c = usePanels();
   return (
-    <div className="panel-controls" aria-label="Workspace panels">
+    <div className="panel-controls" role="group" aria-label="Workspace panels">
+      {(['explorer', 'inspection', 'source'] as const).map((id) => (
+        <IconButton
+          key={id}
+          ref={c.triggers[id]}
+          label={`${c.visible[id] ? 'Hide' : 'Show'} ${id === 'inspection' ? 'Inspector' : id === 'explorer' ? 'Explorer' : 'Source'}`}
+          icon={
+            id === 'explorer'
+              ? PanelLeft
+              : id === 'source'
+                ? PanelRight
+                : PanelBottom
+          }
+          aria-pressed={c.visible[id]}
+          aria-controls={`workspace-${id}`}
+          onClick={() => c.toggle(id)}
+        />
+      ))}
+      <IconButton
+        ref={c.toggleFocus}
+        label={c.expanded === 'canvas' ? 'Restore workspace' : 'Focus model'}
+        icon={Focus}
+        aria-pressed={c.expanded === 'canvas'}
+        onClick={c.focus}
+      />
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="ghost" size="icon-sm" aria-label="Workspace layout">
@@ -331,26 +322,11 @@ export function PanelControls() {
           aria-label="Workspace layout options"
         >
           <h2>Workspace layout</h2>
-          <p>Resize panels without changing your project.</p>
-          <Button
-            variant="ghost"
-            disabled={layout.mode !== 'split'}
-            onClick={() => layout.resizeSplit(5)}
-          >
-            More source space
-          </Button>
-          <Button
-            variant="ghost"
-            disabled={layout.mode !== 'split'}
-            onClick={() => layout.resizeSplit(-5)}
-          >
-            More diagram space
-          </Button>
-          <Button variant="ghost" onClick={layout.reset}>
+          <Button variant="ghost" onClick={c.reset}>
             <RotateCcw aria-hidden="true" />
             Reset layout
           </Button>
-          {layout.storageFailed && (
+          {c.storageFailed && (
             <p role="status">
               Layout preferences cannot be saved. Changes remain available for
               this visit.
@@ -361,99 +337,49 @@ export function PanelControls() {
     </div>
   );
 }
-function CollapsedRail({ id }: { id: 'inspector' }) {
-  const layout = usePanels();
-  if (!layout.closed[id]) return null;
+export function InspectButton() {
+  const c = usePanels();
   return (
-    <div
-      className="panel-rail"
-      role="toolbar"
-      aria-label="Inspector panel reopen"
-    >
-      <IconButton
-        ref={layout.toggles[id]}
-        label={`Show ${titles[id]}`}
-        icon={PanelRightOpen}
-        aria-expanded={false}
-        onClick={() => layout.show(id)}
-      />
-    </div>
+    <Button variant="ghost" size="xs" onClick={() => c.inspect('properties')}>
+      Inspect selection
+    </Button>
   );
 }
 export function IssuesToggle({ count }: { count: number }) {
-  const layout = usePanels();
+  const c = usePanels();
+  const open = c.visible.inspection && c.preferences.inspectionTab === 'issues';
   return (
     <Button
-      ref={layout.toggles.issues}
       variant="ghost"
       size="xs"
-      aria-label={`${layout.closed.issues ? 'Show' : 'Hide'} Issues`}
-      aria-expanded={!layout.closed.issues}
-      onClick={() =>
-        layout.closed.issues ? layout.show('issues') : layout.hide('issues')
-      }
+      aria-label={`${open ? 'Hide' : 'Show'} Issues`}
+      aria-expanded={open}
+      onClick={() => (open ? c.hide('inspection') : c.inspect('issues'))}
     >
       <TriangleAlert aria-hidden="true" />
       Issues ({count})
     </Button>
   );
 }
-function SideHeader({ id }: { id: Side }) {
-  const layout = usePanels();
+function ToolActions({ id }: { id: Tool }) {
+  const c = usePanels();
+  const name =
+    id === 'inspection' ? 'Inspector' : id === 'source' ? 'Source' : 'Explorer';
   return (
-    <header className="panel-header">
-      <h2 data-tour-explorer={id === 'explorer' ? '' : undefined}>
-        {titles[id]}
-      </h2>
-      <div className="panel-header-actions">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              aria-label={`${titles[id]} panel options`}
-            >
-              <Ellipsis aria-hidden="true" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            className="layout-options"
-            aria-label={`${titles[id]} panel size`}
-          >
-            <Button variant="ghost" onClick={() => layout.resize(id, -4)}>
-              {id === 'issues' ? (
-                <ArrowUpDown aria-hidden="true" />
-              ) : (
-                <ArrowLeftRight aria-hidden="true" />
-              )}
-              {id === 'issues' ? 'Shorter' : 'Narrow'} {titles[id]}
-            </Button>
-            <Button variant="ghost" onClick={() => layout.resize(id, 4)}>
-              {id === 'issues' ? (
-                <ArrowUpDown aria-hidden="true" />
-              ) : (
-                <ArrowLeftRight aria-hidden="true" />
-              )}
-              {id === 'issues' ? 'Taller' : 'Widen'} {titles[id]}
-            </Button>
-          </PopoverContent>
-        </Popover>
-        <IconButton
-          ref={layout.collapseButtons[id]}
-          size="icon-xs"
-          label={`Collapse ${titles[id]}`}
-          icon={
-            id === 'explorer'
-              ? PanelLeftClose
-              : id === 'inspector'
-                ? PanelRightClose
-                : PanelBottomClose
-          }
-          onClick={() => layout.hide(id)}
-        />
-      </div>
-    </header>
+    <div className="panel-header-actions">
+      <IconButton
+        size="icon-xs"
+        label={`${c.expanded === id ? 'Restore' : 'Maximize'} ${name}`}
+        icon={c.expanded === id ? Minimize2 : Maximize2}
+        onClick={() => c.maximize(id)}
+      />
+      <IconButton
+        size="icon-xs"
+        label={`Collapse ${name}`}
+        icon={X}
+        onClick={() => c.hide(id)}
+      />
+    </div>
   );
 }
 const hitTarget = { coarse: 24, fine: 10 };
@@ -462,204 +388,292 @@ export function WorkbenchPanels({
   source,
   diagram,
   inspector,
+  relationships,
   issues,
   issueKey,
   inspectionRequest,
+  sourceRequest,
 }: {
   explorer: ReactNode;
   source: ReactNode;
   diagram: ReactNode;
   inspector: ReactNode;
+  relationships: ReactNode;
   issues: ReactNode;
   issueKey: string;
   inspectionRequest: number;
+  sourceRequest: number;
 }) {
-  const layout = usePanels();
-  const initial = layout.initial;
+  const c = usePanels();
   const lastIssue = useRef('');
+  // Explicit reveal requests belong to this project surface. Mounting its
+  // replacement must not replay requests consumed by the previous project.
+  const requests = useRef({
+    source: sourceRequest,
+    inspection: inspectionRequest,
+  });
+  useEffect(() => {
+    if (
+      sourceRequest !== requests.current.source &&
+      sourceRequest &&
+      !c.visible.source
+    )
+      c.show('source');
+    requests.current.source = sourceRequest;
+  }, [sourceRequest]);
   const sourceContent = useRef<HTMLDivElement>(null);
-  const [sourceMinimum, setSourceMinimum] = useState(100);
+  const [sourceMinimum, setSourceMinimum] = useState(240);
   useLayoutEffect(() => {
-    const header = sourceContent.current?.querySelector('.source-pane-header');
-    if (!header) return;
+    const content = sourceContent.current;
+    if (!content) return;
+    const headers = [
+      ...content.querySelectorAll<HTMLElement>(
+        '.panel-header, .content-tabs, .source-pane-header',
+      ),
+    ];
     const measure = () => {
-      const height = header.getBoundingClientRect().height;
-      // A hidden Source pane has no box; retain its last visible minimum.
+      const height = headers.reduce(
+        (sum, item) => sum + item.getBoundingClientRect().height,
+        0,
+      );
       if (height > 0) setSourceMinimum(Math.ceil(height) + 80);
     };
-    measure();
     const observer = new ResizeObserver(measure);
-    observer.observe(header);
+    headers.forEach((item) => observer.observe(item));
+    measure();
     return () => observer.disconnect();
   }, [source]);
+
   useEffect(() => {
-    if (inspectionRequest) layout.show('inspector', window.innerWidth < 600);
+    if (inspectionRequest !== requests.current.inspection && inspectionRequest)
+      c.inspect('properties');
+    requests.current.inspection = inspectionRequest;
   }, [inspectionRequest]);
   useEffect(() => {
-    if (issueKey && issueKey !== lastIssue.current)
-      layout.show('issues', false);
+    if (issueKey && issueKey !== lastIssue.current) c.inspect('issues');
     lastIssue.current = issueKey;
   }, [issueKey]);
-  const side = (id: 'explorer' | 'inspector', content: ReactNode) => (
-    <ResizablePanel
-      id={id}
-      panelRef={layout.panels[id]}
-      defaultSize={initial[closedKey[id]] ? '0%' : `${initial[id]}%`}
-      minSize={id === 'explorer' ? '145px' : '190px'}
-      maxSize="420px"
-      collapsible
-      collapsedSize="0%"
-      onResize={(size) => {
-        layout.observe(id, size.asPercentage);
-      }}
-    >
-      <div
-        className="panel-content"
-        id={`workspace-${id}`}
-        hidden={layout.closed[id]}
-        inert={layout.closed[id]}
-      >
-        <SideHeader id={id} />
-        {content}
-      </div>
-    </ResizablePanel>
-  );
+  const inspectionTab = c.preferences.inspectionTab;
   return (
     <ResizablePanelGroup
-      id="workspace-vertical"
+      id="workspace-horizontal"
       className="workspace-panels"
-      orientation="vertical"
-      groupRef={layout.verticalGroup}
+      orientation="horizontal"
+      groupRef={c.outer}
       resizeTargetMinimumSize={hitTarget}
-      onLayoutChanged={(value, meta) => layout.changed('vertical', value, meta)}
+      onLayoutChanged={(v, m) => c.changed('outer', v, m)}
     >
       <ResizablePanel
-        id="workspace"
-        defaultSize={initial.issuesClosed ? '100%' : `${100 - initial.issues}%`}
-        minSize="240px"
+        id="explorer"
+        defaultSize={c.initial.explorerClosed ? '0%' : `${c.initial.explorer}%`}
+        minSize={c.narrow ? '140px' : '200px'}
+        maxSize={c.expanded === 'explorer' ? '100%' : '45%'}
+        collapsible
+        collapsedSize="0%"
+      >
+        <div
+          id="workspace-explorer"
+          className="panel-content"
+          hidden={!c.visible.explorer}
+          inert={!c.visible.explorer}
+        >
+          <header className="panel-header">
+            <h2 data-tour-explorer="">Explorer</h2>
+            <ToolActions id="explorer" />
+          </header>
+          {explorer}
+        </div>
+      </ResizablePanel>
+      <ResizableHandle
+        className="workbench-resizer"
+        aria-label="Resize Explorer"
+      />
+      <ResizablePanel
+        id="editors"
+        minSize={c.narrow ? '120px' : '360px'}
+        collapsible
+        collapsedSize="0%"
       >
         <ResizablePanelGroup
-          id="workspace-horizontal"
-          orientation="horizontal"
-          groupRef={layout.outerGroup}
+          id="workspace-editors"
+          orientation={c.narrow ? 'vertical' : 'horizontal'}
+          groupRef={c.editors}
           resizeTargetMinimumSize={hitTarget}
-          onLayoutChanged={(value, meta) =>
-            layout.changed('outer', value, meta)
-          }
+          onLayoutChanged={(v, m) => c.changed('editors', v, m)}
         >
-          <ActivityRail
-            expanded={!layout.closed.explorer}
-            buttonRef={layout.toggles.explorer}
-            onToggle={() =>
-              layout.closed.explorer
-                ? layout.show('explorer')
-                : layout.hide('explorer')
-            }
-          />
-          {side('explorer', explorer)}
-          <ResizableHandle
-            className="workbench-resizer"
-            aria-label="Resize Explorer"
-          />
           <ResizablePanel
-            id="editors"
-            minSize={layout.narrow ? '120px' : '360px'}
+            id="centre"
+            defaultSize="100%"
+            minSize={c.narrow ? '100px' : '240px'}
+            collapsible={c.mode === 'code' || c.expanded === 'source'}
+            collapsedSize="0%"
           >
             <ResizablePanelGroup
-              id="workspace-editors"
-              orientation={layout.narrow ? 'vertical' : 'horizontal'}
-              groupRef={layout.editorGroup}
+              id="workspace-vertical"
+              orientation="vertical"
+              groupRef={c.vertical}
               resizeTargetMinimumSize={hitTarget}
-              onLayoutChanged={(value, meta) =>
-                layout.changed('editors', value, meta)
-              }
+              onLayoutChanged={(v, m) => c.changed('vertical', v, m)}
             >
               <ResizablePanel
-                id="source"
-                panelRef={layout.source}
-                onResize={(size) => layout.observeSplit(size.asPercentage)}
+                id="diagram"
                 defaultSize={
-                  layout.mode === 'diagram'
-                    ? '0%'
-                    : layout.mode === 'code'
-                      ? '100%'
-                      : `${initial.split}%`
+                  c.initial.inspectionClosed
+                    ? '100%'
+                    : `${100 - c.initial.inspection}%`
                 }
-                minSize={layout.narrow ? `${sourceMinimum}px` : '160px'}
-                collapsible={layout.mode !== 'split'}
+                minSize="100px"
+                collapsible
                 collapsedSize="0%"
               >
                 <div
-                  ref={sourceContent}
                   className="editor-content"
-                  hidden={layout.mode === 'diagram'}
-                  inert={layout.mode === 'diagram'}
+                  hidden={!c.visible.canvas}
+                  inert={!c.visible.canvas}
                 >
-                  {source}
+                  {diagram}
                 </div>
               </ResizablePanel>
               <ResizableHandle
-                withHandle={layout.mode === 'split'}
                 className="workbench-resizer"
-                disabled={layout.mode !== 'split'}
-                aria-hidden={layout.mode !== 'split'}
-                aria-label="Resize Source and Diagram"
+                aria-label={
+                  c.preferences.inspectionTab === 'issues'
+                    ? 'Resize Issues'
+                    : 'Resize Inspector'
+                }
               />
               <ResizablePanel
-                id="diagram"
-                panelRef={layout.diagram}
+                id="inspection"
                 defaultSize={
-                  layout.mode === 'code'
-                    ? '0%'
-                    : layout.mode === 'diagram'
-                      ? '100%'
-                      : `${100 - initial.split}%`
+                  c.initial.inspectionClosed ? '0%' : `${c.initial.inspection}%`
                 }
-                minSize={layout.narrow ? '100px' : '200px'}
-                collapsible={layout.mode !== 'split'}
+                minSize="140px"
+                collapsible
                 collapsedSize="0%"
               >
                 <div
-                  className="editor-content"
-                  hidden={layout.mode === 'code'}
-                  inert={layout.mode === 'code'}
+                  id="workspace-inspection"
+                  role="region"
+                  aria-label="Inspection dock"
+                  className="panel-content inspection-dock"
+                  hidden={!c.visible.inspection}
+                  inert={!c.visible.inspection}
                 >
-                  {diagram}
+                  <header className="panel-header">
+                    <div
+                      role="tablist"
+                      aria-label="Inspection panels"
+                      onKeyDown={(event) => {
+                        if (
+                          !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(
+                            event.key,
+                          )
+                        )
+                          return;
+                        const tabs = [
+                          ...event.currentTarget.querySelectorAll<HTMLButtonElement>(
+                            '[role="tab"]',
+                          ),
+                        ];
+                        const current = tabs.indexOf(
+                          document.activeElement as HTMLButtonElement,
+                        );
+                        const next =
+                          event.key === 'Home'
+                            ? 0
+                            : event.key === 'End'
+                              ? tabs.length - 1
+                              : (current +
+                                  (event.key === 'ArrowRight' ? 1 : -1) +
+                                  tabs.length) %
+                                tabs.length;
+                        event.preventDefault();
+                        tabs[next]?.click();
+                        tabs[next]?.focus();
+                      }}
+                    >
+                      {(['properties', 'relationships', 'issues'] as const).map(
+                        (tab) => (
+                          <Button
+                            key={tab}
+                            role="tab"
+                            tabIndex={inspectionTab === tab ? 0 : -1}
+                            aria-selected={inspectionTab === tab}
+                            aria-controls={`inspection-${tab}`}
+                            id={`inspection-tab-${tab}`}
+                            variant="ghost"
+                            size="xs"
+                            onClick={() => c.remember({ inspectionTab: tab })}
+                          >
+                            {tab === 'properties'
+                              ? 'Properties'
+                              : tab === 'relationships'
+                                ? 'Relationships'
+                                : 'Issues'}
+                          </Button>
+                        ),
+                      )}
+                    </div>
+                    <ToolActions id="inspection" />
+                  </header>
+                  <div
+                    id="inspection-properties"
+                    role="tabpanel"
+                    aria-labelledby="inspection-tab-properties"
+                    hidden={inspectionTab !== 'properties'}
+                    inert={inspectionTab !== 'properties'}
+                  >
+                    {inspector}
+                  </div>
+                  <div
+                    id="inspection-relationships"
+                    role="tabpanel"
+                    aria-labelledby="inspection-tab-relationships"
+                    hidden={inspectionTab !== 'relationships'}
+                    inert={inspectionTab !== 'relationships'}
+                  >
+                    {relationships}
+                  </div>
+                  <div
+                    id="inspection-issues"
+                    role="tabpanel"
+                    aria-labelledby="inspection-tab-issues"
+                    hidden={inspectionTab !== 'issues'}
+                    inert={inspectionTab !== 'issues'}
+                  >
+                    {issues}
+                  </div>
                 </div>
               </ResizablePanel>
             </ResizablePanelGroup>
           </ResizablePanel>
           <ResizableHandle
             className="workbench-resizer"
-            aria-label="Resize Inspector"
+            aria-label="Resize Source and Diagram"
           />
-          <CollapsedRail id="inspector" />
-          {side('inspector', inspector)}
+          <ResizablePanel
+            id="source"
+            defaultSize="0%"
+            minSize={c.narrow ? `${sourceMinimum}px` : '280px'}
+            maxSize="100%"
+            collapsible={c.mode !== 'split' || c.expanded !== null}
+            collapsedSize="0%"
+          >
+            <div
+              id="workspace-source"
+              ref={sourceContent}
+              className="editor-content"
+              hidden={!c.visible.source}
+              inert={!c.visible.source}
+            >
+              <header className="panel-header">
+                <h2>Source</h2>
+                <ToolActions id="source" />
+              </header>
+              {source}
+            </div>
+          </ResizablePanel>
         </ResizablePanelGroup>
-      </ResizablePanel>
-      <ResizableHandle
-        className="workbench-resizer"
-        aria-label="Resize Issues"
-      />
-      <ResizablePanel
-        id="issues"
-        panelRef={layout.panels.issues}
-        defaultSize={initial.issuesClosed ? '0%' : `${initial.issues}%`}
-        minSize="96px"
-        maxSize="60%"
-        collapsible
-        collapsedSize="0%"
-        onResize={(size) => layout.observe('issues', size.asPercentage)}
-      >
-        <div
-          className="panel-content"
-          id="workspace-issues"
-          hidden={layout.closed.issues}
-          inert={layout.closed.issues}
-        >
-          <SideHeader id="issues" />
-          {issues}
-        </div>
       </ResizablePanel>
     </ResizablePanelGroup>
   );

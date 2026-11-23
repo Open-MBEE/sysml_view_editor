@@ -47,9 +47,11 @@ test('@critical keeps primary controls reachable across widths, narrow panes and
     exact: true,
   });
   // Begin from a known closed tool before viewport changes can auto-collapse it.
-  await page
-    .getByRole('button', { name: 'Collapse Inspector', exact: true })
-    .click();
+  const closeInspection = page.getByRole('button', {
+    name: 'Collapse Inspector',
+    exact: true,
+  });
+  if (await closeInspection.isVisible()) await closeInspection.click();
   for (const width of [1440, 1200, 1000, 900, 768, 600, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     if (width === 390) {
@@ -117,7 +119,7 @@ test('keeps canvas controls keyboard reachable at the vertical minimum', async (
     .getByRole('button', { name: 'Show source and model', exact: true })
     .click();
   const saved = (await downloadProject(page)).bundle;
-  await dragSeparator(page, 'Resize Source and Diagram', 'y', 2000);
+  await dragSeparator(page, 'Resize Source and Diagram', 'y', -2000);
   for (const name of ['Zoom in', 'Zoom out', 'Fit view', 'Read at 100%']) {
     const button = page.getByRole('button', { name, exact: true });
     await button.focus();

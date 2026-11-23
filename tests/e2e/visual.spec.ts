@@ -170,17 +170,16 @@ for (const theme of ['light', 'dark']) {
       await page.getByRole('button', { name: 'Done', exact: true }).click();
       if (narrow) {
         await hideExplorer(page);
-        await page
-          .getByRole('button', { name: 'Show Inspector', exact: true })
-          .click();
+        const showInspector = page.getByRole('button', {
+          name: 'Show Inspector',
+          exact: true,
+        });
+        if (await showInspector.isVisible()) await showInspector.click();
       } else {
         await page
-          .getByRole('button', { name: 'Explorer panel options', exact: true })
-          .click();
-        await page
-          .getByRole('button', { name: 'Widen Explorer', exact: true })
-          .click();
-        await page.keyboard.press('Escape');
+          .getByRole('separator', { name: 'Resize Explorer', exact: true })
+          .focus();
+        await page.keyboard.press('ArrowRight');
       }
       await page
         .getByRole('button', { name: 'Show Issues', exact: true })
@@ -190,7 +189,7 @@ for (const theme of ['light', 'dark']) {
         exact: true,
       });
       await expect(
-        page.getByRole('button', { name: 'Collapse Issues', exact: true }),
+        page.getByRole('button', { name: 'Hide Issues', exact: true }),
       ).toBeFocused();
       await handle.focus();
       await expect(handle).toBeFocused();
@@ -220,20 +219,13 @@ for (const theme of ['light', 'dark']) {
         .getByLabel('Theme', { exact: true })
         .selectOption(theme);
       await page.getByRole('button', { name: 'Done', exact: true }).click();
-      await page
-        .getByRole('button', { name: 'Explorer panel options', exact: true })
-        .click();
-      for (let i = 0; i < 4; i++)
-        await page
-          .getByRole('button', { name: 'Widen Explorer', exact: true })
-          .click();
-      await page.keyboard.press('Escape');
-      await expect(
-        page.getByRole('button', {
-          name: 'Explorer panel options',
-          exact: true,
-        }),
-      ).toBeFocused();
+      const explorerDivider = page.getByRole('separator', {
+        name: 'Resize Explorer',
+        exact: true,
+      });
+      await explorerDivider.focus();
+      for (let i = 0; i < 4; i++) await page.keyboard.press('ArrowRight');
+      await expect(explorerDivider).toBeFocused();
       const behavior = modelTreeItem(page, 'CompressorBehavior');
       await behavior.focus();
       await page.keyboard.press('ArrowRight');
@@ -1243,6 +1235,9 @@ for (const theme of ['light', 'dark'])
       await node.focus();
       await node.press('Enter');
       await page
+        .getByRole('button', { name: 'Inspect selection', exact: true })
+        .click();
+      await page
         .getByRole('button', { name: 'Read at 100%', exact: true })
         .click();
       const details = page.getByRole('region', {
@@ -1314,10 +1309,13 @@ for (const theme of ['light', 'dark'])
         `source-pane-header-${theme}-${width}.png`,
       );
       if (width === 390) {
-        await dragSeparator(page, 'Resize Source and Diagram', 'y', -2000);
+        await dragSeparator(page, 'Resize Source and Diagram', 'y', 2000);
         await expect
           .poll(async () => (await sourceHeaderGeometry(page)).editorHeight)
           .toBeGreaterThanOrEqual(80);
+        await expect
+          .poll(async () => (await sourceHeaderGeometry(page)).editorHeight)
+          .toBeLessThanOrEqual(82);
         await expect
           .poll(async () => (await sourceHeaderGeometry(page)).minInset)
           .toBeGreaterThanOrEqual(0);

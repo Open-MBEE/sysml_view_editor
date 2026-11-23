@@ -10,7 +10,7 @@ import {
   namedViewButton,
 } from './support';
 
-test('@critical preserves independent Explorer sections and navigation across activity rail toggles', async ({
+test('@critical preserves independent Explorer sections and navigation across header panel toggles', async ({
   page,
 }) => {
   await ready(page);
@@ -18,11 +18,16 @@ test('@critical preserves independent Explorer sections and navigation across ac
     name: 'Project navigation',
     exact: true,
   });
-  const rail = page.getByRole('navigation', {
-    name: 'Workspace activities',
+  const rail = page.getByRole('group', {
+    name: 'Workspace panels',
     exact: true,
   });
-  await expect(rail.getByRole('button')).toHaveCount(1);
+  await expect(
+    rail.getByRole('button', { name: 'Hide Explorer', exact: true }),
+  ).toHaveCount(1);
+  await expect(
+    page.getByRole('navigation', { name: 'Workspace activities', exact: true }),
+  ).toHaveCount(0);
   const files = nav.getByRole('button', { name: 'Files', exact: true });
   const views = nav.getByRole('button', { name: 'Views', exact: true });
   const model = nav.getByRole('button', { name: 'Model', exact: true });
@@ -96,8 +101,8 @@ test('keeps New view separate from the collapsed Views toggle and keeps phone fo
 }) => {
   await ready(page, { split: false });
   await page.setViewportSize({ width: 390, height: 900 });
-  const rail = page.getByRole('navigation', {
-    name: 'Workspace activities',
+  const rail = page.getByRole('group', {
+    name: 'Workspace panels',
     exact: true,
   });
   const show = rail.getByRole('button', { name: 'Show Explorer', exact: true });
@@ -123,7 +128,7 @@ test('keeps New view separate from the collapsed Views toggle and keeps phone fo
   await expect(show).toBeFocused();
   await show.press('Enter');
   await expect(
-    page.getByRole('button', { name: 'Collapse Explorer', exact: true }),
+    page.getByRole('button', { name: 'Hide Explorer', exact: true }),
   ).toBeFocused();
   await expect(views).toHaveAttribute('aria-expanded', 'false');
   expect((await downloadProject(page)).bundle).toEqual(before);

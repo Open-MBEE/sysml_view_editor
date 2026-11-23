@@ -241,13 +241,25 @@ export async function startExample(
 }
 
 /** Most diagram regressions deliberately use the pneumatic fixture after startup. */
-export async function ready(page: Page, options: { split?: boolean } = {}) {
+export async function ready(
+  page: Page,
+  options: { split?: boolean; inspection?: boolean } = {},
+) {
   await page.goto('/app');
   await startExample(page, options);
-  await namedViewButton(page, 'CompressorViews::pneumatics').click();
+  await page
+    .getByRole('combobox', { name: 'Named view', exact: true })
+    .selectOption('CompressorViews::pneumatics');
   await expect(
     page.getByRole('group', { name: 'part pump : Pump', exact: true }),
   ).toBeVisible();
+  if (options.inspection !== false) {
+    const show = page.getByRole('button', {
+      name: 'Show Inspector',
+      exact: true,
+    });
+    if (await show.isVisible()) await show.click();
+  }
 }
 
 /** Keep focused history/appearance regressions explicit about their small fixture. */
@@ -308,6 +320,14 @@ export async function selectModelElement(page: Page, id: string) {
     'aria-selected',
     'true',
   );
+}
+
+/** Explicit inspection is separate from selection in the model-first workbench. */
+export async function inspectModelElement(page: Page, id: string) {
+  await selectModelElement(page, id);
+  await page
+    .getByRole('button', { name: 'Inspect selection', exact: true })
+    .click();
 }
 
 export async function openView(page: Page, name: string) {
@@ -406,8 +426,8 @@ export async function importAssembly(page: Page) {
     })),
   );
   await expect(
-    page.getByRole('button', { name: 'structure', exact: true }),
-  ).toHaveAttribute('aria-current', 'page');
+    page.getByRole('combobox', { name: 'Named view', exact: true }),
+  ).toHaveValue('AssemblyViews::structure');
   await expect(
     page.getByRole('group', { name: 'part primary : Device', exact: true }),
   ).toBeVisible();
@@ -432,13 +452,22 @@ export async function showAssemblyDiagram(page: Page) {
   await expect
     .poll(async () => (await station.boundingBox())!.width)
     .toBeLessThan(available);
-  const before = (await station.boundingBox())!.width;
+  const camera = await diagramCamera(page);
   await page
     .getByRole('button', { name: 'Show model only', exact: true })
     .click();
+  await expect.poll(() => diagramCamera(page)).toEqual(camera);
+  // A wider panel can remain limited by height. Fit must contain the root,
+  // without assuming that removing Source always increases zoom.
+  await page.getByRole('button', { name: 'Fit view', exact: true }).click();
+  await expect(station).toBeInViewport({ ratio: 1 });
+  const wider = await regionSize(
+    page.getByRole('region', { name: 'Diagram', exact: true }),
+    'width',
+  );
   await expect
     .poll(async () => (await station.boundingBox())!.width)
-    .toBeGreaterThan(before + 50);
+    .toBeLessThan(wider);
 }
 
 export async function connectionPoints(page: Page) {
@@ -999,6 +1028,11 @@ export async function waitForRoverStartup(page: Page) {
 }
 
 /** Measure visible pane-local source actions, not the global arrangement bar. */
+/** CodeMirror owns its scroll container; no semantic state is read here. */
+export async function sourceScroll(source: Locator) {
+  return source.evaluate((node) => node.closest('.cm-scroller')!.scrollTop);
+}
+
 export async function sourceHeaderGeometry(page: Page) {
   return page
     .getByRole('region', { name: 'Source editor', exact: true })
@@ -1051,13 +1085,21 @@ export async function controlReachable(control: Locator) {
 
 /** Normalize a closed Explorer and visible reopen focus after responsive layout. */
 export async function hideExplorer(page: Page) {
-  const activity = page
-    .getByRole('navigation', { name: 'Workspace activities', exact: true })
-    .getByRole('button');
-  if ((await activity.getAttribute('aria-expanded')) === 'true')
-    await activity.click();
-  else await activity.focus();
-  await expect(activity).toHaveAttribute('aria-expanded', 'false');
+  const controls = page.getByRole('group', {
+    name: 'Workspace panels',
+    exact: true,
+  });
+  const hide = controls.getByRole('button', {
+    name: 'Hide Explorer',
+    exact: true,
+  });
+  if (await hide.isVisible()) await hide.click();
+  const activity = controls.getByRole('button', {
+    name: 'Show Explorer',
+    exact: true,
+  });
+  await activity.focus();
+  await expect(activity).toHaveAttribute('aria-pressed', 'false');
   await expect(
     page.getByRole('complementary', {
       name: 'Project navigation',

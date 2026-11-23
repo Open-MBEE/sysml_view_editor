@@ -223,6 +223,11 @@ export async function centerRequirementCard(page: Page, card: Locator) {
       { x: bounds.right - 8, y: bounds.bottom - 8 },
       { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 },
     ];
+    // A short, wide canvas can place nodes over every corner and its centre.
+    // Search the remaining background before rejecting a real middle-button pan.
+    for (let y = bounds.top + 16; y < bounds.bottom - 16; y += 32)
+      for (let x = bounds.left + 16; x < bounds.right - 16; x += 32)
+        candidates.push({ x, y });
     return candidates.find((point) =>
       element.ownerDocument
         .elementFromPoint(point.x, point.y)

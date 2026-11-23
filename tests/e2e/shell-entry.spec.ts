@@ -15,7 +15,7 @@ import {
   moveNode,
   panDiagram,
   diagramCamera,
-  selectModelElement,
+  inspectModelElement,
   expectRenderedPositions,
   namedViewButton,
 } from './support';
@@ -257,7 +257,7 @@ test('launcher and browser navigation retain exact drafts, source DOM, camera, b
   await moveNode(page, diagramNode(page, 'Workshop::Motor'));
   await openView(page, 'compressor');
   await moveNode(page, diagramNode(page, 'primary : Motor'));
-  await selectModelElement(page, 'Workshop::Compressor::primary');
+  await inspectModelElement(page, 'Workshop::Compressor::primary');
   const before = (await downloadProject(page)).bundle;
   const draft = applied + '\n// retained unfinished launcher draft\npart';
   await fillSource(source, draft);

@@ -1,7 +1,7 @@
 import {
   fillSource,
   test,
-  selectModelElement,
+  inspectModelElement,
   startExample,
   expect,
   ready,
@@ -14,7 +14,7 @@ import {
   diagramCamera,
   panDiagram,
   expectRenderedPositions,
-  railEdgeOffset,
+  controlReachable,
   toolbarCenterOffsets,
 } from './support';
 
@@ -31,7 +31,7 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
       page.getByRole('group', { name: 'part primary : Device', exact: true }),
     );
   }
-  await selectModelElement(page, 'Assembly::Station::bay::primary');
+  await inspectModelElement(page, 'Assembly::Station::bay::primary');
   const source = page.getByRole('textbox', {
     name: 'SysML source',
     exact: true,
@@ -55,19 +55,21 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
   await expect
     .poll(() => regionSize(explorer, 'width'))
     .toBeGreaterThan(left + 40);
-  const right = await regionSize(inspector, 'width');
+  const dock = page.getByRole('region', {
+    name: 'Inspection dock',
+    exact: true,
+  });
+  const right = await regionSize(dock, 'height');
   await page
     .getByRole('separator', { name: 'Resize Inspector', exact: true })
     .focus();
-  await page.keyboard.press('ArrowLeft');
-  await expect
-    .poll(() => regionSize(inspector, 'width'))
-    .toBeGreaterThan(right);
+  await page.keyboard.press('ArrowUp');
+  await expect.poll(() => regionSize(dock, 'height')).toBeGreaterThan(right);
   const sourceWidth = await regionSize(
     page.getByRole('region', { name: 'Source editor', exact: true }),
     'width',
   );
-  await dragSeparator(page, 'Resize Source and Diagram', 'x', -45);
+  await dragSeparator(page, 'Resize Source and Diagram', 'x', 45);
   await expect
     .poll(() =>
       regionSize(
@@ -76,7 +78,7 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
       ),
     )
     .toBeLessThan(sourceWidth - 20);
-  await dragSeparator(page, 'Resize Source and Diagram', 'x', -800);
+  await dragSeparator(page, 'Resize Source and Diagram', 'x', 800);
   await expect
     .poll(() =>
       regionSize(
@@ -84,7 +86,7 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
         'width',
       ),
     )
-    .toBeGreaterThanOrEqual(159);
+    .toBeGreaterThanOrEqual(279);
   await expect(source).toBeVisible();
   expect((await toolbarCenterOffsets(page)).source).toBeLessThan(1);
   await expect(
@@ -92,14 +94,15 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
   ).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('button', { name: 'Show Issues', exact: true }).click();
   const issues = page.getByRole('region', { name: 'Issues', exact: true });
-  const bottom = await regionSize(issues, 'height');
+  await expect(issues).toBeVisible();
+  const bottom = await regionSize(dock, 'height');
   await page
     .getByRole('separator', { name: 'Resize Issues', exact: true })
     .focus();
   await page.keyboard.press('ArrowUp');
-  await expect.poll(() => regionSize(issues, 'height')).toBeGreaterThan(bottom);
+  await expect.poll(() => regionSize(dock, 'height')).toBeGreaterThan(bottom);
   expect(await diagramCamera(page)).toEqual(camera);
-  // Explicit editor modes refit the view; divider changes above preserve the camera.
+  // Both explicit arrangement changes and divider changes preserve the camera.
   for (const mode of [
     'Show model only',
     'Show source only',
@@ -110,6 +113,7 @@ test('resizes every divider and preserves draft, selection, source DOM, camera a
   expect(
     await source.evaluate((node, original) => node === original, editor),
   ).toBe(true);
+  await page.getByRole('tab', { name: 'Properties', exact: true }).click();
   await expect(inspector).toContainText('Assembly::Station::bay::primary');
   expect((await downloadProject(page)).bundle).toEqual(before);
   await expect(
@@ -137,31 +141,29 @@ test('collapses and restores sizes with keyboard focus, persists UI preferences 
   });
   const initial = await regionSize(explorer, 'width');
   await page
-    .getByRole('button', { name: 'Explorer panel options', exact: true })
-    .click();
-  await page
-    .getByRole('button', { name: 'Widen Explorer', exact: true })
-    .click();
+    .getByRole('separator', { name: 'Resize Explorer', exact: true })
+    .focus();
+  await page.keyboard.press('ArrowRight');
   await expect
     .poll(() => regionSize(explorer, 'width'))
     .toBeGreaterThan(initial);
-  await page.keyboard.press('Escape');
-  await expect(
-    page.getByRole('button', { name: 'Explorer panel options', exact: true }),
-  ).toBeFocused();
   const expanded = await regionSize(explorer, 'width');
   await page
     .getByRole('button', { name: 'Collapse Explorer', exact: true })
     .focus();
   await page.keyboard.press('Enter');
   await expect(explorer).not.toBeVisible();
-  expect(await railEdgeOffset(page, 'Show Explorer', 'left')).toBeLessThan(8);
+  expect(
+    await controlReachable(
+      page.getByRole('button', { name: 'Show Explorer', exact: true }),
+    ),
+  ).toBe(true);
   await expect(
     page.getByRole('button', { name: 'Show Explorer', exact: true }),
   ).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(
-    page.getByRole('button', { name: 'Collapse Explorer', exact: true }),
+    page.getByRole('button', { name: 'Hide Explorer', exact: true }),
   ).toBeFocused();
   await expect
     .poll(() => regionSize(explorer, 'width'))
@@ -172,32 +174,37 @@ test('collapses and restores sizes with keyboard focus, persists UI preferences 
   await expect(
     page.getByRole('button', { name: 'Show Inspector', exact: true }),
   ).toBeFocused();
-  expect(await railEdgeOffset(page, 'Show Inspector', 'right')).toBeLessThan(8);
+  expect(
+    await controlReachable(
+      page.getByRole('button', { name: 'Show Inspector', exact: true }),
+    ),
+  ).toBe(true);
   await page.keyboard.press('Enter');
   await expect(
-    page.getByRole('button', { name: 'Collapse Inspector', exact: true }),
+    page.getByRole('button', { name: 'Hide Inspector', exact: true }),
   ).toBeFocused();
   await page.getByRole('button', { name: 'Show Issues', exact: true }).click();
+  const dock = page.getByRole('region', {
+    name: 'Inspection dock',
+    exact: true,
+  });
   await page
-    .getByRole('button', { name: 'Issues panel options', exact: true })
-    .click();
-  await page
-    .getByRole('button', { name: 'Taller Issues', exact: true })
-    .click();
-  await page.keyboard.press('Escape');
+    .getByRole('separator', { name: 'Resize Issues', exact: true })
+    .focus();
+  await page.keyboard.press('ArrowUp');
   const issues = page.getByRole('region', { name: 'Issues', exact: true });
-  const height = await regionSize(issues, 'height');
+  const height = await regionSize(dock, 'height');
   await page
-    .getByRole('button', { name: 'Collapse Issues', exact: true })
+    .getByRole('button', { name: 'Collapse Inspector', exact: true })
     .click();
   await expect(
-    page.getByRole('button', { name: 'Show Issues', exact: true }),
+    page.getByRole('button', { name: 'Show Inspector', exact: true }),
   ).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(
-    page.getByRole('button', { name: 'Collapse Issues', exact: true }),
+    page.getByRole('button', { name: 'Hide Inspector', exact: true }),
   ).toBeFocused();
-  await expect.poll(() => regionSize(issues, 'height')).toBeCloseTo(height, 0);
+  await expect.poll(() => regionSize(dock, 'height')).toBeCloseTo(height, 0);
   expect((await downloadProject(page)).bundle).toEqual(before);
   await expect(page.getByRole('banner')).not.toContainText('modified');
   await page.reload();
@@ -205,7 +212,7 @@ test('collapses and restores sizes with keyboard focus, persists UI preferences 
   await expect
     .poll(() => regionSize(explorer, 'width'))
     .toBeCloseTo(expanded, 0);
-  await expect.poll(() => regionSize(issues, 'height')).toBeCloseTo(height, 0);
+  await expect.poll(() => regionSize(dock, 'height')).toBeCloseTo(height, 0);
   await page
     .getByRole('button', { name: 'Workspace layout', exact: true })
     .click();
@@ -237,16 +244,23 @@ test('opens resizable Issues on validation failure and retains the invalid draft
   });
   const before = (await downloadProject(page)).bundle;
   await fillSource(source, 'package Unfinished { part');
+  await page
+    .getByRole('button', { name: 'Show source only', exact: true })
+    .click();
   await page.getByRole('button', { name: 'Apply source', exact: true }).click();
   const issues = page.getByRole('region', { name: 'Issues', exact: true });
   await expect(issues).toBeVisible();
   await expect(
     page.getByRole('separator', { name: 'Resize Issues', exact: true }),
   ).toBeVisible();
-  const height = await regionSize(issues, 'height');
+  const dock = page.getByRole('region', {
+    name: 'Inspection dock',
+    exact: true,
+  });
+  const height = await regionSize(dock, 'height');
   await dragSeparator(page, 'Resize Issues', 'y', -35);
   await expect
-    .poll(() => regionSize(issues, 'height'))
+    .poll(() => regionSize(dock, 'height'))
     .toBeGreaterThan(height + 20);
   const failed = (await downloadProject(page)).bundle;
   expect(failed.documents).toEqual(before.documents);
@@ -279,10 +293,8 @@ test('keeps panels operable when preference storage is denied', async ({
     exact: true,
   });
   await expect(options.getByRole('status')).toContainText('cannot be saved');
-  await options
-    .getByRole('button', { name: 'More source space', exact: true })
-    .click();
   await page.keyboard.press('Escape');
+  await dragSeparator(page, 'Resize Source and Diagram', 'x', -20);
   await page
     .getByRole('button', { name: 'Collapse Explorer', exact: true })
     .click();
@@ -299,7 +311,7 @@ test('recovers from corrupt preferences and keeps narrow dark panels reachable w
   await page.addInitScript(() =>
     localStorage.setItem('sysml-workbench-layout-v1', '{invalid'),
   );
-  await ready(page);
+  await ready(page, { inspection: false });
   const before = (await downloadProject(page)).bundle;
   await page.getByRole('button', { name: 'Appearance', exact: true }).click();
   await page
@@ -311,16 +323,13 @@ test('recovers from corrupt preferences and keeps narrow dark panels reachable w
     page.getByRole('button', { name: 'Show Inspector', exact: true }),
   ).toBeVisible();
   await page
-    .getByRole('button', { name: 'Collapse Explorer', exact: true })
-    .click();
-  await page
     .getByRole('button', { name: 'Show Inspector', exact: true })
     .click();
   await expect(
     page.getByRole('complementary', { name: 'Properties', exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole('button', { name: 'Collapse Inspector', exact: true }),
+    page.getByRole('button', { name: 'Hide Inspector', exact: true }),
   ).toBeFocused();
   await page
     .getByRole('separator', { name: 'Resize Source and Diagram', exact: true })

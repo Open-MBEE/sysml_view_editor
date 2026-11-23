@@ -59,6 +59,9 @@ test('nests actual action parameters by owner and retains an invalid draft, sour
     await reading.focus();
     await page.keyboard.press('Enter');
     await expect(reading).toHaveAttribute('aria-selected', 'true');
+    await page
+      .getByRole('button', { name: 'Inspect selection', exact: true })
+      .click();
     const inspector = page.getByRole('complementary', {
       name: 'Properties',
       exact: true,
@@ -84,7 +87,7 @@ test('nests actual action parameters by owner and retains an invalid draft, sour
   await expect(
     page
       .getByRole('region', { name: 'Source editor', exact: true })
-      .getByText('system.sysml', { exact: true }),
+      .getByRole('tab', { name: 'system.sysml', exact: true, selected: true }),
   ).toBeVisible();
   await expect(
     namedViewButton(page, 'CompressorViews::pneumatics'),

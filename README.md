@@ -39,12 +39,12 @@ OpenMBEE View Editor brings source editing, named model views and reviewed graph
 **Source owns model semantics. Presentation owns geometry.** Renaming a part or connecting ports produces a reviewed source transaction; moving a symbol changes its position. The application runs locally in browser workers and requires no application backend.
 
 <p align="center">
-  <img src="tests/e2e/visual.spec.ts-snapshots/workbench-light-visual-linux.png" width="1200" alt="The editor showing the Inspection rover architecture, with files and named views on the left and an Inspector on the right" />
+  <img src="tests/e2e/visual.spec.ts-snapshots/workbench-light-visual-linux.png" width="1200" alt="The editor showing the Inspection rover architecture, with files and named views in the left Explorer and the model in the central workspace" />
 </p>
 
 <p align="center"><em>Inspection rover: connected assemblies, declared component values and typed interfaces.</em></p>
 
-Explorer has independent Files, Views and Model sections. Fold a section to make room without losing its state; the Explorer activity button at the left edge toggles the sidebar. New view and model expand/collapse actions remain separate from section toggles. Diagram selection reveals the Model owner chain without moving keyboard focus away from the diagram. Section expansion lasts for the current session and is not saved in project files. Model representation labels wrap to the pane width. High-contrast mode retains a selection marker separate from keyboard focus; reduced motion follows system preferences. See [verification](docs/verification.md) for targeted accessibility coverage and limits.
+Explorer has independent Files, Views, Documents and Model sections. Fold a section to make room without losing its state; the header Explorer toggle shows or hides the sidebar. New view and model expand/collapse actions remain separate from section toggles. Diagram selection reveals the Model owner chain without moving keyboard focus away from the diagram. Section expansion lasts for the current session and is not saved in project files. Model representation labels wrap to the pane width. High-contrast mode retains a selection marker separate from keyboard focus; reduced motion follows system preferences. See [verification](docs/verification.md) for targeted accessibility coverage and limits.
 
 ## Features
 
@@ -55,19 +55,23 @@ Explorer has independent Files, Views and Model sections. Fold a section to make
 - **Open source-defined views.** Navigate named SysML views independently of the active source file. Inspect nested and inherited parts, typed inherited ports and resolved connection endpoints.
 - **Read generated documents.** Open document definitions (`part def` specializations of `DocumentQueries::Document`) next to named views. The embedded OpenSysML engine plans, evaluates and renders them; headings, table rows and inline references reveal their source declarations, and `Diagram` blocks mount the editor’s native view renderer.
 - **Navigate source issues.** Open an issue’s reported file and line in the source editor. Missing or stale locations are explained while drafts and the last valid diagram are retained.
-- **Browse the model hierarchy.** Expand packages, definitions and declared members in the Model tree. Selection opens Inspector details. Inspect type/kind labels; use arrow keys, type-ahead and Enter/Space to navigate and select.
+- **Browse the model hierarchy.** Expand packages, definitions and declared members in the Model tree. Selection updates the current element; **Inspect selection** opens the bottom inspection panel. Inspect type/kind labels; use arrow keys, type-ahead and Enter/Space to navigate and select.
 - **Review graphical changes.** Rename parts, create native views, add typed part usages and connect compatible directed ports through an exact source-change preview.
 - **Preserve compatible layouts.** Keep verified symbol positions across supported edits, including inactive views. Unsafe identity mappings are reported and arranged again.
 - **Keep projects portable.** Download applied source, unfinished drafts and compatible diagram positions together; reopen the bundle or import multiple SysML files.
 - **Recover unfinished work.** Inspect the saved copy’s time, files, draft status and source sizes before restoring or discarding local browser recovery. Competing-tab conflicts explain that Retry only inspects the saved copy and keeps the current project open.
-- **Arrange your workspace.** Resize or collapse Explorer, Inspector, source/diagram panes and Issues using dividers, keyboard controls or panel options.
+- **Arrange your workspace.** Keep the model central, open source on the right and inspection below, or focus a single surface. Independent panel toggles, maximise/restore and keyboard-resizable dividers preserve editor and camera state. Properties, Relationships and Issues share the bottom dock.
 - **Choose your appearance.** Use Light, Dark or Follow system, six diagram palettes and custom muted element colors. Theme and panel preferences stay in the browser.
 
 Structural, native requirement and bounded action/state workflows have real-engine browser coverage. Use-case, mixed, sequence and geometry renderers remain unavailable; behavior diagrams do not execute or simulate models. Generated documents are read-only: there is no inline text editing, publication or Flexo MMS export, and PDF/AsciiDoc output is unavailable in the browser. See [capabilities and limits](docs/capabilities.md) and [local verification](docs/verification.md) for the implemented scope.
 
 In the source editor, use **Ctrl+F** / **Cmd+F** for find/replace and **Ctrl+Z** / **Cmd+Z** for draft editing undo; **Ctrl+Y** / **Cmd+Shift+Z** redo draft edits. **Tab** moves focus out of the editor. Toolbar **Undo source** / **Redo source** operate on accepted model revisions. Highlighting is lexical; the pinned engines still validate source when you apply it. Use **Ctrl+Space** for engine-backed completion, **F1** for symbol information and **F12** for project-file definitions; pointing at a symbol also requests hover information. Queries use the complete current draft source set. Unsupported completion edits and stale replies are rejected. **Format source** updates the current draft; applying remains explicit. Inline diagnostics remain future work.
 
-**Arrange Source and Model:** the global arrangement controls choose **Source only**, **Source + Model** or **Model only**. The Model representation remains independent. Its header labels the representation, applied/draft status and diagram target. Requirements tables/matrices cover the project, independently of the named view. Source history, Apply/Discard and language actions live in the Source header; show Source to reach them. A **Draft** badge beside the filename describes that file only, while Apply/Discard affect all project source drafts.
+**Arrange Source and Model:** the panel controls independently toggle Explorer, right-side Source and bottom inspection. Focus model temporarily hides supporting panels; Restore workspace returns to the previous layout. Each panel can maximise, restore and close. Source only / Source + Model / Model only remain available. At narrow widths source stacks below the model and Explorer yields space while source is open. Panel preferences stay in the browser, independently of portable project files.
+
+**Browse with tabs:** named views, temporary explorations, requirements representations and documents open workspace tabs. Source files have their own tab strip. Closing a tab retains project drafts; one tab remains open in each strip. Switching source files retains their draft undo and scroll state until source is replaced or the project changes. Workspace tabs and model back/forward history are session-local. Project overview and Explore selection use the existing supported exploration scopes; no hidden view declarations are authored. Source history, Apply/Discard and language actions remain in the Source header. A Draft badge beside a filename describes that file only, while Apply/Discard affect all project source drafts.
+
+**Read inspection values:** select an element and choose **Inspect selection**. Declared expressions are visible in value cards; expand **Declaration details** for their declaration and provider. These are authored expressions, not evaluated values. Explorer section counts include collapsed model descendants.
 
 **Read large views:** large authored trees and interconnections open at a readable scale when fitting the whole graph would reduce zoom below 60%. Pan to continue, choose **Fit view** for an overview, or select a diagram occurrence and choose **100%** to read it. These camera actions preserve source and saved symbol positions.
 
@@ -95,7 +99,7 @@ Choose **Load example** to open the **Inspection rover** in **Model only** arran
 Explore the named views **architecture → mission → lifecycle → requirements → definitions**. Choose **Guide** in the project header for a tour of the editor controls. The opening diagram includes a 480 Wh battery, two distinct drives, lidar, controller, camera and radio. Declared values, successions and satisfaction links are model content; the app does not execute or simulate them.
 
 1. Select another named view in Explorer or the diagram’s **Named view** selector.
-2. Choose **Source + Model** (tooltip: **Show source and model**) to see source; selecting a file keeps the active diagram open.
+2. Choose **Show Source** to open source on the right; selecting a file keeps the active diagram open. Choose **Inspect selection** when you need element details.
 3. Edit source and choose **Apply source**. Invalid drafts retain the applied model and appear in **Issues**.
 4. Choose **Download project** to preserve sources and arranged view geometry.
 
@@ -114,7 +118,7 @@ Connection creation currently requires explicit compatible directions and identi
 
 ### 4. Inspect requirements and source
 
-Choose **Requirements table** above the diagram to browse applied requirement identifiers, documentation and declared links; search or sort the rows and export CSV. **Traceability matrix** shows satisfaction or verification declarations against linked elements, including explicitly negated links. These are read-only views, not executed verification results. Select a requirement or link to open its Inspector details. Choose **Open source** there to navigate to its declaration; apply or discard a changed draft in that file first.
+Choose **Requirements table** above the diagram to browse applied requirement identifiers, documentation and declared links; search or sort the rows and export CSV. **Traceability matrix** shows satisfaction or verification declarations against linked elements, including explicitly negated links. These are read-only views, not executed verification results. Inspect a requirement row or select a diagram link and choose **Inspect selection** to open its details. Choose **Open source** there to navigate to its declaration; apply or discard a changed draft in that file first.
 
 In the source pane, **Find references** (also Shift+F12) lists project reference locations. **Format source** formats the current draft with Toolkit. Formatting supports local editor undo; **Apply source** validates and accepts it into source history. Failed or stale queries retain your work.
 
@@ -164,7 +168,7 @@ Models without named views open a temporary project overview. Choose **Explore m
 | Theme, palette, custom colors and panel arrangement              | Browser preferences; separate from project content          |
 | Undo history, selection and camera                               | Current session; not restored from the project bundle       |
 
-Drag a divider or focus it and use arrow keys to resize a panel. Header options provide button alternatives. Reopen collapsed tools from their edge rails, open **Issues** from the footer, or use **Workspace layout** to adjust/reset the arrangement. Below 900 px, the source/diagram split becomes vertical. [Panel behavior](docs/architecture/workbench-layout.md).
+Drag a divider or focus it and use arrow keys to resize a panel. Use the header toggles to reopen collapsed tools, open **Issues** from the footer, or use **Workspace layout** to reset the arrangement. Below 900 px, the source/diagram split becomes vertical. [Panel behavior](docs/architecture/workbench-layout.md).
 
 Use **Appearance** for Light/Dark/System, palettes and custom muted fills. Preferences never modify source, project files or model undo history. [Design system](docs/design-system.md).
 

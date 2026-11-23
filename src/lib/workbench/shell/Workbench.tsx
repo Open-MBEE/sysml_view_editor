@@ -1,3 +1,8 @@
+import type { ExplorationRequest } from '$lib/workspace/exploration';
+import { Button } from '$lib/ui/primitives/button';
+import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { ContentTabs } from './ContentTabs';
+import { openTab, type WorkspaceTab } from './workspace-tabs';
 import { RequirementsPanel } from '../requirements/RequirementsPanel';
 import { inspectionSource } from '../properties/inspection-source';
 import type {
@@ -8,6 +13,7 @@ import {
   WorkbenchLayout,
   WorkbenchPanels,
   IssuesToggle,
+  InspectButton,
 } from './WorkbenchPanels';
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createBrowserSession } from './session';
@@ -23,6 +29,7 @@ import type {
 import { Explorer } from '../explorer/Explorer';
 import { SourceEditor } from '../source/SourceEditor';
 import { Diagram } from '../diagrams/Diagram';
+import { Relationships } from '../properties/Relationships';
 import { Properties } from '../properties/Properties';
 import { diagramRelationshipSelection } from '../properties/diagram-selection';
 import { Issues } from '../issues/Issues';
@@ -36,6 +43,7 @@ import {
 import type { RecoveryEntry } from '../recovery/envelope';
 import { ProjectLauncher } from '../entry/ProjectLauncher';
 import { ProjectHeader } from './ProjectHeader';
+import { loadLayout } from './layout';
 import { WorkspaceToolbar } from './WorkspaceToolbar';
 import { SourcePaneHeader } from './SourcePaneHeader';
 import { ModelPaneHeader } from './ModelPaneHeader';
@@ -82,6 +90,19 @@ export function Workbench({
     null,
   );
   const [documentFailure, setDocumentFailure] = useState<string | null>(null);
+  const [projectGeneration, setProjectGeneration] = useState(0);
+  const [workspaceTabs, setWorkspaceTabs] = useState<WorkspaceTab[]>([]);
+  const [sourceTabs, setSourceTabs] = useState<{ id: string; label: string }[]>(
+    [],
+  );
+
+  const cameras = useRef(
+    new Map<string, { x: number; y: number; zoom: number }>(),
+  );
+  const [navigation, setNavigation] = useState<{
+    entries: WorkspaceTab[];
+    index: number;
+  }>({ entries: [], index: -1 });
   const [dataMode, setDataMode] = useState<
     'diagram' | 'table' | 'matrix' | 'document'
   >('diagram');
@@ -105,6 +126,7 @@ export function Workbench({
     [selected, setSelected] = useState(''),
     [treeSelectionRequest, setTreeSelectionRequest] = useState(0),
     [inspectionRequest, setInspectionRequest] = useState(0),
+    [sourceRequest, setSourceRequest] = useState(0),
     [error, setError] = useState(''),
     [message, setMessage] = useState('Choose a project to begin.');
   const [inspectionTarget, setInspectionTarget] = useState<{
@@ -124,7 +146,15 @@ export function Workbench({
   const [explorationFocus, setExplorationFocus] = useState<
     'scope' | 'representation'
   >();
-  const [mode, setMode] = useState<Mode>('diagram'),
+  const [mode, setMode] = useState<Mode>(() => {
+      try {
+        return loadLayout(window.localStorage, false).sourceClosed
+          ? 'diagram'
+          : 'split';
+      } catch {
+        return 'diagram';
+      }
+    }),
     [dialog, setDialog] = useState<
       'project' | 'view' | 'part' | 'connection' | 'proposal' | null
     >(null);
@@ -146,6 +176,11 @@ export function Workbench({
     await session.open(entry.project, { unsaved: true });
     setDataMode('diagram');
     const restored = session.snapshot();
+    setProjectGeneration((value) => value + 1);
+    setWorkspaceTabs([]);
+    setSourceTabs([]);
+    cameras.current.clear();
+    setNavigation({ entries: [], index: -1 });
     recovery.acceptRestored({
       project: restored.project!,
       activeFile: entry.activeFile,
@@ -193,6 +228,154 @@ export function Workbench({
   const diagramIdentity = state.exploration
     ? JSON.stringify(state.exploration.request)
     : state.view?.view;
+  const currentTab: WorkspaceTab | undefined =
+    dataMode === 'table' || dataMode === 'matrix'
+      ? {
+          id: dataMode,
+          kind: dataMode,
+          label: dataMode === 'table' ? 'Requirements' : 'Traceability',
+        }
+      : dataMode === 'document' && state.renderedDocument
+        ? {
+            id: 'document:' + state.renderedDocument.document,
+            kind: 'document',
+            target: state.renderedDocument.document,
+            label:
+              state.model?.documents?.find(
+                (item) =>
+                  item.qualifiedName === state.renderedDocument?.document,
+              )?.name ?? 'Document',
+          }
+        : dataMode === 'document'
+          ? undefined
+          : state.exploration
+            ? {
+                id: 'exploration:' + JSON.stringify(state.exploration.request),
+                kind: 'exploration',
+                request: state.exploration.request,
+                label:
+                  state.exploration.request.scope.kind === 'project'
+                    ? 'Project overview'
+                    : (state.exploration.request.scope.subject
+                        .split('::')
+                        .at(-1) ?? 'Exploration'),
+              }
+            : state.view
+              ? {
+                  id: 'view:' + state.view.view,
+                  kind: 'view',
+                  target: state.view.view,
+                  label:
+                    state.model?.elements.find(
+                      (item) => item.id === state.view?.view,
+                    )?.name ??
+                    state.view.view.split('::').at(-1) ??
+                    'Diagram',
+                }
+              : undefined;
+  const cameraKey = `${projectGeneration}:${displayedView?.modelHash ?? ''}:${diagramIdentity ?? ''}`;
+  const currentTabKey = currentTab ? JSON.stringify(currentTab) : '';
+  useEffect(() => {
+    if (currentTab) setWorkspaceTabs((tabs) => openTab(tabs, currentTab));
+  }, [currentTabKey, projectGeneration]);
+  useEffect(() => {
+    if (state.project?.drafts.some((item) => item.name === file))
+      setSourceTabs((tabs) => openTab(tabs, { id: file, label: file }));
+  }, [file, projectGeneration]);
+  useEffect(() => {
+    if (!currentTab) return;
+    setNavigation((before) =>
+      before.entries[before.index]?.id === currentTab.id
+        ? before
+        : {
+            entries: [...before.entries.slice(0, before.index + 1), currentTab],
+            index: before.index + 1,
+          },
+    );
+  }, [currentTabKey, projectGeneration]);
+  async function navigateHistory(delta: number) {
+    const index = navigation.index + delta;
+    const tab = navigation.entries[index];
+    if (tab && (await activateTab(tab)))
+      setNavigation((before) => ({ ...before, index }));
+  }
+  function exploreScope(subject?: ModelElement) {
+    const request: ExplorationRequest = !subject
+      ? { scope: { kind: 'project' }, representation: 'tree' }
+      : subject.kind === 'package'
+        ? {
+            scope: { kind: 'package', subject: subject.id },
+            representation: 'tree',
+          }
+        : {
+            scope: { kind: 'element', subject: subject.id },
+            representation: 'interconnection',
+          };
+    void run(async () => {
+      await workspace().explore(request);
+      setDataMode('diagram');
+    });
+  }
+  const breadcrumbs: ModelElement[] = [];
+  const breadcrumbScope = state.exploration?.request.scope;
+  if (breadcrumbScope && breadcrumbScope.kind !== 'project') {
+    let item = state.model?.elements.find(
+      (item) => item.id === breadcrumbScope.subject,
+    );
+    const seen = new Set<string>();
+    while (item && !seen.has(item.id)) {
+      seen.add(item.id);
+      breadcrumbs.unshift(item);
+      const owner = item.ownerId;
+      item = state.model?.elements.find((candidate) => candidate.id === owner);
+    }
+  }
+  async function activateTab(tab: WorkspaceTab) {
+    let success = false;
+    await run(async () => {
+      if (tab.kind === 'view') {
+        if (
+          state.view?.view !== tab.target ||
+          state.view.modelHash !== state.model?.modelHash
+        )
+          await workspace().openView(tab.target);
+        setDataMode('diagram');
+      } else if (tab.kind === 'exploration') {
+        if (
+          JSON.stringify(state.exploration?.request) !==
+            JSON.stringify(tab.request) ||
+          state.exploration?.modelHash !== state.model?.modelHash
+        )
+          await workspace().explore(tab.request);
+        setDataMode('diagram');
+      } else if (tab.kind === 'document') {
+        if (
+          state.renderedDocument?.document !== tab.target ||
+          state.renderedDocument.modelHash !== state.model?.modelHash
+        )
+          await workspace().openDocument(tab.target);
+        setDataMode('document');
+      } else setDataMode(tab.kind);
+      success = true;
+    });
+    return success;
+  }
+  async function closeWorkspaceTab(id: string) {
+    const remaining = workspaceTabs.filter((tab) => tab.id !== id);
+    if (!remaining.length) return;
+    if (id === currentTab?.id && !(await activateTab(remaining.at(-1)!)))
+      return;
+    setWorkspaceTabs(remaining);
+  }
+  function closeSourceTab(id: string) {
+    const remaining = sourceTabs.filter((tab) => tab.id !== id);
+    if (!remaining.length) return;
+    if (file === id) {
+      setFocusRange(undefined);
+      setFile(remaining.at(-1)!.id);
+    }
+    setSourceTabs(remaining);
+  }
   const selectedCorrespondence =
     symbolSelection?.view === diagramIdentity &&
     symbolSelection?.modelHash === displayedView?.modelHash
@@ -330,7 +513,6 @@ export function Workbench({
       origin: 'Built-in example',
       preferred: exampleView,
     });
-    setMode('diagram');
   }
   async function run(action: () => unknown | Promise<unknown>) {
     const generation = ++actionGeneration.current;
@@ -353,6 +535,11 @@ export function Workbench({
   ) {
     const session = workspace();
     await session.open(project, { unsaved: options.unsaved });
+    setProjectGeneration((value) => value + 1);
+    setWorkspaceTabs([]);
+    setSourceTabs([]);
+    cameras.current.clear();
+    setNavigation({ entries: [], index: -1 });
     setDataMode('diagram');
     setSelected('');
     setInspectionTarget(undefined);
@@ -487,7 +674,7 @@ export function Workbench({
     );
     if (command.kind === 'createView') setDataMode('diagram');
   }
-  function selectSymbol(symbol: string) {
+  function selectSymbol(symbol: string, inspect = false) {
     setRequirementSelection(undefined);
     const correspondence = displayedView?.correspondence.find(
       (item) => item.symbol === symbol,
@@ -512,7 +699,7 @@ export function Workbench({
           : undefined,
     });
     setFocusRange(undefined);
-    if (correspondence) setInspectionRequest((request) => request + 1);
+    if (inspect && correspondence) setInspectionRequest((value) => value + 1);
   }
   function selectElement(item: ModelElement) {
     setRequirementSelection(undefined);
@@ -560,7 +747,10 @@ export function Workbench({
           : undefined,
     });
     setFocusRange(undefined);
-    setInspectionRequest((request) => request + 1);
+  }
+  function showSourcePanel() {
+    setSourceRequest((value) => value + 1);
+    if (mode === 'diagram') setMode('split');
   }
   function navigateIssue(issue: Diagnostic) {
     const current = workspace().snapshot();
@@ -580,7 +770,7 @@ export function Workbench({
       return;
     }
     setFile(location.target.file);
-    if (mode === 'diagram') setMode('split');
+    showSourcePanel();
     setFocusRange(location.target);
   }
   function inspectRequirement(
@@ -625,13 +815,13 @@ export function Workbench({
     setSelected(location.qualifiedName ?? '');
     setSymbolSelection(undefined);
     setFile(location.target.file);
-    setMode('split');
+    showSourcePanel();
     setFocusRange({ ...location.target, focus: true });
   }
   function revealSource() {
     if (inspectionRange) {
       setFile(inspectionRange.file);
-      setMode('split');
+      showSourcePanel();
       // Repeat the reveal even when the same file and layout are already open.
       setFocusRange({ ...inspectionRange, focus: true });
     } else
@@ -646,7 +836,7 @@ export function Workbench({
     setError('');
   }
   return (
-    <WorkbenchLayout mode={mode}>
+    <WorkbenchLayout key={projectGeneration} mode={mode} onMode={setMode}>
       <input
         hidden
         ref={picker}
@@ -731,6 +921,7 @@ export function Workbench({
           >
             <WorkbenchPanels
               inspectionRequest={inspectionRequest}
+              sourceRequest={sourceRequest}
               explorer={
                 <Explorer
                   state={state}
@@ -738,31 +929,21 @@ export function Workbench({
                   selected={selected}
                   selectionRequest={treeSelectionRequest}
                   onFile={(name) => {
+                    setFocusRange(undefined);
                     setFile(name);
-                    if (mode === 'diagram') setMode('split');
+                    showSourcePanel();
                   }}
                   onView={(id) =>
                     void run(async () => {
+                      await workspace().openView(id);
                       setDataMode('diagram');
-                      try {
-                        await workspace().openView(id);
-                      } catch (error) {
-                        setDataMode(dataMode);
-                        throw error;
-                      }
                     })
                   }
                   onDocument={(id) =>
                     void run(async () => {
-                      const previous = dataMode;
                       setDocumentFailure(null);
+                      await workspace().openDocument(id);
                       setDataMode('document');
-                      try {
-                        await workspace().openDocument(id);
-                      } catch (error) {
-                        setDataMode(previous);
-                        throw error;
-                      }
                     })
                   }
                   onSelect={selectElement}
@@ -772,53 +953,66 @@ export function Workbench({
               source={
                 source ? (
                   <SourceEditor
+                    key={projectGeneration}
                     renderHeader={(tools) => (
-                      <SourcePaneHeader
-                        state={state}
-                        fileName={source.name}
-                        fileUnapplied={
-                          source.text !==
-                          state.project?.documents.find(
-                            (document) => document.name === source.name,
-                          )?.text
-                        }
-                        tools={tools}
-                        onUndo={() =>
-                          void run(async () => {
-                            const session = workspace(),
-                              id = session.snapshot().view?.view,
-                              document =
-                                session.snapshot().renderedDocument?.document;
-                            session.undo();
-                            await refreshView(session, id, document);
-                          })
-                        }
-                        onRedo={() =>
-                          void run(async () => {
-                            const session = workspace(),
-                              id = session.snapshot().view?.view,
-                              document =
-                                session.snapshot().renderedDocument?.document;
-                            session.redo();
-                            await refreshView(session, id, document);
-                          })
-                        }
-                        onDiscard={() =>
-                          void run(() => workspace().discardDrafts())
-                        }
-                        onApply={() =>
-                          void run(async () => {
-                            const session = workspace(),
-                              id = session.snapshot().view?.view,
-                              document =
-                                session.snapshot().renderedDocument?.document;
-                            await session.apply();
-                            setMessage('Source applied.');
+                      <>
+                        <ContentTabs
+                          label="Source files"
+                          tabs={sourceTabs}
+                          active={file}
+                          onSelect={(id) => {
                             setFocusRange(undefined);
-                            await refreshView(session, id, document);
-                          })
-                        }
-                      />
+                            setFile(id);
+                          }}
+                          onClose={closeSourceTab}
+                        />
+                        <SourcePaneHeader
+                          state={state}
+                          fileName={source.name}
+                          fileUnapplied={
+                            source.text !==
+                            state.project?.documents.find(
+                              (document) => document.name === source.name,
+                            )?.text
+                          }
+                          tools={tools}
+                          onUndo={() =>
+                            void run(async () => {
+                              const session = workspace(),
+                                id = session.snapshot().view?.view,
+                                document =
+                                  session.snapshot().renderedDocument?.document;
+                              session.undo();
+                              await refreshView(session, id, document);
+                            })
+                          }
+                          onRedo={() =>
+                            void run(async () => {
+                              const session = workspace(),
+                                id = session.snapshot().view?.view,
+                                document =
+                                  session.snapshot().renderedDocument?.document;
+                              session.redo();
+                              await refreshView(session, id, document);
+                            })
+                          }
+                          onDiscard={() =>
+                            void run(() => workspace().discardDrafts())
+                          }
+                          onApply={() =>
+                            void run(async () => {
+                              const session = workspace(),
+                                id = session.snapshot().view?.view,
+                                document =
+                                  session.snapshot().renderedDocument?.document;
+                              await session.apply();
+                              setMessage('Source applied.');
+                              setFocusRange(undefined);
+                              await refreshView(session, id, document);
+                            })
+                          }
+                        />
+                      </>
                     )}
                     file={source}
                     disabled={state.busy}
@@ -845,7 +1039,7 @@ export function Workbench({
                     }}
                     onDefinition={(target) => {
                       setFile(target.file);
-                      if (mode === 'diagram') setMode('split');
+                      showSourcePanel();
                       setFocusRange({
                         file: target.file,
                         start: target.from,
@@ -867,36 +1061,119 @@ export function Workbench({
               }
               diagram={
                 <div className="model-data-surface">
-                  <ModelPaneHeader
-                    representation={dataMode}
-                    onRepresentation={setDataMode}
-                    state={state}
-                    view={displayedView}
-                    exploring={!!state.exploration}
-                  >
-                    <DiagramTargetControls
-                      views={
-                        state.model?.elements.filter(
-                          (item) => item.kind === 'viewUsage',
-                        ) ?? []
-                      }
-                      busy={state.busy}
-                      onOpenView={(id) =>
-                        void run(() => workspace().openView(id))
-                      }
-                      view={displayedView}
-                      exploration={state.exploration?.request}
-                      elements={state.model?.elements ?? []}
-                      explorationFocus={explorationFocus}
-                      onExplore={(request, focus) => {
-                        setExplorationFocus(focus);
-                        void run(() => workspace().explore(request));
+                  <div className="model-workspace-chrome">
+                    <ContentTabs
+                      label="Workspace documents"
+                      tabs={workspaceTabs}
+                      active={currentTab?.id}
+                      disabled={state.busy}
+                      onSelect={(id) => {
+                        const tab = workspaceTabs.find(
+                          (item) => item.id === id,
+                        );
+                        if (tab) void activateTab(tab);
                       }}
-                      disabled={state.busy || state.unapplied}
-                      onCreatePart={newPart}
-                      onConnectPorts={newConnection}
+                      onClose={(id) => void closeWorkspaceTab(id)}
                     />
-                  </ModelPaneHeader>
+                    <nav
+                      className="model-navigation"
+                      aria-label="Model navigation"
+                    >
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        aria-label="Back in model"
+                        disabled={state.busy || navigation.index <= 0}
+                        onClick={() => void navigateHistory(-1)}
+                      >
+                        <ArrowLeft aria-hidden="true" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        aria-label="Forward in model"
+                        disabled={
+                          state.busy ||
+                          navigation.index >= navigation.entries.length - 1
+                        }
+                        onClick={() => void navigateHistory(1)}
+                      >
+                        <ArrowRight aria-hidden="true" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        disabled={state.busy || !state.model}
+                        onClick={() => exploreScope()}
+                      >
+                        Project overview
+                      </Button>
+                      {breadcrumbs
+                        .filter((item) =>
+                          ['package', 'partDef', 'partUsage'].includes(
+                            item.kind,
+                          ),
+                        )
+                        .map((item) => (
+                          <Button
+                            key={item.id}
+                            variant="ghost"
+                            size="xs"
+                            disabled={state.busy}
+                            onClick={() => exploreScope(item)}
+                            title={item.id}
+                          >
+                            {item.name}
+                          </Button>
+                        ))}
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        disabled={
+                          state.busy ||
+                          !element ||
+                          !['package', 'partDef', 'partUsage'].includes(
+                            element.kind,
+                          )
+                        }
+                        onClick={() => element && exploreScope(element)}
+                      >
+                        Explore selection
+                      </Button>
+                    </nav>
+                    <ModelPaneHeader
+                      title={currentTab?.label}
+                      actions={<InspectButton />}
+                      representation={dataMode}
+                      onRepresentation={setDataMode}
+                      state={state}
+                      view={displayedView}
+                      exploring={!!state.exploration}
+                    >
+                      <DiagramTargetControls
+                        views={
+                          state.model?.elements.filter(
+                            (item) => item.kind === 'viewUsage',
+                          ) ?? []
+                        }
+                        busy={state.busy}
+                        onOpenView={(id) =>
+                          void run(() => workspace().openView(id))
+                        }
+                        view={displayedView}
+                        exploration={state.exploration?.request}
+                        elements={state.model?.elements ?? []}
+                        explorationFocus={explorationFocus}
+                        onExplore={(request, focus) => {
+                          setExplorationFocus(focus);
+                          void run(() => workspace().explore(request));
+                        }}
+                        disabled={state.busy || state.unapplied}
+                        onCreatePart={newPart}
+                        onConnectPorts={newConnection}
+                      />
+                    </ModelPaneHeader>
+                  </div>
                   {(dataMode === 'table' || dataMode === 'matrix') &&
                     readySession && (
                       <RequirementsPanel
@@ -915,8 +1192,8 @@ export function Workbench({
                       onReveal={revealDocument}
                       onOpenView={(id) =>
                         void run(async () => {
-                          setDataMode('diagram');
                           await workspace().openView(id);
+                          setDataMode('diagram');
                         })
                       }
                     />
@@ -928,6 +1205,10 @@ export function Workbench({
                     }
                   >
                     <Diagram
+                      initialViewport={cameras.current.get(cameraKey)}
+                      onCamera={(viewport) =>
+                        cameras.current.set(cameraKey, viewport)
+                      }
                       selectedSymbol={selectedCorrespondence?.symbol}
                       busy={state.busy}
                       layoutMode={mode}
@@ -988,11 +1269,18 @@ export function Workbench({
                       return;
                     }
                     setFile(target.file);
-                    setMode('split');
+                    showSourcePanel();
                     setFocusRange({ ...target, focus: true });
                   }}
                   onCreatePart={newPart}
                   onConnectPorts={newConnection}
+                />
+              }
+              relationships={
+                <Relationships
+                  view={displayedView}
+                  symbol={selectedCorrespondence?.symbol}
+                  onSelect={selectSymbol}
                 />
               }
               issues={

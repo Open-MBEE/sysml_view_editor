@@ -154,7 +154,7 @@ test('@critical keeps Model representation and target controls keyboard reachabl
     .getByRole('button', { name: 'Show source and model', exact: true })
     .click();
   const saved = (await downloadProject(page)).bundle;
-  await dragSeparator(page, 'Resize Source and Diagram', 'y', 2000);
+  await dragSeparator(page, 'Resize Source and Diagram', 'y', -2000);
   const header = page.getByRole('group', { name: 'Model header', exact: true });
   for (const name of [
     'Requirements table',

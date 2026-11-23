@@ -121,14 +121,16 @@ test('@critical responsive panes preserve explicit preferences, camera and the u
   });
   const draft = source + '\n// keep this draft through responsive inspection';
   await fillSource(editor, draft);
-  await page
-    .getByRole('button', { name: 'Collapse Inspector', exact: true })
-    .click();
+  const closeInspection = page.getByRole('button', {
+    name: 'Collapse Inspector',
+    exact: true,
+  });
+  if (await closeInspection.isVisible()) await closeInspection.click();
   await page
     .getByRole('button', { name: 'Collapse Explorer', exact: true })
     .click();
   const preferences = await page.evaluate(() =>
-    JSON.parse(localStorage.getItem('sysml-workbench-layout-v1')!),
+    JSON.parse(localStorage.getItem('sysml-workbench-layout-v2')!),
   );
   const saved = (await downloadProject(page)).bundle;
   const camera = await diagramCamera(page);
@@ -144,7 +146,7 @@ test('@critical responsive panes preserve explicit preferences, camera and the u
     ).toBeVisible();
     expect(
       await page.evaluate(() =>
-        JSON.parse(localStorage.getItem('sysml-workbench-layout-v1')!),
+        JSON.parse(localStorage.getItem('sysml-workbench-layout-v2')!),
       ),
     ).toEqual(preferences);
     const primary = await page
@@ -153,24 +155,10 @@ test('@critical responsive panes preserve explicit preferences, camera and the u
     const workspace = await page
       .getByRole('main', { name: 'Model workspace', exact: true })
       .boundingBox();
-    const activity = await page
-      .getByRole('navigation', { name: 'Workspace activities', exact: true })
-      .boundingBox();
-    const reopen = await page
-      .getByRole('toolbar', { name: 'Inspector panel reopen', exact: true })
-      .boundingBox();
     const leftDivider = await page
       .getByRole('separator', { name: 'Resize Explorer', exact: true })
       .boundingBox();
-    const rightDivider = await page
-      .getByRole('separator', { name: 'Resize Inspector', exact: true })
-      .boundingBox();
-    const available =
-      workspace!.width -
-      activity!.width -
-      reopen!.width -
-      leftDivider!.width -
-      rightDivider!.width;
+    const available = workspace!.width - leftDivider!.width;
     const sourcePane = await page
       .getByRole('region', { name: 'Source editor', exact: true })
       .boundingBox();
@@ -195,22 +183,22 @@ test('@critical responsive panes preserve explicit preferences, camera and the u
     .focus();
   await page.keyboard.press('Enter');
   await expect(
-    page.getByRole('button', { name: 'Collapse Inspector', exact: true }),
+    page.getByRole('button', { name: 'Hide Inspector', exact: true }),
   ).toBeFocused();
   await expect
     .poll(() =>
       regionSize(
-        page.getByRole('complementary', { name: 'Properties', exact: true }),
-        'width',
+        page.getByRole('region', { name: 'Inspection dock', exact: true }),
+        'height',
       ),
     )
-    .toBeGreaterThanOrEqual(189);
+    .toBeGreaterThanOrEqual(140);
   expect(
     await page.evaluate(
       () =>
-        JSON.parse(localStorage.getItem('sysml-workbench-layout-v1')!)
-          .inspector,
+        JSON.parse(localStorage.getItem('sysml-workbench-layout-v2')!)
+          .inspection,
     ),
-  ).toBe(preferences.inspector);
+  ).toBe(preferences.inspection);
   expect((await downloadProject(page)).bundle).toEqual(saved);
 });

@@ -21,8 +21,8 @@ test('@critical exposes navigation disclosures and independent representation st
       )
       .toBe(true);
   }
-  const rail = page.getByRole('navigation', {
-    name: 'Workspace activities',
+  const rail = page.getByRole('group', {
+    name: 'Workspace panels',
     exact: true,
   });
   const hide = rail.getByRole('button', { name: 'Hide Explorer', exact: true });

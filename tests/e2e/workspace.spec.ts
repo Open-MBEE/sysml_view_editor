@@ -5,7 +5,7 @@ import {
   test,
   expect,
   openWorkshop,
-  selectModelElement,
+  inspectModelElement,
   modelTreeItem,
   startExample,
   openView,
@@ -75,7 +75,8 @@ test('@critical uses Toolkit rename, updates both references, and supports exact
   const source = page.getByRole('textbox', { name: 'SysML source' });
   const original = await readSource(source);
   const renamed = original.replaceAll('Motor', 'Drive');
-  await selectModelElement(page, 'Workshop::Motor');
+  await inspectModelElement(page, 'Workshop::Motor');
+  await page.getByText('Edit properties', { exact: true }).click();
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Drive');
   await page
     .getByRole('button', { name: 'Review rename', exact: true })
@@ -103,7 +104,7 @@ test('@critical creates a native view declaration through a reviewed transaction
   page,
 }) => {
   await openWorkshop(page);
-  await selectModelElement(page, 'Workshop::Compressor');
+  await inspectModelElement(page, 'Workshop::Compressor');
   await page
     .getByRole('button', { name: 'New view of selection', exact: true })
     .click();
@@ -215,7 +216,8 @@ test('@critical cancels a reviewed rename without changing source, references or
 }) => {
   await openWorkshop(page);
   const before = (await downloadProject(page)).bundle;
-  await selectModelElement(page, 'Workshop::Motor');
+  await inspectModelElement(page, 'Workshop::Motor');
+  await page.getByText('Edit properties', { exact: true }).click();
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Drive');
   await page
     .getByRole('button', { name: 'Review rename', exact: true })

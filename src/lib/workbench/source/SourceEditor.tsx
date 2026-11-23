@@ -53,6 +53,16 @@ export function SourceEditor({
     isCurrent: () => boolean;
   }>();
   const host = useRef<HTMLDivElement>(null);
+  const fileStates = useRef(
+    new Map<
+      string,
+      {
+        state: EditorState;
+        text: string;
+        scroll: ReturnType<EditorView['scrollSnapshot']>;
+      }
+    >(),
+  );
   const editor = useRef<{
     view: EditorView;
     name: string;
@@ -126,11 +136,24 @@ export function SourceEditor({
   useLayoutEffect(() => {
     const current = editor.current!;
     if (current.name !== file.name || current.text !== file.text) {
-      // External replacements start a fresh local history: undo cannot revive a
-      // discarded draft, another file, or an earlier accepted model revision.
+      // File tabs retain matching state. External replacements start fresh
+      // history so undo cannot revive a discarded draft or accepted revision.
+      if (current.name !== file.name) {
+        fileStates.current.set(current.name, {
+          state: current.view.state,
+          text: current.text,
+          scroll: current.view.scrollSnapshot(),
+        });
+      } else fileStates.current.delete(file.name);
+      const cached = fileStates.current.get(file.name);
       current.name = file.name;
       current.text = file.text;
-      current.view.setState(current.state(file));
+      current.view.setState(
+        cached?.text === file.text ? cached.state : current.state(file),
+      );
+      if (cached?.text === file.text) {
+        current.view.dispatch({ effects: cached.scroll });
+      } else current.view.scrollDOM.scrollTop = 0;
       current.disabled = undefined;
     }
     if (current.disabled !== disabled) {
@@ -157,7 +180,22 @@ export function SourceEditor({
       },
       scrollIntoView: true,
     });
-    if (selection.focus !== false) view.focus();
+    let firstFrame = 0;
+    let secondFrame = 0;
+    if (selection.focus !== false) {
+      if (host.current!.getBoundingClientRect().width > 0) view.focus();
+      else {
+        // A guarded reveal can first restore a maximised layout. Focus only
+        // after that panel is visible; its editor remains the same instance.
+        firstFrame = requestAnimationFrame(() => {
+          secondFrame = requestAnimationFrame(() => view.focus());
+        });
+      }
+    }
+    return () => {
+      cancelAnimationFrame(firstFrame);
+      cancelAnimationFrame(secondFrame);
+    };
   }, [selection, file.name]);
   const tools = (
     <div className="source-query-actions">

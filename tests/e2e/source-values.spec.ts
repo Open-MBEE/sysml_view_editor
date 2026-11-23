@@ -88,6 +88,9 @@ test('@critical inspects exact nested defaults and overrides, explains bindings 
     body: JSON.stringify(view, null, 2),
     contentType: 'application/json',
   });
+  await page
+    .getByRole('button', { name: 'Inspect selection', exact: true })
+    .click();
   const properties = page.getByRole('complementary', {
     name: 'Properties',
     exact: true,
@@ -129,6 +132,12 @@ test('@critical inspects exact nested defaults and overrides, explains bindings 
       exact: true,
     });
     await expect(details.locator('pre')).toHaveText(expression!);
+    await expect(details.locator('pre')).toBeVisible();
+    const metadata = details.locator('details');
+    await expect(metadata).not.toHaveAttribute('open');
+    await details.getByText('Declaration details', { exact: true }).click();
+    await expect(metadata).toHaveAttribute('open', '');
+    await expect(metadata).toContainText(provider!);
     if (owner === 'Reading::valueless') {
       await details
         .getByRole('button', {

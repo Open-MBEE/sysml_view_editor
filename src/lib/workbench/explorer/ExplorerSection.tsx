@@ -5,12 +5,14 @@ import { Button } from '$lib/ui/primitives/button';
 /** Navigation chrome only: collapsing preserves the mounted projection. */
 export function ExplorerSection({
   title,
+  count,
   icon: Icon,
   actions,
   revealRequest,
   children,
 }: {
   title: string;
+  count?: number;
   icon: LucideIcon;
   actions?: ReactNode;
   revealRequest?: number;
@@ -22,7 +24,11 @@ export function ExplorerSection({
     if (revealRequest) setOpen(true);
   }, [revealRequest]);
   return (
-    <section className="explorer-section" aria-label={title}>
+    <section
+      className="explorer-section"
+      data-section={title.toLowerCase()}
+      aria-label={title}
+    >
       <div className="section-heading">
         <h2>
           <Button
@@ -39,6 +45,14 @@ export function ExplorerSection({
             {title}
           </Button>
         </h2>
+        {count !== undefined && (
+          <span
+            className="section-count"
+            aria-label={`${count} ${title.toLowerCase()}`}
+          >
+            {count}
+          </span>
+        )}
         {actions}
       </div>
       <div id={content} hidden={!open} inert={!open}>

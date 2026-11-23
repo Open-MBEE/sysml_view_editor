@@ -12,9 +12,9 @@ import {
   type StructureNode as StructureNodeType,
 } from './structure';
 
-export const SelectDiagramSymbol = createContext<(symbol: string) => void>(
-  () => {},
-);
+export const SelectDiagramSymbol = createContext<
+  (symbol: string, inspect?: boolean) => void
+>(() => {});
 
 export function StructureNode({ data }: NodeProps<StructureNodeType>) {
   const select = useContext(SelectDiagramSymbol);

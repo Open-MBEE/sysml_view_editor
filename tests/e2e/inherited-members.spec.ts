@@ -119,6 +119,9 @@ async function inspect(
   await expect(node).toBeVisible();
   await node.focus();
   await page.keyboard.press('Enter');
+  await page
+    .getByRole('button', { name: 'Inspect selection', exact: true })
+    .click();
   const properties = page.getByRole('complementary', {
     name: 'Properties',
     exact: true,

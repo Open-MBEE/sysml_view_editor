@@ -11,7 +11,7 @@ import {
   loadRequirementsTraceability,
 } from './requirements-support';
 
-test('@critical tree selection reveals hidden details while retaining the current draft and view', async ({
+test('@critical explicit inspection reveals selected details while retaining the current draft and view', async ({
   page,
 }) => {
   await page.goto('/app');
@@ -34,12 +34,9 @@ test('@critical tree selection reveals hidden details while retaining the curren
   });
   await fillSource(source, draft);
   const before = (await downloadProject(page)).bundle;
-  await page
-    .getByRole('button', { name: 'Collapse Inspector', exact: true })
-    .click();
   await expect(
     page.getByRole('button', { name: 'Show Inspector', exact: true }),
-  ).toBeFocused();
+  ).toBeVisible();
   const reading = modelTreeItem(page, 'Reading');
   await reading.focus();
   await expect(reading).toBeFocused();
@@ -47,13 +44,22 @@ test('@critical tree selection reveals hidden details while retaining the curren
   const selected = modelTreeItem(page, 'Reading::small');
   await selected.focus();
   await page.keyboard.press('Enter');
+  await expect(selected).toBeFocused();
+  await expect(
+    page.getByRole('complementary', { name: 'Properties', exact: true }),
+  ).toBeHidden();
+  await page
+    .getByRole('button', { name: 'Inspect selection', exact: true })
+    .click();
   const properties = page.getByRole('complementary', {
     name: 'Properties',
     exact: true,
   });
   await expect(properties).toBeVisible({ timeout: 1500 });
   await expect(properties).toContainText('Reading::small');
-  await expect(selected).toBeFocused();
+  await expect(
+    page.getByRole('button', { name: 'Inspect selection', exact: true }),
+  ).toBeFocused();
   await expect(source).toHaveSource(draft);
   await expect(
     page.getByRole('combobox', { name: 'Named view', exact: true }),
@@ -68,9 +74,6 @@ test('@critical table selection opens details without automatically navigating t
   await importRequirementsTraceability(page);
   await page
     .getByRole('button', { name: 'Show model only', exact: true })
-    .click();
-  await page
-    .getByRole('button', { name: 'Collapse Inspector', exact: true })
     .click();
   await page
     .getByRole('button', { name: 'Requirements table', exact: true })

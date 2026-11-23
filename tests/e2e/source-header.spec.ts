@@ -36,7 +36,9 @@ test('@critical keeps source commands local and preserves independent arrangemen
     .getByRole('complementary', { name: 'Project navigation', exact: true })
     .getByRole('button', { name: 'views.sysml', exact: true })
     .click();
-  await expect(source.getByTitle('views.sysml', { exact: true })).toBeVisible();
+  await expect(
+    source.getByRole('tab', { name: 'views.sysml', exact: true }),
+  ).toBeVisible();
   await expect(
     source.getByLabel('Unapplied draft in views.sysml', { exact: true }),
   ).toHaveCount(0);
@@ -94,7 +96,9 @@ test('@critical keeps source commands local and preserves independent arrangemen
   await expect(
     page.getByRole('combobox', { name: 'Named view', exact: true }),
   ).toHaveValue(namedView);
-  await expect(source.getByTitle('views.sysml', { exact: true })).toBeVisible();
+  await expect(
+    source.getByRole('tab', { name: 'views.sysml', exact: true }),
+  ).toBeVisible();
   await page
     .getByRole('complementary', { name: 'Project navigation', exact: true })
     .getByRole('button', { name: 'model.sysml', exact: true })
@@ -129,10 +133,13 @@ test('@critical keeps source actions and editor space reachable at the narrow di
     [390, 600],
   ] as const) {
     await page.setViewportSize({ width, height });
-    await dragSeparator(page, 'Resize Source and Diagram', 'y', -2000);
+    await dragSeparator(page, 'Resize Source and Diagram', 'y', 2000);
     await expect
       .poll(async () => (await sourceHeaderGeometry(page)).editorHeight)
       .toBeGreaterThanOrEqual(80);
+    await expect
+      .poll(async () => (await sourceHeaderGeometry(page)).editorHeight)
+      .toBeLessThanOrEqual(82);
     await page
       .getByRole('button', { name: 'Show model only', exact: true })
       .click();

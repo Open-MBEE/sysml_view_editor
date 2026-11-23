@@ -121,7 +121,7 @@ test('keeps document source links reachable at the vertical pane minimum', async
     .click();
   await hideExplorer(page);
   const before = (await downloadProject(page)).bundle;
-  await dragSeparator(page, 'Resize Source and Diagram', 'y', 2000);
+  await dragSeparator(page, 'Resize Source and Diagram', 'y', -2000);
   const reference = pane.getByRole('link', { name: 'rover', exact: true });
   await reference.focus();
   await expect.poll(() => controlReachable(reference)).toBe(true);
