@@ -222,10 +222,12 @@ export function SourceEditor({
               <li key={i}>
                 <button
                   onClick={() => {
-                    if (references.isCurrent()) navigate(target);
+                    if (references.isCurrent()) onDefinition?.(target);
                     else {
                       setReferences(undefined);
-                      notify('Source changed; find references again.');
+                      onLanguageMessage?.(
+                        'Source changed; find references again.',
+                      );
                     }
                   }}
                 >
