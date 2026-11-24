@@ -1,3 +1,4 @@
+import { activeWorkspaceTab, openNamedView } from './support';
 import { readFile } from 'node:fs/promises';
 import {
   test,
@@ -66,20 +67,14 @@ test('@critical inspects exact nested defaults and overrides, explains bindings 
     mimeType: 'text/plain',
     buffer: bytes,
   });
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toBeEnabled();
-  await page
-    .getByRole('combobox', { name: 'Named view', exact: true })
-    .selectOption('ReadingViews::nested');
+  await expect(activeWorkspaceTab(page)).toBeEnabled();
+  await openNamedView(page, 'ReadingViews::nested');
   await expect
     .poll(() =>
       evaluations.some((value) => value.view === 'ReadingViews::nested'),
     )
     .toBe(true);
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toBeEnabled();
+  await expect(activeWorkspaceTab(page)).toBeEnabled();
   const view = evaluations.findLast(
     (value) => value.view === 'ReadingViews::nested',
   )!;
@@ -88,6 +83,9 @@ test('@critical inspects exact nested defaults and overrides, explains bindings 
     body: JSON.stringify(view, null, 2),
     contentType: 'application/json',
   });
+  await page
+    .getByRole('button', { name: 'Inspect selection', exact: true })
+    .click();
   const properties = page.getByRole('complementary', {
     name: 'Properties',
     exact: true,
@@ -129,6 +127,12 @@ test('@critical inspects exact nested defaults and overrides, explains bindings 
       exact: true,
     });
     await expect(details.locator('pre')).toHaveText(expression!);
+    await expect(details.locator('pre')).toBeVisible();
+    const metadata = details.locator('details');
+    await expect(metadata).not.toHaveAttribute('open');
+    await details.getByText('Declaration details', { exact: true }).click();
+    await expect(metadata).toHaveAttribute('open', '');
+    await expect(metadata).toContainText(provider!);
     if (owner === 'Reading::valueless') {
       await details
         .getByRole('button', {
@@ -199,12 +203,8 @@ test('@critical inspects exact nested defaults and overrides, explains bindings 
   await expect(
     reopened.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
-  await reopened
-    .getByRole('combobox', { name: 'Named view', exact: true })
-    .selectOption('ReadingViews::nested');
-  await expect(
-    reopened.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toBeEnabled();
+  await openNamedView(reopened, 'ReadingViews::nested');
+  await expect(activeWorkspaceTab(reopened)).toBeEnabled();
   expect((await downloadProject(reopened)).bundle).toEqual(saved);
   await expectRenderedPositions(reopened, saved, 'ReadingViews::nested');
   await fresh.close();

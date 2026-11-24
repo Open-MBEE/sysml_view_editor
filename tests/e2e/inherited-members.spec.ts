@@ -1,3 +1,4 @@
+import { activeWorkspaceTab } from './support';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import type { EvaluatedView } from '../../src/lib/workspace/views';
@@ -41,9 +42,10 @@ async function importProject(page: Page, buffer: Buffer) {
     mimeType: 'application/json',
     buffer,
   });
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue(both);
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:' + both,
+  );
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
@@ -119,6 +121,9 @@ async function inspect(
   await expect(node).toBeVisible();
   await node.focus();
   await page.keyboard.press('Enter');
+  await page
+    .getByRole('button', { name: 'Inspect selection', exact: true })
+    .click();
   const properties = page.getByRole('complementary', {
     name: 'Properties',
     exact: true,

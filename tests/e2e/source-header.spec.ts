@@ -1,3 +1,5 @@
+import { openProjectData } from './support';
+import { activeWorkspaceTab } from './support';
 import {
   test,
   expect,
@@ -36,7 +38,9 @@ test('@critical keeps source commands local and preserves independent arrangemen
     .getByRole('complementary', { name: 'Project navigation', exact: true })
     .getByRole('button', { name: 'views.sysml', exact: true })
     .click();
-  await expect(source.getByTitle('views.sysml', { exact: true })).toBeVisible();
+  await expect(
+    source.getByRole('tab', { name: 'views.sysml', exact: true }),
+  ).toBeVisible();
   await expect(
     source.getByLabel('Unapplied draft in views.sysml', { exact: true }),
   ).toHaveCount(0);
@@ -44,17 +48,13 @@ test('@critical keeps source commands local and preserves independent arrangemen
     source.getByText('Draft not applied', { exact: true }),
   ).toBeVisible();
   const saved = (await downloadProject(page)).bundle;
-  const namedView = await page
-    .getByRole('combobox', { name: 'Named view', exact: true })
-    .inputValue();
+  const namedView = await activeWorkspaceTab(page).getAttribute('title');
   const arrangement = page.getByRole('group', {
     name: 'Workspace arrangement',
     exact: true,
   });
   for (const representation of ['Requirements table', 'Traceability matrix']) {
-    await page
-      .getByRole('button', { name: representation, exact: true })
-      .click();
+    await openProjectData(page, representation);
     await expect(
       arrangement.getByRole('button', {
         name: 'Show source and model',
@@ -85,16 +85,17 @@ test('@critical keeps source commands local and preserves independent arrangemen
         ).toHaveCount(0);
       }
     }
-    await expect(
-      page.getByRole('button', { name: representation, exact: true }),
-    ).toHaveAttribute('aria-pressed', 'true');
+    await expect(activeWorkspaceTab(page)).toHaveText(representation);
     expect((await downloadProject(page)).bundle).toEqual(saved);
   }
-  await page.getByRole('button', { name: 'Diagram view', exact: true }).click();
+  await page
+    .getByRole('tablist', { name: 'Workspace documents', exact: true })
+    .getByTitle(namedView!, { exact: true })
+    .click();
+  await expect(activeWorkspaceTab(page)).toHaveAttribute('title', namedView!);
   await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue(namedView);
-  await expect(source.getByTitle('views.sysml', { exact: true })).toBeVisible();
+    source.getByRole('tab', { name: 'views.sysml', exact: true }),
+  ).toBeVisible();
   await page
     .getByRole('complementary', { name: 'Project navigation', exact: true })
     .getByRole('button', { name: 'model.sysml', exact: true })
@@ -129,10 +130,13 @@ test('@critical keeps source actions and editor space reachable at the narrow di
     [390, 600],
   ] as const) {
     await page.setViewportSize({ width, height });
-    await dragSeparator(page, 'Resize Source and Diagram', 'y', -2000);
+    await dragSeparator(page, 'Resize Source and Diagram', 'y', 2000);
     await expect
       .poll(async () => (await sourceHeaderGeometry(page)).editorHeight)
       .toBeGreaterThanOrEqual(80);
+    await expect
+      .poll(async () => (await sourceHeaderGeometry(page)).editorHeight)
+      .toBeLessThanOrEqual(82);
     await page
       .getByRole('button', { name: 'Show model only', exact: true })
       .click();

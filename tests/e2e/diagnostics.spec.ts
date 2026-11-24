@@ -11,7 +11,7 @@ import {
   diagramCamera,
   observeEvaluations,
   semanticPositions,
-  selectModelElement,
+  inspectModelElement,
   panDiagram,
   startExample,
 } from './support';
@@ -216,7 +216,8 @@ test('refuses navigation into a rejected semantic candidate that differs from th
     (window as typeof window & { diagnosticFault?: string }).diagnosticFault =
       'candidate';
   });
-  await selectModelElement(page, 'Workshop::Motor');
+  await inspectModelElement(page, 'Workshop::Motor');
+  await page.getByText('Edit properties', { exact: true }).click();
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Drive');
   await page
     .getByRole('button', { name: 'Review rename', exact: true })

@@ -1,3 +1,4 @@
+import { activeWorkspaceTab } from './support';
 import {
   test,
   expect,
@@ -16,9 +17,10 @@ test('@critical renders the rover report from the engine, reveals clicked declar
   page,
 }) => {
   const { pane } = await openRoverReport(page);
-  await expect(
-    page.getByRole('button', { name: 'Document', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'document:RoverReport::InspectionReport',
+  );
   // Engine HTML keeps its semantic classes and model facts.
   const body = pane.locator('.document-body');
   await expect(body.locator('article.sysml-document')).toHaveAttribute(
@@ -103,12 +105,14 @@ test('@critical renders the rover report from the engine, reveals clicked declar
   await embedded
     .getByRole('button', { name: 'Open as named view', exact: true })
     .click();
-  await expect(
-    page.getByRole('button', { name: 'Diagram view', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue('RoverViews::architecture');
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:RoverViews::architecture',
+  );
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:' + 'RoverViews::architecture',
+  );
 });
 
 test('keeps document source links reachable at the vertical pane minimum', async ({
@@ -121,7 +125,7 @@ test('keeps document source links reachable at the vertical pane minimum', async
     .click();
   await hideExplorer(page);
   const before = (await downloadProject(page)).bundle;
-  await dragSeparator(page, 'Resize Source and Diagram', 'y', 2000);
+  await dragSeparator(page, 'Resize Source and Diagram', 'y', -2000);
   const reference = pane.getByRole('link', { name: 'rover', exact: true });
   await reference.focus();
   await expect.poll(() => controlReachable(reference)).toBe(true);
@@ -358,9 +362,10 @@ test('preserves the document, draft and pane lifetime across narrow arrangement 
     ).toHaveAttribute('aria-pressed', 'true');
     expect(await body!.evaluate((element) => element.isConnected)).toBe(true);
   }
-  await expect(
-    page.getByRole('button', { name: 'Document', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'document:RoverReport::InspectionReport',
+  );
   await expect(source).toHaveSource(draft);
   expect((await downloadProject(page)).bundle).toEqual(before);
   const embedded = pane.getByRole('group', {

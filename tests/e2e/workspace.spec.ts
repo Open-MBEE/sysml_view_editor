@@ -1,3 +1,4 @@
+import { activeWorkspaceTab } from './support';
 import {
   fillSource,
   readSource,
@@ -5,7 +6,7 @@ import {
   test,
   expect,
   openWorkshop,
-  selectModelElement,
+  inspectModelElement,
   modelTreeItem,
   startExample,
   openView,
@@ -24,16 +25,18 @@ test('@critical loads real source-defined views and keeps the view stable when c
   await expect(
     page.getByRole('textbox', { name: 'SysML source' }),
   ).toHaveSource(/package WorkshopViews/);
-  const header = page.getByRole('group', { name: 'Model header', exact: true });
-  const view = header.getByRole('combobox', {
-    name: 'Named view',
-    exact: true,
-  });
+  const view = activeWorkspaceTab(page);
   await expect(view).toBeVisible();
-  await expect(view).toHaveValue('WorkshopViews::overview');
+  await expect(view).toHaveAttribute(
+    'title',
+    'view:' + 'WorkshopViews::overview',
+  );
   await expect(diagramNode(page, 'Workshop::Motor')).toBeVisible();
   await openView(page, 'compressor');
-  await expect(view).toHaveValue('WorkshopViews::compressor');
+  await expect(view).toHaveAttribute(
+    'title',
+    'view:' + 'WorkshopViews::compressor',
+  );
   await expect(
     page.getByRole('textbox', { name: 'SysML source' }),
   ).toHaveSource(/package WorkshopViews/);
@@ -75,7 +78,8 @@ test('@critical uses Toolkit rename, updates both references, and supports exact
   const source = page.getByRole('textbox', { name: 'SysML source' });
   const original = await readSource(source);
   const renamed = original.replaceAll('Motor', 'Drive');
-  await selectModelElement(page, 'Workshop::Motor');
+  await inspectModelElement(page, 'Workshop::Motor');
+  await page.getByText('Edit properties', { exact: true }).click();
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Drive');
   await page
     .getByRole('button', { name: 'Review rename', exact: true })
@@ -103,7 +107,7 @@ test('@critical creates a native view declaration through a reviewed transaction
   page,
 }) => {
   await openWorkshop(page);
-  await selectModelElement(page, 'Workshop::Compressor');
+  await inspectModelElement(page, 'Workshop::Compressor');
   await page
     .getByRole('button', { name: 'New view of selection', exact: true })
     .click();
@@ -118,11 +122,12 @@ test('@critical creates a native view declaration through a reviewed transaction
   await expect(
     page.getByRole('button', { name: 'CompressorDetail', exact: true }),
   ).toBeVisible();
-  const view = page
-    .getByRole('group', { name: 'Model header', exact: true })
-    .getByRole('combobox', { name: 'Named view', exact: true });
+  const view = activeWorkspaceTab(page);
   await expect(view).toBeVisible();
-  await expect(view).toHaveValue('Workshop::CompressorDetail');
+  await expect(view).toHaveAttribute(
+    'title',
+    'view:' + 'Workshop::CompressorDetail',
+  );
   await expect(diagramNode(page, 'primary : Motor')).toBeVisible();
   await expect(diagramNode(page, 'standby : Motor')).toBeVisible();
   const bundle = (await downloadProject(page)).bundle;
@@ -215,7 +220,8 @@ test('@critical cancels a reviewed rename without changing source, references or
 }) => {
   await openWorkshop(page);
   const before = (await downloadProject(page)).bundle;
-  await selectModelElement(page, 'Workshop::Motor');
+  await inspectModelElement(page, 'Workshop::Motor');
+  await page.getByText('Edit properties', { exact: true }).click();
   await page.getByRole('textbox', { name: 'Name', exact: true }).fill('Drive');
   await page
     .getByRole('button', { name: 'Review rename', exact: true })

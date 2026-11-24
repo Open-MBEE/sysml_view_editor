@@ -358,3 +358,223 @@
   min-height: 32px;
   text-align: left;
 }
+
+/* Compact Explorer and horizontally grouped inspection use existing brand tokens. */
+.explorer {
+  padding: 8px;
+  border-right: 0;
+}
+.explorer section + section {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid var(--sysml-border);
+}
+.explorer button {
+  min-height: 28px;
+  padding: 5px 8px;
+}
+.explorer .section-heading {
+  padding-bottom: 4px;
+}
+.explorer .active {
+  box-shadow: inset 2px 0 var(--sysml-accent);
+}
+.inspection-dock {
+  container-type: inline-size;
+}
+.inspection-dock .properties {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(260px, 1fr);
+  align-items: start;
+  gap: 16px;
+  padding: 12px 16px;
+  border-left: 0;
+}
+.inspection-dock .properties > .inspection-summary:only-child {
+  grid-column: 1 / -1;
+}
+.inspection-summary {
+  min-width: 0;
+}
+.inspection-dock .properties h2 {
+  margin: 0 0 6px;
+}
+.inspection-dock .properties h3 {
+  font-size: 15px;
+}
+.inspection-dock .properties dl {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 12px;
+  margin: 8px 0;
+}
+.inspection-dock .properties dt,
+.inspection-dock .properties dd {
+  margin: 0;
+}
+.inspection-dock .properties dl > [role='group'] {
+  grid-column: 1 / -1;
+}
+.inspection-dock .properties p {
+  margin: 4px 0 8px;
+}
+.inspection-dock .properties button {
+  width: auto;
+  margin: 2px 6px 2px 0;
+  min-height: 28px;
+}
+.inspection-dock .properties form {
+  margin: 8px 0;
+  padding-top: 8px;
+}
+.inspection-edit summary {
+  font-size: 12px;
+  cursor: pointer;
+  margin: 6px 0;
+}
+.inspection-relationships {
+  padding: 12px 16px;
+  font-size: 12px;
+}
+.inspection-relationships > p {
+  color: var(--sysml-muted);
+  margin: 0 0 8px;
+}
+.inspection-relationships ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 8px;
+}
+.inspection-relationships li {
+  border: 1px solid var(--sysml-border);
+  border-radius: var(--sysml-control-radius);
+  padding: 8px;
+  background: var(--sysml-surface);
+  min-width: 0;
+}
+.inspection-relationships li > div {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.inspection-relationships button {
+  height: auto;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: left;
+}
+@container (max-width: 560px) {
+  .inspection-dock .properties {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Quiet category colour; cyan remains the selection signal. */
+.explorer-section {
+  --section-tone: var(--sysml-source);
+}
+.explorer-section[data-section='views'] {
+  --section-tone: var(--sysml-structure);
+}
+.explorer-section[data-section='documents'] {
+  --section-tone: var(--sysml-parameters);
+}
+.explorer-section[data-section='model'] {
+  --section-tone: var(--sysml-entities);
+}
+.explorer .section-heading {
+  background: color-mix(in srgb, var(--section-tone) 7%, var(--sysml-surface));
+  border-radius: 6px;
+  padding: 3px 5px 3px 0;
+  margin-bottom: 5px;
+}
+.explorer .section-heading h2 > button > svg:nth-child(2) {
+  color: var(--section-tone);
+}
+.section-count {
+  font-size: 11px;
+  color: var(--sysml-muted);
+  background: var(--sysml-surface);
+  border: 1px solid var(--sysml-border);
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-variant-numeric: tabular-nums;
+}
+.model-tree-kind {
+  border-radius: 4px;
+  background: var(--sysml-subtle);
+  padding: 3px;
+  flex-shrink: 0;
+}
+.model-tree-kind[data-kind='package'] {
+  background: color-mix(in srgb, var(--sysml-source) 12%, var(--sysml-surface));
+}
+.model-tree-kind[data-kind$='Def'] {
+  background: var(--sysml-definition-bg);
+  color: var(--sysml-sequence);
+}
+.model-tree-kind[data-kind$='Usage'] {
+  background: var(--sysml-usage-bg);
+  color: var(--sysml-entities);
+}
+.model-tree-detail {
+  color: var(--sysml-muted);
+  font-size: 11px;
+}
+.inspection-dock .inspection-summary > h3 {
+  font-size: 20px;
+  margin: 4px 0 8px;
+}
+.inspection-dock .inspection-summary > .kind {
+  display: inline-block;
+  padding: 3px 7px;
+  border-radius: 5px;
+  background: var(--sysml-usage-bg);
+  border: 1px solid var(--sysml-border);
+  text-transform: capitalize;
+  font-size: 11px;
+}
+.inspection-summary > dl {
+  font-size: 11px;
+  color: var(--sysml-muted);
+}
+.inspection-dock .source-values {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.source-value-card {
+  padding: 10px 12px;
+  margin: 10px 0;
+  border: 1px solid var(--sysml-border);
+  border-left: 3px solid
+    color-mix(in srgb, var(--sysml-entities) 45%, var(--sysml-border));
+  border-radius: 6px;
+  background: color-mix(
+    in srgb,
+    var(--sysml-usage-bg) 40%,
+    var(--sysml-surface)
+  );
+}
+.source-value-card h4 {
+  font-size: 13px;
+  margin: 0 0 6px;
+  overflow-wrap: anywhere;
+}
+.source-value-label {
+  font-size: 11px;
+  color: var(--sysml-muted);
+}
+.source-value-card > pre {
+  font-size: 16px;
+  margin: 5px 0 10px;
+  color: var(--sysml-text);
+}
+.source-value-card details {
+  border-bottom: 0;
+  padding: 4px 0;
+  font-size: 11px;
+}

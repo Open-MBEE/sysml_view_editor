@@ -1,3 +1,4 @@
+import { activeWorkspaceTab } from './support';
 import {
   test,
   expect,
@@ -47,9 +48,11 @@ test('@critical keeps primary controls reachable across widths, narrow panes and
     exact: true,
   });
   // Begin from a known closed tool before viewport changes can auto-collapse it.
-  await page
-    .getByRole('button', { name: 'Collapse Inspector', exact: true })
-    .click();
+  const closeInspection = page.getByRole('button', {
+    name: 'Collapse Inspector',
+    exact: true,
+  });
+  if (await closeInspection.isVisible()) await closeInspection.click();
   for (const width of [1440, 1200, 1000, 900, 768, 600, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     if (width === 390) {
@@ -71,15 +74,10 @@ test('@critical keeps primary controls reachable across widths, narrow panes and
         true,
       );
     }
-    for (const name of [
-      'Diagram view',
-      'Requirements table',
-      'Traceability matrix',
-    ]) {
-      const button = header.getByRole('button', { name, exact: true });
+    for (const name of ['Open workspace tab', 'Inspect selection']) {
+      const button = page.getByRole('button', { name, exact: true });
       await button.focus();
       await expect.poll(() => controlReachable(button)).toBe(true);
-      expect(await fits(button, header), `${name} fits at ${width}`).toBe(true);
     }
     expect(await diagramCamera(page)).toEqual(camera);
     expect(await editor!.evaluate((element) => element.isConnected)).toBe(true);
@@ -90,7 +88,7 @@ test('@critical keeps primary controls reachable across widths, narrow panes and
     for (const name of [
       'Apply source',
       'Discard draft',
-      'Traceability matrix',
+      'Open workspace tab',
     ]) {
       const button = page.getByRole('button', { name, exact: true });
       await button.focus();
@@ -98,7 +96,7 @@ test('@critical keeps primary controls reachable across widths, narrow panes and
       expect(
         await fits(
           button,
-          name === 'Traceability matrix' ? header : sourcePane,
+          name === 'Open workspace tab' ? header.locator('..') : sourcePane,
         ),
       ).toBe(true);
     }
@@ -117,7 +115,7 @@ test('keeps canvas controls keyboard reachable at the vertical minimum', async (
     .getByRole('button', { name: 'Show source and model', exact: true })
     .click();
   const saved = (await downloadProject(page)).bundle;
-  await dragSeparator(page, 'Resize Source and Diagram', 'y', 2000);
+  await dragSeparator(page, 'Resize Source and Diagram', 'y', -2000);
   for (const name of ['Zoom in', 'Zoom out', 'Fit view', 'Read at 100%']) {
     const button = page.getByRole('button', { name, exact: true });
     await button.focus();
@@ -133,27 +131,22 @@ test('@critical distinguishes persistent selection from keyboard focus in forced
   await page.emulateMedia({ forcedColors: 'active', reducedMotion: 'reduce' });
   await page.goto('/app');
   await importWorkshop(page);
-  const group = page.getByRole('group', {
-    name: 'Model representation',
-    exact: true,
-  });
-  const selected = group.getByRole('button', {
-    name: 'Diagram view',
-    exact: true,
-  });
-  const focused = group.getByRole('button', {
-    name: 'Requirements table',
+  const selected = activeWorkspaceTab(page);
+  const focused = page.getByRole('button', {
+    name: 'Open workspace tab',
     exact: true,
   });
   await focused.focus();
   await expect(focused).toBeFocused();
-  await expect(selected).toHaveAttribute('aria-pressed', 'true');
-  await expect(focused).toHaveAttribute('aria-pressed', 'false');
+  await expect(selected).toHaveAttribute('aria-selected', 'true');
+  await expect(focused).toHaveAttribute('aria-expanded', 'false');
   const border = (button: Locator) =>
     button.evaluate((element) =>
       parseFloat(getComputedStyle(element).borderBottomWidth),
     );
-  expect(await border(selected)).toBeGreaterThan(await border(focused));
+  expect(await border(selected.locator('..'))).toBeGreaterThan(
+    await border(focused),
+  );
   expect(
     await focused.evaluate((element) =>
       parseFloat(getComputedStyle(element).outlineWidth),

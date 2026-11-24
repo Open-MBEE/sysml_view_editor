@@ -1,5 +1,7 @@
 # SysML View Editor — Product, Navigation, and Toolbar Design Decisions
 
+The [model-first redesign](redesign-implementation-plan.md) supersedes the panel composition and activity-rail decisions below. This document retains their original rationale.
+
 **Status:** Agreed target design; implementation tracked in the [Product Design Update milestone](https://github.com/Open-MBEE/sysml_view_editor/milestone/1)
 
 **Version:** 1.1 — repository baseline, refreshed against merged PR #38

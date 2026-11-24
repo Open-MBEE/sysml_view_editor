@@ -29,12 +29,12 @@
   min-height: 600px;
 }
 .topbar {
-  height: 62px;
+  height: 54px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 0 22px;
+  gap: 10px;
+  padding: 0 14px;
   border-bottom: 1px solid var(--sysml-border);
   background: var(--sysml-surface);
 }
@@ -52,7 +52,7 @@
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   flex-shrink: 0;
-  min-height: 48px;
+  min-height: 38px;
   padding: 4px 8px;
   border-bottom: 1px solid var(--sysml-border);
   background: var(--sysml-surface);
@@ -116,30 +116,6 @@
 }
 .source-action-balance {
   min-width: 0;
-}
-.panel-rail {
-  display: flex;
-  flex: 0 0 32px;
-  width: 32px;
-  align-items: center;
-  flex-direction: column;
-  padding-top: 4px;
-  background: var(--sysml-surface);
-}
-.activity-rail {
-  display: flex;
-  flex: 0 0 48px;
-  width: 48px;
-  align-items: center;
-  flex-direction: column;
-  padding-top: 4px;
-  background: var(--sysml-surface);
-  border-right: 1px solid var(--sysml-border);
-}
-.activity-rail button[aria-pressed='true'] {
-  background: var(--sysml-active-bg);
-  color: var(--sysml-active-text);
-  border-left: 3px solid currentColor;
 }
 @container (max-width: 410px) {
   .source-command-grid {
@@ -352,4 +328,269 @@
   [data-slot='resizable-handle'].workbench-resizer:focus-visible {
     outline: 2px solid Highlight;
   }
+}
+
+/* Model-first shell: source right, contextual inspection below the canvas. */
+.panel-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.panel-controls button[aria-pressed='true'] {
+  background: var(--sysml-active-bg);
+  color: var(--sysml-active-text);
+}
+.inspection-dock > [role='tabpanel'] {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.inspection-dock > [role='tabpanel'][hidden] {
+  display: none;
+}
+.panel-header [role='tablist'] {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: 4px;
+}
+.panel-header [role='tab'] {
+  max-width: 100%;
+  min-height: 24px;
+  height: auto;
+  white-space: normal;
+}
+.panel-header-actions {
+  flex-shrink: 0;
+}
+.panel-header [role='tab'][aria-selected='true'] {
+  box-shadow: inset 0 -2px var(--sysml-accent);
+}
+[data-slot='resizable-handle'].workbench-resizer {
+  flex-basis: 1px;
+  min-width: 1px;
+}
+[data-slot='resizable-handle'].workbench-resizer[aria-orientation='horizontal'] {
+  min-height: 1px;
+  height: 1px;
+  flex-basis: 1px;
+}
+[data-slot='resizable-handle'].workbench-resizer {
+  width: 1px;
+  background: var(--sysml-border);
+}
+@media (max-width: 600px) {
+  .topbar {
+    height: auto;
+    min-height: 54px;
+    flex-wrap: wrap;
+    padding: 8px 10px;
+  }
+  .topbar nav {
+    flex-basis: 100%;
+    justify-content: flex-end;
+  }
+}
+.content-tabs {
+  display: flex;
+  flex-shrink: 0;
+  min-height: 34px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--sysml-border);
+  background: var(--sysml-subtle);
+}
+.content-tab {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  max-width: 260px;
+  border-right: 1px solid var(--sysml-border);
+}
+.content-tab > [role='tab'] {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.content-tab[data-active='true'] {
+  background: var(--sysml-surface);
+  box-shadow: inset 0 -2px var(--sysml-accent);
+}
+.content-tab > button:last-child {
+  flex-shrink: 0;
+}
+.model-navigation {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--sysml-border);
+  color: var(--sysml-muted);
+  font-size: 12px;
+}
+.model-navigation > span {
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 600px) {
+  .workspace-toolbar {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .workspace-toolbar > span {
+    display: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .content-tab[data-active='true'],
+  .panel-header [role='tab'][aria-selected='true'],
+  .panel-controls button[aria-pressed='true'] {
+    border-bottom: 3px solid Highlight;
+  }
+}
+
+/* Keep navigation and model commands scrollable together in very short panes. */
+.model-workspace-chrome {
+  flex-shrink: 0;
+  min-height: 0;
+  max-height: 60%;
+  overflow: auto;
+}
+.model-workspace-chrome .model-pane-header {
+  max-height: none;
+  overflow: visible;
+}
+
+/* One content strip and a compact, contextual action toolbar. */
+.workspace-tabbar {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  background: var(--sysml-subtle);
+  border-bottom: 1px solid var(--sysml-border);
+  padding-right: 6px;
+}
+.workspace-tabbar > .content-tabs {
+  flex: 0 1 auto;
+  min-width: 0;
+  border-bottom: 0;
+}
+.workspace-tabbar > button {
+  flex-shrink: 0;
+}
+.model-pane-header .model-navigation {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.model-pane-header .model-header-status,
+.model-pane-header .model-header-scope {
+  margin: 0;
+}
+.model-pane-context:not([hidden]) {
+  display: contents;
+}
+.model-pane-context .diagram-target-controls:not(.diagram-exploration) {
+  flex: 1;
+  min-width: 0;
+}
+.model-pane-context .diagram-context {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+.model-pane-context .diagram-context-meta {
+  margin: 0;
+  font-size: 11px;
+  color: var(--sysml-muted);
+}
+.workspace-opener {
+  max-height: min(70vh, 540px);
+  overflow: auto;
+  background: var(--sysml-surface);
+  color: var(--sysml-text);
+  border-color: var(--sysml-border);
+}
+.workspace-opener h2 {
+  font-size: 14px;
+  margin: 0 0 12px;
+}
+.workspace-opener h3 {
+  font-size: 11px;
+  color: var(--sysml-muted);
+  margin: 12px 0 4px;
+}
+.workspace-opener button {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  height: auto;
+  min-height: 30px;
+  white-space: normal;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.workspace-opener p {
+  font-size: 12px;
+  color: var(--sysml-muted);
+}
+
+/* Exploration uses a single scope breadcrumb and one view-type control. */
+.model-pane-context .diagram-target-controls {
+  min-width: 0;
+  max-width: 100%;
+}
+.model-pane-context .diagram-exploration .diagram-context {
+  align-items: center;
+  width: auto;
+}
+.exploration-scope-picker {
+  min-width: 0;
+  max-width: min(380px, 100%);
+}
+.exploration-scope-picker .scope-trigger {
+  display: flex;
+  align-items: baseline;
+  max-width: 100%;
+  height: auto;
+  min-height: 28px;
+  white-space: normal;
+  text-align: left;
+  gap: 6px;
+}
+.scope-trigger strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-weight: 400;
+}
+.scope-trigger .scope-kind {
+  color: var(--sysml-muted);
+  font-size: 10px;
+  flex-shrink: 0;
+}
+.scope-trigger > svg {
+  align-self: center;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+}
+.scope-picker-content {
+  max-width: calc(100vw - 16px);
+  background: var(--sysml-surface);
+  color: var(--sysml-text);
+  border-color: var(--sysml-border);
+}
+.scope-picker-content label {
+  display: block;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+.scope-picker-content [data-slot='native-select-wrapper'] {
+  width: 100%;
 }

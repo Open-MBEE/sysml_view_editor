@@ -4,7 +4,7 @@ The workbench composes a separate Toolkit language adapter in `shell/session.ts`
 
 Completion is explicit with Control+Space. Only supported single plain-text edits are offered; snippets, additional edits and commands are excluded. Hover and F1 display plain text. F12 navigates to one exact project-file definition; unavailable, ambiguous and library-only targets explain their limits. The editor rejects results after draft, session, file or busy-state changes and rechecks completion validity when applying it. Queries do not apply source, change model history or replace views.
 
-Diagram selection can highlight a declaration passively without moving focus away from the diagram. Explicit Open source, issue navigation and definition navigation focus the editor. This distinction prevents the Enter key used to select a diagram relationship from being inserted into the source editor during the same key event.
+Diagram selection can highlight a declaration passively without moving focus away from the diagram. Explicit Open source, issue navigation and definition navigation focus the editor. A reveal waits for the mounted editor to have a visible, non-inert container with nonzero dimensions; a ResizeObserver retries after panel sizing, and disconnects after focus succeeds or the request is superseded by a new selection, file or user input. It does not rely on a fixed frame count. This distinction prevents the Enter key used to select a diagram relationship from being inserted into the source editor during the same key event.
 
 ## Issue navigation
 

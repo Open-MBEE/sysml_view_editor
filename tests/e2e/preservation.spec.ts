@@ -1,7 +1,7 @@
 import {
   fillSource,
   test,
-  selectModelElement,
+  inspectModelElement,
   startExample,
   expect,
   ready,
@@ -49,7 +49,8 @@ for (const rename of [
         ],
       ),
     );
-    await selectModelElement(page, rename.target);
+    await inspectModelElement(page, rename.target);
+    await page.getByText('Edit properties', { exact: true }).click();
     await page
       .getByRole('textbox', { name: 'Name', exact: true })
       .fill(rename.name);

@@ -1,3 +1,4 @@
+import { openProjectData, activeWorkspaceTab, openNamedView } from './support';
 import {
   test,
   expect,
@@ -30,9 +31,7 @@ test('@critical reads requirements and exact declared traceability without chang
   expect(Object.keys(before.presentations)).toEqual([
     'TraceViews::requirements',
   ]);
-  await page
-    .getByRole('button', { name: 'Requirements table', exact: true })
-    .click();
+  await openProjectData(page, 'Requirements table');
   const table = page.getByRole('region', {
     name: 'Requirements table',
     exact: true,
@@ -77,9 +76,7 @@ test('@critical reads requirements and exact declared traceability without chang
   const content = Buffer.concat(chunks).toString();
   expect(content).toContain('NOT TraceSystem::spare');
   expect(content).toContain('REQ-LEFT-CAP');
-  await page
-    .getByRole('button', { name: 'Traceability matrix', exact: true })
-    .click();
+  await openProjectData(page, 'Traceability matrix');
   const matrix = page.getByRole('region', {
     name: 'Traceability matrix',
     exact: true,
@@ -114,13 +111,12 @@ test('@critical reads requirements and exact declared traceability without chang
     unlinked.getByRole('button', { name: /Declared|Negated declaration/ }),
   ).toHaveCount(0);
   await namedViewButton(page, 'TraceViews::overview').click();
-  await expect(
-    page.getByRole('button', { name: 'Diagram view', exact: true }),
-  ).toHaveAttribute('aria-pressed', 'true');
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:TraceViews::overview',
+  );
   await namedViewButton(page, 'TraceViews::requirements').click();
-  await page
-    .getByRole('button', { name: 'Traceability matrix', exact: true })
-    .click();
+  await openProjectData(page, 'Traceability matrix');
   await expect(matrix.getByRole('status')).toHaveText(
     '7 requirements · 3 linked elements',
   );
@@ -173,7 +169,7 @@ test('@critical reads requirements and exact declared traceability without chang
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
   expect((await downloadProject(page)).bundle).toEqual(saved);
-  await page.getByRole('button', { name: 'Diagram view', exact: true }).click();
+  await openNamedView(page, 'TraceViews::requirements');
   await expectRenderedPositions(page, saved, 'TraceViews::requirements');
 });
 
@@ -188,9 +184,7 @@ test('requirements asset failure is explicit and retries without replacing the p
     failed++;
     return r.abort('failed');
   });
-  await page
-    .getByRole('button', { name: 'Requirements table', exact: true })
-    .click();
+  await openProjectData(page, 'Requirements table');
   const panel = page.getByRole('region', {
     name: 'Requirements table',
     exact: true,
@@ -229,9 +223,7 @@ test('matrix verification resolves the actual verifier and requirement through a
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
   const before = (await downloadProject(page)).bundle;
-  await page
-    .getByRole('button', { name: 'Traceability matrix', exact: true })
-    .click();
+  await openProjectData(page, 'Traceability matrix');
   const matrix = page.getByRole('region', {
     name: 'Traceability matrix',
     exact: true,

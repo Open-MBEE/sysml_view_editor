@@ -1,3 +1,4 @@
+import { selectExplorationScope } from './support';
 import {
   test,
   expect,
@@ -82,11 +83,11 @@ test('routes the real assembly overview clear of cards and labels while preservi
       );
   }
   expect((await downloadProject(page)).bundle).toEqual(before);
-  const scope = page.getByRole('combobox', {
-    name: 'Exploration scope',
+  const scope = page.getByRole('button', {
+    name: 'Change exploration scope',
     exact: true,
   });
-  await scope.selectOption('Assembly::Station');
+  await selectExplorationScope(page, 'Assembly::Station');
   await expect(scope).toBeEnabled();
   const representation = page.getByRole('combobox', {
     name: 'Exploration representation',

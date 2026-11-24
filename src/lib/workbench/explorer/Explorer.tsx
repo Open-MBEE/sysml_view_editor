@@ -31,7 +31,11 @@ export function Explorer({
   const documents = documentEntries(state.model?.documents);
   return (
     <aside className="explorer" aria-label="Project navigation">
-      <ExplorerSection title="Files" icon={Folder}>
+      <ExplorerSection
+        title="Files"
+        icon={Folder}
+        count={state.project?.drafts.length ?? 0}
+      >
         {state.project?.drafts.map((document) => (
           <Button
             variant="ghost"
@@ -54,6 +58,7 @@ export function Explorer({
       </ExplorerSection>
       <ExplorerSection
         title="Views"
+        count={views.length}
         icon={Network}
         actions={
           <Button
@@ -86,7 +91,11 @@ export function Explorer({
           <p>No named views. Explore the model or create a view.</p>
         )}
       </ExplorerSection>
-      <ExplorerSection title="Documents" icon={FileText}>
+      <ExplorerSection
+        title="Documents"
+        icon={FileText}
+        count={documents.length}
+      >
         {documents.map((entry) => (
           <Button
             variant="ghost"

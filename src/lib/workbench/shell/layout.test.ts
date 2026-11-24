@@ -1,16 +1,22 @@
 import { expect, it } from 'vitest';
-import { defaultLayout, loadLayout, parseLayout, saveLayout } from './layout';
+import {
+  defaultLayout,
+  layoutStorageKey,
+  loadLayout,
+  parseLayout,
+  saveLayout,
+} from './layout';
 
-it('rejects incompatible, unbounded and source-bearing layout preferences', () => {
+it('rejects incompatible, unbounded and source-bearing preferences', () => {
   for (const raw of [
     null,
     '',
     '{',
     'x'.repeat(2049),
-    JSON.stringify({ ...defaultLayout, version: 2 }),
-    JSON.stringify({ ...defaultLayout, split: -1 }),
+    JSON.stringify({ ...defaultLayout, version: 3 }),
+    JSON.stringify({ ...defaultLayout, source: -1 }),
     JSON.stringify({ ...defaultLayout, explorer: 90 }),
-    JSON.stringify({ ...defaultLayout, issues: 100 }),
+    JSON.stringify({ ...defaultLayout, inspection: 100 }),
     JSON.stringify({
       ...defaultLayout,
       documents: [{ text: 'unsaved source' }],
@@ -18,37 +24,61 @@ it('rejects incompatible, unbounded and source-bearing layout preferences', () =
   ])
     expect(parseLayout(raw)).toBeUndefined();
 });
-it('restores supported layout preferences independently of responsive defaults', () => {
+it('restores validated preferences with model-first defaults', () => {
   const saved = {
     ...defaultLayout,
     explorer: 25,
-    split: 65,
-    inspectorClosed: false,
+    source: 45,
+    inspectionClosed: false,
   };
-  const storage = { getItem: () => JSON.stringify(saved) };
-  expect(loadLayout(storage, true)).toEqual(saved);
-  expect(loadLayout({ getItem: () => '{' }, true).inspectorClosed).toBe(true);
+  expect(
+    loadLayout(
+      {
+        getItem: (key) =>
+          key === layoutStorageKey ? JSON.stringify(saved) : null,
+      },
+      true,
+    ),
+  ).toEqual(saved);
+  expect(loadLayout({ getItem: () => '{' }, true)).toEqual(defaultLayout);
   expect(loadLayout({ getItem: () => null }, false)).toEqual(defaultLayout);
 });
-it('does not hide failed writes or persist invalid layout data', () => {
+it('migrates supported legacy sizes and issues visibility without changing portable data', () => {
+  const legacy = {
+    version: 1,
+    explorer: 23,
+    inspector: 19,
+    split: 80,
+    issues: 30,
+    explorerClosed: true,
+    inspectorClosed: false,
+    issuesClosed: false,
+  };
   expect(
-    saveLayout(
+    loadLayout(
       {
-        setItem() {
-          throw new Error('denied');
-        },
+        getItem: (key) => (key.endsWith('v1') ? JSON.stringify(legacy) : null),
       },
-      defaultLayout,
+      false,
     ),
-  ).toBe(false);
-  expect(
-    saveLayout(
-      {
-        setItem() {
-          throw new Error('invalid data must not reach storage');
-        },
-      },
-      { ...defaultLayout, split: Number.NaN },
-    ),
-  ).toBe(false);
+  ).toEqual({
+    ...defaultLayout,
+    explorer: 23,
+    explorerClosed: true,
+    source: 65,
+    inspection: 30,
+    inspectionClosed: false,
+    inspectionTab: 'issues',
+  });
+});
+it('does not hide failed writes or persist invalid data', () => {
+  const denied = {
+    setItem() {
+      throw new Error('denied');
+    },
+  };
+  expect(saveLayout(denied, defaultLayout)).toBe(false);
+  expect(saveLayout(denied, { ...defaultLayout, source: Number.NaN })).toBe(
+    false,
+  );
 });

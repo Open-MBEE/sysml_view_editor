@@ -53,6 +53,16 @@ export function SourceEditor({
     isCurrent: () => boolean;
   }>();
   const host = useRef<HTMLDivElement>(null);
+  const fileStates = useRef(
+    new Map<
+      string,
+      {
+        state: EditorState;
+        text: string;
+        scroll: ReturnType<EditorView['scrollSnapshot']>;
+      }
+    >(),
+  );
   const editor = useRef<{
     view: EditorView;
     name: string;
@@ -126,11 +136,24 @@ export function SourceEditor({
   useLayoutEffect(() => {
     const current = editor.current!;
     if (current.name !== file.name || current.text !== file.text) {
-      // External replacements start a fresh local history: undo cannot revive a
-      // discarded draft, another file, or an earlier accepted model revision.
+      // File tabs retain matching state. External replacements start fresh
+      // history so undo cannot revive a discarded draft or accepted revision.
+      if (current.name !== file.name) {
+        fileStates.current.set(current.name, {
+          state: current.view.state,
+          text: current.text,
+          scroll: current.view.scrollSnapshot(),
+        });
+      } else fileStates.current.delete(file.name);
+      const cached = fileStates.current.get(file.name);
       current.name = file.name;
       current.text = file.text;
-      current.view.setState(current.state(file));
+      current.view.setState(
+        cached?.text === file.text ? cached.state : current.state(file),
+      );
+      if (cached?.text === file.text) {
+        current.view.dispatch({ effects: cached.scroll });
+      } else current.view.scrollDOM.scrollTop = 0;
       current.disabled = undefined;
     }
     if (current.disabled !== disabled) {
@@ -157,7 +180,42 @@ export function SourceEditor({
       },
       scrollIntoView: true,
     });
-    if (selection.focus !== false) view.focus();
+    if (selection.focus === false) return;
+    // A reveal can restore hidden/inert panels before their size constraints
+    // settle. Observe actual visibility instead of assuming two frames suffice.
+    const container = host.current!;
+    const owner = container.ownerDocument;
+    let completed = false;
+    const observer = new ResizeObserver(focusWhenVisible);
+    function focusWhenVisible() {
+      if (completed) return;
+      const rect = container.getBoundingClientRect();
+      if (
+        container.closest('[hidden], [inert]') ||
+        rect.width <= 0 ||
+        rect.height <= 0
+      )
+        return;
+      view.focus();
+      if (view.hasFocus) stop();
+    }
+    function stop() {
+      completed = true;
+      observer.disconnect();
+      owner.removeEventListener('pointerdown', stop, true);
+      owner.removeEventListener('keydown', stop, true);
+    }
+    // New user input supersedes a delayed reveal. Reopening a panel later must
+    // not revive the older request and steal focus from its toggle.
+    owner.addEventListener('pointerdown', stop, true);
+    owner.addEventListener('keydown', stop, true);
+    observer.observe(container);
+    const frame = requestAnimationFrame(focusWhenVisible);
+    focusWhenVisible();
+    return () => {
+      cancelAnimationFrame(frame);
+      stop();
+    };
   }, [selection, file.name]);
   const tools = (
     <div className="source-query-actions">

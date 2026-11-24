@@ -20,6 +20,7 @@ import {
   type Node,
   type Edge,
   type Rect,
+  type Viewport,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import ELK from 'elkjs/lib/elk.bundled.js';
@@ -35,23 +36,20 @@ function FitAvailableSpace({
   layoutMode,
   bounds,
   readableEntry,
+  restored = false,
 }: {
   padding: number;
   layoutMode: string;
   bounds?: Rect;
   readableEntry: boolean;
+  restored?: boolean;
 }) {
   const width = useStore((state) => state.width);
   const height = useStore((state) => state.height);
   const initialized = useNodesInitialized();
   const fit = useDiagramFit(padding, bounds, readableEntry);
-  const fitted = useRef(false);
-  const previousMode = useRef(layoutMode);
+  const fitted = useRef(restored);
   useEffect(() => {
-    if (previousMode.current !== layoutMode) {
-      previousMode.current = layoutMode;
-      fitted.current = false;
-    }
     if (
       fitted.current ||
       layoutMode === 'code' ||
@@ -93,12 +91,14 @@ interface Props {
   busy: boolean;
   presentation?: ViewPresentation;
   disabled: boolean;
-  onSelect: (symbol: string) => void;
+  onSelect: (symbol: string, inspect?: boolean) => void;
   selectedSymbol?: string;
   onMove: (positions: Record<string, Point>) => void;
   layoutMode: 'code' | 'split' | 'diagram';
   /** Read-only rendering inside another surface: no view selector, actions or geometry edits. */
   embedded?: boolean;
+  initialViewport?: Viewport;
+  onCamera?: (viewport: Viewport) => void;
 }
 export function Diagram({
   exploration,
@@ -113,6 +113,8 @@ export function Diagram({
   onMove,
   layoutMode,
   embedded = false,
+  initialViewport,
+  onCamera,
 }: Props) {
   const [nodes, setNodes] = useState<Node[]>([]),
     [edges, setEdges] = useState<Edge[]>([]),
@@ -393,7 +395,9 @@ export function Diagram({
                   )
                     onSelect(edge.id);
                 }}
-                fitView
+                defaultViewport={initialViewport}
+                onMoveEnd={(_event, viewport) => onCamera?.(viewport)}
+                fitView={!initialViewport}
                 fitViewOptions={{
                   padding:
                     exploration || view?.artifact?.kind === 'requirement'
@@ -423,6 +427,7 @@ export function Diagram({
                 }}
               >
                 <FitAvailableSpace
+                  restored={!!initialViewport}
                   readableEntry={
                     !!view?.artifact &&
                     ['tree', 'interconnection'].includes(view.artifact.kind) &&

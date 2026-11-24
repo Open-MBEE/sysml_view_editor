@@ -1,3 +1,5 @@
+import { openProjectData } from './support';
+import { activeWorkspaceTab } from './support';
 import { readFile } from 'node:fs/promises';
 import {
   test,
@@ -11,7 +13,7 @@ import {
   loadRequirementsTraceability,
 } from './requirements-support';
 
-test('@critical tree selection reveals hidden details while retaining the current draft and view', async ({
+test('@critical explicit inspection reveals selected details while retaining the current draft and view', async ({
   page,
 }) => {
   await page.goto('/app');
@@ -34,12 +36,9 @@ test('@critical tree selection reveals hidden details while retaining the curren
   });
   await fillSource(source, draft);
   const before = (await downloadProject(page)).bundle;
-  await page
-    .getByRole('button', { name: 'Collapse Inspector', exact: true })
-    .click();
   await expect(
     page.getByRole('button', { name: 'Show Inspector', exact: true }),
-  ).toBeFocused();
+  ).toBeVisible();
   const reading = modelTreeItem(page, 'Reading');
   await reading.focus();
   await expect(reading).toBeFocused();
@@ -47,17 +46,27 @@ test('@critical tree selection reveals hidden details while retaining the curren
   const selected = modelTreeItem(page, 'Reading::small');
   await selected.focus();
   await page.keyboard.press('Enter');
+  await expect(selected).toBeFocused();
+  await expect(
+    page.getByRole('complementary', { name: 'Properties', exact: true }),
+  ).toBeHidden();
+  await page
+    .getByRole('button', { name: 'Inspect selection', exact: true })
+    .click();
   const properties = page.getByRole('complementary', {
     name: 'Properties',
     exact: true,
   });
   await expect(properties).toBeVisible({ timeout: 1500 });
   await expect(properties).toContainText('Reading::small');
-  await expect(selected).toBeFocused();
-  await expect(source).toHaveSource(draft);
   await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue('ReadingViews::configurations');
+    page.getByRole('button', { name: 'Inspect selection', exact: true }),
+  ).toBeFocused();
+  await expect(source).toHaveSource(draft);
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:' + 'ReadingViews::configurations',
+  );
   expect((await downloadProject(page)).bundle).toEqual(before);
 });
 
@@ -69,12 +78,7 @@ test('@critical table selection opens details without automatically navigating t
   await page
     .getByRole('button', { name: 'Show model only', exact: true })
     .click();
-  await page
-    .getByRole('button', { name: 'Collapse Inspector', exact: true })
-    .click();
-  await page
-    .getByRole('button', { name: 'Requirements table', exact: true })
-    .click();
+  await openProjectData(page, 'Requirements table');
   const table = page.getByRole('region', {
     name: 'Requirements table',
     exact: true,
@@ -120,9 +124,10 @@ for (const theme of ['light', 'dark']) {
         buffer: Buffer.from(document.text),
       })),
     );
-    await expect(
-      page.getByRole('combobox', { name: 'Named view', exact: true }),
-    ).toHaveValue('TraceViews::requirements');
+    await expect(activeWorkspaceTab(page)).toHaveAttribute(
+      'title',
+      'view:' + 'TraceViews::requirements',
+    );
     await expect(
       page.getByRole('button', { name: 'Download project', exact: true }),
     ).toBeEnabled();
@@ -133,9 +138,7 @@ for (const theme of ['light', 'dark']) {
     });
     await appearance.getByLabel('Theme', { exact: true }).selectOption(theme);
     await appearance.getByRole('button', { name: 'Done', exact: true }).click();
-    await page
-      .getByRole('button', { name: 'Requirements table', exact: true })
-      .click();
+    await openProjectData(page, 'Requirements table');
     const before = (await downloadProject(page)).bundle;
     const table = page.getByRole('region', {
       name: 'Requirements table',
@@ -183,9 +186,7 @@ test('@critical anonymous requirement inspection retains extracted documentation
   await expect(
     page.getByRole('button', { name: 'Download project', exact: true }),
   ).toBeEnabled();
-  await page
-    .getByRole('button', { name: 'Requirements table', exact: true })
-    .click();
+  await openProjectData(page, 'Requirements table');
   const table = page.getByRole('region', {
     name: 'Requirements table',
     exact: true,

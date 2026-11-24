@@ -5,20 +5,6 @@
   min-width: 0;
   min-height: 0;
 }
-.model-data-tabs {
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  flex-wrap: wrap;
-  min-width: 0;
-  max-width: 100%;
-}
-.model-data-tabs button {
-  max-width: 100%;
-  height: auto;
-  min-height: 24px;
-  white-space: normal;
-}
 .model-data-diagram {
   display: flex;
   flex: 1;
@@ -136,10 +122,6 @@
   align-items: center;
   gap: 6px 10px;
 }
-.model-data-tabs > strong {
-  font-size: 12px;
-}
-.model-representation-label,
 .model-header-status,
 .model-header-scope {
   font-size: 11px;

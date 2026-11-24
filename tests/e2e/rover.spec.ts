@@ -190,6 +190,9 @@ for (const [view, target, declaration] of [
     await symbol.focus();
     await symbol.press('Enter');
     await page
+      .getByRole('button', { name: 'Inspect selection', exact: true })
+      .click();
+    await page
       .getByRole('complementary', { name: 'Properties', exact: true })
       .getByRole('button', { name: 'Open source', exact: true })
       .click();

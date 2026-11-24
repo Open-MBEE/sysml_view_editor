@@ -1,3 +1,4 @@
+import { activeWorkspaceTab } from './support';
 import {
   readSource,
   fillSource,
@@ -161,9 +162,10 @@ test('keeps wrapped mobile project actions inside the header and above source co
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto('/app');
   await startExample(page, { split: false });
-  await expect(
-    page.getByRole('combobox', { name: 'Named view', exact: true }),
-  ).toHaveValue('CompressorViews::overview');
+  await expect(activeWorkspaceTab(page)).toHaveAttribute(
+    'title',
+    'view:' + 'CompressorViews::overview',
+  );
   await expect(
     page.getByRole('group', {
       name: 'part compressor : CompressorInterface',

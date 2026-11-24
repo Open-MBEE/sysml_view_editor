@@ -1,3 +1,4 @@
+import { activeWorkspaceTab, openNamedView } from './support';
 import { readFile } from 'node:fs/promises';
 import type { Page } from '@playwright/test';
 import {
@@ -15,7 +16,7 @@ import {
   moveNode,
   panDiagram,
   diagramCamera,
-  selectModelElement,
+  inspectModelElement,
   expectRenderedPositions,
   namedViewButton,
 } from './support';
@@ -257,7 +258,7 @@ test('launcher and browser navigation retain exact drafts, source DOM, camera, b
   await moveNode(page, diagramNode(page, 'Workshop::Motor'));
   await openView(page, 'compressor');
   await moveNode(page, diagramNode(page, 'primary : Motor'));
-  await selectModelElement(page, 'Workshop::Compressor::primary');
+  await inspectModelElement(page, 'Workshop::Compressor::primary');
   const before = (await downloadProject(page)).bundle;
   const draft = applied + '\n// retained unfinished launcher draft\npart';
   await fillSource(source, draft);
@@ -429,16 +430,16 @@ test('the diagram view selector keeps source-file choice, pending draft and both
     '\n// independent source draft\npart';
   await fillSource(source, draft);
   const header = page.getByRole('group', { name: 'Model header', exact: true });
-  const selector = header.getByRole('combobox', {
-    name: 'Named view',
-    exact: true,
-  });
-  await expect(selector).toHaveValue('WorkshopViews::compressor');
+  const selector = activeWorkspaceTab(page);
+  await expect(selector).toHaveAttribute(
+    'title',
+    'view:' + 'WorkshopViews::compressor',
+  );
   for (const [view, representation] of [
     ['overview', 'Overview tree'],
     ['compressor', 'Structure'],
   ] as const) {
-    await selector.selectOption('WorkshopViews::' + view);
+    await openNamedView(page, 'WorkshopViews::' + view);
     await expect(
       namedViewButton(page, 'WorkshopViews::' + view),
     ).toHaveAttribute('aria-current', 'page');

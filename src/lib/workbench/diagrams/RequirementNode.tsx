@@ -60,7 +60,7 @@ export function RequirementNode({ data }: NodeProps<RequirementNodeType>) {
         aria-label={`Inspect ${item.shortName ? item.shortName + ' ' : ''}${item.name}`}
         onClick={(event) => {
           event.stopPropagation();
-          select(item.id);
+          select(item.id, true);
         }}
       >
         Inspect details

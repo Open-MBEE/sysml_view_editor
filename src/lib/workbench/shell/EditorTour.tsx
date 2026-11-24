@@ -11,7 +11,7 @@ import {
 const steps = [
   {
     title: 'Find your files and views',
-    text: 'Use the Explorer activity button to show or hide the sidebar. Its Files, Views and Model sections fold independently; their actions stay separate.',
+    text: 'Use the header Explorer toggle to show or hide the sidebar. Files, Views, Documents and Model fold independently; their actions stay separate.',
     target: '[data-tour-explorer]',
     hidden: 'Choose Show Explorer to reopen the panel.',
   },

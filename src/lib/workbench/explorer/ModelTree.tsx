@@ -254,7 +254,7 @@ export function ModelTree({
                 <ChevronRight className={open ? 'expanded' : undefined} />
               )}
             </span>
-            <span className="model-tree-kind">
+            <span className="model-tree-kind" data-kind={element.kind}>
               <KindIcon kind={element.kind} expanded={open} />
             </span>
             <span className="model-tree-name">{label}</span>
@@ -279,6 +279,7 @@ export function ModelTree({
   return (
     <ExplorerSection
       title="Model"
+      count={tree.nodes.size}
       icon={ListTree}
       revealRequest={selectionRequest}
       actions={

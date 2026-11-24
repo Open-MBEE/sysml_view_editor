@@ -205,7 +205,15 @@ func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*sy
 		}
 		data.Nodes = nodes
 		edges := data.Edges[:0]
+		omitted := 0
 		for _, edge := range data.Edges {
+			// Temporary exploration only publishes relationships with exact
+			// source correspondence. Native implicit typing/subsetting can
+			// have no origin; never invent a declaration for those edges.
+			if !authored && !edge.Origin.Located() {
+				omitted++
+				continue
+			}
 			if data.Kind == view.KindInterconnection {
 				// Keep connectors declared in a visible occurrence, or explicitly
 				// exposed. Do not leak a type's inherited internal connections.
@@ -238,6 +246,9 @@ func (cached *cachedModel) normalizedRendering(out EvaluatedView, selected []*sy
 			}
 		}
 		data.Edges = edges
+		if omitted > 0 {
+			out.Diagnostics = append(out.Diagnostics, fmt.Sprintf("Exploration omitted %d relationships without exact source locations.", omitted))
+		}
 	}
 	// Keep version-1 IDs for every occurrence the legacy projection retained.
 	// Allocate newly visible occurrences after them without reordering the native
